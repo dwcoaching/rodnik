@@ -22,7 +22,7 @@ class CreateSpringsTable extends Migration
             $table->timestamps();
         });
 
-        Artisan::call('db:seed --class=SpringsSeeder');
+        Artisan::call('db:seed --class=SpringsSeeder --force');
     }
 
     /**
