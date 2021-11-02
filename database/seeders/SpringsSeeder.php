@@ -23,7 +23,7 @@ class SpringsSeeder extends Seeder
             [
                 'latitude' => 55.65519,
                 'longitude' => 36.71025,
-                'name' => 'Тут нет родника',
+                'name' => 'Тут совсем нет родника',
             ]
         ]);
     }
