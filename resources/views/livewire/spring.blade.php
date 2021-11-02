@@ -3,7 +3,7 @@
     x-on:spring-selected.window="$wire.set('springId', $event.detail.id)"
     >
     <div class="text-xl font-bold">
-        💧 Rodnik.today
+        💧 Rodnik.today 2.0
     </div>
     @if ($spring)
         <div class="mt-4 text-4xl font-bold">
