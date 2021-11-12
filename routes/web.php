@@ -16,6 +16,8 @@ use App\Http\Controllers\WebController;
 */
 
 Route::get('/', [WebController::class, 'index']);
+Route::get('/test', [WebController::class, 'test']);
+
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return view('dashboard');
