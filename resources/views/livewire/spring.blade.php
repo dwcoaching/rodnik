@@ -30,7 +30,7 @@
                         <div>
                             <div class="flex items-center justify-between">
                                 <label for="comment" class="block">Новый комментарий</label>
-                                <div @click="commentOpen = false;" class="text-xl text-gray-400 mr-1 hover:text-red-600 cursor-pointer" >
+                                <div @click="showNewComment = false;" class="text-xl text-gray-400 mr-1 hover:text-red-600 cursor-pointer" >
                                     &times;
                                 </div>
                             </div>
