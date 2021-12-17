@@ -34,6 +34,7 @@
         @livewireScripts
     </head>
     <body class="w-full h-screen bg-gray-100">
+        @include('navbar')
         {{ $slot }}
     </body>
 </html>

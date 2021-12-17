@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
+use App\Http\Controllers\SpringController;
 
 
 /*
@@ -17,6 +18,8 @@ use App\Http\Controllers\WebController;
 
 Route::get('/', [WebController::class, 'index']);
 Route::get('/test', [WebController::class, 'test']);
+Route::resource('springs', SpringController::class);
+
 
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {

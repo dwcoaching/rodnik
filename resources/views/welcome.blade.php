@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-app-layout>
     <div class="flex flex-col-reverse sm:flex-row h-screen w-screen">
         <div class="w-full h-1/2 sm:w-1/2 sm:h-screen" id="map"
             x-data="{
@@ -14,4 +14,4 @@
 
 
     </script>
-</x-guest-layout>
+</x-app-layout>
