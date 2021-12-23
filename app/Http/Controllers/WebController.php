@@ -11,7 +11,6 @@ class WebController extends Controller
     public function index()
     {
         $springs = SpringResource::collection(Spring::all());
-        dd($springs);
 
         return view('welcome', compact('springs'));
     }

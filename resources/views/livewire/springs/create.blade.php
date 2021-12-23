@@ -4,11 +4,14 @@
             dragover: false,
             handleFileDrop: function (event) {
                 if (event.dataTransfer.files.length > 0) {
-                    @this.uploadMultiple('files', event.dataTransfer.files,
-                        (uploadedFilename) => {}, {{-- success callback --}}
-                        () => {}, {{-- error callback --}}
-                        (event) => {} {{-- progress callback --}}
-                    )
+                    for (let i = 0; i < event.dataTransfer.files.length; i++) {
+                        let file = event.dataTransfer.files.item(i);
+                        @this.upload('file', file,
+                            (uploadedFilename) => {}, {{-- success callback --}}
+                            () => {}, {{-- error callback --}}
+                            (event) => {} {{-- progress callback --}}
+                        );
+                    }
                 }
             }
         }"

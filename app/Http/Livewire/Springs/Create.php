@@ -12,7 +12,7 @@ class Create extends Component
 {
     use WithFileUploads;
 
-    public $files;
+    public $file;
     public $photosIds = [];
 
     public function render()
@@ -21,28 +21,26 @@ class Create extends Component
         return view('livewire.springs.create', ['photos' => $photos]);
     }
 
-    public function updatedFiles()
+    public function updatedFile()
     {
         $this->validate([
-            'files.*' => 'image|max:10240', // 10MB Max
+            'file' => 'image|max:10240', // 10MB Max
         ]);
 
-        foreach ($this->files as $file) {
-            $photo = new Photo();
-            $photo->original_extension = $file->getClientOriginalExtension();
-            $photo->original_filename = $file->getClientOriginalName();
-            $photo->extension = $file->extension();
+        $photo = new Photo();
+        $photo->original_extension = $this->file->getClientOriginalExtension();
+        $photo->original_filename = $this->file->getClientOriginalName();
+        $photo->extension = $this->file->extension();
 
-            $exif = new Exif($file);
+        $exif = new Exif($this->file);
 
-            $photo->latitude = $exif->latitude();
-            $photo->longitude = $exif->longitude();
+        $photo->latitude = $exif->latitude();
+        $photo->longitude = $exif->longitude();
 
-            $photo->save();
+        $photo->save();
 
-            $file->storeAs('/', $photo->filename, 'photos');
+        $this->file->storeAs('/', $photo->filename, 'photos');
 
-            $this->photosIds[] = $photo->id;
-        }
+        $this->photosIds[] = $photo->id;
     }
 }
