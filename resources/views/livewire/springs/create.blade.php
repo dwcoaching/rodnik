@@ -44,17 +44,22 @@
     </div>
     <div>
         @foreach ($photos as $photo)
-            <div class="bg-white m-4 rounded-lg shadow-xl overflow-hidden flex items-top">
-                <div class="w-1/3">
-                    <img src="{{ $photo->url }}" />
+            <div class="bg-white m-4 rounded-lg shadow-xl overflow-hidden flex items-top"
+                x-data="{
+                    coordinates: [{{ $photo->latitude }}, {{ $photo->longitude }}],
+                }"
+            >
+                <div class="w-1/3" style="
+                    background-image: url('{{ $photo->url }}');
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    background-position: center;
+                ">
                 </div>
-                <div class="w-1/3">
-                    <div class="w-full h-full"
-                        id="leaflet-map-{{ $photo->id }}"
-                        x-data="{
-                            coordinates: [{{ $photo->latitude }}, {{ $photo->longitude }}],
-                        }"
-                        x-init="initUploadMap('leaflet-map-{{ $photo->id }}', coordinates)"
+                <div class="w-1/3" wire:ignore>
+                    <div class="w-full"
+                        style="padding-bottom: 100%"
+                        x-init="initUploadMap($el, coordinates)"
                     >
                     </div>
                 </div>
