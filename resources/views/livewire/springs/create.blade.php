@@ -16,30 +16,41 @@
                     }
                 });
             },
+            uploadFile: function (file) {
+                let id = window.uuid.v1();
+
+                window.ImageBlobReduce.toBlob(file, {max: 1280})
+                    .then(newFile => {
+                        this.addFileInProgress({
+                            id: id,
+                            name: file.name,
+                            oldSize: file.size,
+                            newSize: newFile.size,
+                            progress: 0,
+                        });
+
+                        @this.upload('file', newFile,
+                            (uploadedFilename) => {this.removeFileInProgress(id)}, {{-- success callback --}}
+                            () => {this.removeFileInProgress(id)}, {{-- error callback --}}
+                            (event) => {this.updateFileInProgress(id, event)} {{-- progress callback --}}
+                        );
+                    })
+            },
             handleFileDrop: function (event) {
                 if (event.dataTransfer.files.length > 0) {
                     for (let i = 0; i < event.dataTransfer.files.length; i++) {
-                        let file = event.dataTransfer.files.item(i);
-                        let id = window.uuid.v1();
-
-                        window.ImageBlobReduce.toBlob(file, {max: 1280})
-                            .then(newFile => {
-                                this.addFileInProgress({
-                                    id: id,
-                                    name: file.name,
-                                    oldSize: file.size,
-                                    newSize: newFile.size,
-                                    progress: 0,
-                                });
-
-                                @this.upload('file', newFile,
-                                    (uploadedFilename) => {this.removeFileInProgress(id)}, {{-- success callback --}}
-                                    () => {this.removeFileInProgress(id)}, {{-- error callback --}}
-                                    (event) => {this.updateFileInProgress(id, event)} {{-- progress callback --}}
-                                );
-                            })
+                        this.uploadFile(event.dataTransfer.files.item(i));
                     }
                 }
+            },
+            handleFileSelect: function (event) {
+                if (event.target.files.length > 0) {
+                    for (let i = 0; i < event.target.files.length; i++) {
+                        this.uploadFile(event.target.files.item(i));
+                    }
+                }
+
+                event.target.value = '';
             }
         }"
         class="bg-white m-4 rounded-lg shadow-xl overflow-hidden border-dashed border border-4 border-purple-700"
@@ -59,7 +70,17 @@
             <div class="text-2xl font-semibold">
                 Перетащите сюда фото родника
             </div>
-            <div class="mt-4">
+            <div class="mt-5 text-center">
+                <div class="text-sm">
+                    Или выберите файл на диске:
+                </div>
+                <div>
+                    <input
+                        x-on:change="handleFileSelect($event)"
+                    type="file" multiple placeholder="file" class="bg-gray-100 px-4 py-2 rounded-lg">
+                </div>
+            </div>
+            <div class="mt-8 text-lg">
                 GPS-координаты определятся сами
             </div>
             @error('files.*')
