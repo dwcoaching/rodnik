@@ -17,7 +17,7 @@ class Create extends Component
 
     public function render()
     {
-        $photos = Photo::whereIn('id', $this->photosIds)->get();
+        $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
         return view('livewire.springs.create', ['photos' => $photos]);
     }
 

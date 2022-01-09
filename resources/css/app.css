@@ -1,3 +1,13 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+.springImageBlock {
+    padding-bottom: 75%;
+}
+
+@media (min-width: 768px) {
+    .springImageBlock {
+        padding-bottom: 0%;
+    }
+}

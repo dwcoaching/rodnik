@@ -100,28 +100,28 @@
             </div>
         </div>
     </div>
-    <div>
+    <div class="pb-12">
         @foreach ($photos as $photo)
-            <div class="bg-white m-4 rounded-lg shadow-xl overflow-hidden flex items-top"
+            <div class="bg-white m-4 rounded-lg shadow-xl overflow-hidden md:flex md:items-top"
                 x-data="{
                     coordinates: [{{ $photo->latitude }}, {{ $photo->longitude }}],
                 }"
             >
-                <div class="w-1/3" style="
+                <div class="w-full md:w-1/3 springImageBlock" style="
                     background-image: url('{{ $photo->url }}');
                     background-size: cover;
                     background-repeat: no-repeat;
                     background-position: center;
                 ">
                 </div>
-                <div class="w-1/3" wire:ignore>
+                <div class="w-full md:w-1/3" wire:ignore>
                     <div class="w-full"
                         style="padding-bottom: 75%"
                         x-init="initUploadMap($el, coordinates)"
                     >
                     </div>
                 </div>
-                <div class="w-1/3 p-4">
+                <div class="w-full md:w-1/3 p-4">
                     {{ $photo->latitude }}, {{ $photo->longitude }}
                 </div>
             </div>
