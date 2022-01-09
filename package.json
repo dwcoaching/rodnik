@@ -21,6 +21,9 @@
         "tailwindcss": "^2.2.2"
     },
     "dependencies": {
-        "daisyui": "^1.16.6"
+        "daisyui": "^1.16.6",
+        "image-blob-reduce": "^4.1.0",
+        "pica": "^9.0.1",
+        "uuid": "^8.3.2"
     }
 }

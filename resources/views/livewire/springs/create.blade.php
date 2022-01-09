@@ -2,15 +2,42 @@
         <div
         x-data="{
             dragover: false,
+            filesInProgress: [],
+            addFileInProgress: function(data) {
+                this.filesInProgress = [...this.filesInProgress, data];
+            },
+            removeFileInProgress: function(id) {
+                this.filesInProgress = this.filesInProgress.filter(item => item.id !== id);
+            },
+            updateFileInProgress: function(id, event) {
+                this.filesInProgress.forEach(item => {
+                    if (item.id === id) {
+                        item.progress = event.detail.progress;
+                    }
+                });
+            },
             handleFileDrop: function (event) {
                 if (event.dataTransfer.files.length > 0) {
                     for (let i = 0; i < event.dataTransfer.files.length; i++) {
                         let file = event.dataTransfer.files.item(i);
-                        @this.upload('file', file,
-                            (uploadedFilename) => {}, {{-- success callback --}}
-                            () => {}, {{-- error callback --}}
-                            (event) => {} {{-- progress callback --}}
-                        );
+                        let id = window.uuid.v1();
+
+                        window.ImageBlobReduce.toBlob(file, {max: 1280})
+                            .then(newFile => {
+                                this.addFileInProgress({
+                                    id: id,
+                                    name: file.name,
+                                    oldSize: file.size,
+                                    newSize: newFile.size,
+                                    progress: 0,
+                                });
+
+                                @this.upload('file', newFile,
+                                    (uploadedFilename) => {this.removeFileInProgress(id)}, {{-- success callback --}}
+                                    () => {this.removeFileInProgress(id)}, {{-- error callback --}}
+                                    (event) => {this.updateFileInProgress(id, event)} {{-- progress callback --}}
+                                );
+                            })
                     }
                 }
             }
@@ -40,6 +67,16 @@
                     Загружать можно фотографии размером до 10 мегабайт
                 </div>
             @enderror
+            <div x-show="filesInProgress.length" class="mt-6">
+                <template x-for="file in filesInProgress">
+                    <div class="mt-2 mb-2">
+                        <b>Файл <span x-text="file.name"></span> загружается</b><br>
+                        исходный размер <span x-text="file.oldSize"></span> байт<br>
+                        загружаемый размер <span x-text="file.newSize"></span> байт<br>
+                        загружено <span x-text="file.progress"></span>%
+                    </div>
+                </template>
+            </div>
         </div>
     </div>
     <div>
@@ -58,7 +95,7 @@
                 </div>
                 <div class="w-1/3" wire:ignore>
                     <div class="w-full"
-                        style="padding-bottom: 100%"
+                        style="padding-bottom: 75%"
                         x-init="initUploadMap($el, coordinates)"
                     >
                     </div>
