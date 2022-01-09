@@ -103,6 +103,7 @@
     <div class="pb-12">
         @foreach ($photos as $photo)
             <div class="bg-white m-4 rounded-lg shadow-xl overflow-hidden md:flex md:items-top"
+                wire:key="photo-{{ $photo->id }}"
                 x-data="{
                     coordinates: [{{ $photo->latitude }}, {{ $photo->longitude }}],
                 }"
@@ -117,7 +118,7 @@
                 <div class="w-full md:w-1/3" wire:ignore>
                     <div class="w-full"
                         style="padding-bottom: 75%"
-                        x-init="initUploadMap($el, coordinates)"
+                        x-init="initUploadMap($el, coordinates); console.log(coordinates);"
                     >
                     </div>
                 </div>
