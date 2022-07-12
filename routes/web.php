@@ -17,9 +17,7 @@ use App\Http\Controllers\SpringController;
 */
 
 Route::get('/', [WebController::class, 'index']);
-Route::get('/test', [WebController::class, 'test']);
 Route::resource('springs', SpringController::class);
-
 
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
