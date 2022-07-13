@@ -2,15 +2,12 @@
     x-data="{}"
     x-on:spring-selected.window="$wire.setSpring($event.detail.id)"
     >
-    <div class="text-xl font-bold">
-        <img src="/logo.svg" class="h-16" />
-    </div>
     @if ($spring)
-        <div class="bg-white shadow-xl rounded-lg p-4 mt-4">
-            <div class="text-4xl font-bold">
+        <div class="">
+            <div class="text-3xl font-bold">
                 {{ $spring->name }}
             </div>
-            <div class="mt-3">
+            <div class="mt-3 text-gray-500 text-sm">
                 {{ $spring->latitude }}, {{ $spring->longitude }}
             </div>
         </div>

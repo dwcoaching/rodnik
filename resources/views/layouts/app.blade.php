@@ -32,8 +32,12 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireScripts
     </head>
-    <body class="w-full h-screen bg-gray-100">
-        @include('navbar')
-        {{ $slot }}
+    <body class="w-full h-screen bg-gray-100 flex flex-col">
+        <div class="grow-0">
+            @include('navbar')
+        </div>
+        <div class="grow">
+            {{ $slot }}
+        </div>
     </body>
 </html>

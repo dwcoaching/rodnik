@@ -17,7 +17,7 @@
                 });
             },
             uploadFile: function (file) {
-                let id = window.uuid.v1();
+                let id = uuidv1();
 
                 window.ImageBlobReduce.toBlob(file, {max: 1280})
                     .then(newFile => {

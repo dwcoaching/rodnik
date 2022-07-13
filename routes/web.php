@@ -16,7 +16,7 @@ use App\Http\Controllers\SpringController;
 |
 */
 
-Route::get('/', [WebController::class, 'index']);
+Route::get('/', [WebController::class, 'index'])->name('index');
 Route::resource('springs', SpringController::class);
 
 
