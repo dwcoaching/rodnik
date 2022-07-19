@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUpdatesTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,12 @@ class CreateUpdatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('updates', function (Blueprint $table) {
+        Schema::create('reviews', function (Blueprint $table) {
             $table->id();
+            $table->date('reviewed_at')->nullable();
             $table->foreignId('spring_id');
+            $table->enum('quality', ['bad', 'uncertain', 'good'])->nullable();
+            $table->enum('state', ['dry', 'dripping', 'running'])->nullable();
             $table->text('comment')->nullable();
             $table->timestamps();
         });
@@ -28,6 +31,6 @@ class CreateUpdatesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('updates');
+        Schema::dropIfExists('reviews');
     }
-}
+};

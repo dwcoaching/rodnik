@@ -6,8 +6,11 @@
             }"
             x-init="initMap($el.id, springs)">
         </div>
-        <div class="w-full h-1/2 sm:h-full sm:w-1/2 p-6 overflow-y-scroll">
-            <livewire:spring />
+        <div class="w-full h-1/2 sm:h-full sm:w-1/2 overflow-y-scroll px-6">
+             @include('navbar')
+            <div class="">
+                <livewire:spring />
+            </div>
         </div>
     </div>
 </x-app-layout>

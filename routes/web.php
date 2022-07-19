@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SpringController;
 
 
@@ -18,6 +19,8 @@ use App\Http\Controllers\SpringController;
 
 Route::get('/', [WebController::class, 'index'])->name('index');
 Route::resource('springs', SpringController::class);
+
+Route::resource('reviews', ReviewController::class);
 
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {

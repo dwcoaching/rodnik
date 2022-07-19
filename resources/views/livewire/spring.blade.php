@@ -7,43 +7,23 @@
             <div class="text-3xl font-bold">
                 {{ $spring->name }}
             </div>
-            <div class="mt-3 text-gray-500 text-sm">
-                {{ $spring->latitude }}, {{ $spring->longitude }}
+            <div class="mt-3 text-gray-500 text-sm flex">
+                <span class="mr-1">{{ $spring->latitude }}, {{ $spring->longitude }}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
+                  <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+                </svg>
             </div>
         </div>
 
-        <div wire:key="update-for-spring-{{ $spring->id }}">
-            <div
-                x-data="{
-                    showNewComment: @entangle('showNewComment')
-                }">
-                <div class="mt-8" x-show="! showNewComment">
-                    <span @click="showNewComment = true; $nextTick(() => $refs.comment.focus())" class="text-xl font-semibold text-blue-600 border-b border-dotted border-blue-600 cursor-pointer">
-                        Новый комментарий
-                    </span>
-                </div>
-                <div x-show="showNewComment" class="bg-white shadow-xl rounded-lg p-4 mt-8">
-                    <form wire:submit.prevent="storeUpdate">
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <label for="comment" class="block">Новый комментарий</label>
-                                <div @click="showNewComment = false;" class="text-xl text-gray-400 mr-1 hover:text-red-600 cursor-pointer" >
-                                    &times;
-                                </div>
-                            </div>
-                            <div class="mt-1">
-                                <textarea wire:model.defer="update.comment" x-ref="comment" rows="4" name="comment" id="comment" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full border-gray-300 rounded-md"></textarea>
-                            </div>
-                        </div>
-                        <button class="mt-2 inline-flex items-center px-4 py-2 border border-transparent font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            Добавить комментарий
-                        </button>
-                    </form>
-                </div>
-            </div>
+        <a href="{{ route('reviews.create', ['spring_id' => $spring]) }}" class="mt-3 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Добавить отзыв</a>
+
+        <div class="mt-3">
+            <ul role="list" class="divide-y divide-gray-200">
+                @foreach ($reviews as $review)
+                    @include('reviews.item')
+                @endforeach
+            </ul>
         </div>
-        @foreach ($updates as $update)
-            @include('updates.item')
-        @endforeach
     @endif
 </div>

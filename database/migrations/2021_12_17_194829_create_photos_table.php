@@ -15,6 +15,7 @@ class CreatePhotosTable extends Migration
     {
         Schema::create('photos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('review_id')->nullable();
             $table->string('original_filename');
             $table->string('original_extension');
             $table->string('extension');

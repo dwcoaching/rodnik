@@ -2,23 +2,23 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Update;
+use App\Models\Review;
 use Livewire\Component;
 use App\Models\Spring as SpringModel;
 
 class Spring extends Component
 {
     public $spring;
-    public $update;
+    public $review;
     public $showNewComment;
 
     protected $rules = [
-        'update.comment' => 'required|string|min:1'
+        'review.comment' => 'required|string|min:1'
     ];
 
     public function mount()
     {
-        $this->update = new Update();
+        $this->review = new Review();
     }
 
     public function setSpring($springId)
@@ -35,22 +35,22 @@ class Spring extends Component
     public function render()
     {
         if ($this->spring) {
-            $updates = $this->spring->updates()->orderByDesc('created_at')->get();
+            $reviews = $this->spring->reviews()->orderByDesc('created_at')->get();
         } else
         {
-            $updates = [];
+            $reviews = [];
         }
 
-        return view('livewire.spring', compact('updates'));
+        return view('livewire.spring', compact('reviews'));
     }
 
-    public function storeUpdate()
+    public function storeReview()
     {
         $this->validate();
-        $this->update->spring_id = $this->spring->id;
-        $this->update->save();
+        $this->review->spring_id = $this->spring->id;
+        $this->review->save();
 
-        $this->update = new Update();
+        $this->review = new Review();
         $this->showNewComment = false;
     }
 }
