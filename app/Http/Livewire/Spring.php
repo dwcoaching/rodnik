@@ -8,13 +8,10 @@ use App\Models\Spring as SpringModel;
 
 class Spring extends Component
 {
-    public $spring;
+    public $spring_id;
     public $review;
-    public $showNewComment;
 
-    protected $rules = [
-        'review.comment' => 'required|string|min:1'
-    ];
+    protected $queryString = ['spring_id'];
 
     public function mount()
     {
@@ -23,34 +20,23 @@ class Spring extends Component
 
     public function setSpring($springId)
     {
-        $spring = SpringModel::find($springId);
-
-        if ($spring) {
-            $this->spring = $spring;
-        }
-
-        $this->showNewComment = false;
+        $this->spring_id = $springId;
     }
 
     public function render()
     {
-        if ($this->spring) {
-            $reviews = $this->spring->reviews()->orderByDesc('created_at')->get();
+        if ($this->spring_id) {
+
+            $spring = SpringModel::findOrFail($this->spring_id);
+
+            $reviews = $spring->reviews()->orderByDesc('created_at')->get();
         } else
         {
+            $spring = null;
+
             $reviews = [];
         }
 
-        return view('livewire.spring', compact('reviews'));
-    }
-
-    public function storeReview()
-    {
-        $this->validate();
-        $this->review->spring_id = $this->spring->id;
-        $this->review->save();
-
-        $this->review = new Review();
-        $this->showNewComment = false;
+        return view('livewire.spring', compact('reviews', 'spring'));
     }
 }

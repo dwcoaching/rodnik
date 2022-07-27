@@ -51,20 +51,20 @@ class OverpassImportFetch extends Command
                 {$area}
             out;
             node
-              [natural=spring]
-              {$area}
+                [natural=spring]
+                {$area}
             out;
             node
-              [man_made=spring_box]
-              {$area}
+                [man_made=spring_box]
+                {$area}
             out;
             node
-              [man_made=water_well]
-              {$area}
+                [man_made=water_well]
+                {$area}
             out;
             node
-              [amenity=fountain]
-              {$area}
+                [amenity=fountain]
+                {$area}
             out;
         ";
 

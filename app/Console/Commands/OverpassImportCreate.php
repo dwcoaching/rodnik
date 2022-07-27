@@ -30,10 +30,10 @@ class OverpassImportCreate extends Command
     {
         $overpassImport = new OverpassImport();
 
-        $overpassImport->latitude_from = 55;
-        $overpassImport->latitude_to = 56;
-        $overpassImport->longitude_from = 37;
-        $overpassImport->longitude_to = 38;
+        $overpassImport->latitude_from = 39;
+        $overpassImport->latitude_to = 40;
+        $overpassImport->longitude_from = 3;
+        $overpassImport->longitude_to = 4;
 
         $overpassImport->save();
         echo "OverpassImport Id = {$overpassImport->id}\n";

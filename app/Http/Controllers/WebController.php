@@ -10,7 +10,7 @@ class WebController extends Controller
 {
     public function index()
     {
-        $springs = SpringResource::collection(Spring::all());
+        $springs = SpringResource::collection(Spring::limit(10000)->get());
 
         return view('welcome', compact('springs'));
     }

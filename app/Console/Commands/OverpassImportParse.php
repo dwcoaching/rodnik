@@ -64,7 +64,6 @@ $count = 1;
                 $osmTag->spring_id = $spring->id;
                 $osmTag->save();
             };
-
         }
 
         echo 'new: ' . $new . "\n";
