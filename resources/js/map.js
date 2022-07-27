@@ -1,4 +1,4 @@
-function initMap(elementId, springs) {
+export function initMap(elementId, springs) {
     const coordinates = [55.65514, 37.71009];
     var map = L.map(elementId, {
         zoomAnimation: true,
