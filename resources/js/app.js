@@ -1,17 +1,18 @@
-// require('./bootstrap');
-
 import Alpine from 'alpinejs';
 import ImageBlobReduce from 'image-blob-reduce';
 import { v1 as uuidv1 } from 'uuid';
+import OpenLayersMap from './openLayers.js';
 
-import { initMap } from './map.js';
-
+window.Alpine = Alpine;
 window.ImageBlobReduce = new ImageBlobReduce();
 window.uuidv1 = uuidv1;
-window.Alpine = Alpine;
-window.initMap = initMap;
+
+window.initOpenLayers = function(id, springs) {
+    window.rodnikMap = new OpenLayersMap(id, springs);
+}
 
 Alpine.start();
+
 
 
 

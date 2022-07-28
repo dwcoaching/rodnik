@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "image-blob-reduce": "^4.1.0",
+        "ol": "^6.15.1",
         "uuid": "^8.3.2"
     }
 }

@@ -4,7 +4,7 @@
             x-data="{
                 springs: @js($springs)
             }"
-            x-init="initMap($el.id, springs)">
+            x-init="initOpenLayers($el.id, springs)">
         </div>
         <div class="w-full h-1/2 sm:h-full sm:w-1/2 overflow-y-scroll px-6">
              @include('navbar')

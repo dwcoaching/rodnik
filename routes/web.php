@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SpringController;
+use App\Http\Controllers\SpringJsonController;
 
 
 /*
@@ -19,6 +20,7 @@ use App\Http\Controllers\SpringController;
 
 Route::get('/', [WebController::class, 'index'])->name('index');
 Route::resource('springs', SpringController::class);
+Route::get('springs.json', [SpringJsonController::class, 'index']);
 
 Route::resource('reviews', ReviewController::class);
 
