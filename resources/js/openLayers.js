@@ -2,14 +2,14 @@ import Map from 'ol/src/Map';
 import View from 'ol/src/View';
 import Feature from 'ol/src/Feature';
 import { toStringXY } from 'ol/src/coordinate';
-import MousePosition from 'ol/src/control/MousePosition';
 import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/src/style';
 import {OSM, XYZ, Vector as VectorSource} from 'ol/src/source';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/src/layer';
 import {Point} from 'ol/src/geom';
 import { fromLonLat } from 'ol/src/proj';
-import GeoJSON from 'ol/format/GeoJSON';
-import { Select } from 'ol/interaction';
+import GeoJSON from 'ol/src/format/GeoJSON';
+import { Select } from 'ol/src/interaction';
+import {ScaleLine, defaults as defaultControls} from 'ol/src/control';
 
 
 export default class OpenLayersMap {
@@ -93,7 +93,16 @@ export default class OpenLayersMap {
             zoom: 4
         });
 
+        this.scaleControl = new ScaleLine({
+            units: 'metric',
+            bar: false,
+            steps: 4,
+            text: true,
+            minWidth: 100,
+        });
+
         this.map = new Map({
+            controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
             layers: [this.tileLayer, this.vectorLayer],
             view: this.view,
