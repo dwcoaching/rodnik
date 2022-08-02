@@ -164,8 +164,8 @@ export default class OpenLayersMap {
         });
 
         this.view = new View({
-            center: fromLonLat([37, 55]),
-            zoom: 4
+            center: fromLonLat([34, 39.5]),
+            zoom: 6
         });
 
         this.scaleControl = new ScaleLine({
