@@ -9,7 +9,7 @@ class SpringJsonController extends Controller
 {
     public function index()
     {
-        $springs = Spring::limit(10000)->get();
+        $springs = Spring::with('osm_tags')->limit(100000)->get();
 
         $features = $springs->map(function($spring) {
             return [
@@ -24,7 +24,8 @@ class SpringJsonController extends Controller
                 'properties' => [
                     'id' => $spring->id,
                     'name' => $spring->name,
-                    'intermittent' => 'no',
+                    'intermittent' => $spring->intermittent,
+                    'drinking' => $spring->drinking,
                 ]
             ];
         });

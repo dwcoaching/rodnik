@@ -2,18 +2,17 @@
 
 namespace App\Console\Commands;
 
-use GuzzleHttp\Client;
 use App\Models\OverpassImport;
 use Illuminate\Console\Command;
 
-class OverpassImportFetch extends Command
+class OverpassImportGlobalParse extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'overpass:fetch {id}';
+    protected $signature = 'overpass:parse-global';
 
     /**
      * The console command description.
@@ -29,10 +28,13 @@ class OverpassImportFetch extends Command
      */
     public function handle()
     {
-        $overpassImport = OverpassImport::findOrFail($this->argument('id'));
+        $dueImports = OverpassImport::whereNotNull('fetched_at')
+            ->whereNull('parsed_at')
+            ->get();
 
-        $overpassImport->fetch();
-
-        echo $overpassImport->response;
+        foreach ($dueImports as $dueImport) {
+            echo "Parsing import id = {$dueImport->id}\n";
+            $dueImport->parse();
+        }
     }
 }

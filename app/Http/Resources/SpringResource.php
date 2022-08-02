@@ -19,6 +19,8 @@ class SpringResource extends JsonResource
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'name' => $this->name,
+            'intermittent' => $this->intermittent,
+            'drinking' => $this->drinking,
         ];
     }
 }

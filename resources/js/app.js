@@ -7,8 +7,8 @@ window.Alpine = Alpine;
 window.ImageBlobReduce = new ImageBlobReduce();
 window.uuidv1 = uuidv1;
 
-window.initOpenLayers = function(id, springs) {
-    window.rodnikMap = new OpenLayersMap(id, springs);
+window.initOpenLayers = function(id) {
+    window.rodnikMap = new OpenLayersMap(id);
 }
 
 Alpine.start();

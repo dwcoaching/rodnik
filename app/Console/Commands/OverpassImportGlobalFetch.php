@@ -2,18 +2,17 @@
 
 namespace App\Console\Commands;
 
-use GuzzleHttp\Client;
 use App\Models\OverpassImport;
 use Illuminate\Console\Command;
 
-class OverpassImportFetch extends Command
+class OverpassImportGlobalFetch extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'overpass:fetch {id}';
+    protected $signature = 'overpass:fetch-global';
 
     /**
      * The console command description.
@@ -29,10 +28,11 @@ class OverpassImportFetch extends Command
      */
     public function handle()
     {
-        $overpassImport = OverpassImport::findOrFail($this->argument('id'));
+        $dueImports = OverpassImport::whereNull('fetched_at')->get();
 
-        $overpassImport->fetch();
-
-        echo $overpassImport->response;
+        foreach ($dueImports as $dueImport) {
+            echo "Fetching id = {$dueImport->id} ({$dueImport->latitude_from}, {$dueImport->longitude_from}) to ({$dueImport->latitude_to}, {$dueImport->longitude_to}) \n";
+            $dueImport->fetch();
+        }
     }
 }

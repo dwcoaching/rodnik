@@ -20,6 +20,7 @@ class CreateSpringsTable extends Migration
             $table->decimal('longitude', 9, 6)->nullable();
             $table->string('name')->nullable();
             $table->unsignedBigInteger('osm_node_id')->nullable();
+            $table->unsignedBigInteger('osm_way_id')->nullable();
             $table->timestamps();
         });
 

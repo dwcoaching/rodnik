@@ -11,14 +11,58 @@ import GeoJSON from 'ol/src/format/GeoJSON';
 import { Select } from 'ol/src/interaction';
 import {ScaleLine, defaults as defaultControls} from 'ol/src/control';
 
+const intermittentStroke = {
+    'yes': {
+        'lineDash': [5]
+    },
+    'no': {
+        'lineDash': [0]
+    },
+    'unknown': {
+        'lineDash': [0]
+    }
+};
+
+const drinkingStroke = {
+    'yes': {
+        color: [14, 169, 255, 1],
+        width: 1,
+    },
+    'no': {
+        color: '#888888',
+        width: 1,
+    },
+    'unknown': {
+        color: [14, 169, 255, 1],
+        width: 1,
+    },
+    'conditional': {
+        color: [14, 169, 255, 1],
+        width: 1,
+    }
+};
+
+const drinkingFill = {
+    'yes': {
+        color: [67, 191, 225, 0.1],
+    },
+    'no': {
+        color: [100, 100, 100, 0.1],
+    },
+    'unknown': {
+        color: [67, 191, 225, 0.1],
+    },
+    'conditional': {
+        color: [67, 191, 225, 0.1],
+    }
+};
 
 export default class OpenLayersMap {
-    radius = 10;
-    width  = 5;
+    radius = 12;
+    width  = 1;
 
-    constructor(elementId, springs) {
+    constructor(elementId) {
         this.elementId = elementId;
-        this.springs = springs;
 
         this.tileLayer = new TileLayer({
             source: new OSM()
@@ -27,10 +71,23 @@ export default class OpenLayersMap {
         this.style = new Style({
             image: new CircleStyle({
                 radius: this.radius,
-                //fill: new Fill({color: 'black'}),
+                fill: new Fill({color: [67, 191, 225, 0.1]}),
                 stroke: new Stroke({
                     color: '#67BFFF',
                     width: this.width,
+                    //lineDash: [6],
+                }),
+            }),
+        });
+
+        this.intermittentStyle = new Style({
+            image: new CircleStyle({
+                radius: this.radius,
+                fill: new Fill({color: [67, 191, 225, 0.1]}),
+                stroke: new Stroke({
+                    color: '#67BFFF',
+                    width: this.width,
+                    //lineDash: [6],
                 }),
             }),
         });
@@ -47,11 +104,29 @@ export default class OpenLayersMap {
         });
 
         this.styleSelector = (feature, resolution) => {
-            if (feature.values_.intermittent == 'yes') {
-                return this.greenStyle;
+
+            if (feature.get('intermittent')) {
+                return this.intermittentStyle;
             }
 
             return this.style;
+
+
+            let strokeParameters = {
+                //width: this.width
+            };
+
+            strokeParameters = {...strokeParameters, ...intermittentStroke[feature.get('intermittent')]};
+            strokeParameters = {...strokeParameters, ...drinkingStroke[feature.get('drinking')]};
+            let fillParameters = drinkingFill[feature.get('drinking')];
+
+            return new Style({
+                image: new CircleStyle({
+                    radius: this.radius,
+                    fill: new Fill(fillParameters),
+                    stroke: new Stroke(strokeParameters),
+                })
+            });
         }
 
         this.selectedStyle = new Style({
@@ -153,7 +228,7 @@ export default class OpenLayersMap {
 
                 features[0].setStyle(this.selectedStyle);
 
-                const event = new CustomEvent('spring-selected', {detail: {id: features[0].values_.id}});
+                const event = new CustomEvent('spring-selected', {detail: {id: features[0].get('id')}});
                 window.dispatchEvent(event);
             }
         });
