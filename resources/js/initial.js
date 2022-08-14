@@ -4,7 +4,7 @@ export function getInitialCenter() {
     let centerLatitude = localStorage.getItem('centerLatitude');
     let centerLongitude = localStorage.getItem('centerLongitude');
 
-    return isNaN(centerLongitude) || isNaN(centerLatitude) ? romLonLat([37.5, 55.5]) : [parseFloat(centerLongitude), parseFloat(centerLatitude)];
+    return isNaN(centerLongitude) || isNaN(centerLatitude) ? fromLonLat([37.5, 55.5]) : [parseFloat(centerLongitude), parseFloat(centerLatitude)];
 }
 
 export function getInitialZoom() {
