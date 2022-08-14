@@ -36,7 +36,7 @@ export default class OpenLayersMap {
         this.view = new View({
             center: fromLonLat([37.5, 55.5]),
             zoom: 10,
-            //enableRotation: false,
+            enableRotation: false,
         });
 
         this.scaleControl = new ScaleLine({
