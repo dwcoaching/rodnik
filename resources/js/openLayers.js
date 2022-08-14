@@ -19,6 +19,7 @@ import SpringsDistantLayer from '@/layers/springs/distant';
 
 import finalStyle from '@/styles/final';
 import selectedStyle from '@/styles/selected';
+import { getInitialCenter, getInitialZoom, saveLastCenter, saveLastZoom } from '@/initial';
 
 export default class OpenLayersMap {
 
@@ -34,8 +35,8 @@ export default class OpenLayersMap {
         this.springsDistantLayer = new SpringsDistantLayer();
 
         this.view = new View({
-            center: fromLonLat([37.5, 55.5]),
-            zoom: 10,
+            center: getInitialCenter(),
+            zoom: getInitialZoom(),
             enableRotation: false,
         });
 
@@ -52,6 +53,11 @@ export default class OpenLayersMap {
             target: this.elementId,
             layers: [this.osmLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
             view: this.view,
+        });
+
+        this.map.on('moveend', (e) => {
+            saveLastCenter( this.map.getView().getCenter());
+            saveLastZoom(this.map.getView().getZoom());
         });
 
         this.map.on('click', (e) => {
