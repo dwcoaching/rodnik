@@ -5,6 +5,9 @@ namespace App\Models;
 use App\Models\OSMTag;
 use App\Models\Spring;
 use GuzzleHttp\Client;
+use App\Library\Overpass;
+use App\Models\OverpassImport;
+use App\Library\Overpass\Parser;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -25,13 +28,23 @@ class OverpassImport extends Model
         $result = $guzzle->request('GET', 'https://overpass-api.de/api/interpreter', [
             'query' => [
                 'data' => $this->query
-            ]
+            ],
+            'http_errors' => false
         ]);
 
+        $this->response_code = $result->getStatusCode();
+        $this->response_phrase = $result->getReasonPhrase();
         $this->response = $result->getBody();
 
         $this->fetched_at = now();
         $this->save();
+    }
+
+    public function responseHasRemarks()
+    {
+        $json = json_decode($this->response);
+
+        return (is_null($json) || isset($json->remark)) ? 1 : 0;
     }
 
     public function getResponseAttribute()
@@ -73,7 +86,7 @@ class OverpassImport extends Model
     public function getQueryAttribute()
     {
         $query = "
-            [out:json];
+            [out:json][timeout:180];
 
             node
               [natural=spring]
@@ -189,54 +202,78 @@ class OverpassImport extends Model
     {
         $json = json_decode($this->response);
 
-        $existing = 0;
-        $new = 0;
+        $stats = Overpass::parse($json);
 
-        foreach ($json->elements as $element) {
-
-            switch ($element->type) {
-                case 'node':
-                    $spring = Spring::where('osm_node_id', $element->id)->first();
-                    break;
-                case 'way':
-                    $spring = Spring::where('osm_way_id', $element->id)->first();
-                    break;
-            }
-
-            if (! $spring) {
-                $new = $new + 1;
-                $spring = new Spring();
-
-                switch ($element->type) {
-                    case 'node':
-                        $spring->osm_node_id = $element->id;
-                        $spring->latitude = $element->lat;
-                        $spring->longitude = $element->lon;
-                        break;
-                    case 'way':
-                        $spring->osm_way_id = $element->id;
-                        $spring->latitude = $element->center->lat;
-                        $spring->longitude = $element->center->lon;
-                        break;
-                }
-            } else {
-                $existing = $existing + 1;
-            }
-
-            $spring->save();
-
-            DB::table('osm_tags')->where('spring_id', '=', $spring->id)->delete();
-
-            foreach ($element->tags as $key => $value) {
-                $osmTag = new OSMTag();
-                $osmTag->key = $key;
-                $osmTag->value = $value;
-                $osmTag->spring_id = $spring->id;
-                $osmTag->save();
-            };
+        if ($this->responseHasRemarks()) {
+            $this->has_remarks = false;
+        } else {
+            $this->has_remarks = true;
         }
 
-        echo 'new: ' . $new . "\n";
-        echo 'existing: ' . $existing . "\n";
+        $this->parsed_at = now();
+        $this->save();
+
+        echo 'new: ' . $stats->new . "\n";
+        echo 'existing: ' . $stats->existing . "\n";
+    }
+
+    public function grindUp()
+    {
+        if ($this->longitude_to - $this->longitude_from  > 1) {
+            $this->grindUpLongitudinally();
+        } elseif ($this->latitude_to - $this->latitude_from > 1) {
+            $this->grindUpLatitudinally();
+        } else {
+            throw new \Exception('Trying to grind up below 1x1 degree');
+        }
+    }
+
+    public function grindUpLongitudinally()
+    {
+        $range = $this->longitude_to - $this->longitude_from;
+        $step = $range / 10;
+
+        for ($longitude = $this->longitude_from; $longitude < $this->longitude_to; $longitude = $longitude + $step) {
+            $overpassImport = new OverpassImport();
+            $overpassImport->latitude_from = -90;
+            $overpassImport->latitude_to = 90;
+            $overpassImport->longitude_from = $longitude;
+            $overpassImport->longitude_to = $longitude + $step;
+            $overpassImport->parent_id = $this->id;
+            $overpassImport->save();
+        }
+
+        $this->ground_up = true;
+        $this->save();
+    }
+
+    public function grindUpLatitudinally()
+    {
+        $range = $this->latitude_to - $this->latitude_from;
+
+        if ($range == 180) {
+            $step = 60;
+        } elseif ($range == 60) {
+            $step = 20;
+        } elseif ($range == 20) {
+            $step = 10;
+        } elseif ($range == 10) {
+            $step = 5;
+        } else {
+            $step = 1;
+        }
+
+        for ($latitude = $this->latitude_from; $latitude < $this->latitude_to; $latitude = $latitude + $step) {
+            $overpassImport = new OverpassImport();
+            $overpassImport->latitude_from = $latitude;
+            $overpassImport->latitude_to = $latitude + $step;
+            $overpassImport->longitude_from = $this->longitude_from;
+            $overpassImport->longitude_to = $this->longitude_to;
+            $overpassImport->parent_id = $this->id;
+            $overpassImport->save();
+        }
+
+        $this->ground_up = true;
+        $this->save();
     }
 }

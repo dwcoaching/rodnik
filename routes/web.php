@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\SpringController;
+use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
+use App\Http\Controllers\SpringsTileJsonController;
+use App\Http\Controllers\SpringAggregatesJsonController;
 
 
 /*
@@ -20,7 +23,12 @@ use App\Http\Controllers\SpringJsonController;
 
 Route::get('/', [WebController::class, 'index'])->name('index');
 Route::resource('springs', SpringController::class);
+
 Route::get('springs.json', [SpringJsonController::class, 'index']);
+Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
+Route::get('springs/tiles/{z}/{x}/{y}.json', [SpringsTileJsonController::class, 'show']);
+
+Route::get('coverage', [CoverageController::class, 'index']);
 
 Route::resource('reviews', ReviewController::class);
 

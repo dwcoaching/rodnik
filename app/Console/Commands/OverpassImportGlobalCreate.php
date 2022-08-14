@@ -19,7 +19,7 @@ class OverpassImportGlobalCreate extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'create imports for the whole globe';
 
     /**
      * Execute the console command.
@@ -31,15 +31,24 @@ class OverpassImportGlobalCreate extends Command
         $latitudeStart = -90;
         $longitude = -180;
 
-        for ($latitude = -90; $latitude <= 80; $latitude = $latitude + 10) {
-            for ($longitude = -180; $longitude <= 170; $longitude = $longitude + 10) {
-                $overpassImport = new OverpassImport();
-                $overpassImport->latitude_from = $latitude;
-                $overpassImport->latitude_to = $latitude + 10;
-                $overpassImport->longitude_from = $longitude;
-                $overpassImport->longitude_to = $longitude + 10;
-                $overpassImport->save();
-            }
+        // for ($latitude = -90; $latitude <= 80; $latitude = $latitude + 10) {
+        //     for ($longitude = -180; $longitude <= 170; $longitude = $longitude + 10) {
+        //         $overpassImport = new OverpassImport();
+        //         $overpassImport->latitude_from = $latitude;
+        //         $overpassImport->latitude_to = $latitude + 10;
+        //         $overpassImport->longitude_from = $longitude;
+        //         $overpassImport->longitude_to = $longitude + 10;
+        //         $overpassImport->save();
+        //     }
+        // }
+
+        for ($longitude = -180; $longitude <= 170; $longitude = $longitude + 10) {
+            $overpassImport = new OverpassImport();
+            $overpassImport->latitude_from = -90;
+            $overpassImport->latitude_to = 90;
+            $overpassImport->longitude_from = $longitude;
+            $overpassImport->longitude_to = $longitude + 10;
+            $overpassImport->save();
         }
     }
 }

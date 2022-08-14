@@ -1,171 +1,41 @@
 import Map from 'ol/src/Map';
 import View from 'ol/src/View';
 import Feature from 'ol/src/Feature';
-import { toStringXY } from 'ol/src/coordinate';
-import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/src/style';
-import {OSM, XYZ, Vector as VectorSource} from 'ol/src/source';
-import {Tile as TileLayer, Vector as VectorLayer} from 'ol/src/layer';
-import {Point} from 'ol/src/geom';
-import { fromLonLat } from 'ol/src/proj';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/src/style';
+import { OSM, XYZ, Vector as VectorSource} from 'ol/src/source';
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/src/layer';
+import { fromLonLat, toLonLat } from 'ol/src/proj';
 import GeoJSON from 'ol/src/format/GeoJSON';
-import { Select } from 'ol/src/interaction';
-import {ScaleLine, defaults as defaultControls} from 'ol/src/control';
+import { ScaleLine, defaults as defaultControls } from 'ol/src/control';
+import { createXYZ } from 'ol/src/tilegrid';
+import { tile } from 'ol/src/loadingstrategy';
 
-const intermittentStroke = {
-    'yes': {
-        'lineDash': [5]
-    },
-    'no': {
-        'lineDash': [0]
-    },
-    'unknown': {
-        'lineDash': [0]
-    }
-};
+import OSMLayer from '@/layers/osm';
+import MapyLayer from '@/layers/mapy';
+import OutdoorsLayer from '@/layers/outdoors';
+import SpringsFinalLayer from '@/layers/springs/final';
+import SpringsApproximatedLayer from '@/layers/springs/approximated';
+import SpringsDistantLayer from '@/layers/springs/distant';
 
-const drinkingStroke = {
-    'yes': {
-        color: [14, 169, 255, 1],
-        width: 1,
-    },
-    'no': {
-        color: '#888888',
-        width: 1,
-    },
-    'unknown': {
-        color: [14, 169, 255, 1],
-        width: 1,
-    },
-    'conditional': {
-        color: [14, 169, 255, 1],
-        width: 1,
-    }
-};
-
-const drinkingFill = {
-    'yes': {
-        color: [67, 191, 225, 0.1],
-    },
-    'no': {
-        color: [100, 100, 100, 0.1],
-    },
-    'unknown': {
-        color: [67, 191, 225, 0.1],
-    },
-    'conditional': {
-        color: [67, 191, 225, 0.1],
-    }
-};
+import finalStyle from '@/styles/final';
+import selectedStyle from '@/styles/selected';
 
 export default class OpenLayersMap {
-    radius = 12;
-    width  = 1;
 
     constructor(elementId) {
         this.elementId = elementId;
 
-        this.tileLayer = new TileLayer({
-            source: new OSM()
-        });
+        this.osmLayer = new OSMLayer();
+        this.mapyLayer = new MapyLayer();
+        this.outdoorsLayer = new OutdoorsLayer();
 
-        this.style = new Style({
-            image: new CircleStyle({
-                radius: this.radius,
-                fill: new Fill({color: [67, 191, 225, 0.1]}),
-                stroke: new Stroke({
-                    color: '#67BFFF',
-                    width: this.width,
-                    //lineDash: [6],
-                }),
-            }),
-        });
-
-        this.intermittentStyle = new Style({
-            image: new CircleStyle({
-                radius: this.radius,
-                fill: new Fill({color: [67, 191, 225, 0.1]}),
-                stroke: new Stroke({
-                    color: '#67BFFF',
-                    width: this.width,
-                    //lineDash: [6],
-                }),
-            }),
-        });
-
-        this.greenStyle = new Style({
-            image: new CircleStyle({
-                radius: this.radius,
-                //fill: new Fill({color: 'black'}),
-                stroke: new Stroke({
-                    color: '#009900',
-                    width: this.width,
-                }),
-            }),
-        });
-
-        this.styleSelector = (feature, resolution) => {
-
-            if (feature.get('intermittent')) {
-                return this.intermittentStyle;
-            }
-
-            return this.style;
-
-
-            let strokeParameters = {
-                //width: this.width
-            };
-
-            strokeParameters = {...strokeParameters, ...intermittentStroke[feature.get('intermittent')]};
-            strokeParameters = {...strokeParameters, ...drinkingStroke[feature.get('drinking')]};
-            let fillParameters = drinkingFill[feature.get('drinking')];
-
-            return new Style({
-                image: new CircleStyle({
-                    radius: this.radius,
-                    fill: new Fill(fillParameters),
-                    stroke: new Stroke(strokeParameters),
-                })
-            });
-        }
-
-        this.selectedStyle = new Style({
-            image: new CircleStyle({
-                radius: this.radius,
-                //fill: new Fill({color: 'black'}),
-                stroke: new Stroke({
-                    color: '#ff0000',
-                    width: this.width,
-                }),
-
-            }),
-        });
-
-        this.vectorLayer = new VectorLayer({
-            source: new VectorSource({
-                format: new GeoJSON(),
-                url: '/springs.json'
-                // features: [
-                //     new Feature({
-                //         geometry: new Point(fromLonLat([37, 55])),
-                //         id: 123,
-                //         name: 'blabla',
-                //         intermittent: 'no'
-                //     }),
-                //     new Feature({
-                //         geometry: new Point(fromLonLat([38, 56])),
-                //         id: 234,
-                //         name: 'jajaja',
-                //         intermittent: 'yes'
-                //     })
-                // ]
-            }),
-            style: this.styleSelector
-        });
+        this.springsFinalLayer = new SpringsFinalLayer();
+        this.springsApproximatedLayer = new SpringsApproximatedLayer();
+        this.springsDistantLayer = new SpringsDistantLayer();
 
         this.view = new View({
-            center: fromLonLat([34, 39.5]),
-            zoom: 6
+            center: fromLonLat([37.5, 55.5]),
+            zoom: 8
         });
 
         this.scaleControl = new ScaleLine({
@@ -179,54 +49,30 @@ export default class OpenLayersMap {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
-            layers: [this.tileLayer, this.vectorLayer],
+            layers: [this.osmLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
             view: this.view,
         });
 
-        // const select = new Select({
-        //     style: new Style({
-        //         image: new CircleStyle({
-        //             radius: 15,
-        //             //fill: new Fill({color: 'black'}),
-        //             stroke: new Stroke({
-        //                 color: '#ff0000',
-        //                 width: 4,
-        //             }),
-        //         }),
-        //     }),
-        //     hitTolerance: 15,
-        //     layers: [this.vectorLayer]
-        // });
-
-        // select.on('select', function(e) {
-        //     let features = e.selected;
-
-        //     if (features.length > 0) {
-        //         const event = new CustomEvent('spring-selected', {detail: {id: features[0].values_.id}});
-        //         window.dispatchEvent(event);
-        //     }
-
-        //     console.log(features);
-        // })
-
-        // this.map.addInteraction(select);
-
         this.map.on('click', (e) => {
+
+            if (this.previouslySelectedFeature) {
+                this.previouslySelectedFeature.setStyle(finalStyle);
+            }
+
+            if (this.map.getView().getZoom() < 10) {
+                return false;
+            }
+
             let features = this.map.getFeaturesAtPixel(e.pixel, {
-                hitTolerance: 15,
+                hitTolerance: 2,
                 layerFilter: function(candidate) {
-                    return candidate instanceof VectorLayer;
+                    return candidate instanceof SpringsFinalLayer;
                 }
             });
 
             if (features.length > 0) {
-                if (this.previouslySelectedFeature) {
-                    this.previouslySelectedFeature.setStyle(this.styleSelector(this.previouslySelectedFeature));
-                }
-
                 this.previouslySelectedFeature = features[0];
-
-                features[0].setStyle(this.selectedStyle);
+                features[0].setStyle(selectedStyle);
 
                 const event = new CustomEvent('spring-selected', {detail: {id: features[0].get('id')}});
                 window.dispatchEvent(event);
@@ -241,30 +87,4 @@ export default class OpenLayersMap {
             })
         );
     }
-
-
-    // const source = new VectorSource();
-
-    // const geoMarker = new Feature({
-    //   type: 'geoMarker',
-    //   geometry: new Point(toStringXY([37.41, 8.82]))
-    // });
-
-    // const vectorLayer = new VectorLayer({
-    //     source: new VectorSource({
-    //         features: [geoMarker],
-    //     }),
-    //     style: new Style({
-    //         image: new CircleStyle({
-    //             radius: 7,
-    //             fill: new Fill({color: 'black'}),
-    //             stroke: new Stroke({
-    //                 color: 'white',
-    //                 width: 2,
-    //             }),
-    //         }),
-    //     })
-    // });
-
-
 }

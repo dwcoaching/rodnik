@@ -5,28 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Spring;
 use Illuminate\Http\Request;
 
-class SpringJsonController extends Controller
+class SpringsTileJsonController extends Controller
 {
-    public function index(Request $request)
+    public function show(Request $request, $z, $x, $y)
     {
-        $latitude_from = $request->query('latitude_from', 55);
-        $latitude_to = $request->query('latitude_to', 56);
-        $longitude_from = $request->query('longitude_from', 37);
-        $longitude_to = $request->query('longitude_to', 38);
-        $limit = $request->query('limit', 0);
+        $tileCount = pow(2, $z);
+        $longitude_from = $x / $tileCount * 360 - 180;
+        $longitude_to = ($x + 1) / $tileCount * 360 - 180;
 
-        $springsQuery = Spring::with('osm_tags')
+        $latitude_from = rad2deg(atan(sinh(pi() * (1 - 2 * $y / $tileCount))));
+        $latitude_to = rad2deg(atan(sinh(pi() * (1 - 2 * ($y - 1) / $tileCount))));
+
+        $springs = Spring::with('osm_tags')
             ->where('latitude', '>', $latitude_from)
             ->where('latitude', '<', $latitude_to)
             ->where('longitude', '>', $longitude_from)
-            ->where('longitude', '<', $longitude_to);
-
-        if ($limit) {
-            $springsQuery->inRandomOrder()
-                ->limit($limit);
-        }
-
-        $springs = $springsQuery->get();
+            ->where('longitude', '<', $longitude_to)
+            ->limit(100)
             // ->whereDoesntHave('osm_tags', function($query) {
             //     $query->where(function($query) {
             //             return $query->where('key', 'amenity')
@@ -38,7 +33,7 @@ class SpringJsonController extends Controller
             //         });
 
             // })
-
+            ->get();
 
         $features = $springs->map(function($spring) {
             return [

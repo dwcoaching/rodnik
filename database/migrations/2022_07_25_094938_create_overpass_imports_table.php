@@ -21,6 +21,11 @@ return new class extends Migration
             $table->decimal('longitude_to', 9, 6)->nullable();
             $table->dateTime('started_at')->nullable();
             $table->dateTime('fetched_at')->nullable();
+            $table->text('response_code')->nullable();
+            $table->text('response_phrase')->nullable();
+            $table->boolean('has_remarks')->nullable();
+            $table->boolean('ground_up')->default(false);
+            $table->foreignId('parent_id')->nullable();
             $table->dateTime('parsed_at')->nullable();
             $table->text('query')->nullable();
             $table->longText('response')->nullable();

@@ -19,7 +19,7 @@ class OverpassImportCreate extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'create new import in database';
 
     /**
      * Execute the console command.

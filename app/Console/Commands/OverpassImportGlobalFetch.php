@@ -19,7 +19,7 @@ class OverpassImportGlobalFetch extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Fetch all unfetched imports';
 
     /**
      * Execute the console command.

@@ -23,7 +23,7 @@ class OverpassImportParseJson extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Parse a JSON import with specified id';
 
     /**
      * Execute the console command.

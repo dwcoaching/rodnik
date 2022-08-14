@@ -20,7 +20,7 @@ class OverpassImportFetch extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'fetch an import with specified id';
 
     /**
      * Execute the console command.

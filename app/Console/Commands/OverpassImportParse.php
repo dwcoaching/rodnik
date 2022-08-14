@@ -23,7 +23,7 @@ class OverpassImportParse extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Parse an XML import with specified id';
 
     /**
      * Execute the console command.
@@ -36,10 +36,10 @@ class OverpassImportParse extends Command
 
         $xml = new SimpleXMLElement($overpassImport->response);
 
-$existing = 0;
-$new = 0;
+        $existing = 0;
+        $new = 0;
 
-$count = 1;
+        $count = 1;
         foreach ($xml->node as $node) {
             $spring = Spring::where('osm_node_id', $node['id'])->first();
 
