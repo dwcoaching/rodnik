@@ -9,8 +9,8 @@ import { toLonLat } from 'ol/src/proj';
 export default class SpringsApproximateLayer extends VectorLayer {
     constructor() {
         super({
-            minZoom: 6,
-            maxZoom: 10,
+            minZoom: 5,
+            maxZoom: 9,
             source: new VectorSource({
                 format: new GeoJSON(),
                 strategy: tile(createXYZ({
@@ -30,7 +30,8 @@ export default class SpringsApproximateLayer extends VectorLayer {
                         + '&limit=500'
                 }
             }),
-            style: style
+            style: style,
+            zIndex: 300,
         });
     }
 }

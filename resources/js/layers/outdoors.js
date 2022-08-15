@@ -7,6 +7,7 @@ export default class Mapy extends TileLayer {
             source: new XYZ({
                 url: 'https://{a-d}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png'
             }),
+            zIndex: 1,
         });
     }
 }

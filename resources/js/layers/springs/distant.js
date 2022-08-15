@@ -10,7 +10,7 @@ export default class SpringsApproximateLayer extends VectorLayer {
     constructor() {
         super({
             minZoom: 0,
-            maxZoom: 6,
+            maxZoom: 5,
             source: new VectorSource({
                 format: new GeoJSON(),
                 strategy: tile(createXYZ({
@@ -30,7 +30,8 @@ export default class SpringsApproximateLayer extends VectorLayer {
                         + '&limit=500'
                 }
             }),
-            style: style
+            style: style,
+            zIndex: 100,
         });
     }
 }

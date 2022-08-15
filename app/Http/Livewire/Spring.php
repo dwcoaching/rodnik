@@ -23,6 +23,11 @@ class Spring extends Component
         $this->spring_id = $springId;
     }
 
+    public function unselectSpring()
+    {
+        $this->spring_id = null;
+    }
+
     public function render()
     {
         if ($this->spring_id) {

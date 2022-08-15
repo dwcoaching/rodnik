@@ -1,7 +1,68 @@
 <div
-    x-data="{}"
+    x-data="{
+        active: 'osm',
+        source: function(name) {
+            this.active = name;
+            window.rodnikMap.source(name);
+        }
+    }"
     x-on:spring-selected.window="$wire.setSpring($event.detail.id)"
+    x-on:spring-unselected.window="$wire.unselectSpring()"
     >
+    @if (! $spring)
+        <div>
+            <button @click="window.rodnikMap.locateMe()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Определить мои координаты</button>
+        </div>
+        <div>
+            <div class="mt-5 text-lg font-semibold">Включить карту:</div>
+            <div class="mt-2 space-y-2" x-data="{
+
+            }">
+                <div>
+                    <button @click="source('osm')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        :class="{
+                            'bg-white': active == 'osm',
+                            'bg-indigo-600': active != 'osm',
+                            'text-indigo-700': active == 'osm',
+                            'text-white': active != 'osm'
+                        }"
+                    >OpenStreetMap</button>
+                </div>
+                <div>
+                    <button @click="source('mapy')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        :class="{
+                            'bg-white': active == 'mapy',
+                            'bg-indigo-600': active != 'mapy',
+                            'text-indigo-700': active == 'mapy',
+                            'text-white': active != 'mapy'
+                        }"
+                    >Mapy.cz</button>
+                </div>
+                <div>
+                    <button @click="source('outdoors')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        :class="{
+                            'bg-white': active == 'outdoors',
+                            'bg-indigo-600': active != 'outdoors',
+                            'text-indigo-700': active == 'outdoors',
+                            'text-white': active != 'outdoors'
+                        }"
+                    >OSM Outdoors</button>
+                </div>
+                <div>
+                    <button @click="source('terrain')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        :class="{
+                            'bg-white': active == 'terrain',
+                            'bg-indigo-600': active != 'terrain',
+                            'text-indigo-700': active == 'terrain',
+                            'text-white': active != 'terrain'
+                        }"
+                    >Google Terrain</button>
+                </div>
+            </div>
+        </div>
+
+    @endif
+
     @if ($spring)
         <div class="">
             <div class="text-3xl font-bold">
