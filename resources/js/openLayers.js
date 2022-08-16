@@ -99,8 +99,7 @@ export default class OpenLayersMap {
                 this.selectFeature(features[0]);
 
                 let springId = features[0].get('id');
-
-                window.history.pushState({springId: springId}, 'Rodnik.today', 'https://rodnik.test/' + springId);
+                window.history.pushState({springId: springId}, 'Rodnik.today', window.location.origin + '/' + springId);
 
                 const event = new CustomEvent('spring-selected', {detail: {id: springId}});
                 window.dispatchEvent(event);
