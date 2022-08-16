@@ -5,21 +5,21 @@
             this.active = name;
             window.rodnikMap.source(name);
         },
-        browserHistoryChange: false,
+        locateMap: true,
     }"
     x-on:spring-selected.window="$wire.setSpring($event.detail.id)"
     x-on:spring-unselected.window="$wire.unselectSpring()"
     x-on:popstate.window="
         if ($event.state && $event.state.springId) {
-            this.browserHistoryChange = true;
+            this.locateMap = true;
             const event = new CustomEvent('spring-selected', {detail: {id: $event.state.springId}});
             window.dispatchEvent(event);
         }"
     x-init="
-        if (this.browserHistoryChange || {{ intval($initialRender) }}) {
+        if (this.locateMap) {
             window.rodnikMap.locate({{ json_encode($coordinates) }});
             window.rodnikMap.showFeature({{ $springId }});
-            this.browserHistoryChange = false;
+            this.locateMap = false;
         }
     ">
     @if (! $spring)

@@ -9,14 +9,6 @@ use App\Models\Spring as SpringModel;
 class Spring extends Component
 {
     public $springId;
-    public $review;
-    protected $initialRender;
-
-    public function mount()
-    {
-        $this->review = new Review();
-        $this->initialRender = true;
-    }
 
     public function setSpring($springId)
     {
@@ -31,9 +23,11 @@ class Spring extends Component
     public function render()
     {
         if ($this->springId) {
-            $spring = SpringModel::findOrFail($this->springId);
+            if (! $spring = SpringModel::find($this->springId)) {
+                abort(404);
+            }
+
             $reviews = $spring->reviews()->orderByDesc('created_at')->get();
-            $initialRender = $this->initialRender ? true : false;
             $coordinates = [
                 floatval($spring->longitude),
                 floatval($spring->latitude)
@@ -42,7 +36,6 @@ class Spring extends Component
         {
             $spring = null;
             $reviews = [];
-            $initialRender = false;
             $coordinates = [];
         }
 
