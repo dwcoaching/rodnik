@@ -11,15 +11,15 @@
     x-on:spring-unselected.window="$wire.unselectSpring()"
     x-on:popstate.window="
         if ($event.state && $event.state.springId) {
-            this.locateMap = true;
+            locateMap = true;
             const event = new CustomEvent('spring-selected', {detail: {id: $event.state.springId}});
             window.dispatchEvent(event);
         }"
     x-init="
-        if (this.locateMap) {
+        if (locateMap) {
             window.rodnikMap.locate({{ json_encode($coordinates) }});
             window.rodnikMap.showFeature({{ $springId }});
-            this.locateMap = false;
+            locateMap = false;
         }
     ">
     @if (! $spring)
