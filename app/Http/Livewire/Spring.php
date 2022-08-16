@@ -39,6 +39,6 @@ class Spring extends Component
             $coordinates = [];
         }
 
-        return view('livewire.spring', compact('reviews', 'spring', 'initialRender', 'coordinates'));
+        return view('livewire.spring', compact('reviews', 'spring', 'coordinates'));
     }
 }
