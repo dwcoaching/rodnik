@@ -22,7 +22,12 @@ use App\Http\Controllers\SpringAggregatesJsonController;
 */
 
 Route::get('/', [WebController::class, 'index'])->name('index');
+Route::get('/{springId}', [WebController::class, 'show'])->name('springs.show')->where('springId', '[0-9]+');
+
 Route::resource('springs', SpringController::class);
+
+
+
 
 Route::get('springs.json', [SpringJsonController::class, 'index']);
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);

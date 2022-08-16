@@ -17,11 +17,11 @@ let intermittentStyle = new Style({
 
 let style = new Style({
     image: new CircleStyle({
-        radius: radius,
+        radius: 12,
         fill: new Fill({color: [67, 191, 225, 0.1]}),
         stroke: new Stroke({
             color: '#67BFFF',
-            width: width,
+            width: 1,
             //lineDash: [6],
         }),
     }),

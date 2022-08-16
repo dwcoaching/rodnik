@@ -8,40 +8,44 @@ use App\Models\Spring as SpringModel;
 
 class Spring extends Component
 {
-    public $spring_id;
+    public $springId;
     public $review;
-
-    protected $queryString = ['spring_id'];
+    protected $initialRender;
 
     public function mount()
     {
         $this->review = new Review();
+        $this->initialRender = true;
     }
 
     public function setSpring($springId)
     {
-        $this->spring_id = $springId;
+        $this->springId = $springId;
     }
 
     public function unselectSpring()
     {
-        $this->spring_id = null;
+        $this->springId = null;
     }
 
     public function render()
     {
-        if ($this->spring_id) {
-
-            $spring = SpringModel::findOrFail($this->spring_id);
-
+        if ($this->springId) {
+            $spring = SpringModel::findOrFail($this->springId);
             $reviews = $spring->reviews()->orderByDesc('created_at')->get();
+            $initialRender = $this->initialRender ? true : false;
+            $coordinates = [
+                floatval($spring->longitude),
+                floatval($spring->latitude)
+            ];
         } else
         {
             $spring = null;
-
             $reviews = [];
+            $initialRender = false;
+            $coordinates = [];
         }
 
-        return view('livewire.spring', compact('reviews', 'spring'));
+        return view('livewire.spring', compact('reviews', 'spring', 'initialRender', 'coordinates'));
     }
 }

@@ -4,11 +4,24 @@
         source: function(name) {
             this.active = name;
             window.rodnikMap.source(name);
-        }
+        },
+        browserHistoryChange: false,
     }"
     x-on:spring-selected.window="$wire.setSpring($event.detail.id)"
     x-on:spring-unselected.window="$wire.unselectSpring()"
-    >
+    x-on:popstate.window="
+        if ($event.state && $event.state.springId) {
+            this.browserHistoryChange = true;
+            const event = new CustomEvent('spring-selected', {detail: {id: $event.state.springId}});
+            window.dispatchEvent(event);
+        }"
+    x-init="
+        if (this.browserHistoryChange || {{ intval($initialRender) }}) {
+            window.rodnikMap.locate({{ json_encode($coordinates) }});
+            window.rodnikMap.showFeature({{ $springId }});
+            this.browserHistoryChange = false;
+        }
+    ">
     @if (! $spring)
         <div>
             <button @click="window.rodnikMap.locateMe()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Определить мои координаты</button>

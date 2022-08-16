@@ -18,13 +18,13 @@ let intermittentStyle = new Style({
 let style = new Style({
     image: new CircleStyle({
         radius: radius,
-        fill: new Fill({color: [67, 191, 225, 0.1]}),
+        fill: new Fill({color: [255, 255, 255, 0]}),
         stroke: new Stroke({
             color: '#cc0000',
-            width: width,
+            width: 2,
             //lineDash: [6],
         }),
-    }),
+    })
 });
 
 export { style as default }

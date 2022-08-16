@@ -42,6 +42,10 @@ export default class OpenLayersMap {
         this.springsApproximatedLayer = new SpringsApproximatedLayer();
         this.springsDistantLayer = new SpringsDistantLayer();
 
+        this.featureToBeSelected = null;
+        this.selectedFeature = null;
+        this.featureIdToBeSelected = null;
+
         this.view = new View({
             center: getInitialCenter(),
             zoom: getInitialZoom(),
@@ -76,14 +80,13 @@ export default class OpenLayersMap {
         });
 
         this.map.on('click', (e) => {
-
             if (this.previouslySelectedFeature) {
                 this.previouslySelectedFeature.setStyle(finalStyle);
             }
 
-            if (this.map.getView().getZoom() < 10) {
-                return false;
-            }
+            // if (this.map.getView().getZoom() < 10) {
+            //     return false;
+            // }
 
             let features = this.map.getFeaturesAtPixel(e.pixel, {
                 hitTolerance: 2,
@@ -93,16 +96,28 @@ export default class OpenLayersMap {
             });
 
             if (features.length > 0) {
-                this.previouslySelectedFeature = features[0];
-                features[0].setStyle(selectedStyle);
+                this.selectFeature(features[0]);
 
-                const event = new CustomEvent('spring-selected', {detail: {id: features[0].get('id')}});
+                let springId = features[0].get('id');
+
+                window.history.pushState({springId: springId}, 'Rodnik.today', 'https://rodnik.test/' + springId);
+
+                const event = new CustomEvent('spring-selected', {detail: {id: springId}});
                 window.dispatchEvent(event);
             } else {
                 const event = new CustomEvent('spring-unselected');
                 window.dispatchEvent(event);
             }
         });
+    }
+
+    featuresLoadEnd() {
+        let id = this.featureIdToBeSelected;
+
+        if (id) {
+            this.featureIdToBeSelected = null;
+            this.showFeature(id);
+        }
     }
 
     locateMe() {
@@ -138,7 +153,7 @@ export default class OpenLayersMap {
         this.geolocation.on('change:accuracyGeometry', () => {
             accuracyFeature.setGeometry(this.geolocation.getAccuracyGeometry());
         });
-        console.log(accuracyFeature);
+
         this.geolocation.on('error', function (error) {
             console.log(error)
         });
@@ -204,5 +219,46 @@ export default class OpenLayersMap {
                 this.map.addLayer(this.currentLayer);
                 break;
         }
+    }
+
+    showFeature(id) {
+        let feature = window.rodnikMap.springsFinalLayer.getSource().getFeatureById(id);
+
+        if (feature) {
+            this.locateFeature(feature);
+        } else {
+            this.featureIdToBeSelected = id;
+        }
+    }
+
+    locateFeature(feature) {
+        this.selectFeature(feature);
+
+        this.view.animate(
+            {
+                center: feature.getGeometry().flatCoordinates,
+                zoom: 14,
+                duration: 250
+            }
+        );
+    }
+
+    locate(coordinates) {
+        this.view.animate(
+            {
+                center: fromLonLat(coordinates),
+                zoom: 14,
+                duration: 250
+            }
+        );
+    }
+
+    selectFeature(feature) {
+        if (this.previouslySelectedFeature) {
+            this.previouslySelectedFeature.setStyle(finalStyle);
+        }
+
+        this.previouslySelectedFeature = feature;
+        feature.setStyle(selectedStyle);
     }
 }

@@ -14,5 +14,3 @@ window.initOpenLayers = function(id) {
 Alpine.start();
 
 
-
-

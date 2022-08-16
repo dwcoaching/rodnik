@@ -43,6 +43,7 @@ class SpringJsonController extends Controller
         $features = $springs->map(function($spring) {
             return [
                 'type' => 'Feature',
+                'id' => $spring->id,
                 'geometry' => [
                     'type' => 'Point',
                     'coordinates' => [
