@@ -25,7 +25,7 @@
     <div class="mt-8">
       <label for="visited_at" class="block text-sm font-medium text-gray-700">Дата посещения</label>
       <div class="mt-1">
-        <input wire:model.defer="review.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md max-w-xs" />
+        <input wire:model.defer="report.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md max-w-xs" />
       </div>
     </div>
     <div class="mt-6">
@@ -33,17 +33,17 @@
       <fieldset class="mt-1">
         <div class="space-y-2">
           <div class="flex items-center">
-            <input wire:model="review.state" id="dry" name="state" value="dry" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+            <input wire:model="report.state" id="dry" name="state" value="dry" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
             <label for="dry" class="ml-3 block text-sm font-regular text-gray-700"> Воды нет </label>
           </div>
 
           <div class="flex items-center">
-            <input wire:model="review.state" id="dripping" name="state" value="dripping" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+            <input wire:model="report.state" id="dripping" name="state" value="dripping" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
             <label for="dripping" class="ml-3 block text-sm font-regular text-gray-700"> Есть, но мало </label>
           </div>
 
           <div class="flex items-center">
-            <input wire:model="review.state" id="running" name="state" value="running" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+            <input wire:model="report.state" id="running" name="state" value="running" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
             <label for="running" class="ml-3 block text-sm font-regular text-gray-700"> Вода есть </label>
           </div>
         </div>
@@ -54,17 +54,17 @@
       <fieldset class="mt-1">
         <div class="space-y-2">
           <div class="flex items-center">
-            <input wire:model="review.quality" id="bad" name="quality" value="bad" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+            <input wire:model="report.quality" id="bad" name="quality" value="bad" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
             <label for="bad" class="ml-3 block text-sm font-regular text-gray-700"> Вода плохая </label>
           </div>
 
           <div class="flex items-center">
-            <input wire:model="review.quality" id="uncertain" name="quality" value="uncertain" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+            <input wire:model="report.quality" id="uncertain" name="quality" value="uncertain" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
             <label for="uncertain" class="ml-3 block text-sm font-regular text-gray-700"> Сложно сказать, не понятно </label>
           </div>
 
           <div class="flex items-center">
-            <input wire:model="review.quality" id="good" name="quality" value="good" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
+            <input wire:model="report.quality" id="good" name="quality" value="good" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
             <label for="good" class="ml-3 block text-sm font-regular text-gray-700"> Вода отличная </label>
           </div>
         </div>
@@ -74,23 +74,23 @@
     <div class="mt-6">
       <label for="comment" class="block text-sm font-medium text-gray-700">Комментарий</label>
       <div class="mt-1 relative">
-        <textarea wire:model.defer="review.comment" rows="4" name="comment" id="comment"
+        <textarea wire:model.defer="report.comment" rows="4" name="comment" id="comment"
           @class([
             'shadow-sm',
             'block',
             'w-full',
             'sm:text-sm',
             'rounded-md',
-            'border-gray-300' => ! $errors->has('review.comment'),
-            'focus:ring-blue-500' => ! $errors->has('review.comment'),
-            'focus:border-blue-500' => ! $errors->has('review.comment'),
-            'border-red-300' => $errors->has('review.comment'),
-            'text-red-900' => $errors->has('review.comment'),
-            'focus:ring-red-500' => $errors->has('review.comment'),
-            'focus:border-red-500' => $errors->has('review.comment'),
+            'border-gray-300' => ! $errors->has('report.comment'),
+            'focus:ring-blue-500' => ! $errors->has('report.comment'),
+            'focus:border-blue-500' => ! $errors->has('report.comment'),
+            'border-red-300' => $errors->has('report.comment'),
+            'text-red-900' => $errors->has('report.comment'),
+            'focus:ring-red-500' => $errors->has('report.comment'),
+            'focus:border-red-500' => $errors->has('report.comment'),
           ])
           ></textarea>
-        @error('review.comment')
+        @error('report.comment')
           <div class="absolute top-0 pt-3 right-0 pr-3 flex items-center pointer-events-none">
             <!-- Heroicon name: solid/exclamation-circle -->
             <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -99,7 +99,7 @@
           </div>
         @enderror
       </div>
-      @error('review.comment') <p class="mt-2 text-sm text-red-600" id="email-error">{{ $message }}</p> @enderror
+      @error('report.comment') <p class="mt-2 text-sm text-red-600" id="email-error">{{ $message }}</p> @enderror
     </div>
 
     <div class="sm:col-span-6 mt-6"

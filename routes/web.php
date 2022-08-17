@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
-use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringController;
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
@@ -22,7 +22,7 @@ use App\Http\Controllers\SpringAggregatesJsonController;
 */
 
 Route::get('/', [WebController::class, 'index'])->name('index');
-Route::get('/{springId}', [WebController::class, 'show'])->name('springs.show')->where('springId', '[0-9]+');
+Route::get('/{springId}', [WebController::class, 'show'])->name('show')->where('springId', '[0-9]+');
 
 Route::resource('springs', SpringController::class);
 
@@ -35,7 +35,7 @@ Route::get('springs/tiles/{z}/{x}/{y}.json', [SpringsTileJsonController::class, 
 
 Route::get('coverage', [CoverageController::class, 'index']);
 
-Route::resource('reviews', ReviewController::class);
+Route::resource('reports', ReportController::class);
 
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {

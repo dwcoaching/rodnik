@@ -16,7 +16,7 @@
             window.dispatchEvent(event);
         }"
     x-init="
-        if (locateMap) {
+        if ({{ intval($springId)}} && locateMap) {
             window.rodnikMap.locate({{ json_encode($coordinates) }});
             window.rodnikMap.showFeature({{ $springId }});
             locateMap = false;
@@ -24,54 +24,53 @@
     ">
     @if (! $spring)
         <div>
-            <button @click="window.rodnikMap.locateMe()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Определить мои координаты</button>
+            <button @click="window.rodnikMap.locateMe()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Определить мои координаты</button>
         </div>
         <div>
-            <div class="mt-5 text-lg font-semibold">Включить карту:</div>
-            <div class="mt-2 space-y-2" x-data="{
-
-            }">
-                <div>
-                    <button @click="source('osm')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        :class="{
-                            'bg-white': active == 'osm',
-                            'bg-indigo-600': active != 'osm',
-                            'text-indigo-700': active == 'osm',
-                            'text-white': active != 'osm'
-                        }"
-                    >OpenStreetMap</button>
-                </div>
-                <div>
-                    <button @click="source('mapy')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        :class="{
-                            'bg-white': active == 'mapy',
-                            'bg-indigo-600': active != 'mapy',
-                            'text-indigo-700': active == 'mapy',
-                            'text-white': active != 'mapy'
-                        }"
-                    >Mapy.cz</button>
-                </div>
-                <div>
-                    <button @click="source('outdoors')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        :class="{
-                            'bg-white': active == 'outdoors',
-                            'bg-indigo-600': active != 'outdoors',
-                            'text-indigo-700': active == 'outdoors',
-                            'text-white': active != 'outdoors'
-                        }"
-                    >OSM Outdoors</button>
-                </div>
-                <div>
-                    <button @click="source('terrain')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-indigo-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        :class="{
-                            'bg-white': active == 'terrain',
-                            'bg-indigo-600': active != 'terrain',
-                            'text-indigo-700': active == 'terrain',
-                            'text-white': active != 'terrain'
-                        }"
-                    >Google Terrain</button>
-                </div>
+            <div class="mt-16 text-3xl font-semibold">Карта</div>
+            <div class="mt-2 space-y-2 space-x-1">
+                <button @click="source('osm')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    :class="{
+                        'bg-white': active == 'osm',
+                        'bg-blue-600': active != 'osm',
+                        'text-blue-700': active == 'osm',
+                        'text-white': active != 'osm'
+                    }"
+                >OpenStreetMap</button>
+                <button @click="source('mapy')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    :class="{
+                        'bg-white': active == 'mapy',
+                        'bg-blue-600': active != 'mapy',
+                        'text-blue-700': active == 'mapy',
+                        'text-white': active != 'mapy'
+                    }"
+                >Mapy.cz</button>
+            {{--
+                <button @click="source('outdoors')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    :class="{
+                        'bg-white': active == 'outdoors',
+                        'bg-blue-600': active != 'outdoors',
+                        'text-blue-700': active == 'outdoors',
+                        'text-white': active != 'outdoors'
+                    }"
+                >OSM Outdoors</button>
+            --}}
+                <button @click="source('terrain')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    :class="{
+                        'bg-white': active == 'terrain',
+                        'bg-blue-600': active != 'terrain',
+                        'text-blue-700': active == 'terrain',
+                        'text-white': active != 'terrain'
+                    }"
+                >Google Terrain</button>
             </div>
+
+            <div class="mt-16 text-3xl font-semibold">Последние отчеты</div>
+            <ul role="list" class="pt-4">
+                @foreach ($lastReports as $report)
+                    @include('reports.item')
+                @endforeach
+            </ul>
         </div>
 
     @endif
@@ -109,7 +108,7 @@
 
 
 
-        <a href="{{ route('reviews.create', ['spring_id' => $spring]) }}"
+        <a href="{{ route('reports.create', ['spring_id' => $spring]) }}"
             class="
                 mt-3
                 inline-flex
@@ -127,12 +126,12 @@
                 focus:outline-none
                 focus:ring-2
                 focus:ring-offset-2
-                focus:ring-indigo-500">Добавить отзыв</a>
+                focus:ring-blue-500">Добавить отзыв</a>
 
         <div class="mt-3">
             <ul role="list" class="divide-y divide-gray-200">
-                @foreach ($reviews as $review)
-                    @include('reviews.item')
+                @foreach ($reports as $report)
+                    @include('reports.item')
                 @endforeach
             </ul>
         </div>

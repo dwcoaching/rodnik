@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Livewire\Reviews;
+namespace App\Http\Livewire\Reports;
 
 use App\Library\Exif;
 use App\Models\Photo;
-use App\Models\Review;
+use App\Models\Report;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
@@ -15,39 +15,39 @@ class Create extends Component
     use WithFileUploads;
 
     public $spring;
-    public $review;
+    public $report;
     public $photosIds = [];
     public $file;
 
     protected function rules() {
         return [
-            'review.visited_at' => 'nullable|date',
-            'review.state' => [
+            'report.visited_at' => 'nullable|date',
+            'report.state' => [
                 'nullable',
                 Rule::in(['dry', 'dripping', 'running'])
             ],
-            'review.quality' => [
+            'report.quality' => [
                 'nullable',
                 Rule::in(['bad', 'uncertain', 'good'])
             ],
-            'review.comment' => 'nullable|string|max:65535',
-            'review.spring_id' => 'required|integer',
+            'report.comment' => 'nullable|string|max:65535',
+            'report.spring_id' => 'required|integer',
         ];
     }
 
     public function mount($spring)
     {
         $this->spring = $spring;
-        $this->review = new Review();
-        $this->review->spring_id = $this->spring->id;
-        $this->review->visited_at = now()->format('Y-m-d');
+        $this->report = new Report();
+        $this->report->spring_id = $this->spring->id;
+        $this->report->visited_at = now()->format('Y-m-d');
     }
 
     public function render()
     {
         $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
 
-        return view('livewire.reviews.create', ['photos' => $photos]);
+        return view('livewire.reports.create', ['photos' => $photos]);
     }
 
     public function store()
@@ -55,14 +55,14 @@ class Create extends Component
         $this->validate();
 
         if (Auth::check()) {
-            $this->review->user_id = Auth::user()->id;
+            $this->report->user_id = Auth::user()->id;
         }
-        $this->review->save();
+        $this->report->save();
 
         $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
 
         foreach ($photos as $photo) {
-            $photo->review_id = $this->review->id;
+            $photo->report_id = $this->report->id;
             $photo->save();
         }
 

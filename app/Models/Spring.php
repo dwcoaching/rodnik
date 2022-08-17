@@ -4,17 +4,18 @@ namespace App\Models;
 
 use Faker\Factory;
 use App\Models\OSMTag;
-use App\Models\Review;
+use App\Models\Report;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Spring extends Model
 {
     use HasFactory;
 
-    public function reviews()
+    public function reports()
     {
-        return $this->hasMany(Review::class);
+        return $this->hasMany(Report::class);
     }
 
     public function osm_tags()
@@ -103,5 +104,64 @@ class Spring extends Model
         }
 
         return 'unknown';
+    }
+
+    public function name(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                return $value ? $value : $this->type();
+            }
+        );
+    }
+
+    public function type()
+    {
+        if (count(
+            $this->osm_tags->filter(function($item) {
+                return $item->key == 'natural' &&
+                    ($item->value == 'spring' | $item->value == 'spring_box');
+            }))) {
+            return 'Родник';
+        }
+
+        if (count(
+            $this->osm_tags->filter(function($item) {
+                return $item->key == 'man_made' && $item->value == 'water_well';
+            }))) {
+            return 'Колодец';
+        }
+
+        if (count(
+            $this->osm_tags->filter(function($item) {
+                return $item->key == 'man_made' && $item->value == 'water_tap';
+            }))) {
+            return 'Кран';
+        }
+
+        if (count(
+            $this->osm_tags->filter(function($item) {
+                return
+                    ($item->key == 'amenity' && $item->value == 'drinking_water')
+                    || ($item->key == 'drinking_water' && $item->value == 'yes');
+            }))) {
+            return 'Источник питьевой воды';
+        }
+
+        if (count(
+            $this->osm_tags->filter(function($item) {
+                return $item->key == 'man_made' && $item->value == 'drinking_fountain';
+            }))) {
+            return 'Питьевой фонтанчик';
+        }
+
+        if (count(
+            $this->osm_tags->filter(function($item) {
+                return $item->key == 'amenity' && $item->value == 'fountain';
+            }))) {
+            return 'Фонтан';
+        }
+
+        return 'Источник воды';
     }
 }

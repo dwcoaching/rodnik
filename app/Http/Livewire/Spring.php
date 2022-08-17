@@ -2,7 +2,7 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Review;
+use App\Models\Report;
 use Livewire\Component;
 use App\Models\Spring as SpringModel;
 
@@ -27,18 +27,22 @@ class Spring extends Component
                 abort(404);
             }
 
-            $reviews = $spring->reviews()->orderByDesc('created_at')->get();
+            $reports = $spring->reports()->orderByDesc('created_at')->get();
             $coordinates = [
                 floatval($spring->longitude),
                 floatval($spring->latitude)
             ];
+
+            $lastReports = [];
         } else
         {
             $spring = null;
-            $reviews = [];
+            $reports = [];
             $coordinates = [];
+
+            $lastReports = Report::latest()->limit(10)->get();
         }
 
-        return view('livewire.spring', compact('reviews', 'spring', 'coordinates'));
+        return view('livewire.spring', compact('reports', 'spring', 'coordinates', 'lastReports'));
     }
 }
