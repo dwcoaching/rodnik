@@ -24,4 +24,9 @@ class Photo extends Model
     {
         return Storage::disk('photos')->url($this->filename);
     }
+
+    public function fullPath()
+    {
+        return Storage::disk('photos')->path($this->filename);
+    }
 }

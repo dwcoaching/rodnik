@@ -9,6 +9,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Intervention\Image\Facades\Image;
 
 class Create extends Component
 {
@@ -79,6 +80,10 @@ class Create extends Component
         $photo->original_extension = $this->file->getClientOriginalExtension();
         $photo->original_filename = $this->file->getClientOriginalName();
         $photo->extension = $this->file->extension();
+
+        $image = Image::make($this->file);
+        $photo->width = $image->width();
+        $photo->height = $image->height();
 
         $exif = new Exif($this->file);
 

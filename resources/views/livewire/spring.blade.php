@@ -1,4 +1,4 @@
-<div
+<div id="spring"
     x-data="{
         active: 'osm',
         source: function(name) {
@@ -21,13 +21,15 @@
             window.rodnikMap.showFeature({{ $springId }});
             locateMap = false;
         }
+
+        window.initPhotoSwipe('#spring');
     ">
     @if (! $spring)
         <div>
             <button @click="window.rodnikMap.locateMe()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Определить мои координаты</button>
         </div>
         <div>
-            <div class="mt-16 text-3xl font-semibold">Карта</div>
+            <div class="mt-16 text-3xl font-bold">Карта</div>
             <div class="mt-2 space-y-2 space-x-1">
                 <button @click="source('osm')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     :class="{
@@ -65,10 +67,10 @@
                 >Google Terrain</button>
             </div>
 
-            <div class="mt-16 text-3xl font-semibold">Последние отчеты</div>
+            <div class="mt-16 text-3xl font-bold">Последние отчеты</div>
             <ul role="list" class="pt-4">
                 @foreach ($lastReports as $report)
-                    @include('reports.item')
+                    <x-report has-name="true" :report="$report" />
                 @endforeach
             </ul>
         </div>
@@ -105,35 +107,32 @@
             </div>
         @endif
 
-
-
-
-        <a href="{{ route('reports.create', ['spring_id' => $spring]) }}"
-            class="
-                mt-3
-                inline-flex
-                items-center
-                px-4
-                py-3
-                border-4
-                border-yellow-600
-                leading-4
-                font-medium
-                rounded-full
-                text-black
-                bg-yellow-400
-                hover:bg-yellow-500
-                focus:outline-none
-                focus:ring-2
-                focus:ring-offset-2
-                focus:ring-blue-500">Добавить отзыв</a>
-
-        <div class="mt-3">
-            <ul role="list" class="divide-y divide-gray-200">
-                @foreach ($reports as $report)
-                    @include('reports.item')
-                @endforeach
-            </ul>
-        </div>
+        @if ($reports->count())
+            <div class="flex mt-16 items-center justify-between">
+                <div class="text-3xl font-bold">Отчеты</div>
+                <a href="{{ route('reports.create', ['spring_id' => $spring]) }}" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                    </svg>
+                    Добавить&nbsp;отчет
+                </a>
+            </div>
+            <div class="mt-3">
+                <ul role="list" class="">
+                    @foreach ($reports as $report)
+                        <x-report has-name="false" :report="$report"/>
+                    @endforeach
+                </ul>
+            </div>
+        @else
+            <div class="mt-16">
+                <a href="{{ route('reports.create', ['spring_id' => $spring]) }}" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                    </svg>
+                    Добавить&nbsp;отчет
+                </a>
+            </div>
+        @endif
     @endif
 </div>
