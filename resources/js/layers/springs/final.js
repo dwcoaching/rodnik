@@ -36,4 +36,8 @@ export default class SpringsFinalLayer extends VectorLayer {
             window.rodnikMap.featuresLoadEnd();
         });
     }
+
+    updateStyle() {
+        this.setStyle(style);
+    }
 }

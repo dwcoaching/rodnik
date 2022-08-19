@@ -58,6 +58,7 @@ class SpringJsonController extends Controller
                     'intermittent' => $spring->intermittent,
                     'drinking' => $spring->drinking,
                     'hasReports' => $spring->reports_count,
+                    'type' => $spring->type(),
                 ]
             ];
         });

@@ -32,6 +32,17 @@ export default class OpenLayersMap {
     constructor(elementId) {
         this.elementId = elementId;
 
+        this.filters = window.filters = {
+            intermittent: true,
+            spring: true,
+            water_well: true,
+            water_tap: true,
+            drinking_water: true,
+            drinking_fountain: true,
+            fountain: true,
+            other: true,
+        };
+
         this.osmLayer = new OSMLayer();
         this.mapyLayer = new MapyLayer();
         this.outdoorsLayer = new OutdoorsLayer();

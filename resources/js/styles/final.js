@@ -15,6 +15,8 @@ let intermittentStyle = new Style({
     }),
 });
 
+let hiddenStyle = new Style({});
+
 let style = new Style({
     image: new CircleStyle({
         radius: 12,
@@ -47,13 +49,45 @@ let reportedStyle = new Style({
 
 // export { style as default }
 export default (feature, resolution) => {
-    console.log(feature.get('hasReports'));
+    if (! window.rodnikMap.filters.spring && feature.get('type') == 'Родник') {
+        return hiddenStyle;
+    }
+
+    if (! window.rodnikMap.filters.water_well && feature.get('type') == 'Колодец') {
+        return hiddenStyle;
+    }
+
+    if (! window.rodnikMap.filters.water_tap && feature.get('type') == 'Кран') {
+        return hiddenStyle;
+    }
+
+    if (! window.rodnikMap.filters.drinking_water && feature.get('type') == 'Источник питьевой воды') {
+        return hiddenStyle;
+    }
+
+    if (! window.rodnikMap.filters.drinking_fountain && feature.get('type') == 'Питьевой фонтанчик') {
+        return hiddenStyle;
+    }
+
+    if (! window.rodnikMap.filters.fountain && feature.get('type') == 'Фонтан') {
+        return hiddenStyle;
+    }
+
+    if (! window.rodnikMap.filters.other && feature.get('type') == 'Источник воды') {
+        return hiddenStyle;
+    }
+
     if (feature.get('hasReports') > 0) {
         return reportedStyle;
     }
 
     if (feature.get('intermittent') == 'yes'
         || feature.get('seasonal') == 'yes') {
+
+        if (! window.rodnikMap.filters.intermittent) {
+            return hiddenStyle;
+        }
+
         return intermittentStyle;
     }
 

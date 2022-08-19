@@ -6,6 +6,10 @@
             window.rodnikMap.source(name);
         },
         locateMap: true,
+        filters: window.rodnikMap.filters,
+        updateFilters: function() {
+            window.rodnikMap.springsFinalLayer.updateStyle();
+        }
     }"
     x-on:spring-selected.window="$wire.setSpring($event.detail.id)"
     x-on:spring-unselected.window="$wire.unselectSpring()"
@@ -65,6 +69,76 @@
                         'text-white': active != 'terrain'
                     }"
                 >Google Terrain</button>
+            </div>
+
+            <div class="mt-16 text-3xl font-bold">Показывать</div>
+            <div class="mt-4 space-y-2 space-x-1">
+                <fieldset class="space-y-2">
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.intermittent" id="filters.intermittent" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.intermittent" class="font-medium text-gray-700">Пересыхающие источники</label>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.spring" id="filters.spring" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.spring" class="font-medium text-gray-700">Родники</label>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.water_well" id="filters.water_well" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.water_well" class="font-medium text-gray-700">Колодцы</label>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.water_tap" id="filters.water_tap" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.water_tap" class="font-medium text-gray-700">Краны и колонки</label>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.drinking_fountain" id="filters.drinking_fountain" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.drinking_fountain" class="font-medium text-gray-700">Питьевые фонтанчики</label>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.drinking_water" id="filters.drinking_water" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.drinking_water" class="font-medium text-gray-700">Источники питьевой воды</label>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.fountain" id="filters.fountain" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.fountain" class="font-medium text-gray-700">Фонтаны</label>
+                        </div>
+                    </div>
+                    <div class="relative flex items-start">
+                        <div class="flex items-center h-5">
+                            <input @change="updateFilters" x-model="filters.other" id="filters.other" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="filters.other" class="font-medium text-gray-700">Прочие источники воды</label>
+                        </div>
+                    </div>
+                </fieldset>
             </div>
 
             <div class="mt-16 text-3xl font-bold">Последние отчеты</div>
