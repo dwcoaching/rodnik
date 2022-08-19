@@ -16,6 +16,7 @@ class SpringJsonController extends Controller
         $limit = $request->query('limit', 0);
 
         $springsQuery = Spring::with('osm_tags')
+            ->withCount('reports')
             ->where('latitude', '>', $latitude_from)
             ->where('latitude', '<', $latitude_to)
             ->where('longitude', '>', $longitude_from)
@@ -56,6 +57,7 @@ class SpringJsonController extends Controller
                     'name' => $spring->name,
                     'intermittent' => $spring->intermittent,
                     'drinking' => $spring->drinking,
+                    'hasReports' => $spring->reports_count,
                 ]
             ];
         });
