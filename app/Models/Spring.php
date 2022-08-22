@@ -143,16 +143,10 @@ class Spring extends Model
             $this->osm_tags->filter(function($item) {
                 return
                     ($item->key == 'amenity' && $item->value == 'drinking_water')
-                    || ($item->key == 'drinking_water' && $item->value == 'yes');
+                    || ($item->key == 'drinking_water' && $item->value == 'yes')
+                    || ($item->key == 'man_made' && $item->value == 'drinking_fountain');
             }))) {
             return 'Источник питьевой воды';
-        }
-
-        if (count(
-            $this->osm_tags->filter(function($item) {
-                return $item->key == 'man_made' && $item->value == 'drinking_fountain';
-            }))) {
-            return 'Питьевой фонтанчик';
         }
 
         if (count(

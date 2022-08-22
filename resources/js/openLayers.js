@@ -20,6 +20,9 @@ import SpringsFinalLayer from '@/layers/springs/final';
 import SpringsApproximatedLayer from '@/layers/springs/approximated';
 import SpringsDistantLayer from '@/layers/springs/distant';
 
+import StravaPublicLayer from '@/layers/stravaPublic';
+import OSMTracesLayer from '@/layers/osmTraces';
+
 
 import finalStyle from '@/styles/final';
 import selectedStyle from '@/styles/selected';
@@ -32,21 +35,31 @@ export default class OpenLayersMap {
     constructor(elementId) {
         this.elementId = elementId;
 
-        this.filters = window.filters = {
-            intermittent: true,
+        this.filters = {
+            all: true,
             spring: true,
             water_well: true,
             water_tap: true,
             drinking_water: true,
-            drinking_fountain: true,
             fountain: true,
             other: true,
         };
+
+        this.overlays = {
+            stravaPublic: false,
+            osmTraces: false
+        };
+
+        this.currentOverlays = {...this.overlays};
 
         this.osmLayer = new OSMLayer();
         this.mapyLayer = new MapyLayer();
         this.outdoorsLayer = new OutdoorsLayer();
         this.googleTerrainLayer = new GoogleTerrainLayer();
+
+        this.stravaPublicLayer = new StravaPublicLayer();
+        this.osmTracesLayer = new OSMTracesLayer();
+
         this.currentLayer = this.osmLayer;
 
         this.springsFinalLayer = new SpringsFinalLayer();
@@ -115,6 +128,7 @@ export default class OpenLayersMap {
                 const event = new CustomEvent('spring-selected', {detail: {id: springId}});
                 window.dispatchEvent(event);
             } else {
+                window.history.pushState({springId: null}, 'Rodnik.today', window.location.origin + '/');
                 const event = new CustomEvent('spring-unselected');
                 window.dispatchEvent(event);
             }
@@ -228,6 +242,32 @@ export default class OpenLayersMap {
                 this.currentLayer = this.googleTerrainLayer;
                 this.map.addLayer(this.currentLayer);
                 break;
+        }
+    }
+
+    updateOverlays() {
+        if (this.overlays.stravaPublic) {
+            if (! this.currentOverlays.stravaPublic) {
+                this.map.addLayer(this.stravaPublicLayer);
+                this.currentOverlays.stravaPublic = true;
+            }
+        } else {
+            if (this.currentOverlays.stravaPublic) {
+                this.map.removeLayer(this.stravaPublicLayer);
+                this.currentOverlays.stravaPublic = false;
+            }
+        }
+
+        if (this.overlays.osmTraces) {
+            if (! this.currentOverlays.osmTraces) {
+                this.map.addLayer(this.osmTracesLayer);
+                this.currentOverlays.osmTraces = true;
+            }
+        } else {
+            if (this.currentOverlays.osmTraces) {
+                this.map.removeLayer(this.osmTracesLayer);
+                this.currentOverlays.osmTraces = false;
+            }
         }
     }
 

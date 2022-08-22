@@ -65,10 +65,6 @@ export default (feature, resolution) => {
         return hiddenStyle;
     }
 
-    if (! window.rodnikMap.filters.drinking_fountain && feature.get('type') == 'Питьевой фонтанчик') {
-        return hiddenStyle;
-    }
-
     if (! window.rodnikMap.filters.fountain && feature.get('type') == 'Фонтан') {
         return hiddenStyle;
     }
@@ -83,10 +79,6 @@ export default (feature, resolution) => {
 
     if (feature.get('intermittent') == 'yes'
         || feature.get('seasonal') == 'yes') {
-
-        if (! window.rodnikMap.filters.intermittent) {
-            return hiddenStyle;
-        }
 
         return intermittentStyle;
     }

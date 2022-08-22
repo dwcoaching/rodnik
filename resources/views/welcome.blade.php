@@ -1,10 +1,10 @@
 <x-app-layout>
     <div class="flex flex-col-reverse sm:flex-row w-screen h-full ">
-        <div class="w-full h-1/2 sm:w-1/2 sm:h-full" id="map"
+        <div class="w-full h-1/2 sm:w-1/2 sm:h-full resize" id="map"
             x-data="{}"
             x-init="initOpenLayers($el.id)">
         </div>
-        <div class="w-full h-1/2 sm:h-full sm:w-1/2 overflow-y-scroll px-6">
+        <div class="w-full h-1/2 sm:h-full sm:w-1/2 overflow-y-scroll px-6 resize">
              @include('navbar')
             <div class="">
                 <livewire:spring spring_id="{{ $springId }}" />
