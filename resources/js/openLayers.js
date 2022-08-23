@@ -104,10 +104,6 @@ export default class OpenLayersMap {
         });
 
         this.map.on('click', (e) => {
-            if (this.previouslySelectedFeature) {
-                this.previouslySelectedFeature.setStyle(finalStyle);
-            }
-
             // if (this.map.getView().getZoom() < 10) {
             //     return false;
             // }
@@ -120,6 +116,14 @@ export default class OpenLayersMap {
             });
 
             if (features.length > 0) {
+                if (this.previouslySelectedFeature) {
+                    if (features[0].get('id') == this.previouslySelectedFeature.get('id')) {
+                        return false;
+                    } else {
+                        this.previouslySelectedFeature.setStyle(finalStyle);
+                    }
+                }
+
                 this.selectFeature(features[0]);
 
                 let springId = features[0].get('id');
@@ -128,9 +132,14 @@ export default class OpenLayersMap {
                 const event = new CustomEvent('spring-selected', {detail: {id: springId}});
                 window.dispatchEvent(event);
             } else {
-                window.history.pushState({springId: null}, 'Rodnik.today', window.location.origin + '/');
-                const event = new CustomEvent('spring-unselected');
-                window.dispatchEvent(event);
+                if (this.previouslySelectedFeature) {
+                    this.previouslySelectedFeature.setStyle(finalStyle);
+                    this.previouslySelectedFeature = null;
+
+                    window.history.pushState({springId: null}, 'Rodnik.today', window.location.origin + '/');
+                    const event = new CustomEvent('spring-unselected');
+                    window.dispatchEvent(event);
+                }
             }
         });
     }

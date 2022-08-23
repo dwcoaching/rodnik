@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Spring;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 
 class SpringJsonController extends Controller
 {
@@ -16,7 +17,9 @@ class SpringJsonController extends Controller
         $limit = $request->query('limit', 0);
 
         $springsQuery = Spring::with('osm_tags')
-            ->withCount('reports')
+            ->withCount(['reports' => function(Builder $query) {
+                $query->whereNull('hidden_at');
+            }])
             ->where('latitude', '>', $latitude_from)
             ->where('latitude', '<', $latitude_to)
             ->where('longitude', '>', $longitude_from)
