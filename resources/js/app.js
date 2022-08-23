@@ -1,9 +1,12 @@
 import Alpine from 'alpinejs';
+import Clipboard from "@ryangjchandler/alpine-clipboard"
 import ImageBlobReduce from 'image-blob-reduce';
 import { v1 as uuidv1 } from 'uuid';
 import OpenLayersMap from './openLayers.js';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
+
+Alpine.plugin(Clipboard);
 
 window.Alpine = Alpine;
 window.ImageBlobReduce = new ImageBlobReduce();

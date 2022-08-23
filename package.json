@@ -20,6 +20,7 @@
         "vite": "^2.9.14"
     },
     "dependencies": {
+        "@ryangjchandler/alpine-clipboard": "^2.2.0",
         "image-blob-reduce": "^4.1.0",
         "ol": "^6.15.1",
         "photoswipe": "^5.3.0",
