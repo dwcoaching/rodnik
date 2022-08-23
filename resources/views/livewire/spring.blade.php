@@ -179,15 +179,17 @@
                     >Google Terrain</button>
                 </div>
 
-                <div class="mt-4 space-y-2 space-x-1">
+                <div class="mt-3 space-y-2 space-x-1">
                     <fieldset class="space-y-2">
                         <div class="relative flex items-start">
                             <div class="flex items-center h-5">
                                 <input @change="updateOverlays" x-model="overlays.stravaPublic" id="overlays.stravaPublic" name="overlays__stravaPublic" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                             </div>
                             <div class="ml-3 text-sm">
-                                <label for="overlays.stravaPublic" class="font-medium text-gray-700">Наложить Strava Heatmap</label>
-                                <p class="text-gray-500">Без подробной Heatmap для крупного масштаба — Strava это не разрешает</p>
+                                <label for="overlays.stravaPublic" class="font-regular text-gray-700">Strava Heatmap</label>
+                                {{--
+                                    <p class="text-gray-500">Без подробной Heatmap для крупного масштаба — Strava это не разрешает</p>
+                                --}}
                             </div>
                         </div>
                         <div class="relative flex items-start">
@@ -195,7 +197,7 @@
                                 <input @change="updateOverlays" x-model="overlays.osmTraces" id="overlays.osmTraces" name="overlays__osmTraces" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                             </div>
                             <div class="ml-3 text-sm">
-                                <label for="overlays.osmTraces" class="font-medium text-gray-700">Наложить OpenStreetMap Traces</label>
+                                <label for="overlays.osmTraces" class="font-regular text-gray-700">OpenStreetMap Traces</label>
                             </div>
                         </div>
                     </fieldset>

@@ -3,40 +3,32 @@
         <div class="pb-8">
             @if ($hasName)
                 <div class="flex justify-between">
-                    <a href="{{ route('show', ['springId' => $report->spring_id]) }}" class="display flex items-baseline group cursor-pointer">
-                        <div class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-xl mr-2 font-semibold ">{{ $report->spring->name }}</div>
-                        <div class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</div>
+                    <a href="{{ route('show', ['springId' => $report->spring_id]) }}" class="group cursor-pointer mr-2">
+                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-xl mr-2 font-semibold ">{{ $report->spring->name }}</span>
+                        <span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>
                     </a>
                     @if ($report->user_id == Auth::user()->id)
-                        <div x-data="{
-                            confirmed: false
-                        }">
-                            <span x-show="! confirmed" @click="confirmed = true" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить?</span>
-                            <span wire:click="hideByAuthor" x-cloak x-show="confirmed" class="mr-1 rounded-full bg-red-600 cursor-pointer hover:bg-red-700 text-white text-xs font-bold px-3 py-1">Да, удалить!</span>
-                            <span x-cloak x-show="confirmed" @click="confirmed = false" class=" rounded-full border-0 bg-gray-200 hover:bg-green-600 cursor-pointer text-gray-400 hover:text-white text-xs px-3 py-1">Ой, не надо!</span>
+                        <div class="flex-1 text-right">
+                            <span wire:click="hideByAuthor" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
                         </div>
                     @endif
                 </div>
             @endif
             <div class="flex mt-1 space-x-3">
                 <div class="flex-1">
-                  <div class="flex items-center justify-between">
+                  <div class="flex  justify-between">
                     <h3 class="text-base font-light">
                       <span class="font-semibold">{{ Date::parse($report->created_at)->format('j F Y') }},</span>
                       <span class="">{{ Date::parse($report->created_at)->format('H:i') }}</span>,
                       @if ($report->user_id)
-                          {{ $report->user->name }}:
+                          {{ $report->user->name }}
                       @else
-                          Анонимно:
+                          Анонимно
                       @endif
                     </h3>
                     @if (! $hasName && $report->user_id == Auth::user()->id)
-                        <div x-data="{
-                            confirmed: false
-                        }">
-                            <span x-show="! confirmed" @click="confirmed = true" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить?</span>
-                            <span wire:click="hideByAuthor" x-cloak x-show="confirmed" class="mr-1 rounded-full bg-red-600 cursor-pointer hover:bg-red-700 text-white text-xs font-bold px-3 py-1">Да, удалить!</span>
-                            <span x-cloak x-show="confirmed" @click="confirmed = false" class=" rounded-full border-0 bg-gray-200 hover:bg-green-600 cursor-pointer text-gray-400 hover:text-white text-xs px-3 py-1">Ой, не надо!</span>
+                        <div class="flex-1 text-right">
+                            <span wire:click="hideByAuthor" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
                         </div>
                     @endif
                   </div>
@@ -92,6 +84,13 @@
                     </div>
                 </div>
             </div>
+        </div>
+    @elseif ($justHidden)
+        <div class="pb-8 flex items-center">
+            <div class="text-sm text-medium text-gray-600 mr-2">
+                Отчет удален
+            </div>
+            <span wire:click="unhideByAuthor" class="rounded-full border-0 bg-green-600 hover:bg-green-700 cursor-pointer text-white text-xs px-3 py-1">Восстановить</span>
         </div>
     @endif
 </li>
