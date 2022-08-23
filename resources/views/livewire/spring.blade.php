@@ -142,8 +142,8 @@
             </div>
 
             <div>
-                <div class="mt-6 space-y-2 space-x-1">
-                    <button @click="source('osm')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                <div class="mt-6 space-y-2">
+                    <button @click="source('osm')" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         :class="{
                             'bg-white': active != 'osm',
                             'bg-blue-600': active == 'osm',
@@ -151,7 +151,7 @@
                             'text-white': active == 'osm'
                         }"
                     >OpenStreetMap</button>
-                    <button @click="source('mapy')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    <button @click="source('mapy')" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         :class="{
                             'bg-white': active != 'mapy',
                             'bg-blue-600': active == 'mapy',
@@ -160,7 +160,7 @@
                         }"
                     >Mapy.cz</button>
                 {{--
-                    <button @click="source('outdoors')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    <button @click="source('outdoors')" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         :class="{
                             'bg-white': active == 'outdoors',
                             'bg-blue-600': active != 'outdoors',
@@ -208,7 +208,7 @@
         <div class="mt-16 text-3xl font-bold">Последние отчеты</div>
         <ul role="list" class="pt-4">
             @foreach ($lastReports as $report)
-                <x-report has-name="true" :report="$report" />
+                <livewire:reports.show has-name="true" :report="$report" />
             @endforeach
         </ul>
 
@@ -257,7 +257,7 @@
             <div class="mt-3">
                 <ul role="list" class="">
                     @foreach ($reports as $report)
-                        <x-report has-name="false" :report="$report"/>
+                        <livewire:reports.show has-name="false" :report="$report" />
                     @endforeach
                 </ul>
             </div>
