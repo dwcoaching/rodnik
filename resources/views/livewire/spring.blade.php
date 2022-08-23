@@ -210,7 +210,7 @@
         <div class="mt-16 text-3xl font-bold">Последние отчеты</div>
         <ul role="list" class="pt-4">
             @foreach ($lastReports as $report)
-                <livewire:reports.show has-name="true" :report="$report" />
+                <livewire:reports.show has-name="true" :report="$report" wire:key="reports.latest.show.{{ $report->id }}" />
             @endforeach
         </ul>
 
@@ -259,7 +259,7 @@
             <div class="mt-3">
                 <ul role="list" class="">
                     @foreach ($reports as $report)
-                        <livewire:reports.show has-name="false" :report="$report" />
+                        <livewire:reports.show has-name="false" :report="$report" wire:key="spring.reports.show.{{ $report->id }}" />
                     @endforeach
                 </ul>
             </div>
