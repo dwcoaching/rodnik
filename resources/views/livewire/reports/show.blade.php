@@ -7,7 +7,7 @@
                         <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-xl mr-2 font-semibold ">{{ $report->spring->name }}</span>
                         <span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>
                     </a>
-                    @if ($report->user_id == Auth::user()->id)
+                    @if (Auth::check() && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
                             <span wire:click="hideByAuthor" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
                         </div>
@@ -26,7 +26,7 @@
                           Анонимно
                       @endif
                     </h3>
-                    @if (! $hasName && $report->user_id == Auth::user()->id)
+                    @if (! $hasName && Auth::check() && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
                             <span wire:click="hideByAuthor" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
                         </div>
