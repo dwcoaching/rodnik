@@ -6,7 +6,8 @@ import { OSM, XYZ, Vector as VectorSource} from 'ol/src/source';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/src/layer';
 import { fromLonLat, toLonLat } from 'ol/src/proj';
 import GeoJSON from 'ol/src/format/GeoJSON';
-import { ScaleLine, defaults as defaultControls } from 'ol/src/control';
+import { ScaleLine, FullScreen, defaults as defaultControls } from 'ol/src/control';
+
 import { createXYZ } from 'ol/src/tilegrid';
 import { tile } from 'ol/src/loadingstrategy';
 import Geolocation from 'ol/Geolocation';
@@ -91,8 +92,10 @@ export default class OpenLayersMap {
             minWidth: 100,
         });
 
+        this.fullScreenControl = new FullScreen();
+
         this.map = new Map({
-            controls: defaultControls().extend([this.scaleControl]),
+            controls: defaultControls().extend([this.scaleControl, this.fullScreenControl]),
             target: this.elementId,
             layers: [this.osmLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
             view: this.view,
