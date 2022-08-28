@@ -1,81 +1,127 @@
-<div class="mx-auto max-w-lg">
-  <form wire:submit.prevent="store">
-    <div class="lg:flex lg:items-center lg:justify-between">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <form wire:submit.prevent="store"
+        x-data="{
+            state: null,
+            quality: null,
+            notfound: false,
+            abandoned: false,
+            notfound: false,
+            abandoned: false,
+            wrongcoordinates: false,
+            drinkingwater: false,
+            drinkingwaterconditional: false,
+            drinkingwaterno: false,
+            stale: false,
+            dripping: false,
+            drinkingwaterlegal: false,
+            drinkingwaterlegalno: false,
+            wheelchair: false,
+            bottle: false,
+            dog: false,
+            error: false,
+            errorTop: false,
+    }">
+
+    <div class="flex items-center justify-between">
       <div class="flex-1 min-w-0">
-        <nav class="flex" aria-label="Breadcrumb">
-          <ol role="list" class="flex items-center space-x-4">
-            <li>
-              <div class="flex">
-                <a href="#" class="text-sm font-medium text-gray-500 hover:text-gray-700">{{ $spring->name }}</a>
-              </div>
-            </li>
-          </ol>
-        </nav>
-        <h2 class="mt-2 text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">Добавить отзыв</h2>
-        <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:mt-0 sm:space-x-6">
-          <div class="mt-2 flex items-center text-sm text-gray-500">
-            Все поля необязательные
-          </div>
-        </div>
-      </div>
-      <div class="mt-5 flex lg:mt-0 lg:ml-4">
+            <a href="{{ route('show', $spring) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
+                <span class="mr-2 inline-flex items-center">
+                    {{--
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                        </svg>
+                    --}}
+                    {{ $spring->name }}
+                </span>
+                <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
+            </a>
+            <div class="text-gray-600 mt-2 text-sm flex flex-wrap items-center">
+                @if (true || $spring->name !== $spring->type())
+                    <div class="text-sm mr-3 mb-2">
+                        {{ $spring->type() }}
+                    </div>
+                @endif
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="mb-2 mr-1 block w-5 h-5">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-1.5 0a6.5 6.5 0 11-11-4.69v.447a3.5 3.5 0 001.025 2.475L8.293 10 8 10.293a1 1 0 000 1.414l1.06 1.06a1.5 1.5 0 01.44 1.061v.363a1 1 0 00.553.894l.276.139a1 1 0 001.342-.448l1.454-2.908a1.5 1.5 0 00-.281-1.731l-.772-.772a1 1 0 00-1.023-.242l-.384.128a.5.5 0 01-.606-.25l-.296-.592a.481.481 0 01.646-.646l.262.131a1 1 0 00.447.106h.188a1 1 0 00.949-1.316l-.068-.204a.5.5 0 01.149-.538l1.44-1.234A6.492 6.492 0 0116.5 10z" clip-rule="evenodd" />
+                </svg>
+                <span class="mr-3 mb-2">
+                    {{ $spring->longitude }}, {{ $spring->latitude }}
+                </span>
+                <span @click="errorTop = errorTop ? 0 : 1"
+                    class="mb-2 inline-block text-xs font-regular font-gray-700 cursor-pointer rounded-full bg-white border shadow-sm  px-2.5 py-1"
+                    x-bind:class="{
+                        'border-gray-600': errorTop,
+                        'border-white': ! errorTop,
+                    }"
+                    >
+                    Уточнить
+                </span>
+            </div>
+
+
       </div>
     </div>
 
-    <div class="mt-8">
-      <label for="visited_at" class="block text-sm font-medium text-gray-700">Дата посещения</label>
+    <div x-show="errorTop" x-cloak class="mt-0 mb-10 max-w-lg>
+        <fieldset class="">
+            <div class="rounded-md shadow-sm -space-y-px bg-white">
+                <div class="relative border border-gray-300 rounded-md rounded-b-none px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+                    <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название</label>
+                    <input value="{{ $spring->name }}" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Без названия">
+                </div>
+                <div class="relative border border-gray-300 rounded-none px-0 pt-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+                    <label for="type" class="px-3 block text-sm font-light text-gray-600 -mb-1">Тип</label>
+                    <select x-ref="type" id="type" name="type" class="block w-full rounded-none
+                        border-0 px-3 py-2 bg-transparent focus:z-10 sm:text-sm border-gray-300
+                        focus:ring-0
+                    ">
+                        <option>Родник</option>
+                        <option>Колодец</option>
+                        <option>Кран</option>
+                    </select>
+                </div>
+                <div class="relative border border-gray-300 rounded-md rounded-t-none px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+                    <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">Широта, долгота</label>
+                    <input value="{{ $spring->latitude }}, {{ $spring->longitude }}" type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Head of Tomfoolery">
+                </div>
+            </div>
+          </fieldset>
+    </div>
+
+    <div class="mt-4 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+        <label for="name" class="block text-sm font-light text-gray-600 mb-1">Дата посещения</label>
+        <input wire:model.defer="report.visited_at" type="date" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Jane Smith">
+    </div>
+{{--
+    <div class="mt-4">
+      <label for="visited_at" class="block text-sm font-regular text-gray-700">Дата посещения</label>
       <div class="mt-1">
-        <input wire:model.defer="report.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md max-w-xs" />
+        <input wire:model.defer="report.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
       </div>
     </div>
-    <div class="mt-6">
-      <label class="block text-sm font-medium text-gray-700">Вода есть?</label>
-      <fieldset class="mt-1">
-        <div class="space-y-2">
-          <div class="flex items-center">
-            <input wire:model="report.state" id="dry" name="state" value="dry" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-            <label for="dry" class="ml-3 block text-sm font-regular text-gray-700"> Воды нет </label>
-          </div>
+--}}
+    <div class="mt-4">
+        <div>
+            <div class="mb-2">
+                <x-chip-radio name="💧 Вода есть" key="state" value="running" />
+                <x-chip-radio name="🌵 Воды нет" key="state" value="dry" />
+            </div>
+            <div x-show="state !== 'dry'">
+                <x-chip-radio name="🚰 Вода отличная" key="quality" value="good" />
+                <x-chip-radio name="🚱 Вода плохая" key="quality" value="poor" />
+            </div>
 
-          <div class="flex items-center">
-            <input wire:model="report.state" id="dripping" name="state" value="dripping" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-            <label for="dripping" class="ml-3 block text-sm font-regular text-gray-700"> Есть, но мало </label>
-          </div>
 
-          <div class="flex items-center">
-            <input wire:model="report.state" id="running" name="state" value="running" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-            <label for="running" class="ml-3 block text-sm font-regular text-gray-700"> Вода есть </label>
-          </div>
+
         </div>
-      </fieldset>
-    </div>
-    <div class="mt-6">
-      <label class="block text-sm font-medium text-gray-700">Субъективная оценка качества воды</label>
-      <fieldset class="mt-1">
-        <div class="space-y-2">
-          <div class="flex items-center">
-            <input wire:model="report.quality" id="bad" name="quality" value="bad" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-            <label for="bad" class="ml-3 block text-sm font-regular text-gray-700"> Вода плохая </label>
-          </div>
-
-          <div class="flex items-center">
-            <input wire:model="report.quality" id="uncertain" name="quality" value="uncertain" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-            <label for="uncertain" class="ml-3 block text-sm font-regular text-gray-700"> Сложно сказать, не понятно </label>
-          </div>
-
-          <div class="flex items-center">
-            <input wire:model="report.quality" id="good" name="quality" value="good" type="radio" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
-            <label for="good" class="ml-3 block text-sm font-regular text-gray-700"> Вода отличная </label>
-          </div>
-        </div>
-      </fieldset>
     </div>
 
-    <div class="mt-6">
-      <label for="comment" class="block text-sm font-medium text-gray-700">Комментарий</label>
-      <div class="mt-1 relative">
+    <div class="mt-2">
+      <div class="relative">
         <textarea wire:model.defer="report.comment" rows="4" name="comment" id="comment"
+            placeholder="Комментарий"
           @class([
+            'max-w-lg',
             'shadow-sm',
             'block',
             'w-full',
@@ -102,7 +148,21 @@
       @error('report.comment') <p class="mt-2 text-sm text-red-600" id="email-error">{{ $message }}</p> @enderror
     </div>
 
-    <div class="sm:col-span-6 mt-6"
+    @if ($photos->count())
+        <ul role="list" class="mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+            @foreach ($photos as $photo)
+                <li class="">
+                    <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-blue-500 overflow-hidden">
+                        <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
+                        <div wire:click="removePhoto({{ $photo->id }})" class="opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
+                            style="text-shadow: 0px 0px 2px #000;">×</div>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+    @endif
+
+    <div class="sm:col-span-6 mt-2"
         x-data="{
             dragover: false,
             filesInProgress: [],
@@ -110,7 +170,7 @@
                 this.filesInProgress = [...this.filesInProgress, data];
             },
             removeFileInProgress: function(id) {
-                this.filesInProgress = this.filesInProgress.filter(item => item.id !== id);
+                this.filesInProgress.filter(item => item.id !== id);
             },
             updateFileInProgress: function(id, event) {
                 this.filesInProgress.forEach(item => {
@@ -157,89 +217,77 @@
             }
         }"
     >
-        <label for="cover-photo" class="block text-sm font-medium text-gray-700"> Фото </label>
-        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
-            x-bind:class="{
-                'bg-blue-100': dragover
-            }"
-            x-on:drop="dragover = false"
-            x-on:drop.prevent="
-                handleFileDrop($event)
-            "
-            x-on:dragover.prevent="dragover = true"
-            x-on:dragleave.prevent="dragover = false"
-        >
-            <div class="space-y-1 text-center">
-                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <div class="flex text-sm text-gray-600">
-                    <label for="file-upload" class="relative cursor-pointer  rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                        <span>Выберите фото</span>
-                        <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">
-                    </label>
-                    <p class="pl-1">или перетащите сюда</p>
-                </div>
-                <p class="text-xs text-gray-500">PNG, JPG, GIF не более 10 Мб</p>
-                <div x-show="filesInProgress.length" class="mt-6">
-                    <template x-for="file in filesInProgress">
-                        <div class="mt-2 mb-2">
-                            <b>Файл <span x-text="file.name"></span> загружается</b><br>
-                            исходный размер <span x-text="file.oldSize"></span> байт<br>
-                            загружаемый размер <span x-text="file.newSize"></span> байт<br>
-                            загружено <span x-text="file.progress"></span>%
-                        </div>
-                    </template>
+        <label for="file-upload" class="cursor-pointer group">
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl"
+                x-bind:class="{
+                    'bg-blue-100': dragover
+                }"
+                x-on:drop="dragover = false"
+                x-on:drop.prevent="
+                    handleFileDrop($event)
+                "
+                x-on:dragover.prevent="dragover = true"
+                x-on:dragleave.prevent="dragover = false"
+            >
+                <div class="text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-1" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class=" text-sm text-gray-600">
+                        <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
+                            <span class="font-bold">Выберите фото</span>
+                            <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">
+                        </label>
+                        <p class="inline pl-1">или перетащите сюда</p>
+                    </div>
+                    <p class="text-xs text-gray-500">PNG, JPG, GIF не более 10 Мб</p>
+                    <div x-show="filesInProgress.length" class="mt-6">
+                        <template x-for="file in filesInProgress">
+                            <div class="mt-2 mb-2">
+                                <b>Файл <span x-text="file.name"></span> загружается</b><br>
+                                исходный размер <span x-text="file.oldSize"></span> байт<br>
+                                загружаемый размер <span x-text="file.newSize"></span> байт<br>
+                                загружено <span x-text="file.progress"></span>%
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
-        </div>
+        </label>
     </div>
 
-    <ul role="list" class="mt-3 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
-        @foreach ($photos as $photo)
-            <li class="">
-                <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-indigo-500 overflow-hidden">
-                    <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full">
-                </div>
-            </li>
-        @endforeach
-    </ul>
 
-    <div class="pt-5">
-        <div class="flex space-x-3 items-center">
-            @auth
-                <img class="h-8 w-8 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
-            @endauth
-            @guest
-                <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=3&w=256&h=256&q=80" alt="">
-            @endguest
-            <div class="text-sm font-regular mr-3">
-                @auth
-                    {{ Auth::user()->name }}
-                @endauth
-                @guest
-                    Анонимно
-                @endguest
-            </div>
-            @guest
-                <div class="text-sm text-gray-600">
-                    можете
-                    <a href="{{ route('login') }}"
-                    class="text-blue-600 hover:text-blue-900">
-                        войти
-                    </a>
-                    или
-                    <a href="{{ route('register') }}"
-                        class="text-blue-600 hover:text-blue-900">
-                        зарегистрироваться
-                    </a>
-                </div>
-            @endguest
-        </div>
+    <div class="mt-6 block text-sm font-regular text-gray-700">Источник</div>
+    <div class="mt-2 overflow-x-scroll">
+        <x-chip-checkbox name="Стоячая вода" key="stale" />
+        <x-chip-checkbox name="Очень слабый поток" key="dripping" />
+        <x-chip-checkbox name="Источник заброшен" key="abandoned" />
+        <x-chip-checkbox name="Источник не обнаружен" key="notfound" />
     </div>
-    <div class="pt-5">
+
+    <div class="mt-6 block text-sm font-regular text-gray-700">Вода</div>
+    <div class="mt-2 overflow-x-scroll">
+        <x-chip-checkbox name="Питьевая вода" key="drinkingwater" />
+        <x-chip-checkbox name="Требуется фильтрация или кипячение" key="drinkingwaterconditional" />
+        <x-chip-checkbox name="Не пригодна для питья" key="drinkingwaterno" />
+
+        <x-chip-checkbox name="Табличка «Питьевая вода»" key="drinkingwaterlegal" />
+        <x-chip-checkbox name="Табличка «Вода не для питья»" key="drinkingwaterlegalno" />
+    </div>
+
+
+{{--
+    <label for="" class="mt-6 block text-sm font-medium text-gray-700"></label>
+    <div class="">
+        <x-chip-checkbox name="Доступ на коляске" key="wheelchair" />
+        <x-chip-checkbox name="Удобно набрать в бутылку" key="bottle" />
+        <x-chip-checkbox name="Миска для животных" key="dog" />
+    </div>
+--}}
+
+    <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
-          <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Добавить отзыв</button>
+          <button type="button" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Добавить отчет</button>
         </div>
     </div>
   </form>

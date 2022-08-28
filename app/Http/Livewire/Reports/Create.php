@@ -96,4 +96,9 @@ class Create extends Component
 
         $this->photosIds[] = $photo->id;
     }
+
+    public function removePhoto($photoId)
+    {
+        array_splice($this->photosIds, array_search($photoId, $this->photosIds), 1);
+    }
 }

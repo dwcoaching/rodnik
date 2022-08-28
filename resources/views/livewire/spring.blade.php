@@ -219,7 +219,8 @@
     @if ($spring)
         <div class="">
             <div class="text-3xl font-bold">
-                {{ $spring->name }}
+                <span class="mr-2">{{ $spring->name }}</span>
+                <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
             </div>
             <div class="mt-3 text-gray-500 text-sm cursor-pointer"
                 x-data="{
