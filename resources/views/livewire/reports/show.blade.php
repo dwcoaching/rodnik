@@ -42,6 +42,10 @@
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Воды нет </span>
                       @endif
 
+                      @if ($report->state == 'notfound')
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Источник не обнаружен </span>
+                      @endif
+
                       @if ($report->state == 'dripping')
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Воды мало </span>
                       @endif
@@ -59,7 +63,7 @@
                       @endif
 
                       @if ($report->quality == 'good')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Вода отличная </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Вода хорошая </span>
                       @endif
                     </div>
 

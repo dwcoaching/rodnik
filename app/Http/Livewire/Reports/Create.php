@@ -25,7 +25,7 @@ class Create extends Component
             'report.visited_at' => 'nullable|date',
             'report.state' => [
                 'nullable',
-                Rule::in(['dry', 'dripping', 'running'])
+                Rule::in(['dry', 'dripping', 'running', 'notfound'])
             ],
             'report.quality' => [
                 'nullable',

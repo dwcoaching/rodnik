@@ -1,25 +1,23 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
     <form wire:submit.prevent="store"
         x-data="{
-            state: null,
-            quality: null,
-            notfound: false,
-            abandoned: false,
-            notfound: false,
-            abandoned: false,
-            wrongcoordinates: false,
-            drinkingwater: false,
-            drinkingwaterconditional: false,
-            drinkingwaterno: false,
-            stale: false,
-            dripping: false,
-            drinkingwaterlegal: false,
-            drinkingwaterlegalno: false,
-            wheelchair: false,
-            bottle: false,
-            dog: false,
-            error: false,
+            visited_at: @entangle('report.visited_at').defer,
+            state: @entangle('report.state').defer,
+            quality: @entangle('report.quality').defer,
             errorTop: false,
+
+            withDate: true,
+            previousDate: null,
+            toggleDate: function() {
+                if (this.withDate) {
+                    this.previousDate = this.visited_at;
+                    this.withDate = false;
+                    this.visited_at = null;
+                } else {
+                    this.visited_at = this.previousDate;
+                    this.withDate = true;
+                }
+            }
     }">
 
     <div class="flex items-center justify-between">
@@ -36,7 +34,7 @@
                 <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
             </a>
             <div class="text-gray-600 mt-2 text-sm flex flex-wrap items-center">
-                @if (true || $spring->name !== $spring->type())
+                @if ($spring->name !== $spring->type())
                     <div class="text-sm mr-3 mb-2">
                         {{ $spring->type() }}
                     </div>
@@ -47,15 +45,17 @@
                 <span class="mr-3 mb-2">
                     {{ $spring->longitude }}, {{ $spring->latitude }}
                 </span>
-                <span @click="errorTop = errorTop ? 0 : 1"
-                    class="mb-2 inline-block text-xs font-regular font-gray-700 cursor-pointer rounded-full bg-white border shadow-sm  px-2.5 py-1"
-                    x-bind:class="{
-                        'border-gray-600': errorTop,
-                        'border-white': ! errorTop,
-                    }"
-                    >
-                    Уточнить
-                </span>
+                {{--
+                    <span @click="errorTop = errorTop ? 0 : 1"
+                        class="mb-2 inline-block text-xs font-regular font-gray-700 cursor-pointer rounded-full bg-white border shadow-sm  px-2.5 py-1"
+                        x-bind:class="{
+                            'border-gray-600': errorTop,
+                            'border-white': ! errorTop,
+                        }"
+                        >
+                        Уточнить
+                    </span>
+                --}}
             </div>
 
 
@@ -88,15 +88,13 @@
         </fieldset>
     </div>
 
-    <div x-data="{
-        withDate: true
-    }"
+    <div
         class="relative mt-4 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
             <span class="mr-3">
                 Дата посещения
             </span>
-            <span @click="withDate = ! withDate" class="cursor-pointer text-blue-600 text-xs"
+            <span @click="toggleDate" class="cursor-pointer text-blue-600 text-xs"
                 :class="{
                     'font-bold': ! withDate
                 }"
@@ -104,7 +102,7 @@
                 не указывать
             </span>
         </label>
-        <input x-show="withDate" wire:model.defer="report.visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
+        <input x-show="withDate" x-model="visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
     </div>
 {{--
     <div class="mt-4">
@@ -119,11 +117,14 @@
             <div class="mb-2">
                 <x-chip-radio name="💧 Вода есть" key="state" value="running" />
                 <x-chip-radio name="🌵 Воды нет" key="state" value="dry" />
+                <x-chip-radio name="😡 Источник не обнаружен" key="state" value="notfound" />
             </div>
-            <div x-show="state !== 'dry'">
-                <x-chip-radio name="🚰 Вода отличная" key="quality" value="good" />
-                <x-chip-radio name="🚱 Вода плохая" key="quality" value="poor" />
+            <div x-show="state !== 'dry' && state !== 'notfound'">
+                <x-chip-radio name="🚰 Вода хорошая" key="quality" value="good" />
+                <x-chip-radio name="🚱 Вода плохая" key="quality" value="bad" />
             </div>
+
+
 
 
 
@@ -164,7 +165,7 @@
 
 
     @if ($photos->count())
-        <ul role="list" class="mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+        <ul role="list" class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($photos as $photo)
                 <li class="">
                     <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-blue-500 overflow-hidden">
@@ -177,7 +178,7 @@
         </ul>
     @endif
 
-    <div class="sm:col-span-6 mt-2"
+    <div class="sm:col-span-6 mt-2 max-w-3xl"
         x-data="{
             dragover: false,
             filesInProgress: [],
@@ -185,8 +186,9 @@
                 this.filesInProgress = [...this.filesInProgress, data];
             },
             removeFileInProgress: function(id) {
-                let result = this.filesInProgress.filter(item => item.id !== id);
-                this.filesInProgress = result;
+                $nextTick(() => {
+                    this.filesInProgress = this.filesInProgress.filter(item => item.id !== id);
+                })
             },
             updateFileInProgress: function(id, event) {
                 this.filesInProgress.forEach(item => {
@@ -246,9 +248,17 @@
                 x-on:dragleave.prevent="dragover = false"
             >
                 <div class="text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-1" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <div class="h-12 mb-1 flex items-center" x-show="filesInProgress.length">
+                        <svg class="mx-auto flex animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <div x-show="filesInProgress.length == 0" class="h-12 mb-1">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
                     <div class=" text-sm text-gray-600">
                         <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
                             <span class="font-bold">Выберите фото</span>
@@ -272,8 +282,17 @@
         </label>
     </div>
 
-
-
+{{--
+    <div class="mt-2 overflow-x-scroll">
+        <x-chip-checkbox name="Стоячая вода" key="stale" />
+        <x-chip-checkbox name="Очень слабый поток" key="dripping" />
+        <x-chip-checkbox name="Требуется фильтрация или кипячение" key="drinkingwaterconditional" />
+        <x-chip-checkbox name="Источник заброшен" key="abandoned" />
+        <x-chip-checkbox name="Табличка «Питьевая вода»" key="drinkingwaterlegal" />
+        <x-chip-checkbox name="Табличка «Вода не для питья»" key="drinkingwaterlegalno" />
+    </div>
+--}}
+{{--
     <div class="mt-6 block text-sm font-regular text-gray-700">Источник</div>
     <div class="mt-2 overflow-x-scroll">
         <x-chip-checkbox name="Стоячая вода" key="stale" />
@@ -291,7 +310,7 @@
         <x-chip-checkbox name="Табличка «Питьевая вода»" key="drinkingwaterlegal" />
         <x-chip-checkbox name="Табличка «Вода не для питья»" key="drinkingwaterlegalno" />
     </div>
-
+--}}
 
 {{--
     <label for="" class="mt-6 block text-sm font-medium text-gray-700"></label>
@@ -304,7 +323,7 @@
 
     <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
-          <button type="button" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Добавить отчет</button>
+          <input type="submit" value="Добавить отчет" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" />
         </div>
     </div>
   </form>
