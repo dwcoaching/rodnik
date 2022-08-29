@@ -9,7 +9,7 @@ import { toLonLat } from 'ol/src/proj';
 export default class SpringsApproximateLayer extends VectorLayer {
     constructor() {
         super({
-            minZoom: 5,
+            minZoom: 6,
             maxZoom: 9,
             source: new VectorSource({
                 format: new GeoJSON(),
@@ -27,7 +27,7 @@ export default class SpringsApproximateLayer extends VectorLayer {
                         + '&latitude_to=' + to[1]
                         + '&longitude_from=' + from[0]
                         + '&longitude_to=' + to[0]
-                        + '&limit=500'
+                        + '&limit=1000'
                 }
             }),
             style: style,

@@ -17,14 +17,18 @@ class SpringJsonController extends Controller
         $longitude_to = $request->query('longitude_to', 38);
         $limit = $request->query('limit', 0);
 
-        $springsQuery = Spring::with('osm_tags')
-            ->where('latitude', '>', $latitude_from)
-            ->where('latitude', '<', $latitude_to)
-            ->where('longitude', '>', $longitude_from)
-            ->where('longitude', '<', $longitude_to);
+        $springsQuery = Spring::with('osm_tags');
+
+        $latitudeFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
+            $query->where('latitude', '>', $latitude_from)
+                ->where('latitude', '<', $latitude_to)
+                ->where('longitude', '>', $longitude_from)
+                ->where('longitude', '<', $longitude_to);
+        };
 
         $randomQuery = DB::table('springs')
             ->select('id')
+            ->where($latitudeFunction)
             ->inRandomOrder()
             ->limit($limit);
 
@@ -33,7 +37,9 @@ class SpringJsonController extends Controller
                 $join->on('springs.id', '=', 'randomSprings.id');
             });
         } else {
-            $springsQuery->withCount(['reports' => function(Builder $query) {
+            $springsQuery
+                ->where($latitudeFunction)
+                ->withCount(['reports' => function(Builder $query) {
                 $query->whereNull('hidden_at');
             }]);
         }
