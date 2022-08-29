@@ -62,8 +62,8 @@
       </div>
     </div>
 
-    <div x-show="errorTop" x-cloak class="mt-0 mb-10 max-w-lg>
-        <fieldset class="">
+    <div x-show="errorTop" x-cloak class="mt-0 mb-10 max-w-lg">
+        <fieldset class="s">
             <div class="rounded-md shadow-sm -space-y-px bg-white">
                 <div class="relative border border-gray-300 rounded-md rounded-b-none px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
                     <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название</label>
@@ -85,12 +85,26 @@
                     <input value="{{ $spring->latitude }}, {{ $spring->longitude }}" type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Head of Tomfoolery">
                 </div>
             </div>
-          </fieldset>
+        </fieldset>
     </div>
 
-    <div class="mt-4 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-        <label for="name" class="block text-sm font-light text-gray-600 mb-1">Дата посещения</label>
-        <input wire:model.defer="report.visited_at" type="date" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Jane Smith">
+    <div x-data="{
+        withDate: true
+    }"
+        class="relative mt-4 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+        <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
+            <span class="mr-3">
+                Дата посещения
+            </span>
+            <span @click="withDate = ! withDate" class="cursor-pointer text-blue-600 text-xs"
+                :class="{
+                    'font-bold': ! withDate
+                }"
+            >
+                не указывать
+            </span>
+        </label>
+        <input x-show="withDate" wire:model.defer="report.visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
     </div>
 {{--
     <div class="mt-4">
@@ -148,6 +162,7 @@
       @error('report.comment') <p class="mt-2 text-sm text-red-600" id="email-error">{{ $message }}</p> @enderror
     </div>
 
+
     @if ($photos->count())
         <ul role="list" class="mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($photos as $photo)
@@ -170,7 +185,8 @@
                 this.filesInProgress = [...this.filesInProgress, data];
             },
             removeFileInProgress: function(id) {
-                this.filesInProgress.filter(item => item.id !== id);
+                let result = this.filesInProgress.filter(item => item.id !== id);
+                this.filesInProgress = result;
             },
             updateFileInProgress: function(id, event) {
                 this.filesInProgress.forEach(item => {
@@ -241,7 +257,7 @@
                         <p class="inline pl-1">или перетащите сюда</p>
                     </div>
                     <p class="text-xs text-gray-500">PNG, JPG, GIF не более 10 Мб</p>
-                    <div x-show="filesInProgress.length" class="mt-6">
+                    <div x-show="0 && filesInProgress.length" class="mt-6">
                         <template x-for="file in filesInProgress">
                             <div class="mt-2 mb-2">
                                 <b>Файл <span x-text="file.name"></span> загружается</b><br>
@@ -255,6 +271,7 @@
             </div>
         </label>
     </div>
+
 
 
     <div class="mt-6 block text-sm font-regular text-gray-700">Источник</div>
