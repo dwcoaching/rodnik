@@ -39,9 +39,13 @@ class SpringJsonController extends Controller
         } else {
             $springsQuery
                 ->where($latitudeFunction)
-                ->withCount(['reports' => function(Builder $query) {
-                $query->whereNull('hidden_at');
-            }]);
+                ->withCount(
+                    [
+                        'reports' => function(Builder $query) {
+                            $query->whereNull('hidden_at');
+                        }
+                    ]
+                );
         }
 
         $springs = $springsQuery->get();

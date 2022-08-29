@@ -18,6 +18,7 @@
         "livewire/livewire": "^2.10.6"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.7",
         "fakerphp/faker": "^1.9.1",
         "laravel-lang/lang": "^11.0",
         "laravel-lang/publisher": "^14.0",
