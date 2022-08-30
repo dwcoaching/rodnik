@@ -47,15 +47,22 @@
             window.rodnikMap.updateOverlays();
         }
     }"
-    x-on:spring-selected.window="$wire.setSpring($event.detail.id)"
-    x-on:spring-unselected.window="$wire.unselectSpring()"
+    x-on:spring-selected.window="
+        $wire.setSpring($event.detail.id);
+        ym(90143259, 'hit', window.location.origin + '/' + $event.detail.id);
+    "
+    x-on:spring-unselected.window="
+        $wire.unselectSpring()
+        ym(90143259, 'hit', window.location.origin + '/');
+    "
     x-on:popstate.window="
         if ($event.state && $event.state.springId) {
             locateMap = true;
             const event = new CustomEvent('spring-selected', {detail: {id: $event.state.springId}});
             window.dispatchEvent(event);
         } else {
-            $wire.unselectSpring();
+            const event = new CustomEvent('spring-unselected');
+            window.dispatchEvent(event);
         }"
     x-init="
         if ({{ intval($springId)}} && locateMap) {
@@ -217,7 +224,7 @@
     @endif
 
     @if ($spring)
-        <div class="">
+        <div class="" wire:key="spring.{{ $spring->id }}">
             <div class="text-3xl font-bold">
                 <span class="mr-2">{{ $spring->name }}</span>
                 <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>

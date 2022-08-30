@@ -27,5 +27,3 @@ window.initPhotoSwipe = function(id) {
 
 Alpine.start();
 
-
-

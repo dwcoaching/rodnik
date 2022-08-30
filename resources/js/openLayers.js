@@ -140,6 +140,7 @@ export default class OpenLayersMap {
                     this.previouslySelectedFeature = null;
 
                     window.history.pushState({springId: null}, 'Rodnik.today', window.location.origin + '/');
+
                     const event = new CustomEvent('spring-unselected');
                     window.dispatchEvent(event);
                 }
