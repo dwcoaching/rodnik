@@ -114,18 +114,14 @@
 --}}
     <div class="mt-4">
         <div>
-            <div class="">
+            <div class="mb-2">
                 <x-chip-radio name="💧 Вода есть" key="state" value="running" />
                 <x-chip-radio name="🌵 Воды нет" key="state" value="dry" />
                 <x-chip-radio name="😡 Источник не обнаружен" key="state" value="notfound" />
             </div>
-            <div x-show="state == 'running'" x-cloak>
-                <div class="mt-4 mb-2 block text-sm font-regular text-gray-600">Вы бы стали пить?</div>
-                <div x-show="state !== 'dry' && state !== 'notfound'">
-                    <x-chip-radio name="🚰 Да, конечно!" key="quality" value="good" />
-                    <x-chip-radio name="♨️ После кипячения" key="quality" value="uncertain" />
-                    <x-chip-radio name="🤢 Нет " key="quality" value="bad" />
-                </div>
+            <div x-show="state !== 'dry' && state !== 'notfound'">
+                <x-chip-radio name="🚰 Вода хорошая" key="quality" value="good" />
+                <x-chip-radio name="🚱 Вода плохая" key="quality" value="bad" />
             </div>
 
 
