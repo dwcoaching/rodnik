@@ -1,4 +1,4 @@
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/src/style';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 
 let style = new Style({
     image: new CircleStyle({

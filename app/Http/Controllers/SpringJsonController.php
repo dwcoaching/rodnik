@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Spring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Database\Eloquent\Builder;
 
 class SpringJsonController extends Controller
@@ -48,6 +49,7 @@ class SpringJsonController extends Controller
                 );
         }
 
+        Debugbar::startMeasure('sql',);
         $springs = $springsQuery->get();
             // ->whereDoesntHave('osm_tags', function($query) {
             //     $query->where(function($query) {
@@ -60,8 +62,9 @@ class SpringJsonController extends Controller
             //         });
 
             // })
+        Debugbar::stopMeasure('sql');
 
-
+        Debugbar::startMeasure('preparing json');
         $features = $springs->map(function($spring) {
             return [
                 'type' => 'Feature',
@@ -83,12 +86,17 @@ class SpringJsonController extends Controller
                 ]
             ];
         });
+        Debugbar::stopMeasure('preparing json');
 
         $result = [
             "type" => "FeatureCollection",
             "features" => $features
         ];
 
-        return json_encode($result, JSON_PRETTY_PRINT);
+        Debugbar::startMeasure('converting to string');
+        $json_encoded = json_encode($result, JSON_PRETTY_PRINT);
+        Debugbar::stopMeasure('converting to string');
+
+        return $json_encoded;
     }
 }

@@ -1,15 +1,15 @@
-import Map from 'ol/src/Map';
-import View from 'ol/src/View';
-import Feature from 'ol/src/Feature';
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/src/style';
-import { OSM, XYZ, Vector as VectorSource} from 'ol/src/source';
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/src/layer';
-import { fromLonLat, toLonLat } from 'ol/src/proj';
-import GeoJSON from 'ol/src/format/GeoJSON';
-import { ScaleLine, FullScreen, defaults as defaultControls } from 'ol/src/control';
+import Map from 'ol/Map';
+import View from 'ol/View';
+import Feature from 'ol/Feature';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { OSM, XYZ, Vector as VectorSource} from 'ol/source';
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
+import { fromLonLat, toLonLat } from 'ol/proj';
+import GeoJSON from 'ol/format/GeoJSON';
+import { ScaleLine, FullScreen, defaults as defaultControls } from 'ol/control';
 
-import { createXYZ } from 'ol/src/tilegrid';
-import { tile } from 'ol/src/loadingstrategy';
+import { createXYZ } from 'ol/tilegrid';
+import { tile } from 'ol/loadingstrategy';
 import Geolocation from 'ol/Geolocation';
 import Point from 'ol/geom/Point';
 

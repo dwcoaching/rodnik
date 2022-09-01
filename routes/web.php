@@ -31,7 +31,9 @@ Route::resource('springs', SpringController::class);
 
 Route::get('springs.json', [SpringJsonController::class, 'index']);
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
-Route::get('springs/tiles/{z}/{x}/{y}.json', [SpringsTileJsonController::class, 'show']);
+Route::get('tiles/{z}/{x}/{y}.json', [SpringsTileJsonController::class, 'show']);
+
+
 
 Route::get('coverage', [CoverageController::class, 'index']);
 

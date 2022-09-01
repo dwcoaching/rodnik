@@ -1,24 +1,22 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Library;
 
 use App\Models\Spring;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\Debugbar\Facades\Debugbar;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
-class SpringsTileJsonController extends Controller
+class Tile
 {
-    public function show(Request $request, $z, $x, $y)
+    public static function createJson($z, $x, $y)
     {
         $tileCount = pow(2, $z);
         $longitude_from = $x / $tileCount * 360 - 180;
         $longitude_to = ($x + 1) / $tileCount * 360 - 180;
 
-        $latitude_from = rad2deg(atan(sinh(pi() * (1 - 2 * ($y + 1) / $tileCount))));
-        $latitude_to = rad2deg(atan(sinh(pi() * (1 - 2 * $y / $tileCount))));
+        $latitude_from = rad2deg(atan(sinh(pi() * (1 - 2 * $y / $tileCount))));
+        $latitude_to = rad2deg(atan(sinh(pi() * (1 - 2 * ($y - 1) / $tileCount))));
 
         switch ($z) {
             case '0':
@@ -108,8 +106,6 @@ class SpringsTileJsonController extends Controller
         Debugbar::startMeasure('converting to string');
         $json_encoded = json_encode($result, JSON_PRETTY_PRINT);
         Debugbar::stopMeasure('converting to string');
-
-        Storage::disk('tiles')->put('/' . $z . '/' . $x . '/' . $y . '.json', $json_encoded);
 
         return $json_encoded;
     }

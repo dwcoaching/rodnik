@@ -1,4 +1,4 @@
-import { fromLonLat } from 'ol/src/proj';
+import { fromLonLat } from 'ol/proj';
 
 export function getInitialCenter() {
     let centerLatitude = parseFloat(localStorage.getItem('centerLatitude'));

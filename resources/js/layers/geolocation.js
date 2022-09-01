@@ -1,10 +1,10 @@
-import { Vector as VectorLayer } from 'ol/src/layer';
-import { Vector as VectorSource } from 'ol/src/source';
-import GeoJSON from 'ol/src/format/GeoJSON';
-import { tile } from 'ol/src/loadingstrategy';
-import { createXYZ } from 'ol/src/tilegrid';
+import { Vector as VectorLayer } from 'ol/layer';
+import { Vector as VectorSource } from 'ol/source';
+import GeoJSON from 'ol/format/GeoJSON';
+import { tile } from 'ol/loadingstrategy';
+import { createXYZ } from 'ol/tilegrid';
 import style from '@/styles/final.js';
-import { toLonLat } from 'ol/src/proj';
+import { toLonLat } from 'ol/proj';
 
 export default class GeolocationLayer extends VectorLayer {
     constructor(accuracyFeature, positionFeature) {

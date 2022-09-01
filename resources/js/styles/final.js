@@ -1,4 +1,4 @@
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/src/style';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 
 let radius = 12;
 let width = 1;

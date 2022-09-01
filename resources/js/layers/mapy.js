@@ -1,5 +1,5 @@
-import { Tile as TileLayer } from 'ol/src/layer';
-import { XYZ } from 'ol/src/source';
+import { Tile as TileLayer } from 'ol/layer';
+import { XYZ } from 'ol/source';
 
 export default class Mapy extends TileLayer {
     constructor() {
