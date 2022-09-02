@@ -5,6 +5,7 @@ namespace App\Models;
 use Faker\Factory;
 use App\Models\OSMTag;
 use App\Models\Report;
+use App\Models\SpringTile;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -157,5 +158,10 @@ class Spring extends Model
         }
 
         return 'Источник воды';
+    }
+
+    public function invalidateTiles()
+    {
+        return SpringTile::invalidate($this->longitude, $this->latitude);
     }
 }

@@ -1,6 +1,6 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.79de8a80.js",
+    "file": "assets/app.a699fc4d.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
@@ -11,12 +11,12 @@
     ]
   },
   "node_modules/photoswipe/dist/photoswipe.esm.js": {
-    "file": "assets/photoswipe.esm.218074cd.js",
+    "file": "assets/photoswipe.esm.382b1873.js",
     "src": "node_modules/photoswipe/dist/photoswipe.esm.js",
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app.042123e4.css",
+    "file": "assets/app.ea06ac58.css",
     "src": "resources/css/app.css",
     "isEntry": true
   }

@@ -32,7 +32,7 @@ class SpringTilesGlobalGenerate extends Command
 
         foreach ($tiles as $tile) {
             echo "Generating File for Spring Tile /{$tile->z}/{$tile->x}/{$tile->y}/\n";
-            $tile->generateFile();
+            $tile->saveFile();
         }
     }
 }

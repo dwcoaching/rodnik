@@ -26,7 +26,6 @@ export default class SpringsFinalLayer extends VectorLayer {
                     let to = toLonLat([extent[2], extent[3]]);
 
                     let xy = merc.xyz([from[0], from[1], to[0], to[1]], 8);
-
                     return '/tiles/8/' + (xy.minX) + '/' + (xy.minY) + '.json';
 
                     // return '/springs.json'

@@ -1,10 +1,10 @@
-import { Vector as VectorLayer } from 'ol/layer';
+    import { Vector as VectorLayer } from 'ol/layer';
 import { Vector as VectorSource } from 'ol/source';
 import GeoJSON from 'ol/format/GeoJSON';
 import { tile } from 'ol/loadingstrategy';
 import { createXYZ } from 'ol/tilegrid';
 import style from '@/styles/distant';
-import { toLonLat } from 'ol/proj';
+import { toLonLat, get as getProjection } from 'ol/proj';
 import SphericalMercator from '@mapbox/sphericalmercator';
 
 var merc = new SphericalMercator({
@@ -20,9 +20,11 @@ export default class SpringsDistantLayer extends VectorLayer {
             maxZoom: 6,
             source: new VectorSource({
                 format: new GeoJSON(),
+
                 strategy: tile(createXYZ({
                     maxZoom: zoom,
                     minZoom: zoom,
+                    extent: [-10037508.342789244, -10037508.342789244, 10037508.342789244, 10037508.342789244]
                 })),
                 url: (extent, resolution, projection) => {
 
@@ -30,7 +32,6 @@ export default class SpringsDistantLayer extends VectorLayer {
                     let to = toLonLat([extent[2], extent[3]]);
 
                     let xy = merc.xyz([from[0], from[1], to[0], to[1]], zoom);
-
                     return '/tiles/' + zoom + '/' + (xy.minX) + '/' + (xy.minY) + '.json';
 
                     // return '/springs.json'

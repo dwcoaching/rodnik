@@ -7,21 +7,185 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+use App\Models\Spring;
+use Illuminate\Support\Facades\DB;
+use Barryvdh\Debugbar\Facades\Debugbar;
+use Illuminate\Database\Eloquent\Builder;
+
 class SpringTile extends Model
 {
     use HasFactory;
 
-    public function generateFile()
+    protected $fillable = [
+        'z', 'x', 'y'
+    ];
+
+    protected $geoJSONString = null;
+
+    static public function fromXYZ($x, $y, $z)
     {
-        $json = Tile::createJson($this->z, $this->x, $this->y);
+        return self::firstOrCreate([
+            'x' => $x,
+            'y' => $y,
+            'z' => $z
+        ]);
+    }
+
+    static public function fromCoordinates($longitude, $latitude)
+    {
+        $zoom = collect([0, 5, 8]);
+
+        $springTiles = $zoom->map(function ($z) use ($longitude, $latitude) {
+            $x = floor((($longitude + 180) / 360) * pow(2, $z));
+            $y = floor((1 - log(tan(deg2rad($latitude)) + 1 / cos(deg2rad($latitude))) / pi()) /2 * pow(2, $z));
+
+            return self::fromXYZ($x, $y, $z);
+        });
+
+        return $springTiles;
+    }
+
+    static public function invalidate($longitude, $latitude)
+    {
+        $springTiles = self::fromCoordinates($longitude, $latitude);
+
+        $springTiles->each(function($item) {
+            $item->deleteFile();
+        });
+
+        return $springTiles;
+    }
+
+    public function geoJSON()
+    {
+        if ($this->geoJSONString === null) {
+            $this->geoJSONString = $this->generateGeoJSONString();
+        }
+
+        return $this->geoJSONString;
+    }
+
+    public function generateGeoJSONString()
+    {
+        $tileCount = pow(2, $this->z);
+        $longitude_from = $this->x / $tileCount * 360 - 180;
+        $longitude_to = ($this->x + 1) / $tileCount * 360 - 180;
+
+        $latitude_from = rad2deg(atan(sinh(pi() * (1 - 2 * ($this->y + 1) / $tileCount))));
+        $latitude_to = rad2deg(atan(sinh(pi() * (1 - 2 * $this->y / $tileCount))));
+
+        switch ($this->z) {
+            case '0':
+            case '5':
+                $limit = 1000;
+                break;
+            default:
+                $limit = 0;
+                break;
+        }
+
+        $springsQuery = Spring::with('osm_tags');
+
+        $latitudeFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
+            $query->where('latitude', '>', $latitude_from)
+                ->where('latitude', '<', $latitude_to)
+                ->where('longitude', '>', $longitude_from)
+                ->where('longitude', '<', $longitude_to);
+        };
+
+        $randomQuery = DB::table('springs')
+            ->select('id')
+            ->where($latitudeFunction)
+            ->inRandomOrder()
+            ->limit($limit);
+
+        if ($limit) {
+            $springsQuery->joinSub($randomQuery, 'randomSprings', function($join) {
+                $join->on('springs.id', '=', 'randomSprings.id');
+            });
+        } else {
+            $springsQuery
+                ->where($latitudeFunction)
+                ->withCount(
+                    [
+                        'reports' => function(Builder $query) {
+                            $query->whereNull('hidden_at');
+                        }
+                    ]
+                );
+        }
+
+        Debugbar::startMeasure('sql',);
+        $springs = $springsQuery->get();
+            // ->whereDoesntHave('osm_tags', function($query) {
+            //     $query->where(function($query) {
+            //             return $query->where('key', 'amenity')
+            //                 ->where('value', 'fountain');
+            //         })
+            //     ->orWhere(function($query) {
+            //             return $query->where('key', 'drinking_water')
+            //                 ->where('value', 'no');
+            //         });
+
+            // })
+        Debugbar::stopMeasure('sql');
+
+        Debugbar::startMeasure('preparing json');
+        $features = $springs->map(function($spring) {
+            return [
+                'type' => 'Feature',
+                'id' => $spring->id,
+                'geometry' => [
+                    'type' => 'Point',
+                    'coordinates' => [
+                        floatval($spring->longitude),
+                        floatval($spring->latitude)
+                    ]
+                ],
+                'properties' => [
+                    'id' => $spring->id,
+                    'name' => $spring->name,
+                    'intermittent' => $spring->intermittent,
+                    'drinking' => $spring->drinking,
+                    'hasReports' => $spring->reports_count,
+                    'type' => $spring->type(),
+                ]
+            ];
+        });
+        Debugbar::stopMeasure('preparing json');
+
+        $result = [
+            "type" => "FeatureCollection",
+            "features" => $features
+        ];
+
+        Debugbar::startMeasure('converting to string');
+        $json_encoded = json_encode($result, JSON_UNESCAPED_UNICODE);
+        Debugbar::stopMeasure('converting to string');
+
+        return $json_encoded;
+    }
+
+    public function path()
+    {
+        return '/' . $this->z . '/' . $this->x . '/' . $this->y . '.json';
+    }
+
+    public function saveFile()
+    {
+        Storage::disk('tiles')->put($this->path(), $this->geoJSON());
 
         $this->generated_at = now();
-        Storage::disk('tiles')->put($this->getPath(), $json);
         $this->save();
     }
 
-    public function getPath()
+    public function deleteFile()
     {
-        return '/' . $this->z . '/' . $this->x . '/' . $this->y . '.json';
+        if (Storage::disk('tiles')->exists($this->path())) {
+            Storage::disk('tiles')->delete($this->path());
+
+            $this->generated_at = null;
+            $this->save();
+        }
     }
 }

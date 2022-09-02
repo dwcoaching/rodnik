@@ -31,18 +31,18 @@ class SpringTilesGlobalCreate extends Command
         // zoom levels: 0, 5, 8
         $z = 8;
 
-        $tileCount = pow(2, $z);
+        $zoom = collect([0, 5, 8]);
 
-        for ($x = 0; $x < $tileCount; $x++) {
-            for ($y = 0; $y < $tileCount; $y++) {
-                $springTile = new SpringTile();
-                $springTile->z = $z;
-                $springTile->x = $x;
-                $springTile->y = $y;
-                $springTile->save();
+        $zoom->each(function ($z) {
+            $tileCount = pow(2, $z);
 
-                echo "Generating Spring Tile /{$z}/{$x}/{$y}/\n";
+            for ($x = 0; $x < $tileCount; $x++) {
+                for ($y = 0; $y < $tileCount; $y++) {
+                    $springTile = SpringTile::fromXYZ($x, $y, $z);
+
+                    echo "Generating Spring Tile /{$z}/{$x}/{$y}/\n";
+                }
             }
-        }
+        });
     }
 }

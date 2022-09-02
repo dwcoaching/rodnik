@@ -67,6 +67,8 @@ class Create extends Component
             $photo->save();
         }
 
+        $this->report->spring->invalidateTiles();
+
         return redirect()->route('index');
     }
 
