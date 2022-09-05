@@ -20,32 +20,7 @@ export default class SpringsDistantLayer extends VectorLayer {
             maxZoom: 6,
             source: new VectorSource({
                 format: new GeoJSON(),
-
-                strategy: tile(createXYZ({
-                    maxZoom: zoom,
-                    minZoom: zoom,
-                    extent: [-10037508.342789244, -10037508.342789244, 10037508.342789244, 10037508.342789244]
-                })),
-                url: (extent, resolution, projection) => {
-
-                    let from = toLonLat([extent[0], extent[1]]);
-                    let to = toLonLat([extent[2], extent[3]]);
-
-                    let xy = merc.xyz([from[0], from[1], to[0], to[1]], zoom);
-                    return '/tiles/' + zoom + '/' + (xy.minX) + '/' + (xy.minY) + '.json';
-
-                    // return '/springs.json'
-                    //     + '?latitude_from=' + parseFloat(from[1]).toPrecision(5)
-                    //     + '&latitude_to=' + to[1]
-                    //     + '&longitude_from=' + from[0]
-                    //     + '&longitude_to=' + to[0]
-                    //     + '&limit=1000'
-                    //     + '&extent_lon_from=' + extent[0]
-                    //     + '&extent_lon_to=' + extent[2]
-                    //     + '&extent_lat_from=' + extent[1]
-                    //     + '&extent_lat_to=' + extent[3]
-                    //     + '&zoom=' + 0;
-                }
+                url: '/tiles/0/0/0.json'
             }),
             style: style,
             zIndex: 100,

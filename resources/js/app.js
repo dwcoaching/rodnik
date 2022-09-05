@@ -12,6 +12,13 @@ window.Alpine = Alpine;
 window.ImageBlobReduce = new ImageBlobReduce();
 window.uuidv1 = uuidv1;
 
+window.rodnikConfig = {
+    zoomLevels: {
+        approximated: 6,
+        final: 9
+    }
+};
+
 window.initOpenLayers = function(id) {
     window.rodnikMap = new OpenLayersMap(id);
 }
@@ -27,3 +34,4 @@ window.initPhotoSwipe = function(id) {
 
 Alpine.start();
 
+window.ymCode = 90143259;

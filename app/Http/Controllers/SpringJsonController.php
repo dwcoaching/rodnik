@@ -64,38 +64,7 @@ class SpringJsonController extends Controller
             // })
         Debugbar::stopMeasure('sql');
 
-        Debugbar::startMeasure('preparing json');
-        $features = $springs->map(function($spring) {
-            return [
-                'type' => 'Feature',
-                'id' => $spring->id,
-                'geometry' => [
-                    'type' => 'Point',
-                    'coordinates' => [
-                        floatval($spring->longitude),
-                        floatval($spring->latitude)
-                    ]
-                ],
-                'properties' => [
-                    'id' => $spring->id,
-                    'name' => $spring->name,
-                    'intermittent' => $spring->intermittent,
-                    'drinking' => $spring->drinking,
-                    'hasReports' => $spring->reports_count,
-                    'type' => $spring->type(),
-                ]
-            ];
-        });
-        Debugbar::stopMeasure('preparing json');
-
-        $result = [
-            "type" => "FeatureCollection",
-            "features" => $features
-        ];
-
-        Debugbar::startMeasure('converting to string');
-        $json_encoded = json_encode($result, JSON_PRETTY_PRINT);
-        Debugbar::stopMeasure('converting to string');
+        $json_encoded = UserSpringsJsonController::convert($springs);
 
         return $json_encoded;
     }

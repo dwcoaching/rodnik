@@ -31,9 +31,15 @@ import { getInitialCenter, getInitialZoom, saveLastCenter, saveLastZoom } from '
 
 import GeolocationLayer from '@/layers/geolocation';
 
+import SpringsFinalSource from '@/sources/final.js';
+import SpringsUserSource from '@/sources/user.js';
+
 export default class OpenLayersMap {
 
     constructor(elementId) {
+        this.finalZoom = 9;
+        this.approximatedZoom = 6;
+
         this.elementId = elementId;
 
         this.filters = {
@@ -66,6 +72,9 @@ export default class OpenLayersMap {
         this.springsFinalLayer = new SpringsFinalLayer();
         this.springsApproximatedLayer = new SpringsApproximatedLayer();
         this.springsDistantLayer = new SpringsDistantLayer();
+
+        this.springsFinalSource = new SpringsFinalSource();
+        this.springsUserSource = new SpringsUserSource();
 
         this.featureToBeSelected = null;
         this.selectedFeature = null;
@@ -316,12 +325,50 @@ export default class OpenLayersMap {
         );
     }
 
+    locateWorld() {
+        this.view.fit(this.view.getProjection().getExtent());
+    }
+
     selectFeature(feature) {
+        this.unselectPreviousFeature();
+
+        this.previouslySelectedFeature = feature;
+        feature.setStyle(selectedStyle);
+    }
+
+    unselectPreviousFeature() {
         if (this.previouslySelectedFeature) {
             this.previouslySelectedFeature.setStyle(finalStyle);
         }
 
-        this.previouslySelectedFeature = feature;
-        feature.setStyle(selectedStyle);
+        this.previouslySelectedFeature = null;
+    }
+
+    springsSource(userId) {
+        if (userId) {
+            this.mode = 'user';
+            let url = window.location.origin + '/users/' + userId;
+            window.history.pushState({userId: userId}, 'Rodnik.today', url);
+            ym(window.ymCode, 'hit', url);
+
+            this.springsFinalLayer.setMinZoom(0);
+            this.springsApproximatedLayer.setVisible(false);
+            this.springsDistantLayer.setVisible(false);
+
+            this.springsUserSource.setUser(userId);
+            this.springsFinalLayer.setSource(this.springsUserSource);
+        } else {
+            this.mode = 'global';
+            let url = window.location.origin + '/';
+            window.history.pushState(null, 'Rodnik.today', url);
+            ym(window.ymCode, 'hit', url);
+
+            this.springsFinalLayer.setMinZoom(9);
+            this.springsApproximatedLayer.setVisible(true);
+            this.springsDistantLayer.setVisible(true);
+
+            this.springsFinalLayer.setSource(this.springsFinalSource);
+
+        }
     }
 }

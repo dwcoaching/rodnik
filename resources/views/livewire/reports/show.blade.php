@@ -1,4 +1,4 @@
-<li wire:key="reports.show.{{ $report->id }}" >
+<li>
     @if (! $report->hidden_at)
         <div class="pb-8">
             @if ($hasName)

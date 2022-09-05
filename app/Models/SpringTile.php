@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use App\Library\Tile;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 use App\Models\Spring;
+use App\Library\SpringsGeoJSON;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\Debugbar\Facades\Debugbar;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class SpringTile extends Model
 {
@@ -130,40 +130,7 @@ class SpringTile extends Model
             // })
         Debugbar::stopMeasure('sql');
 
-        Debugbar::startMeasure('preparing json');
-        $features = $springs->map(function($spring) {
-            return [
-                'type' => 'Feature',
-                'id' => $spring->id,
-                'geometry' => [
-                    'type' => 'Point',
-                    'coordinates' => [
-                        floatval($spring->longitude),
-                        floatval($spring->latitude)
-                    ]
-                ],
-                'properties' => [
-                    'id' => $spring->id,
-                    'name' => $spring->name,
-                    'intermittent' => $spring->intermittent,
-                    'drinking' => $spring->drinking,
-                    'hasReports' => $spring->reports_count,
-                    'type' => $spring->type(),
-                ]
-            ];
-        });
-        Debugbar::stopMeasure('preparing json');
-
-        $result = [
-            "type" => "FeatureCollection",
-            "features" => $features
-        ];
-
-        Debugbar::startMeasure('converting to string');
-        $json_encoded = json_encode($result, JSON_UNESCAPED_UNICODE);
-        Debugbar::stopMeasure('converting to string');
-
-        return $json_encoded;
+        return SpringsGeoJSON::convert($springs);
     }
 
     public function path()
