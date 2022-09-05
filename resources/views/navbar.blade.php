@@ -48,7 +48,7 @@
 
                     <x-slot name="content">
                         <x-jet-dropdown-link href="{{ route('user', Auth::user()->id) }}">
-                            {{ __('Мои родники') }}
+                            {{ __('Мои отчеты') }}
                         </x-jet-dropdown-link>
 
                         <!-- Account Management -->

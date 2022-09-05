@@ -24,7 +24,7 @@ class SpringController extends Controller
      */
     public function create()
     {
-        return view('springs.create');
+        return view('springs.create', ['spring' => null]);
     }
 
     /**
@@ -46,7 +46,7 @@ class SpringController extends Controller
      */
     public function show(Spring $spring)
     {
-        //
+
     }
 
     /**
@@ -57,7 +57,7 @@ class SpringController extends Controller
      */
     public function edit(Spring $spring)
     {
-        //
+
     }
 
     /**

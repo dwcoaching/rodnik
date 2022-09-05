@@ -323,7 +323,7 @@
 
     <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
-          <input type="submit" value="Добавить отчет" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" />
+          <input type="submit" value="{{ $report->id ? 'Сохранить изменения' : 'Добавить отчет' }}" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" />
         </div>
     </div>
   </form>

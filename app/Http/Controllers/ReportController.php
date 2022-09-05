@@ -26,8 +26,9 @@ class ReportController extends Controller
     public function create(Request $request)
     {
         $spring = Spring::findOrFail($request->spring_id);
+        $report = null;
 
-        return view('reports.create', compact('spring'));
+        return view('reports.create', compact('spring', 'report'));
     }
 
     /**
@@ -60,7 +61,11 @@ class ReportController extends Controller
      */
     public function edit(Report $report)
     {
-        //
+        $this->authorize('update', $report);
+
+        $spring = $report->spring;
+
+        return view('reports.edit', compact('spring', 'report'));
     }
 
     /**

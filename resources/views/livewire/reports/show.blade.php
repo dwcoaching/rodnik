@@ -9,7 +9,8 @@
                     </a>
                     @if (Auth::check() && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
-                            <span wire:click="hideByAuthor" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
+                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
+                            <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
                         </div>
                     @endif
                 </div>
@@ -28,7 +29,8 @@
                     </h3>
                     @if (! $hasName && Auth::check() && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
-                            <span wire:click="hideByAuthor" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
+                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
+                            <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
                         </div>
                     @endif
                   </div>
@@ -70,7 +72,7 @@
 
 
                     <div class="mt-1">
-                        <ul role="list" class="pswp-gallery mt-3 grid grid-cols-1 gap-x-3 gap-y-3 sm:grid-cols-1 sm:gap-x-3 xl:grid-cols-2">
+                        <ul role="list" class="pswp-gallery mt-3 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-2 sm:gap-x-3 lg:grid-cols-3 xl:grid-cols-4">
                             @foreach ($report->photos as $photo)
                                 <li class="">
                                     <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
