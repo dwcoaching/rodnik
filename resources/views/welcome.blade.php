@@ -4,9 +4,7 @@
             x-data="{}"
             x-init="
                 initOpenLayers($el.id);
-                @if ($userId)
-                    window.rodnikMap.springsSource({{ intval($userId) }});
-                @endif
+                window.rodnikMap.springsSource({{ intval($userId) }});
             ">
         </div>
         <div class="w-full sm:w-1/2 sm:h-full h-1/2 overflow-y-scroll px-6">

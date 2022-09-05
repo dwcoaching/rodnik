@@ -165,14 +165,24 @@
 
 
     @if ($photos->count())
-        <ul role="list" class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+        <ul
+            x-data
+            x-init="window.initPhotoSwipe('#photos');"
+            id="photos"
+            role="list" class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($photos as $photo)
-                <li class="">
-                    <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-offset-gray-100 focus-within:ring-blue-500 overflow-hidden">
+                <li class="relative group">
+                    <a href="{{ $photo->url }}"
+                        data-pswp-width="{{ $photo->width }}"
+                        data-pswp-height="{{ $photo->height }}"
+                        data-cropped="true"
+                        target="blank"
+                        style="padding-bottom: 100%;"
+                        class="photoswipeImage block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
                         <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
-                        <div wire:click="removePhoto({{ $photo->id }})" class="opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
-                            style="text-shadow: 0px 0px 2px #000;">×</div>
-                    </div>
+                    </a>
+                    <div wire:click.stop="removePhoto({{ $photo->id }}); event.preventDefault();" class="opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
+                        style="text-shadow: 0px 0px 2px #000;">×</div>
                 </li>
             @endforeach
         </ul>
