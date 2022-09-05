@@ -57,7 +57,6 @@
         ym(90143259, 'hit', window.location.origin + '/' + $event.detail.id);
     "
     x-on:spring-unselected.window="
-        window.rodnikMap.unselectPreviousFeature();
         $wire.unselectSpring();
         ym(90143259, 'hit', window.location.origin + '/');
     "
@@ -68,6 +67,7 @@
             window.dispatchEvent(event);
         } else if ($event.state && $event.state.userId) {
             springsSource($event.state.userId);
+            window.rodnikMap.unselectPreviousFeature();
             const event = new CustomEvent('spring-unselected');
             window.dispatchEvent(event);
         } else {
@@ -81,7 +81,7 @@
             window.rodnikMap.showFeature({{ $springId }});
         }
 
-        if ({{ $user }}) {
+        if ({{ intval($user instanceof \App\Models\User) }}) {
             window.rodnikMap.locateWorld();
         }
 
