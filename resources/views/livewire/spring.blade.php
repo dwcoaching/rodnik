@@ -81,7 +81,7 @@
             window.rodnikMap.showFeature({{ $springId }});
         }
 
-        if ({{ intval($userId)}}) {
+        if ({{ $user }}) {
             window.rodnikMap.locateWorld();
         }
 
