@@ -347,9 +347,9 @@ export default class OpenLayersMap {
     springsSource(userId) {
         if (userId) {
             this.mode = 'user';
-            let url = window.location.origin + '/users/' + userId;
-            window.history.pushState({userId: userId}, 'Rodnik.today', url);
-            ym(window.ymCode, 'hit', url);
+            // let url = window.location.origin + '/users/' + userId;
+            // window.history.pushState({userId: userId}, 'Rodnik.today', url);
+            // ym(window.ymCode, 'hit', url);
 
             this.springsFinalLayer.setMinZoom(0);
             this.springsApproximatedLayer.setVisible(false);
@@ -359,9 +359,9 @@ export default class OpenLayersMap {
             this.springsFinalLayer.setSource(this.springsUserSource);
         } else {
             this.mode = 'global';
-            let url = window.location.origin + '/';
-            window.history.pushState(null, 'Rodnik.today', url);
-            ym(window.ymCode, 'hit', url);
+            // let url = window.location.origin + '/';
+            // window.history.pushState(null, 'Rodnik.today', url);
+            // ym(window.ymCode, 'hit', url);
 
             this.springsFinalLayer.setMinZoom(9);
             this.springsApproximatedLayer.setVisible(true);
