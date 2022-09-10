@@ -187,5 +187,6 @@ class Spring extends Model
         $revision->save();
 
         $this->save();
+        $this->invalidateTiles();
     }
 }
