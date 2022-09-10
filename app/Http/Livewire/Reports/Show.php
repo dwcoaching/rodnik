@@ -24,6 +24,8 @@ class Show extends Component
             $this->report->hidden_by_author_id = Auth::user()->id;
             $this->report->save();
             $this->justHidden = true;
+
+            $this->report->spring->invalidateTiles();
         }
     }
 
@@ -34,6 +36,8 @@ class Show extends Component
             $this->report->hidden_by_moderator_id = Auth::user()->id;
             $this->report->save();
             $this->justHidden = true;
+
+            $this->report->spring->invalidateTiles();
         }
     }
 
@@ -44,6 +48,8 @@ class Show extends Component
             $this->report->hidden_by_author_id = null;
             $this->report->save();
             $this->justHidden = false;
+
+            $this->report->spring->invalidateTiles();
         }
     }
 
