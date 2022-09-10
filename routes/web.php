@@ -6,6 +6,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringController;
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
+use App\Http\Controllers\PhotosBatchController;
 use App\Http\Controllers\SpringsTileJsonController;
 use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\SpringAggregatesJsonController;
@@ -28,6 +29,7 @@ Route::get('/users/{userId}', [WebController::class, 'user'])->name('user')->whe
 
 
 Route::resource('springs', SpringController::class);
+Route::get('photos/create', [PhotosBatchController::class, 'create']);
 
 
 

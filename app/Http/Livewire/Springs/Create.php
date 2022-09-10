@@ -2,45 +2,56 @@
 
 namespace App\Http\Livewire\Springs;
 
-use App\Library\Exif;
-use App\Models\Photo;
+use App\Models\Spring;
 use Livewire\Component;
-use Livewire\WithFileUploads;
-use Intervention\Image\Facades\Image;
+use App\Models\SpringRevision;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class Create extends Component
 {
-    use WithFileUploads;
+    public $spring;
+    public $springRevision;
 
-    public $file;
-    public $photosIds = [];
+    protected function rules()
+    {
+        return [
+            'springRevision.name' => 'nullable',
+            'springRevision.type' => ['nullable', Rule::in(['Родник', 'Колодец', 'Кран'])],
+            'springRevision.coordinates' => 'nullable',
+        ];
+    }
+
+    public function mount()
+    {
+        $this->spring = new Spring();
+        $this->springRevision = new SpringRevision();
+    }
 
     public function render()
     {
-        $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
-        return view('livewire.springs.create', ['photos' => $photos]);
+        return view('livewire.springs.create');
     }
 
-    public function updatedFile()
+    public function store()
     {
-        $this->validate([
-            'file' => 'image|max:10240', // 10MB Max
-        ]);
+        $coordinates = explode(',', $this->springRevision->coordinates);
+        unset($this->springRevision->coordinates);
 
-        $photo = new Photo();
-        $photo->original_extension = $this->file->getClientOriginalExtension();
-        $photo->original_filename = $this->file->getClientOriginalName();
-        $photo->extension = $this->file->extension();
+        $this->springRevision->latitude = $coordinates[0];
+        $this->springRevision->longitude = $coordinates[1];
 
-        $exif = new Exif($this->file);
+        $this->user_id = Auth::check() ? Auth::user()->id : null;
+        $this->springRevision->save();
 
-        $photo->latitude = $exif->latitude();
-        $photo->longitude = $exif->longitude();
+        $this->spring = new Spring();
+        $this->spring->save();
 
-        $photo->save();
+        $this->springRevision->spring_id = $this->spring->id;
+        $this->springRevision->save();
 
-        $this->file->storeAs('/', $photo->filename, 'photos');
+        $this->spring->applyRevision($this->springRevision);
 
-        $this->photosIds[] = $photo->id;
+        return redirect()->route('show', $this->spring);
     }
 }

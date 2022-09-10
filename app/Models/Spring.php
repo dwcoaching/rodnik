@@ -6,6 +6,7 @@ use Faker\Factory;
 use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\SpringTile;
+use App\Models\SpringRevision;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -116,6 +117,15 @@ class Spring extends Model
         );
     }
 
+    public function getCoordinatesAttribute()
+    {
+        if ($this->latitude && $this->longitude) {
+            return $this->latitude . ', ' . $this->longitude;
+        }
+
+        return '';
+    }
+
     public function type()
     {
         if (count(
@@ -163,5 +173,19 @@ class Spring extends Model
     public function invalidateTiles()
     {
         return SpringTile::invalidate($this->longitude, $this->latitude);
+    }
+
+    public function applyRevision(SpringRevision $revision)
+    {
+        $this->latitude = $revision->latitude;
+        $this->longitude = $revision->longitude;
+        $this->name = $revision->name;
+        $this->type = $revision->type;
+        $this->seasonal = $revision->seasonal;
+
+        $revision->current = true;
+        $revision->save();
+
+        $this->save();
     }
 }
