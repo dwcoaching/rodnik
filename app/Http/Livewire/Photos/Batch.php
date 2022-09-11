@@ -32,6 +32,10 @@ class Batch extends Component
         $photo->original_filename = $this->file->getClientOriginalName();
         $photo->extension = $this->file->extension();
 
+        $image = Image::make($this->file);
+        $photo->width = $image->width();
+        $photo->height = $image->height();
+
         $exif = new Exif($this->file);
 
         $photo->latitude = $exif->latitude();

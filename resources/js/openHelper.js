@@ -51,9 +51,8 @@ export default class OpenHelper {
                     radius: 12,
                     fill: new Fill({color: [0, 0, 0, 0.1]}),
                     stroke: new Stroke({
-                        color: '#000000',
-                        width: 1,
-                        //lineDash: [6],
+                        color: [0, 0, 0, 1],
+                        width: 0.5,
                     }),
                 })
             }),

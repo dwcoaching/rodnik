@@ -100,7 +100,11 @@
             </div>
         </div>
     </div>
-    <div class="pb-12">
+    <div class="pb-12"
+        x-data
+        id="photos"
+        x-init="window.initPhotoSwipe('#photos');"
+    >
         @foreach ($photos as $photo)
             <div class="bg-white m-4 rounded-lg shadow-xl overflow-hidden md:flex md:items-top"
                 wire:key="photo-{{ $photo->id }}"
@@ -108,12 +112,15 @@
                     coordinates: [{{ $photo->longitude }}, {{ $photo->latitude }}],
                 }"
             >
-                <div class="w-full md:w-1/3 springImageBlock" style="
-                    background-image: url('{{ $photo->url }}');
-                    background-size: cover;
-                    background-repeat: no-repeat;
-                    background-position: center;
-                ">
+                <div class="w-full md:w-1/3 relative group" style="">
+                    <a href="{{ $photo->url }}"
+                        data-pswp-width="{{ $photo->width }}"
+                        data-pswp-height="{{ $photo->height }}"
+                        data-cropped="true"
+                        target="blank"
+                        class="photoswipeImage block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
+                        <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
+                    </a>
                 </div>
                 <div class="w-full md:w-1/3" wire:ignore>
                     <div class="w-full relative"
@@ -121,7 +128,7 @@
 
                     >
                         <div class="absolute h-full w-full"
-                            x-init="initOpenHelper($el, coordinates); console.log(coordinates);">
+                            x-init="initOpenHelper($el, coordinates);">
 
                         </div>
                     </div>
