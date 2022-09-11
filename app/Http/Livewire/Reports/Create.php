@@ -44,6 +44,8 @@ class Create extends Component
             $this->report = new Report();
             $this->report->spring_id = $this->spring->id;
             $this->report->visited_at = now()->format('Y-m-d');
+
+
         } else {
             $this->photosIds = $this->report->photos->pluck('id')->all();
         }
@@ -106,8 +108,10 @@ class Create extends Component
 
     public function removePhoto($photoId)
     {
-        if (! Auth::check() || Auth::user()->cannot('update', $this->report)) {
-            abort(403);
+        if ($this->report->id) {
+            if (! Auth::check() || Auth::user()->cannot('update', $this->report)) {
+                abort(403);
+            }
         }
 
         if (! in_array($photoId, $this->photosIds)) {
