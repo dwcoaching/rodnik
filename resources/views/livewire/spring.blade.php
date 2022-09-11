@@ -287,6 +287,7 @@
             <div class="text-3xl font-bold">
                 <span class="mr-2">{{ $spring->name }}</span>
                 <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
+                <a class="text-sm text-blue-600 font-normal" href="{{ route('springs.edit', $spring) }}">редактировать</a>
             </div>
             <div class="mt-3 text-gray-500 text-sm cursor-pointer"
                 x-data="{

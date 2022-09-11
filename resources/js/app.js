@@ -3,6 +3,7 @@ import Clipboard from "@ryangjchandler/alpine-clipboard"
 import ImageBlobReduce from 'image-blob-reduce';
 import { v1 as uuidv1 } from 'uuid';
 import OpenLayersMap from './openLayers.js';
+import OpenHelper from './openHelper.js';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
 
@@ -21,6 +22,10 @@ window.rodnikConfig = {
 
 window.initOpenLayers = function(id) {
     window.rodnikMap = new OpenLayersMap(id);
+}
+
+window.initOpenHelper = function(element, coordinates) {
+    window.rodnikHelper = new OpenHelper(element, coordinates);
 }
 
 window.initPhotoSwipe = function(id) {

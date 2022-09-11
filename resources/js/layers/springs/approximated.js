@@ -41,6 +41,7 @@ export default class SpringsApproximateLayer extends VectorLayer {
             }),
             style: style,
             zIndex: 300,
+            opacity: 0.6,
         });
     }
 }

@@ -105,7 +105,7 @@
             <div class="bg-white m-4 rounded-lg shadow-xl overflow-hidden md:flex md:items-top"
                 wire:key="photo-{{ $photo->id }}"
                 x-data="{
-                    coordinates: [{{ $photo->latitude }}, {{ $photo->longitude }}],
+                    coordinates: [{{ $photo->longitude }}, {{ $photo->latitude }}],
                 }"
             >
                 <div class="w-full md:w-1/3 springImageBlock" style="
@@ -116,14 +116,22 @@
                 ">
                 </div>
                 <div class="w-full md:w-1/3" wire:ignore>
-                    <div class="w-full"
-                        style="padding-bottom: 75%"
-                        x-init="initUploadMap($el, coordinates); console.log(coordinates);"
+                    <div class="w-full relative"
+                        style="padding-bottom: 75%;"
+
                     >
+                        <div class="absolute h-full w-full"
+                            x-init="initOpenHelper($el, coordinates); console.log(coordinates);">
+
+                        </div>
                     </div>
                 </div>
                 <div class="w-full md:w-1/3 p-4">
-                    {{ $photo->latitude }}, {{ $photo->longitude }}
+                    @if ($photo->latitude && $photo->longitude)
+                        {{ $photo->latitude }}, {{ $photo->longitude }}
+                    @else
+                        Фотография не содержит координат
+                    @endif
                 </div>
             </div>
         @endforeach

@@ -128,6 +128,10 @@ class Spring extends Model
 
     public function type()
     {
+        if ($this->type) {
+            return $this->type;
+        }
+
         if (count(
             $this->osm_tags->filter(function($item) {
                 return $item->key == 'natural' &&

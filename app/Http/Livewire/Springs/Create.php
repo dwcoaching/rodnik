@@ -22,9 +22,9 @@ class Create extends Component
         ];
     }
 
-    public function mount()
+    public function mount(Spring $spring)
     {
-        $this->spring = new Spring();
+        $this->spring = $spring ? $spring : new Spring();
         $this->springRevision = new SpringRevision();
     }
 
