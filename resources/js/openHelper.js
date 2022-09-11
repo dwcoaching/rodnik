@@ -38,7 +38,6 @@ export default class OpenHelper {
     constructor(element, coordinates) {
         this.osmLayer = new OSMLayer();
         this.springLayer = new VectorLayer({
-            minZoom: 9,
             source: new VectorSource({
                 features: [
                     new Feature({
