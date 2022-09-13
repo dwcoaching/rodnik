@@ -57,6 +57,7 @@ class SpringController extends Controller
      */
     public function edit(Spring $spring)
     {
+        abort(403);
         return view('springs.edit', compact('spring'));
     }
 
