@@ -29,25 +29,24 @@ class Overpass
             if (! $spring) {
                 $new = $new + 1;
                 $spring = new Spring();
-
-                switch ($element->type) {
-                    case 'node':
-                        $spring->osm_node_id = $element->id;
-                        $revision->latitude = $element->lat;
-                        $revision->longitude = $element->lon;
-                        break;
-                    case 'way':
-                        $spring->osm_way_id = $element->id;
-                        $revision->latitude = $element->center->lat;
-                        $revision->longitude = $element->center->lon;
-                        break;
-                }
-
-                $spring->save();
-
             } else {
                 $existing = $existing + 1;
             }
+
+            switch ($element->type) {
+                case 'node':
+                    $spring->osm_node_id = $element->id;
+                    $revision->latitude = $element->lat;
+                    $revision->longitude = $element->lon;
+                    break;
+                case 'way':
+                    $spring->osm_way_id = $element->id;
+                    $revision->latitude = $element->center->lat;
+                    $revision->longitude = $element->center->lon;
+                    break;
+            }
+
+            $spring->save();
 
             DB::table('osm_tags')->where('spring_id', '=', $spring->id)->delete();
 
