@@ -4,6 +4,7 @@ namespace App\Library;
 
 use App\Models\OSMTag;
 use App\Models\Spring;
+use App\Models\SpringRevision;
 use Illuminate\Support\Facades\DB;
 
 class Overpass
@@ -12,8 +13,6 @@ class Overpass
     {
         $existing = 0;
         $new = 0;
-
-        $currentIsNew = false;
 
         foreach ($json->elements as $element) {
             switch ($element->type) {
@@ -25,29 +24,30 @@ class Overpass
                     break;
             }
 
+            $revision = new SpringRevision();
+
             if (! $spring) {
-                $currentIsNew = true;
                 $new = $new + 1;
                 $spring = new Spring();
 
                 switch ($element->type) {
                     case 'node':
                         $spring->osm_node_id = $element->id;
-                        $spring->latitude = $element->lat;
-                        $spring->longitude = $element->lon;
+                        $revision->latitude = $element->lat;
+                        $revision->longitude = $element->lon;
                         break;
                     case 'way':
                         $spring->osm_way_id = $element->id;
-                        $spring->latitude = $element->center->lat;
-                        $spring->longitude = $element->center->lon;
+                        $revision->latitude = $element->center->lat;
+                        $revision->longitude = $element->center->lon;
                         break;
                 }
+
+                $spring->save();
+
             } else {
                 $existing = $existing + 1;
-                continue;
             }
-
-            $spring->save();
 
             DB::table('osm_tags')->where('spring_id', '=', $spring->id)->delete();
 
@@ -58,6 +58,17 @@ class Overpass
                 $osmTag->spring_id = $spring->id;
                 $osmTag->save();
             };
+
+            $revision->osm_based = true;
+            $revision->spring_id = $spring->id;
+            $spring->load('osm_tags');
+
+            $revision->name = $spring->parseOSMName();
+            $revision->type = $spring->parseOSMType();
+            $revision->seasonal = $spring->parseOSMSeasonal();
+            $revision->save();
+
+            $revision->apply();
         }
 
         return (object) [

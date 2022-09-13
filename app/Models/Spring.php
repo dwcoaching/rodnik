@@ -25,97 +25,14 @@ class Spring extends Model
         return $this->hasMany(OSMTag::class);
     }
 
-    public function getIntermittentAttribute()
-    {
-        // $faker = Factory::create();
-
-        // return $faker->randomElement(['yes', 'no', 'unknown']);
-
-        // if there is a tag intermittent=no or seasonal=no
-
-        $intermittentOrSeasonalTags = $this->osm_tags->filter(function($item) {
-            return $item->key == 'seasonal' || $item->key == 'intermittent';
-        });
-
-        if (! $intermittentOrSeasonalTags->count()) {
-            return 'unknown';
-        }
-
-        $permanentTagsCount = $intermittentOrSeasonalTags->reduce(function ($carry, $item) {
-            return $carry + intval($item->value === 'no' ? 1 : 0);
-        });
-
-        if ($permanentTagsCount) {
-            return 'no';
-        }
-
-        return 'yes';
-    }
-
-    public function getDrinkingAttribute()
-    {
-        // $faker = Factory::create();
-
-        // return $faker->randomElement(['yes', 'no', 'conditional', 'unknown']);
-
-
-
-        // amenity=drinking_water
-        // drinking_water=yes
-        // и natural=spring без drinking_water=no — синие, остальные — серые
-        // foreach ($this->osm_tags as $tag) {
-        //     if ($tag->key == 'amenity') {
-        //         if ($tag->value == 'drinking_water') {
-        //             return 'yes';
-        //         }
-        //     }
-
-        //     if ($tag->key == 'drinking_water') {
-        //         if ($tag->value == 'yes') {
-        //             return 'yes';
-        //         }
-        //     }
-
-        //     if ($tag->key == 'natural') {
-        //         if ($tag->value == 'spring') {
-        //             if ($this->osm_tags->doesntContain(function($item) {
-        //                 return $item->key == 'drinking_water' && $item->value == 'no';
-        //             })) {
-        //                 return 'yes';
-        //             }
-        //         }
-        //     }
-        // }
-
-        foreach ($this->osm_tags as $tag) {
-            if ($tag->key == 'drinking_water') {
-                if ($tag->value == 'no') {
-                    return 'no';
-                }
-            }
-
-            if ($tag->key == 'amenity') {
-                if ($tag->value == 'fountain') {
-                    if ($this->osm_tags->doesntContain(function($item) {
-                        return $item->key == 'drinking_water' && $item->value == 'yes';
-                    })) {
-                        return 'no';
-                    }
-                }
-            }
-        }
-
-        return 'unknown';
-    }
-
-    public function name(): Attribute
-    {
-        return Attribute::make(
-            get: function ($value) {
-                return $value ? $value : $this->type();
-            }
-        );
-    }
+    // public function name(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: function ($value) {
+    //             return $value ? $value : $this->type();
+    //         }
+    //     );
+    // }
 
     public function getCoordinatesAttribute()
     {
@@ -126,12 +43,42 @@ class Spring extends Model
         return '';
     }
 
-    public function type()
+    public function parseOSMSeasonal()
     {
-        if ($this->type) {
-            return $this->type;
+        $intermittentOrSeasonalTags = $this->osm_tags->filter(function($item) {
+            return $item->key == 'seasonal' || $item->key == 'intermittent';
+        });
+
+        if (! $intermittentOrSeasonalTags->count()) {
+            return null;
         }
 
+        $permanentTagsCount = $intermittentOrSeasonalTags->reduce(function ($carry, $item) {
+            return $carry + intval($item->value === 'no' ? 1 : 0);
+        });
+
+        if ($permanentTagsCount) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function parseOSMName()
+    {
+        $name = $this->osm_tags->first(function($item) {
+            return $item->key == 'name';
+        });
+
+        if ($name) {
+            return $name->value;
+        }
+
+        return null;
+    }
+
+    public function parseOSMType()
+    {
         if (count(
             $this->osm_tags->filter(function($item) {
                 return $item->key == 'natural' &&
@@ -177,20 +124,5 @@ class Spring extends Model
     public function invalidateTiles()
     {
         return SpringTile::invalidate($this->longitude, $this->latitude);
-    }
-
-    public function applyRevision(SpringRevision $revision)
-    {
-        $this->latitude = $revision->latitude;
-        $this->longitude = $revision->longitude;
-        $this->name = $revision->name;
-        $this->type = $revision->type;
-        $this->seasonal = $revision->seasonal;
-
-        $revision->current = true;
-        $revision->save();
-
-        $this->save();
-        $this->invalidateTiles();
     }
 }

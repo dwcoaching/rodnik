@@ -20,10 +20,9 @@ class SpringsGeoJSON
                 'properties' => [
                     'id' => $spring->id,
                     'name' => $spring->name,
-                    'intermittent' => $spring->intermittent,
-                    'drinking' => $spring->drinking,
+                    'intermittent' => $spring->seasonal,
                     'hasReports' => $spring->reports_count,
-                    'type' => $spring->type(),
+                    'type' => $spring->type,
                 ]
             ];
         });

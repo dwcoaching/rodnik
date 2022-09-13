@@ -50,7 +50,7 @@ class Create extends Component
         $this->springRevision->spring_id = $this->spring->id;
         $this->springRevision->save();
 
-        $this->spring->applyRevision($this->springRevision);
+        $this->springRevision->apply();
 
         return redirect()->route('show', $this->spring);
     }

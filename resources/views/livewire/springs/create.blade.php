@@ -35,7 +35,7 @@
             <span class="block text-3xl font-bold">
                 <span class="mr-2 inline-flex items-center">
                     @if ($spring->id)
-                        {{ $spring->type() }}
+                        {{ $spring->type }}
                     @else
                         Новый источник воды
                     @endif
