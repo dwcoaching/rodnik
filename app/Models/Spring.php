@@ -25,15 +25,6 @@ class Spring extends Model
         return $this->hasMany(OSMTag::class);
     }
 
-    // public function name(): Attribute
-    // {
-    //     return Attribute::make(
-    //         get: function ($value) {
-    //             return $value ? $value : $this->type();
-    //         }
-    //     );
-    // }
-
     public function getCoordinatesAttribute()
     {
         if ($this->latitude && $this->longitude) {

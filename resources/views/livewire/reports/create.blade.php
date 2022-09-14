@@ -57,7 +57,7 @@
                 <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
             </a>
             <div class="text-gray-600 mt-2 text-sm flex flex-wrap items-center">
-                @if (! $spring->name)
+                @if ($spring->name)
                     <div class="text-sm mr-3 mb-2">
                         {{ $spring->type }}
                     </div>

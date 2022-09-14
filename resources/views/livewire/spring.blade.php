@@ -285,7 +285,7 @@
     @if ($spring)
         <div class="" wire:key="spring.{{ $spring->id }}">
             <div class="text-3xl font-bold">
-                <span class="mr-2">{{ $spring->name }}</span>
+                <span class="mr-2">{{ $spring->name ? $spring->name : $spring->type }}</span>
                 <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
                 {{--<a class="text-sm text-blue-600 font-normal" href="{{ route('springs.edit', $spring) }}">редактировать</a>--}}
             </div>
