@@ -86,7 +86,7 @@ class SpringTile extends Model
 
         $springsQuery = Spring::with('osm_tags');
 
-        $latitudeFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
+        $coordinatesFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
             $query->where('latitude', '>', $latitude_from)
                 ->where('latitude', '<', $latitude_to)
                 ->where('longitude', '>', $longitude_from)
@@ -95,7 +95,7 @@ class SpringTile extends Model
 
         $randomQuery = DB::table('springs')
             ->select('id')
-            ->where($latitudeFunction)
+            ->where($coordinatesFunction)
             ->inRandomOrder()
             ->limit($limit);
 
@@ -105,7 +105,7 @@ class SpringTile extends Model
             });
         } else {
             $springsQuery
-                ->where($latitudeFunction)
+                ->where($coordinatesFunction)
                 ->withCount(
                     [
                         'reports' => function(Builder $query) {
@@ -117,17 +117,6 @@ class SpringTile extends Model
 
         Debugbar::startMeasure('sql',);
         $springs = $springsQuery->get();
-            // ->whereDoesntHave('osm_tags', function($query) {
-            //     $query->where(function($query) {
-            //             return $query->where('key', 'amenity')
-            //                 ->where('value', 'fountain');
-            //         })
-            //     ->orWhere(function($query) {
-            //             return $query->where('key', 'drinking_water')
-            //                 ->where('value', 'no');
-            //         });
-
-            // })
         Debugbar::stopMeasure('sql');
 
         return SpringsGeoJSON::convert($springs);

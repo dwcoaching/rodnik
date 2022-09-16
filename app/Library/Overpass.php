@@ -3,8 +3,8 @@
 namespace App\Library;
 
 use App\Models\OSMTag;
+use App\Models\Report;
 use App\Models\Spring;
-use App\Models\SpringRevision;
 use Illuminate\Support\Facades\DB;
 
 class Overpass
@@ -24,27 +24,31 @@ class Overpass
                     break;
             }
 
-            $revision = new SpringRevision();
-
             if (! $spring) {
                 $new = $new + 1;
                 $spring = new Spring();
+                $springExists = false;
             } else {
                 $existing = $existing + 1;
+                $springExists = true;
+                $report = new Report();
             }
 
             switch ($element->type) {
                 case 'node':
                     $spring->osm_node_id = $element->id;
-                    $revision->latitude = $element->lat;
-                    $revision->longitude = $element->lon;
+                    $osm_lat = $element->lat;
+                    $osm_lon = $element->lon;
                     break;
                 case 'way':
                     $spring->osm_way_id = $element->id;
-                    $revision->latitude = $element->center->lat;
-                    $revision->longitude = $element->center->lon;
+                    $osm_lat = $element->center->lat;
+                    $osm_lon = $element->center->lon;
                     break;
             }
+
+            $report = $spring->updateFromOSM('latitude', floatval($osm_lat), $report);
+            $report = $spring->updateFromOSM('longitude', floatval($osm_lon), $report);
 
             $spring->save();
 
@@ -58,16 +62,23 @@ class Overpass
                 $osmTag->save();
             };
 
-            $revision->osm_based = true;
-            $revision->spring_id = $spring->id;
             $spring->load('osm_tags');
 
-            $revision->name = $spring->parseOSMName();
-            $revision->type = $spring->parseOSMType();
-            $revision->seasonal = $spring->parseOSMSeasonal();
-            $revision->save();
+            $osm_name = $spring->parseOSMName();
+            $osm_type = $spring->parseOSMType();
+            $osm_intermittent = $spring->parseOSMIntermittent();
 
-            $revision->apply();
+            $report = $spring->updateFromOSM('name', $osm_name, $report);
+            $report = $spring->updateFromOSM('type', $osm_type, $report);
+            $report = $spring->updateFromOSM('intermittent', $osm_intermittent, $report);
+
+            $spring->save();
+
+            if (false && $springExists && $report->isDirty()) {
+                $report->from_osm = true;
+                $report->spring_id = $spring->id;
+                $report->save();
+            }
         }
 
         return (object) [

@@ -20,7 +20,7 @@ class SpringsGeoJSON
                 'properties' => [
                     'id' => $spring->id,
                     'name' => $spring->name,
-                    'intermittent' => $spring->seasonal,
+                    'intermittent' => $spring->intermittent,
                     'hasReports' => $spring->reports_count,
                     'type' => $spring->type,
                 ]

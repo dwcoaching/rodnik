@@ -66,7 +66,7 @@
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-1.5 0a6.5 6.5 0 11-11-4.69v.447a3.5 3.5 0 001.025 2.475L8.293 10 8 10.293a1 1 0 000 1.414l1.06 1.06a1.5 1.5 0 01.44 1.061v.363a1 1 0 00.553.894l.276.139a1 1 0 001.342-.448l1.454-2.908a1.5 1.5 0 00-.281-1.731l-.772-.772a1 1 0 00-1.023-.242l-.384.128a.5.5 0 01-.606-.25l-.296-.592a.481.481 0 01.646-.646l.262.131a1 1 0 00.447.106h.188a1 1 0 00.949-1.316l-.068-.204a.5.5 0 01.149-.538l1.44-1.234A6.492 6.492 0 0116.5 10z" clip-rule="evenodd" />
                 </svg>
                 <span class="mr-3 mb-2">
-                    {{ $spring->longitude }}, {{ $spring->latitude }}
+                    {{ $spring->latitude }}, {{ $spring->longitude }}
                 </span>
                 {{--
                     <span @click="errorTop = errorTop ? 0 : 1"
@@ -76,7 +76,7 @@
                             'border-white': ! errorTop,
                         }"
                         >
-                        Уточнить
+                        Предложить уточнения
                     </span>
                 --}}
             </div>
@@ -85,12 +85,13 @@
       </div>
     </div>
 
-    <div x-show="errorTop" x-cloak class="mt-0 mb-10 max-w-lg">
+    <div x-show="errorTop" x-cloak class="mt-0 mb-4 max-w-md">
         <fieldset class="s">
             <div class="rounded-md shadow-sm -space-y-px bg-white">
                 <div class="relative border border-gray-300 rounded-md rounded-b-none px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                    <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название</label>
-                    <input value="{{ $spring->name }}" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Без названия">
+                    <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">Широта, долгота</label>
+                    <input value="{{ $spring->latitude }}, {{ $spring->longitude }}" type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
+
                 </div>
                 <div class="relative border border-gray-300 rounded-none px-0 pt-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
                     <label for="type" class="px-3 block text-sm font-light text-gray-600 -mb-1">Тип</label>
@@ -104,15 +105,15 @@
                     </select>
                 </div>
                 <div class="relative border border-gray-300 rounded-md rounded-t-none px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                    <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">Широта, долгота</label>
-                    <input value="{{ $spring->latitude }}, {{ $spring->longitude }}" type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="Head of Tomfoolery">
+                    <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название</label>
+                    <input value="{{ $spring->name }}" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
                 </div>
             </div>
         </fieldset>
     </div>
 
     <div
-        class="relative mt-4 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+        class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
             <span class="mr-3">
                 Дата посещения
@@ -269,7 +270,7 @@
         }"
     >
         <label for="file-upload" class="cursor-pointer group">
-            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl"
+            <div class="mt-4 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl"
                 x-bind:class="{
                     'bg-blue-100': dragover
                 }"
@@ -292,7 +293,7 @@
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <div class=" text-sm text-gray-600">
+                    <div class="text-sm text-gray-600">
                         <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
                             <span class="font-bold">Выберите фото</span>
                             <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">

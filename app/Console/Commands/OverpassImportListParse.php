@@ -35,6 +35,9 @@ class OverpassImportListParse extends Command
 
         $count = count($json);
 
+        $starttime = microtime(true);
+        $total = 0;
+
         foreach ($json as $i => $import) {
             $response = Storage::disk('local')->get('overpass/sealed/' . $date . '/' . $import . '.json');
 
@@ -42,7 +45,10 @@ class OverpassImportListParse extends Command
 
             $stats = Overpass::parse(json_decode($response));
             echo 'new: ' . $stats->new . "\n";
-            echo 'existing: ' . $stats->existing . "\n\n";
+            echo 'existing: ' . $stats->existing . "\n";
+
+            $total = $total + $stats->new + $stats->existing;
+            echo 'speed: ' . round($total / (microtime(true) - $starttime), 2) . ' per second' . "\n\n";
         }
     }
 }

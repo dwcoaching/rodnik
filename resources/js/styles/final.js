@@ -77,9 +77,7 @@ export default (feature, resolution) => {
         return reportedStyle;
     }
 
-    if (feature.get('intermittent') == 'yes'
-        || feature.get('seasonal') == 'yes') {
-
+    if (feature.get('intermittent') == 'yes') {
         return intermittentStyle;
     }
 

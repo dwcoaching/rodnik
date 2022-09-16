@@ -284,31 +284,47 @@
 
     @if ($spring)
         <div class="" wire:key="spring.{{ $spring->id }}">
-            <div class="text-3xl font-bold">
-                <span class="mr-2">{{ $spring->name ? $spring->name : $spring->type }}</span>
-                <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
-                {{--<a class="text-sm text-blue-600 font-normal" href="{{ route('springs.edit', $spring) }}">редактировать</a>--}}
+            <div class="">
+                <span class="text-3xl font-bold mr-3">
+                    {{ $spring->name ? $spring->name : $spring->type }}
+                </span>
+                <span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
             </div>
-            <div class="mt-3 text-gray-500 text-sm cursor-pointer"
-                x-data="{
-                    copied: false,
-                    timeout: null
-                }"
-                @click="
-                    $clipboard('{{ $spring->latitude }}, {{ $spring->longitude }}');
-                    copied = true;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        copied = false;
-                    }, 1000)
-                "
-            >
-                <span class="mr-1">{{ $spring->latitude }}, {{ $spring->longitude }}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline -mt-0.5 -mr-0.5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" />
-                    <path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" />
+            <div class="text-gray-600 mt-2 text-sm flex flex-wrap items-center">
+                @if ($spring->name)
+                    <div class="text-sm mr-3 mb-2">
+                        {{ $spring->type }}
+                    </div>
+                @endif
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="mb-2 mr-1 block w-5 h-5">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-1.5 0a6.5 6.5 0 11-11-4.69v.447a3.5 3.5 0 001.025 2.475L8.293 10 8 10.293a1 1 0 000 1.414l1.06 1.06a1.5 1.5 0 01.44 1.061v.363a1 1 0 00.553.894l.276.139a1 1 0 001.342-.448l1.454-2.908a1.5 1.5 0 00-.281-1.731l-.772-.772a1 1 0 00-1.023-.242l-.384.128a.5.5 0 01-.606-.25l-.296-.592a.481.481 0 01.646-.646l.262.131a1 1 0 00.447.106h.188a1 1 0 00.949-1.316l-.068-.204a.5.5 0 01.149-.538l1.44-1.234A6.492 6.492 0 0116.5 10z" clip-rule="evenodd" />
                 </svg>
-                <span x-cloak x-show="copied" x-transition.opacity.duration.300 class="font-regular">cкопировано</span>
+                <span class="mr-3 mb-2">
+                    <div class="text-gray-600 text-sm cursor-pointer"
+                        x-data="{
+                            copied: false,
+                            timeout: null
+                        }"
+                        @click="
+                            $clipboard('{{ $spring->latitude }}, {{ $spring->longitude }}');
+                            copied = true;
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => {
+                                copied = false;
+                            }, 1000)
+                        "
+                        >
+                            <span class="">{{ $spring->latitude }}, {{ $spring->longitude }}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline -mt-0.5 w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
+                            </svg>
+
+
+                            <span x-cloak x-show="copied" x-transition.opacity.duration.300 class="font-regular">
+                                cкопировано
+                            </span>
+                        </div>
+                </span>
             </div>
         </div>
 
@@ -318,9 +334,16 @@
                     <span class="font-semibold mr-3">
                         Теги OSM
                     </span>
-                    <span class="text-xs text-gray-500">
-                        (node id: {{ $spring->osm_node_id }})
-                    </span>
+                    @if ($spring->osm_node_id)
+                        <span class="text-xs text-gray-500">
+                            (node id: {{ $spring->osm_node_id }})
+                        </span>
+                    @endif
+                    @if ($spring->osm_way_id)
+                        <span class="text-xs text-gray-500">
+                            (way id: {{ $spring->osm_way_id }})
+                        </span>
+                    @endif
                 </div>
                 @foreach ($spring->osm_tags as $tag)
                     <div class="text-gray-900 mt-1 text-sm">{{ $tag->key }}: {{ $tag->value }}</div>

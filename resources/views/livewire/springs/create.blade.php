@@ -44,27 +44,27 @@
         </div>
     </div>
 
-    <div class="mt-4 max-w-lg">
-        <div class="border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-            <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название</label>
-            <input wire:model="springRevision.name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
-        </div>
+    <div class="mt-4 max-w-lg"
+        x-data="{
+            type: @entangle('spring.type').defer,
+        }"
+    >
+        <x-chip-radio name="💧 Родник" key="type" value="Родник" />
+        <x-chip-radio name="🪣 Колодец" key="type" value="Колодец" />
+        <x-chip-radio name="🚰 Кран" key="type" value="Кран" />
+        <x-chip-radio name="🐳 Другое" key="type" value="Источник воды" />
 
-        <div class="mt-2 border border-gray-300 rounded-md bg-white px-0 pt-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-            <label for="type" class="px-3 block text-sm font-light text-gray-600 -mb-1">Тип</label>
-            <select wire:model="springRevision.type" x-ref="type" id="type" name="type" class="block w-full rounded-none
-                border-0 px-3 py-2 bg-transparent focus:z-10 sm:text-sm border-gray-300
-                focus:ring-0
-            ">
-                <option value="Родник">Родник</option>
-                <option value="Колодец">Колодец</option>
-                <option value="Кран">Кран</option>
-            </select>
-        </div>
         <div class="mt-2 relative border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
             <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">Широта, долгота</label>
-            <input wire:model="springRevision.coordinates" type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
+            <input wire:model.defer="coordinates" type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
         </div>
+
+        <div class="mt-2 border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+            <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название</label>
+            <input wire:model.defer="spring.name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
+        </div>
+
+
     </div>
 
     <div class="mt-4 pb-6">

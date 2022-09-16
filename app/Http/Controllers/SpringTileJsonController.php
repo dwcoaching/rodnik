@@ -6,7 +6,7 @@ use App\Models\SpringTile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class SpringsTileJsonController extends Controller
+class SpringTileJsonController extends Controller
 {
     public function show(Request $request, $z, $x, $y)
     {
