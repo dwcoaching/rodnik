@@ -68,7 +68,7 @@
             @enderror
         </div>
 
-        <div class="mt-2 max-w-xl w-full h-96 rounded-md overflow-hidden relative">
+        <div class="mt-2 max-w-xl w-full h-80 rounded-md overflow-hidden relative">
             <div class="absolute w-full h-full" wire:ignore
                 id="openPicker">
             </div>
