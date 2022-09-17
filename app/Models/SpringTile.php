@@ -84,6 +84,8 @@ class SpringTile extends Model
                 break;
         }
 
+        $springsQuery = Spring::query();
+
         $coordinatesFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
             $query->where('latitude', '>', $latitude_from)
                 ->where('latitude', '<', $latitude_to)
