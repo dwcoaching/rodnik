@@ -48,11 +48,11 @@
 
                     <x-slot name="content">
                         <x-jet-dropdown-link href="{{ route('springs.create') }}">
-                            {{ __('Добавить источник воды') }}
+                            {{ __('Новый источник') }}
                         </x-jet-dropdown-link>
 
                         <x-jet-dropdown-link href="{{ route('user', Auth::user()->id) }}">
-                            {{ __('Мои отчеты') }}
+                            {{ __('Мои источники') }}
                         </x-jet-dropdown-link>
 
                         <!-- Account Management -->

@@ -111,7 +111,7 @@ export default class OpenLayersMap {
         });
 
         this.map.on('moveend', (e) => {
-            saveLastCenter( this.map.getView().getCenter());
+            saveLastCenter(this.map.getView().getCenter());
             saveLastZoom(this.map.getView().getZoom());
         });
 

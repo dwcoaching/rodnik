@@ -118,7 +118,7 @@
                         data-pswp-height="{{ $photo->height }}"
                         data-cropped="true"
                         target="blank"
-                        class="photoswipeImage block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
+                        class="photoswipeImage block w-full rounded-lg bg-gray-100 overflow-hidden">
                         <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
                     </a>
                 </div>
