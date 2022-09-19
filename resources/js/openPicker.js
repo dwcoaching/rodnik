@@ -119,10 +119,7 @@ export default class OpenPicker {
     }
 
     updateCoordinates(coordinates) {
-        let zoom = this.view.getZoom() + 1.5;
-        if (zoom > 21) {
-            zoom = 21;
-        }
+        let zoom = this.view.getZoom();
 
         saveLastCenter(coordinates);
         saveLastZoom(zoom);

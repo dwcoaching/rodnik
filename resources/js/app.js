@@ -8,6 +8,7 @@ import OpenPicker from './openPicker.js';
 import OpenDiffer from './openDiffer.js';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
+import Coordinates from 'coordinate-parser';
 
 Alpine.plugin(Clipboard);
 
@@ -32,6 +33,10 @@ window.initOpenHelper = function(element, coordinates) {
 
 window.initOpenPicker = function(element, coordinates) {
     window.rodnikPicker = new OpenPicker(element, coordinates);
+}
+
+window.parseCoordinates = function(coordinatesString) {
+    return new Coordinates(coordinatesString);
 }
 
 window.initOpenDiffer = function(element, oldCoordinates, newCoordinates) {

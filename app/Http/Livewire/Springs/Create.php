@@ -5,6 +5,8 @@ namespace App\Http\Livewire\Springs;
 use App\Models\Report;
 use App\Models\Spring;
 use Livewire\Component;
+use App\Rules\LatitudeRule;
+use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
@@ -18,13 +20,16 @@ class Create extends Component
     public $name;
     public $type;
     public $coordinates;
+    public $latitude;
+    public $longitude;
 
     protected function rules()
     {
         return [
             'name' => 'nullable',
             'type' => [new SpringTypeRule],
-            'coordinates' => 'nullable',
+            'latitude' => [new LatitudeRule],
+            'longitude' => [new LongitudeRule],
         ];
     }
 
@@ -52,24 +57,20 @@ class Create extends Component
     {
         $this->validate();
 
-        $coordinatesArray = explode(',', $this->coordinates);
-        $latitude = $coordinatesArray[0];
-        $longitude = $coordinatesArray[1];
-
         $springChangeCount = 0;
         $report = new Report();
 
-        if ($this->spring->latitude != $latitude) {
+        if ($this->spring->latitude != $this->latitude) {
             $report->old_latitude = $this->spring->latitude;
-            $report->new_latitude = $latitude;
-            $this->spring->latitude = $latitude;
+            $report->new_latitude = $this->latitude;
+            $this->spring->latitude = $this->latitude;
             $springChangeCount++;
         }
 
-        if ($this->spring->longitude != $longitude) {
+        if ($this->spring->longitude != $this->longitude) {
             $report->old_longitude = $this->spring->longitude;
-            $report->new_longitude = $longitude;
-            $this->spring->longitude = $longitude;
+            $report->new_longitude = $this->longitude;
+            $this->spring->longitude = $this->longitude;
             $springChangeCount++;
         }
 

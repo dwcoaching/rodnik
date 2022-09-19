@@ -1,16 +1,47 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
             type: @entangle('type').defer,
+            latitude: @entangle('latitude').defer,
+            longitude: @entangle('longitude').defer,
             coordinates: @entangle('coordinates').defer,
+            coordinatesError: false,
+            error: function() {
+                if (this.coordinatesError) {
+                    return true;
+                }
+
+                if (! this.type) {
+                    return true;
+                }
+
+                return false;
+            },
             updateCoordinates: function(coordinates) {
-                let coordinatesArray = coordinates.split(',');
-                let latitude = parseFloat(coordinatesArray[0]);
-                let longitude = parseFloat(coordinatesArray[1]);
-                window.rodnikPicker.updateCoordinates([longitude, latitude]);
+                try {
+                    let parsedCoordinates = window.parseCoordinates(coordinates);
+                    this.latitude = parsedCoordinates.getLatitude();
+                    this.longitude = parsedCoordinates.getLongitude();
+                    this.coordinates = this.latitude + ', ' + this.longitude;
+                    window.rodnikPicker.updateCoordinates([this.longitude, this.latitude]);
+                    this.coordinatesError = false;
+                } catch (error) {
+                    this.coordinatesError = true;
+                }
+            },
+            mapMoved: function(coordinates) {
+                try {
+                    let parsedCoordinates = window.parseCoordinates(coordinates);
+                    this.latitude = parsedCoordinates.getLatitude();
+                    this.longitude = parsedCoordinates.getLongitude();
+                    this.coordinates = this.latitude + ', ' + this.longitude;
+                    this.coordinatesError = false;
+                } catch (error) {
+                    this.coordinatesError = true;
+                }
             }
         }"
 
-        x-on:map-moved.window="coordinates = $event.detail.coordinates"
+        x-on:map-moved.window="mapMoved($event.detail.coordinates)"
         x-init="initOpenPicker(document.getElementById('openPicker'),
             [
                 @if ($spring->id)
@@ -85,12 +116,22 @@
         </div>
 
             <div class="max-w-lg">
-            <div class="mt-2 relative border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">Широта, долгота</label>
+            <div class="mt-2 relative border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600"
+                x-bind:class="{
+                    'border-red-600': coordinatesError,
+                }"
+            >
+                <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">
+                    Широта, долгота
+                    <svg x-cloak x-show="! coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-green-600">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                    </svg>
+                    <svg x-cloak x-show="coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-red-600">
+                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                    </svg>
+                </label>
                 <input x-ref="coordinates" x-model="coordinates" @change="updateCoordinates($event.target.value)" {{--wire:model.defer="coordinates"--}} type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
             </div>
-
-
 
             <div class="mt-2 border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
                 <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название источника (если есть)</label>
@@ -103,7 +144,15 @@
 
     <div class="mt-4 pb-6">
         <div class="flex justify-start">
-            <button type="button" wire:click="store" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button type="button" @click="if (! error()) {$wire.store();}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white"
+                x-bind:class="{
+                    'bg-gray-500': error(),
+                    'cursor-not-allowed': error(),
+                    'bg-blue-600': ! error(),
+                    'cursor-pointer': ! error(),
+                    'focus:bg-blue-700': ! error(),
+                }"
+            >
                 {{ $spring->id ? 'Сохранить изменения' : 'Добавить источник' }}
             </button>
         </div>
