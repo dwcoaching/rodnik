@@ -85,7 +85,7 @@
         </div>
 
             <div class="max-w-lg">
-            <div @click="$refs.coordinates.setSelectionRange(0, $refs.coordinates.value.length)" class="mt-2 relative border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+            <div class="mt-2 relative border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
                 <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">Широта, долгота</label>
                 <input x-ref="coordinates" x-model="coordinates" @change="updateCoordinates($event.target.value)" {{--wire:model.defer="coordinates"--}} type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
             </div>
