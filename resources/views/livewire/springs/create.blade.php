@@ -1,6 +1,6 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
-            type: @entangle('spring.type').defer,
+            type: @entangle('type').defer,
             coordinates: @entangle('coordinates').defer,
             updateCoordinates: function(coordinates) {
                 let coordinatesArray = coordinates.split(',');
@@ -10,10 +10,15 @@
             }
         }"
 
-        x-on:map-moved.window="
-            coordinates = $event.detail.coordinates;
-        "
-    x-init="initOpenPicker(document.getElementById('openPicker'), [37, 55]);">
+        x-on:map-moved.window="coordinates = $event.detail.coordinates"
+        x-init="initOpenPicker(document.getElementById('openPicker'),
+            [
+                @if ($spring->id)
+                    {{ $spring->longitude }}, {{ $spring->latitude }}
+                @endif
+            ]
+        );"
+        >
     <a x-data href="#" x-on:click.prevent="history.back();" class="text-3xl font-bold text-blue-600 hover:text-blue-700"">
         <span class="mr-2 inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 mb-6" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
@@ -44,7 +49,12 @@
             <span class="block text-3xl font-bold">
                 <span class="mr-2 inline-flex items-center">
                     @if ($spring->id)
-                        {{ $spring->type }}
+                        <div>
+                            Редактировать источник
+                            <div class="text-sm mt-1 font-normal">
+                                Все изменения применяются сразу. Пишите только если уверены 😇
+                            </div>
+                        </div>
                     @else
                         <span class="mr-2">Новый</span>
                         <span x-text="type ? type.toLowerCase() : 'источник воды'">источник воды</span>
@@ -54,16 +64,13 @@
         </div>
     </div>
 
-    <div class="mt-4"
-
-
-    >
+    <div class="mt-4">
         <div class="">
             <x-chip-radio name="💧 Родник" key="type" value="Родник" />
             <x-chip-radio name="🪣 Колодец" key="type" value="Колодец" />
             <x-chip-radio name="🚰 Кран" key="type" value="Кран" />
             <x-chip-radio name="🐳 Другой" key="type" value="Источник воды" />
-            @error('spring.type')
+            @error('type')
                 <div class="text-red-600 text-sm mb-4">{{ $message }}</div>
             @enderror
         </div>
@@ -87,7 +94,7 @@
 
             <div class="mt-2 border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
                 <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название источника (если есть)</label>
-                <input wire:model.defer="spring.name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
+                <input wire:model.defer="name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
             </div>
         </div>
 

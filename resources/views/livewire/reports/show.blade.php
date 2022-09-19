@@ -7,7 +7,9 @@
                         <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-xl mr-2 font-semibold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
                         <span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>
                     </a>
-                    @if (Auth::check() && $report->user_id == Auth::user()->id)
+                    @if (! $report->spring_edit
+                        && Auth::check()
+                        && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
                             <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
                             <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
@@ -27,7 +29,9 @@
                           Анонимно
                       @endif
                     </h3>
-                    @if (! $hasName && Auth::check() && $report->user_id == Auth::user()->id)
+                    @if (! $report->spring_edit
+                        && ! $hasName && Auth::check()
+                        && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
                             <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
                             <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
@@ -69,7 +73,40 @@
                       @endif
                     </div>
 
+                    <div class="overflow-clip">
+                        @if ($report->new_name)
+                            <div class="my-2">
+                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm whitespace-nowrap">
+                                    <span class="text-gray-500">{{ $report->old_name }}</span>
+                                    → <span class="text-black">{{ $report->new_name }}</span>
+                                </span>
+                            </div>
+                        @endif
 
+                        @if ($report->new_type)
+                            <div class="my-2">
+                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm whitespace-nowrap">
+                                    <span class="text-gray-500">{{ $report->old_type }}</span>
+                                    → <span class="text-black">{{ $report->new_type }}</span>
+                                </span>
+                            </div>
+                        @endif
+
+                        @if ($report->new_latitude || $report->new_longitude)
+                            <div class="my-2">
+                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm whitespace-nowrap">
+                                    <span class="text-gray-500">{{ $report->old_latitude }}, {{ $report->old_longitude }}</span>
+                                    → <span class="text-black">{{ $report->new_latitude }}, {{ $report->new_longitude }}</span>
+                                </span>
+                            </div>
+                            <div class="rounded-md overflow-hidden max-w-sm w-full h-64"
+                                x-data
+                                x-init="initOpenDiffer($el,
+                                    [{{ $report->old_longitude }}, {{ $report->old_latitude }}],
+                                    [{{ $report->new_longitude }}, {{ $report->new_latitude }}])">
+                            </div>
+                        @endif
+                    </div>
 
                     <div class="mt-1">
                         <ul role="list" class="pswp-gallery mt-3 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-2 sm:gap-x-3 lg:grid-cols-3 xl:grid-cols-4">

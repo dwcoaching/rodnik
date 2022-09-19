@@ -35,12 +35,37 @@ import SpringsFinalSource from '@/sources/final.js';
 import SpringsUserSource from '@/sources/user.js';
 
 export default class OpenPicker {
-    constructor(element, coordinates) {
+    constructor(element, oldCoordinates) {
         this.osmLayer = new OSMLayer();
 
+        let hasOldCoordinates = oldCoordinates.length ? true : false;
+        let center = hasOldCoordinates ? fromLonLat(oldCoordinates) : getInitialCenter();
+
+        if (hasOldCoordinates) {
+            this.springLayer = new VectorLayer({
+                source: new VectorSource({
+                    features: [
+                        new Feature({
+                            geometry: new Point(fromLonLat(oldCoordinates)),
+                        }),
+                    ]
+                }),
+                style: new Style({
+                    image: new CircleStyle({
+                        radius: 12,
+                        fill: new Fill({color: [0, 0, 0, 0]}),
+                        stroke: new Stroke({
+                            color: [0, 0, 0, 0.33],
+                            width: 2,
+                        }),
+                    })
+                }),
+                zIndex: 500,
+            });
+        }
+
         this.view = new View({
-            //center: fromLonLat(coordinates),
-            center: getInitialCenter(),
+            center: center,
             zoom: getInitialZoom(),
             //zoom: 18,
             enableRotation: false,
@@ -60,6 +85,10 @@ export default class OpenPicker {
             layers: [this.osmLayer],
             view: this.view,
         });
+
+        if (hasOldCoordinates) {
+            this.map.addLayer(this.springLayer);
+        }
 
         this.map.on('moveend', (e) => {
             let coordinates = toLonLat(this.view.getCenter());

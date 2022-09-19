@@ -1,23 +1,21 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-    <form wire:submit.prevent="store"
-        x-data="{
-            visited_at: @entangle('report.visited_at').defer,
-            state: @entangle('report.state').defer,
-            quality: @entangle('report.quality').defer,
-            errorTop: false,
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
+    x-data="{
+        visited_at: @entangle('report.visited_at').defer,
+        state: @entangle('report.state').defer,
+        quality: @entangle('report.quality').defer,
 
-            withDate: true,
-            previousDate: null,
-            toggleDate: function() {
-                if (this.withDate) {
-                    this.previousDate = this.visited_at;
-                    this.withDate = false;
-                    this.visited_at = null;
-                } else {
-                    this.visited_at = this.previousDate;
-                    this.withDate = true;
-                }
+        withDate: true,
+        previousDate: null,
+        toggleDate: function() {
+            if (this.withDate) {
+                this.previousDate = this.visited_at;
+                this.withDate = false;
+                this.visited_at = null;
+            } else {
+                this.visited_at = this.previousDate;
+                this.withDate = true;
             }
+        }
     }">
 
     <a href="{{ route('show', $spring) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
@@ -68,56 +66,11 @@
                 <span class="mr-3 mb-2">
                     {{ $spring->latitude }}, {{ $spring->longitude }}
                 </span>
-                {{--
-                    <span @click="errorTop = errorTop ? 0 : 1"
-                        class="mb-2 inline-block text-xs font-regular text-blue-600 cursor-pointer rounded-full bg-white border shadow-sm  px-2.5 py-1"
-                        x-bind:class="{
-                            'border-blue-600': errorTop,
-                            'border-white': ! errorTop,
-                        }"
-                        >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                            <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
-                            <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
-                        </svg>
-
-                    </span>
-                --}}
             </div>
-
-
-      </div>
+        </div>
     </div>
 
-    <div x-show="errorTop" x-cloak class="mt-0 mb-4 max-w-md">
-        <fieldset class="s">
-            <div class="rounded-md shadow-sm -space-y-px bg-white">
-                <div class="relative border border-gray-300 rounded-md rounded-b-none px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                    <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">Широта, долгота</label>
-                    <input value="{{ $spring->latitude }}, {{ $spring->longitude }}" type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
-
-                </div>
-                <div class="relative border border-gray-300 rounded-none px-0 pt-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                    <label for="type" class="px-3 block text-sm font-light text-gray-600 -mb-1">Тип</label>
-                    <select x-ref="type" id="type" name="type" class="block w-full rounded-none
-                        border-0 px-3 py-2 bg-transparent focus:z-10 sm:text-sm border-gray-300
-                        focus:ring-0
-                    ">
-                        <option>Родник</option>
-                        <option>Колодец</option>
-                        <option>Кран</option>
-                    </select>
-                </div>
-                <div class="relative border border-gray-300 rounded-md rounded-t-none px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                    <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название</label>
-                    <input value="{{ $spring->name }}" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
-                </div>
-            </div>
-        </fieldset>
-    </div>
-
-    <div
-        class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+    <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
             <span class="mr-3">
                 Дата посещения
@@ -361,8 +314,9 @@
 
     <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
-          <input type="submit" value="{{ $report->id ? 'Сохранить изменения' : 'Добавить отчет' }}" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" />
+            <button wire:click="store" type="button" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                {{ $report->id ? 'Сохранить изменения' : 'Добавить отчет' }}
+            </button>
         </div>
     </div>
-  </form>
 </div>

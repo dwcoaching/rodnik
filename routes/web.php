@@ -29,6 +29,7 @@ Route::get('/users/{userId}', [WebController::class, 'user'])->name('user')->whe
 
 
 Route::get('/create', [SpringController::class, 'create'])->name('springs.create');
+Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
 Route::get('photos/create', [PhotosBatchController::class, 'create']);
 
 

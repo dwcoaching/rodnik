@@ -6,6 +6,7 @@ use App\Library\Exif;
 use App\Models\Photo;
 use App\Models\Report;
 use Livewire\Component;
+use App\Rules\SpringTypeRule;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
@@ -40,12 +41,10 @@ class Create extends Component
     {
         $this->spring = $spring;
 
-        if ($this->report == null) {
+        if (! $this->report) {
             $this->report = new Report();
             $this->report->spring_id = $this->spring->id;
             $this->report->visited_at = now()->format('Y-m-d');
-
-
         } else {
             $this->photosIds = $this->report->photos->pluck('id')->all();
         }
@@ -65,7 +64,10 @@ class Create extends Component
         if (Auth::check()) {
             $this->report->user_id = Auth::user()->id;
         }
+
         $this->report->save();
+
+        $this->report->spring->invalidateTiles();
 
         $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
 
@@ -73,8 +75,6 @@ class Create extends Component
             $photo->report_id = $this->report->id;
             $photo->save();
         }
-
-        $this->report->spring->invalidateTiles();
 
         return redirect()->route('show', ['springId' => $this->spring->id]);
     }
