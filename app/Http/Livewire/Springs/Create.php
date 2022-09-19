@@ -8,9 +8,12 @@ use Livewire\Component;
 use App\Rules\SpringTypeRule;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Create extends Component
 {
+    use AuthorizesRequests;
+
     public $spring;
     public $name;
     public $type;
@@ -27,7 +30,14 @@ class Create extends Component
 
     public function mount(Spring $spring)
     {
-        $this->spring = $spring ? $spring : new Spring();
+        if ($spring) {
+            $this->authorize('update', $spring);
+            $this->spring = $spring;
+        } else {
+            $this->authorize('create', Spring::class);
+            $this->spring = new Spring();
+        }
+
         $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
         $this->type = $this->spring->type;
         $this->name = $this->spring->name;
@@ -79,17 +89,20 @@ class Create extends Component
 
         if ($springChangeCount) {
             if ($this->spring->id) {
+                $this->authorize('update', $this->spring);
+
                 $report->user_id = Auth::check() ? Auth::user()->id : null;
                 $report->spring_id = $this->spring->id;
                 $report->spring_edit = true;
                 $report->save();
+            } else {
+                $this->authorize('create', Spring::class);
             }
 
             $this->spring->save();
             $this->spring->invalidateTiles();
         }
 
-
-        return redirect()->route('show', $this->spring);
+        return redirect()->route('springs.show', $this->spring);
     }
 }

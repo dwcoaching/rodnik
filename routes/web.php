@@ -24,16 +24,14 @@ use App\Http\Controllers\SpringAggregatesJsonController;
 */
 
 Route::get('/', [WebController::class, 'index'])->name('index');
-Route::get('/{springId}', [WebController::class, 'show'])->name('show')->where('springId', '[0-9]+');
+
+Route::get('/{springId}', [SpringController::class, 'show'])->name('springs.show')->where('springId', '[0-9]+');
+Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
+Route::get('/create', [SpringController::class, 'create'])->name('springs.create');
+
 Route::get('/users/{userId}', [WebController::class, 'user'])->name('user')->where('userId', '[0-9]+');
 
-
-Route::get('/create', [SpringController::class, 'create'])->name('springs.create');
-Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
 Route::get('photos/create', [PhotosBatchController::class, 'create']);
-
-
-
 
 Route::get('springs.json', [SpringJsonController::class, 'index']);
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
@@ -45,7 +43,7 @@ Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'inde
 
 
 
-Route::get('coverage', [CoverageController::class, 'index']);
+//Route::get('coverage', [CoverageController::class, 'index']);
 
 Route::resource('reports', ReportController::class);
 

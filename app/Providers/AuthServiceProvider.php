@@ -14,6 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         'App\Models\Report' => 'App\Policies\ReportPolicy',
+        'App\Models\Spring' => 'App\Policies\SpringPolicy',
     ];
 
     /**

@@ -11,10 +11,11 @@ use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Create extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, AuthorizesRequests;
 
     public $spring;
     public $report;
@@ -46,6 +47,8 @@ class Create extends Component
             $this->report->spring_id = $this->spring->id;
             $this->report->visited_at = now()->format('Y-m-d');
         } else {
+            $this->authorize('update', $this->report);
+
             $this->photosIds = $this->report->photos->pluck('id')->all();
         }
     }
@@ -60,6 +63,10 @@ class Create extends Component
     public function store()
     {
         $this->validate();
+
+        if ($this->report->id) {
+            $this->authorize('update', $this->report);
+        }
 
         if (Auth::check()) {
             $this->report->user_id = Auth::user()->id;
@@ -76,7 +83,7 @@ class Create extends Component
             $photo->save();
         }
 
-        return redirect()->route('show', ['springId' => $this->spring->id]);
+        return redirect()->route('springs.show', $this->spring);
     }
 
     public function updatedFile()

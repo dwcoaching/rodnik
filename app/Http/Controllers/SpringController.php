@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class SpringController extends Controller
 {
+
+    public function __construct()
+    {
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -24,6 +30,8 @@ class SpringController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Spring::class);
+
         return view('springs.create', ['spring' => null]);
     }
 
@@ -44,9 +52,11 @@ class SpringController extends Controller
      * @param  \App\Models\Spring  $spring
      * @return \Illuminate\Http\Response
      */
-    public function show(Spring $spring)
+    public function show($springId)
     {
+        $userId = null;
 
+        return view('welcome', compact('springId', 'userId'));
     }
 
     /**
@@ -57,6 +67,8 @@ class SpringController extends Controller
      */
     public function edit(Spring $spring)
     {
+        $this->authorize('update', $spring);
+
         return view('springs.edit', compact('spring'));
     }
 

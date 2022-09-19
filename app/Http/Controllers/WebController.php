@@ -18,13 +18,6 @@ class WebController extends Controller
         return view('welcome', compact('springs', 'springId', 'userId'));
     }
 
-    public function show($springId)
-    {
-        $userId = null;
-
-        return view('welcome', compact('springId', 'userId'));
-    }
-
     public function user($userId)
     {
         $springId = null;

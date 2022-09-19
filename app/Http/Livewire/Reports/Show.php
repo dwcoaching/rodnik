@@ -4,9 +4,12 @@ namespace App\Http\Livewire\Reports;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
 {
+    use AuthorizesRequests;
+
     public $report;
     public $hasName;
     public $justHidden = false;
@@ -19,38 +22,38 @@ class Show extends Component
 
     public function hideByAuthor()
     {
-        if (Auth::user()->id == $this->report->user_id) {
-            $this->report->hidden_at = now();
-            $this->report->hidden_by_author_id = Auth::user()->id;
-            $this->report->save();
-            $this->justHidden = true;
+        $this->authorize('update', $this->report);
 
-            $this->report->spring->invalidateTiles();
-        }
+        $this->report->hidden_at = now();
+        $this->report->hidden_by_author_id = Auth::user()->id;
+        $this->report->save();
+        $this->justHidden = true;
+
+        $this->report->spring->invalidateTiles();
     }
 
-    public function hideByModerator()
-    {
-        if (Auth::user()->is_moderator) {
-            $this->report->hidden_at = now();
-            $this->report->hidden_by_moderator_id = Auth::user()->id;
-            $this->report->save();
-            $this->justHidden = true;
+    // public function hideByModerator()
+    // {
+    //     if (Auth::user()->is_moderator) {
+    //         $this->report->hidden_at = now();
+    //         $this->report->hidden_by_moderator_id = Auth::user()->id;
+    //         $this->report->save();
+    //         $this->justHidden = true;
 
-            $this->report->spring->invalidateTiles();
-        }
-    }
+    //         $this->report->spring->invalidateTiles();
+    //     }
+    // }
 
     public function unhideByAuthor()
     {
-        if (Auth::user()->id == $this->report->user_id) {
-            $this->report->hidden_at = null;
-            $this->report->hidden_by_author_id = null;
-            $this->report->save();
-            $this->justHidden = false;
+        $this->authorize('update', $this->report);
 
-            $this->report->spring->invalidateTiles();
-        }
+        $this->report->hidden_at = null;
+        $this->report->hidden_by_author_id = null;
+        $this->report->save();
+        $this->justHidden = false;
+
+        $this->report->spring->invalidateTiles();
     }
 
     public function render()
