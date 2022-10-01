@@ -15,7 +15,7 @@ class TelegramTest extends Command
      *
      * @var string
      */
-    protected $signature = 'telegram:test';
+    protected $signature = 'telegram:test {reportId}';
 
     /**
      * The console command description.
@@ -31,6 +31,9 @@ class TelegramTest extends Command
      */
     public function handle()
     {
-        SendReportNotification::dispatch(Report::find(35));
+        $reportId = $this->argument('reportId');
+        $report = Report::findOrFail($reportId);
+
+        SendReportNotification::dispatch($report);
     }
 }
