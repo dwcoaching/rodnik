@@ -9,6 +9,7 @@ use Livewire\Component;
 use App\Rules\SpringTypeRule;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
+use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -82,6 +83,8 @@ class Create extends Component
             $photo->report_id = $this->report->id;
             $photo->save();
         }
+
+        SendReportNotification::dispatch($this->report);
 
         return redirect()->route('springs.show', $this->spring);
     }

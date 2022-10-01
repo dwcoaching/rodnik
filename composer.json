@@ -11,6 +11,7 @@
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
         "jenssegers/date": "^4.0",
+        "laravel-notification-channels/telegram": "^2.1",
         "laravel/framework": "^9.19.0",
         "laravel/jetstream": "^2.4",
         "laravel/sanctum": "^2.14.1",
@@ -33,7 +34,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/helpers.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

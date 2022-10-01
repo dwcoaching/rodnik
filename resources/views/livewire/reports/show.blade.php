@@ -19,38 +19,38 @@
             @endif
             <div class="flex mt-1 space-x-3">
                 <div class="flex-1">
-                  <div class="flex  justify-between">
-                    <h3 class="text-base font-light">
-                      <span class="font-semibold">{{ Date::parse($report->created_at)->format('j F Y') }},</span>
-                      <span class="">{{ Date::parse($report->created_at)->format('H:i') }}</span>,
-                      @if ($report->user_id)
-                          {{ $report->user->name }}
-                      @else
-                          Анонимно
-                      @endif
-                    </h3>
-                    @if (! $report->spring_edit
-                        && ! $hasName && Auth::check()
-                        && $report->user_id == Auth::user()->id)
-                        <div class="flex-1 text-right">
-                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
-                            <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
-                        </div>
-                    @endif
-                  </div>
+                    <div class="flex justify-between">
+                        <h3 class="text-base font-light">
+                            <span class="font-semibold">{{ Date::parse($report->visited_at)->format('j F Y') }},</span>
+                            @if ($report->user_id)
+                                {{ $report->user->name }}
+                            @else
+                                Анонимно
+                            @endif
+                        </h3>
+                        @if (! $report->spring_edit
+                            && ! $hasName && Auth::check()
+                            && $report->user_id == Auth::user()->id)
+                            <div class="flex-1 text-right">
+                                <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
+                                <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
+                            </div>
+                        @endif
+                    </div>
 
-                  <div class="mt-1 text-base text-black">
-                    {!! nl2br(e($report->comment)) !!}
-                  </div>
 
-                  <div class="mt-1">
-                      @if ($report->state == 'dry')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Воды нет </span>
-                      @endif
+                    <div class="mt-1 text-base text-black">
+                        {!! nl2br(e($report->comment)) !!}
+                    </div>
 
-                      @if ($report->state == 'notfound')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Источник не обнаружен </span>
-                      @endif
+                    <div class="mt-1">
+                        @if ($report->state == 'dry')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Воды нет </span>
+                        @endif
+
+                        @if ($report->state == 'notfound')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Источник не обнаружен </span>
+                        @endif
 
                       @if ($report->state == 'dripping')
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Воды мало </span>
@@ -108,25 +108,34 @@
                         @endif
                     </div>
 
-                    <div class="mt-1">
-                        <ul role="list" class="pswp-gallery mt-3 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-2 sm:gap-x-3 lg:grid-cols-3 xl:grid-cols-4">
-                            @foreach ($report->photos as $photo)
-                                <li class="">
-                                    <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
-                                        <a href="{{ $photo->url }}"
-                                            data-pswp-width="{{ $photo->width }}"
-                                            data-pswp-height="{{ $photo->height }}"
-                                            data-cropped="true"
-                                            target="blank" class="photoswipeImage">
-                                            <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full">
-                                        </a>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+                    @if ($report->photos->count())
+                        <div class="mt-1">
+                            <ul role="list" class="pswp-gallery mt-3 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-2 sm:gap-x-3 lg:grid-cols-3 xl:grid-cols-4">
+                                @foreach ($report->photos as $photo)
+                                    <li class="">
+                                        <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
+                                            <a href="{{ $photo->url }}"
+                                                data-pswp-width="{{ $photo->width }}"
+                                                data-pswp-height="{{ $photo->height }}"
+                                                data-cropped="true"
+                                                target="blank" class="photoswipeImage">
+                                                <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full">
+                                            </a>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
+            @if ($hasName)
+                <div class="text-xs mt-2 text-gray-500">
+                    Добавлено
+                    <span>{{ Date::parse($report->created_at)->format('j F Y') }}</span>
+                    в <span>{{ Date::parse($report->created_at)->format('H:i') }} UTC</span>
+                </div>
+            @endif
         </div>
     @elseif ($justHidden)
         <div class="pb-8 flex items-center">

@@ -31,7 +31,7 @@ class Spring extends Component
                 abort(404);
             }
 
-            $reports = $spring->reports()->orderByDesc('created_at')->get();
+            $reports = $spring->reports()->orderByDesc('visited_at')->get();
             $coordinates = [
                 floatval($spring->longitude),
                 floatval($spring->latitude)

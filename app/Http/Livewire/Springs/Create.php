@@ -9,6 +9,7 @@ use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
 use Illuminate\Validation\Rule;
+use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -96,6 +97,8 @@ class Create extends Component
                 $report->spring_id = $this->spring->id;
                 $report->spring_edit = true;
                 $report->save();
+
+                SendReportNotification::dispatch($report);
             } else {
                 $this->authorize('create', Spring::class);
             }

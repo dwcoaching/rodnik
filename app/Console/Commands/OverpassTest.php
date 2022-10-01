@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 
-class TestOverpass extends Command
+class OverpassTest extends Command
 {
     /**
      * The name and signature of the console command.

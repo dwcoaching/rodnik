@@ -20,8 +20,8 @@
     <div class="flex items-center">
         @guest
             <div class="py-4 block">
-                <a href="{{ route('login') }}" class="text-sm font-medium text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" class="ml-4 font-medium text-sm text-gray-500">{{ __('Register') }}</a>
+                <a href="{{ route('login') }}" class="text-sm text-gray-500">{{ __('Login') }}</a>
+                <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth
