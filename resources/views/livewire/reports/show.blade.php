@@ -75,8 +75,8 @@
 
                     <div class="overflow-clip">
                         @if ($report->new_name)
-                            <div class="my-2">
-                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm whitespace-nowrap">
+                            <div class="my-2 flex">
+                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm">
                                     <span class="text-gray-500">{{ $report->old_name }}</span>
                                     → <span class="text-black">{{ $report->new_name }}</span>
                                 </span>
@@ -84,8 +84,8 @@
                         @endif
 
                         @if ($report->new_type)
-                            <div class="my-2">
-                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm whitespace-nowrap">
+                            <div class="my-2 flex">
+                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm">
                                     <span class="text-gray-500">{{ $report->old_type }}</span>
                                     → <span class="text-black">{{ $report->new_type }}</span>
                                 </span>
@@ -93,8 +93,8 @@
                         @endif
 
                         @if ($report->new_latitude || $report->new_longitude)
-                            <div class="my-2">
-                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm whitespace-nowrap">
+                            <div class="my-2 flex">
+                                <span class="rounded-md bg-gray-200 px-3 py-1 text-sm">
                                     <span class="text-gray-500">{{ $report->old_latitude }}, {{ $report->old_longitude }}</span>
                                     → <span class="text-black">{{ $report->new_latitude }}, {{ $report->new_longitude }}</span>
                                 </span>
