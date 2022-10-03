@@ -1,4 +1,4 @@
-<div class="my-3 flex justify-between flex-wrap">
+<div class="py-3 flex justify-between flex-wrap">
     <div class="">
         <!-- Logo -->
         <div class="shrink-0 flex items-center my-1 mr-4">

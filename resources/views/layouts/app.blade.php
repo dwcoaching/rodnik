@@ -45,7 +45,7 @@
     <body class="w-full h-screen bg-gray-100 flex flex-col">
         @if ($navbar)
             <div class="grow-0">
-                <nav class="bg-white border-b border-gray-100">
+                <nav class="">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         @include('navbar')
                     </div>
