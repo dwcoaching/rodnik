@@ -1,7 +1,7 @@
-<div class="flex justify-between h-16">
-    <div class="flex">
+<div class="my-3 flex justify-between flex-wrap">
+    <div class="">
         <!-- Logo -->
-        <div class="shrink-0 flex items-center">
+        <div class="shrink-0 flex items-center my-1 mr-4">
             <a href="{{ route('index') }}">
                 <img src="/rodnik-inline-logo.svg" class="h-6" />
             </a>
@@ -19,9 +19,9 @@
 
     <div class="flex items-center">
         @guest
-            <div class="py-4 block">
-                <a href="{{ route('login') }}" class="text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-500">{{ __('Register') }}</a>
+            <div class="my-1 block">
+                <a href="{{ route('login') }}" class="mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
+                <a href="{{ route('register') }}" class="text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth
