@@ -20,17 +20,19 @@
             <div class="flex mt-1 space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">
-                        <h3 class="text-base font-light">
-                            <span class="font-semibold">{{ Date::parse($report->visited_at)->format('j F Y') }}<span class="text-sm font-regular">,</span>
+                        <h3 class="flex flex-wrap items-baseline text-base font-light">
+                            <span class="mr-1 font-semibold">{{ Date::parse($report->visited_at)->format('j F Y') }}<span class="text-sm font-regular">,</span>
                             </span>
-                            @if ($report->user_id)
-                                <a class="relative text-sm text-blue-600 cursor-pointer hover:text-blue-700" href="{{ route('users.show', $report->user) }}">
-                                    <span class="mr-1">{{ $report->user->name }}</span>
-                                    <span class="absolute -top-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</span>
-                                </a>
-                            @else
-                                Анонимно
-                            @endif
+                            <div class="flex">
+                                @if ($report->user_id)
+                                    <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700" href="{{ route('users.show', $report->user) }}">
+                                        <div class="mr-1">{{ $report->user->name }}</div>
+                                        <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
+                                    </a>
+                                @else
+                                    Анонимно
+                                @endif
+                            </div>
                         </h3>
                         @if (! $report->spring_edit
                             && ! $hasName && Auth::check()
