@@ -21,9 +21,13 @@
                 <div class="flex-1">
                     <div class="flex justify-between">
                         <h3 class="text-base font-light">
-                            <span class="font-semibold">{{ Date::parse($report->visited_at)->format('j F Y') }},</span>
+                            <span class="font-semibold">{{ Date::parse($report->visited_at)->format('j F Y') }}<span class="text-sm font-regular">,</span>
+                            </span>
                             @if ($report->user_id)
-                                {{ $report->user->name }}
+                                <a class="relative text-sm text-blue-600 cursor-pointer hover:text-blue-700" href="{{ route('users.show', $report->user) }}">
+                                    <span class="mr-0.5">{{ $report->user->name }}</span>
+                                    <span class="absolute -top-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</span>
+                                </a>
                             @else
                                 Анонимно
                             @endif

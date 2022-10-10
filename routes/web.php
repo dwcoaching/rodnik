@@ -29,7 +29,7 @@ Route::get('/{springId}', [SpringController::class, 'show'])->name('springs.show
 Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
 Route::get('/create', [SpringController::class, 'create'])->name('springs.create');
 
-Route::get('/users/{userId}', [WebController::class, 'user'])->name('user')->where('userId', '[0-9]+');
+Route::get('/users/{userId}', [WebController::class, 'user'])->name('users.show')->where('userId', '[0-9]+');
 
 Route::get('photos/create', [PhotosBatchController::class, 'create']);
 

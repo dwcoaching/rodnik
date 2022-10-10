@@ -51,7 +51,7 @@
                             {{ __('Новый источник') }}
                         </x-jet-dropdown-link>
 
-                        <x-jet-dropdown-link href="{{ route('user', Auth::user()->id) }}">
+                        <x-jet-dropdown-link href="{{ route('users.show', Auth::user()->id) }}">
                             {{ __('Мои источники') }}
                         </x-jet-dropdown-link>
 

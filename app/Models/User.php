@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Report::class);
     }
+
+    public function getRatingAttribute()
+    {
+        return $this->loadCount('reports')->reports_count;
+    }
 }
