@@ -25,7 +25,7 @@
                             </span>
                             @if ($report->user_id)
                                 <a class="relative text-sm text-blue-600 cursor-pointer hover:text-blue-700" href="{{ route('users.show', $report->user) }}">
-                                    <span class="mr-0.5">{{ $report->user->name }}</span>
+                                    <span class="mr-1">{{ $report->user->name }}</span>
                                     <span class="absolute -top-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</span>
                                 </a>
                             @else
