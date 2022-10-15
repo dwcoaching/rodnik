@@ -17,6 +17,7 @@ import OSMLayer from '@/layers/osm';
 import MapyLayer from '@/layers/mapy';
 import OutdoorsLayer from '@/layers/outdoors';
 import GoogleTerrainLayer from '@/layers/googleTerrain';
+import GoogleSatelliteLayer from '@/layers/googleSatellite';
 import SpringsFinalLayer from '@/layers/springs/final';
 import SpringsApproximatedLayer from '@/layers/springs/approximated';
 import SpringsDistantLayer from '@/layers/springs/distant';
@@ -63,6 +64,7 @@ export default class OpenLayersMap {
         this.mapyLayer = new MapyLayer();
         this.outdoorsLayer = new OutdoorsLayer();
         this.googleTerrainLayer = new GoogleTerrainLayer();
+        this.googleSatelliteLayer = new GoogleSatelliteLayer();
 
         this.stravaPublicLayer = new StravaPublicLayer();
         this.osmTracesLayer = new OSMTracesLayer();
@@ -262,6 +264,11 @@ export default class OpenLayersMap {
             case 'terrain' :
                 this.map.removeLayer(this.currentLayer);
                 this.currentLayer = this.googleTerrainLayer;
+                this.map.addLayer(this.currentLayer);
+                break;
+            case 'satellite' :
+                this.map.removeLayer(this.currentLayer);
+                this.currentLayer = this.googleSatelliteLayer;
                 this.map.addLayer(this.currentLayer);
                 break;
         }

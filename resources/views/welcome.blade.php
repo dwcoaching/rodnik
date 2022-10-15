@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="flex flex-col-reverse sm:flex-row w-screen h-full">
-        <div class="relative flex-none sm:h-full" id="map"
+        <div class="relative flex-none sm:h-full sm:w-1/2 h-1/2" id="map"
             x-data="{
                 fullscreen: false,
                 toggleFullscreen: function() {
@@ -20,7 +20,7 @@
             ">
             <div class="absolute top-2 right-2" style="z-index: 10000;">
                 <div @click="toggleFullscreen" class="h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center">
-                    <div x-cloak x-show="! fullscreen" class="">
+                    <div x-show="! fullscreen" class="">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                             <path d="M13.28 7.78l3.22-3.22v2.69a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h2.69l-3.22 3.22a.75.75 0 001.06 1.06zM2 17.25v-4.5a.75.75 0 011.5 0v2.69l3.22-3.22a.75.75 0 011.06 1.06L4.56 16.5h2.69a.75.75 0 010 1.5h-4.5a.747.747 0 01-.75-.75zM12.22 13.28l3.22 3.22h-2.69a.75.75 0 000 1.5h4.5a.747.747 0 00.75-.75v-4.5a.75.75 0 00-1.5 0v2.69l-3.22-3.22a.75.75 0 10-1.06 1.06zM3.5 4.56l3.22 3.22a.75.75 0 001.06-1.06L4.56 3.5h2.69a.75.75 0 000-1.5h-4.5a.75.75 0 00-.75.75v4.5a.75.75 0 001.5 0V4.56z" />
                         </svg>
@@ -94,7 +94,7 @@
                             x-cloak
                             x-show="filtersOpen"
                             @click.stop=""
-                            class="shadow absolute top-0 right-11 w-96 rounded-md bg-white px-4 py-2"
+                            class="shadow absolute top-0 right-11 w-64 rounded-md bg-white px-4 py-2"
                         >
                             <fieldset class="space-y-2">
                                 <div class="relative flex items-start">
@@ -102,7 +102,7 @@
                                         <input @change="toggleAllFilters" x-model="filters.all" id="filters.all" name="filter__all" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.all" class="font-bold text-gray-700">Показывать все источники воды</label>
+                                        <label for="filters.all" class="font-bold text-gray-700">Все источники</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">
@@ -126,7 +126,7 @@
                                         <input @change="updateFilters" x-model="filters.water_tap" id="filters.water_tap" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.water_tap" class="font-regular text-gray-700">Краны и колонки</label>
+                                        <label for="filters.water_tap" class="font-regular text-gray-700">Краны</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">
@@ -150,7 +150,7 @@
                                         <input @change="updateFilters" x-model="filters.other" id="filters.other" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.other" class="font-regular text-gray-700">Прочие источники воды</label>
+                                        <label for="filters.other" class="font-regular text-gray-700">Прочие</label>
                                     </div>
                                 </div>
                             </fieldset>
@@ -192,11 +192,11 @@
                             x-cloak
                             x-show="layersOpen"
                             @click.stop=""
-                            class="absolute shadow top-0 right-11 w-96 rounded-md shadow bg-white px-4 py-2s"
+                            class="absolute shadow top-0 right-11 w-64 rounded-md shadow bg-white px-4 py-2"
                         >
                             <div>
-                                <div class="space-y-2 mt-2">
-                                    <button @click="source('osm')" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-full shadow-sm"
+                                <div class="space-y-1.5">
+                                    <button @click="source('osm')" type="button" class=" inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
                                         :class="{
                                             'bg-white': active != 'osm',
                                             'bg-blue-600': active == 'osm',
@@ -204,7 +204,7 @@
                                             'text-white': active == 'osm'
                                         }"
                                     >OpenStreetMap</button>
-                                    <button @click="source('mapy')" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-full shadow-sm"
+                                    <button @click="source('mapy')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
                                         :class="{
                                             'bg-white': active != 'mapy',
                                             'bg-blue-600': active == 'mapy',
@@ -213,7 +213,7 @@
                                         }"
                                     >Mapy.cz</button>
                                 {{--
-                                    <button @click="source('outdoors')" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-full shadow-sm"
+                                    <button @click="source('outdoors')" type="button" class="mr-0.5 inline-flex items-center px-3 py-1.5 border-2 border-blue-600 text-xs font-medium rounded-full shadow-sm"
                                         :class="{
                                             'bg-white': active == 'outdoors',
                                             'bg-blue-600': active != 'outdoors',
@@ -222,17 +222,25 @@
                                         }"
                                     >OSM Outdoors</button>
                                 --}}
-                                    <button @click="source('terrain')" type="button" class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-full shadow-sm"
+                                    <button @click="source('terrain')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
                                         :class="{
                                             'bg-white': active != 'terrain',
                                             'bg-blue-600': active == 'terrain',
                                             'text-blue-700': active != 'terrain',
                                             'text-white': active == 'terrain'
                                         }"
-                                    >Google Terrain</button>
+                                    >Terrain</button>
+                                    <button @click="source('satellite')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
+                                        :class="{
+                                            'bg-white': active != 'satellite',
+                                            'bg-blue-600': active == 'satellite',
+                                            'text-blue-700': active != 'satellite',
+                                            'text-white': active == 'satellite'
+                                        }"
+                                    >Satellite</button>
                                 </div>
 
-                                <div class="mt-3 mb-3 space-y-2 space-x-1">
+                                <div class="mt-3 mb-1 space-y-2 space-x-1">
                                     <fieldset class="space-y-2">
                                         <div class="relative flex items-start">
                                             <div class="flex items-center h-5">
