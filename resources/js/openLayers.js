@@ -104,7 +104,7 @@ export default class OpenLayersMap {
         this.fullScreenControl = new FullScreen();
 
         this.map = new Map({
-            controls: defaultControls().extend([this.scaleControl, this.fullScreenControl]),
+            controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
             layers: [this.osmLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
             view: this.view,
@@ -368,7 +368,6 @@ export default class OpenLayersMap {
             this.springsDistantLayer.setVisible(true);
 
             this.springsFinalLayer.setSource(this.springsFinalSource);
-
         }
     }
 }
