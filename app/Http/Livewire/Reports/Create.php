@@ -65,6 +65,10 @@ class Create extends Component
     {
         $this->validate();
 
+        if (in_array($this->report->state, ['dry', 'notfound'])) {
+            $this->report->quality = null;
+        }
+
         if ($this->report->id) {
             $this->authorize('update', $this->report);
         }
