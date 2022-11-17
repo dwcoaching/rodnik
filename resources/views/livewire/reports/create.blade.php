@@ -328,8 +328,8 @@
                         }
 
                         this.storing = true;
-                        await $wire.store();
-                        this.storing = false;
+                        const result = await $wire.store();
+                        // this.storing = false;
                     }
                 }"
                 x-bind:attr="{
