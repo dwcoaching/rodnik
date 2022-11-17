@@ -314,8 +314,36 @@
 
     <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
-            <button wire:click="store" type="button" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                {{ $report->id ? 'Сохранить изменения' : 'Добавить отчет' }}
+            <button type="button" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                x-data="{
+                    storing: false,
+                    buttonText: '{{ $report->id ? 'Сохранить изменения' : 'Добавить отчет' }}',
+                    storingText: '{{ $report->id ? 'Сохраняется...' : 'Добавляется...' }}',
+                    text: function() {
+                        return this.storing ? this.storingText : this.buttonText;
+                    },
+                    store: async function() {
+                        if (this.storing) {
+                            return;
+                        }
+
+                        this.storing = true;
+                        await $wire.store();
+                        this.storing = false;
+                    }
+                }"
+                x-bind:attr="{
+                    'disabled': storing
+                }"
+                x-bind:class="{
+                    'bg-blue-600': ! storing,
+                    'hover:bg-blue-700': ! storing,
+                    'bg-gray-600': storing,
+                }"
+                @click="store"
+                x-text="text()"
+                >
+
             </button>
         </div>
     </div>

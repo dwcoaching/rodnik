@@ -1,6 +1,6 @@
 <li>
     @if (! $report->hidden_at)
-        <div class="pb-8">
+        <div class="p-4 bg-white rounded-lg shadow">
             @if ($hasName)
                 <div class="flex justify-between">
                     <a href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
@@ -17,7 +17,7 @@
                     @endif
                 </div>
             @endif
-            <div class="flex mt-1 space-x-3">
+            <div class="flex space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">
                         <h3 class="flex flex-wrap items-baseline text-base font-light">

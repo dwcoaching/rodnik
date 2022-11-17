@@ -46,10 +46,14 @@ class Spring extends Component
 
             if ($this->userId) {
                 $user = User::find($this->userId);
-                $lastReports = $user->reports()->latest()->limit(10)->get();
+                $lastReports = $user->reports()
+                    ->whereNull('hidden_at')
+                    ->latest()
+                    ->limit(10)
+                    ->get();
             } else {
                 $user = null;
-                $lastReports = Report::latest()->limit(10)->get();
+                $lastReports = Report::whereNull('hidden_at')->latest()->limit(10)->get();
             }
 
         }
