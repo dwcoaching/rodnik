@@ -108,7 +108,7 @@
                         <div class="mt-6 text-2xl font-bold">Последние отчеты</div>
                     @endif
 
-                    <ul role="list" class="pt-2 space-y-4" wire:key="reports">
+                    <ul role="list" class="mt-2 space-y-4" wire:key="reports">
                         @foreach ($lastReports as $report)
                             <livewire:reports.show has-name="true" :report="$report" wire:key="reports.latest.show.{{ $report->id }}" />
                         @endforeach
@@ -208,7 +208,7 @@
                     </a>
                 </div>
                 <div class="mt-3">
-                    <ul role="list" class="">
+                    <ul role="list" class="space-y-4">
                         @foreach ($reports as $report)
                             <livewire:reports.show has-name="false" :report="$report" wire:key="spring.reports.show.{{ $report->id }}" />
                         @endforeach
