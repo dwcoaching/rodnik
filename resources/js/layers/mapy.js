@@ -6,7 +6,7 @@ export default class Mapy extends TileLayer {
         super({
             source: new XYZ({
                 url:
-                    'https://m{1-4}.mapserver.mapy.cz/turist-m/retina/{z}-{x}-{y}',
+                    'https://mapserver.mapy.cz/turist-m/retina/{z}-{x}-{y}',
                 tilePixelRatio: 2,
             }),
             zIndex: 1,
