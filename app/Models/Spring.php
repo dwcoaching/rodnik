@@ -74,21 +74,21 @@ class Spring extends Model
                 return $item->key == 'natural' &&
                     ($item->value == 'spring' | $item->value == 'spring_box');
             }))) {
-            return 'Родник';
+            return 'Natural spring';
         }
 
         if (count(
             $this->osm_tags->filter(function($item) {
                 return $item->key == 'man_made' && $item->value == 'water_well';
             }))) {
-            return 'Колодец';
+            return 'Water well';
         }
 
         if (count(
             $this->osm_tags->filter(function($item) {
                 return $item->key == 'man_made' && $item->value == 'water_tap';
             }))) {
-            return 'Кран';
+            return 'Water tap';
         }
 
         if (count(
@@ -98,14 +98,14 @@ class Spring extends Model
                     || ($item->key == 'drinking_water' && $item->value == 'yes')
                     || ($item->key == 'man_made' && $item->value == 'drinking_fountain');
             }))) {
-            return 'Источник питьевой воды';
+            return 'Drinking water source';
         }
 
         if (count(
             $this->osm_tags->filter(function($item) {
                 return $item->key == 'amenity' && $item->value == 'fountain';
             }))) {
-            return 'Фонтан';
+            return 'Fountain';
         }
 
         return 'Источник воды';

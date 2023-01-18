@@ -57,32 +57,7 @@
     <div wire:loading.remove class="grow">
         @if (! $spring)
             <div>
-                {{--
-                    <div>
-                        @if (Auth::check() && Auth::user()->springs->count() > 0)
-                            <div class="mb-4">
-                                <button @click="springsSource()" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                    :class="{
-                                        'bg-white': userId != 0,
-                                        'bg-blue-600': userId == 0,
-                                        'text-blue-700': userId != 0,
-                                        'text-white': userId == 0
-                                    }"
-                                >Все родники</button>
-                                <button @click="springsSource({{ Auth::user()->id }})" type="button" class="mr-1 inline-flex items-center px-4 py-2 border-2 border-blue-600 text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                    :class="{
-                                        'bg-white': userId == 0,
-                                        'bg-blue-600': userId != 0,
-                                        'text-blue-700': userId == 0,
-                                        'text-white': userId != 0
-                                    }"
-                                >Мои родники</button>
-                            </div>
-                        @endif
-                    </div>
-                --}}
-
-            @if (! $user)
+            {{--
                 <div class="text-sm -mt-3">
                     <a href="https://t.me/rodnik_today" target="_blank" class="font-normal text-blue-600 hover:text-blue-700">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline" viewBox="0 0 16 16">
@@ -96,7 +71,7 @@
                                 </svg> канал с уведомлениями
                     </a> в телеграме
                 </div>
-            @endif
+            --}}
 
                 <div>
                     @if ($user)
@@ -105,7 +80,7 @@
                             <div class="-mt-2 text-sm font-semibold text-gray-900">{{ $user->rating }}</div>
                         </div>
                     @else
-                        <div class="mt-6 text-2xl font-bold">Последние отчеты</div>
+                        <div class="mt-6 text-2xl font-bold">New reports</div>
                     @endif
 
                     <ul role="list" class="mt-2 space-y-4" wire:key="reports">
@@ -167,7 +142,7 @@
 
 
                                 <span x-cloak x-show="copied" x-transition.opacity.duration.300 class="font-regular">
-                                    cкопировано
+                                    copied
                                 </span>
                             </div>
                     </span>
@@ -178,7 +153,7 @@
                 <div class="mt-3">
                     <div class="text-gray-900 text-sm">
                         <span class="font-semibold mr-3">
-                            Теги OSM
+                            OSM tags
                         </span>
                         @if ($spring->osm_node_id)
                             <span class="text-xs text-gray-500">
@@ -199,12 +174,12 @@
 
             @if ($reports->count())
                 <div class="flex mt-16 items-center justify-between">
-                    <div class="text-3xl font-bold">Отчеты</div>
+                    <div class="text-3xl font-bold">Reports</div>
                     <a href="{{ route('reports.create', ['spring_id' => $spring]) }}" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                         </svg>
-                        Добавить&nbsp;отчет
+                        New report
                     </a>
                 </div>
                 <div class="mt-3">
@@ -220,7 +195,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                         </svg>
-                        Добавить&nbsp;отчет
+                        New report
                     </a>
                 </div>
             @endif

@@ -11,8 +11,8 @@
                         && Auth::check()
                         && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
-                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
-                            <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
+                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">edit</a>
+                            <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
                         </div>
                     @endif
                 </div>
@@ -30,7 +30,7 @@
                                         <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                     </a>
                                 @else
-                                    Анонимно
+                                    Anonymous
                                 @endif
                             </div>
                         </h3>
@@ -38,8 +38,8 @@
                             && ! $hasName && Auth::check()
                             && $report->user_id == Auth::user()->id)
                             <div class="flex-1 text-right">
-                                <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">редактировать</a>
-                                <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">удалить</span>
+                                <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">edit</a>
+                                <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
                             </div>
                         @endif
                     </div>
@@ -51,31 +51,31 @@
 
                     <div class="mt-1">
                         @if ($report->state == 'dry')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Воды нет </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Dry </span>
                         @endif
 
                         @if ($report->state == 'notfound')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Источник не обнаружен </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Water source not found </span>
                         @endif
 
                       @if ($report->state == 'dripping')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Воды мало </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Very little water </span>
                       @endif
 
                       @if ($report->state == 'running')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Вода есть </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Watered </span>
                       @endif
 
                       @if ($report->quality == 'bad')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Вода плохая </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Poor water </span>
                       @endif
 
                       @if ($report->quality == 'uncertain')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Вода не понятная </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Questionable water </span>
                       @endif
 
                       @if ($report->quality == 'good')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Вода хорошая </span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Good water </span>
                       @endif
                     </div>
 
@@ -137,16 +137,16 @@
             </div>
             @if ($hasName)
                 <div class="text-xs mt-2 text-gray-500">
-                    Добавлено
+                    Added on
                     <span>{{ Date::parse($report->created_at)->format('j F Y') }}</span>
-                    в <span>{{ Date::parse($report->created_at)->format('H:i') }} UTC</span>
+                    at <span>{{ Date::parse($report->created_at)->format('H:i') }} UTC</span>
                 </div>
             @endif
         </div>
     @elseif ($justHidden)
         <div class="pb-8 flex items-center">
             <div class="text-sm text-medium text-gray-600 mr-2">
-                Отчет удален
+                Report deleted
             </div>
             <span wire:click="unhideByAuthor" class="rounded-full border-0 bg-green-600 hover:bg-green-700 cursor-pointer text-white text-xs px-3 py-1">Восстановить</span>
         </div>

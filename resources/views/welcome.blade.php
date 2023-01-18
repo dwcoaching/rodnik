@@ -110,7 +110,7 @@
                                         <input @change="updateFilters" x-model="filters.spring" id="filters.spring" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.spring" class="font-regular text-gray-700">Родники</label>
+                                        <label for="filters.spring" class="font-regular text-gray-700">Springs</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">
@@ -118,7 +118,7 @@
                                         <input @change="updateFilters" x-model="filters.water_well" id="filters.water_well" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.water_well" class="font-regular text-gray-700">Колодцы</label>
+                                        <label for="filters.water_well" class="font-regular text-gray-700">Water well</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">
@@ -126,7 +126,7 @@
                                         <input @change="updateFilters" x-model="filters.water_tap" id="filters.water_tap" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.water_tap" class="font-regular text-gray-700">Краны</label>
+                                        <label for="filters.water_tap" class="font-regular text-gray-700">Water taps</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">
@@ -134,7 +134,7 @@
                                         <input @change="updateFilters" x-model="filters.drinking_water" id="filters.drinking_water" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.drinking_water" class="font-regular text-gray-700">Источники питьевой воды</label>
+                                        <label for="filters.drinking_water" class="font-regular text-gray-700">Drinking water sources</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">
@@ -142,7 +142,7 @@
                                         <input @change="updateFilters" x-model="filters.fountain" id="filters.fountain" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.fountain" class="font-regular text-gray-700">Фонтаны</label>
+                                        <label for="filters.fountain" class="font-regular text-gray-700">Fountains</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">
@@ -150,7 +150,7 @@
                                         <input @change="updateFilters" x-model="filters.other" id="filters.other" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.other" class="font-regular text-gray-700">Прочие</label>
+                                        <label for="filters.other" class="font-regular text-gray-700">Other</label>
                                     </div>
                                 </div>
                             </fieldset>

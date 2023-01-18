@@ -17,7 +17,6 @@
         <!-- Fonts -->
 
         <!-- Styles -->
-        <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
         @livewireStyles
 
         <!-- Scripts -->

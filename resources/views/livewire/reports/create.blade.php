@@ -29,16 +29,16 @@
     @guest
         <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">
             <div class="font-bold max-w-prose">
-                Вы пишете анонимно
+                You are writing anonymously
             </div>
             <div class="mt-2 max-w-prose">
-                Так тоже можно, но лучше писать под своим именем — тогда у вас
-                будет копиться история и будет возможность редактировать и удалять
-                свои отчеты.
+                That's fine! But if you sign up, you'll grow the collection
+                of your water sources, and you'll be able to edit
+                and delete your reports.
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Зарегистрироваться</a>
-                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Войти</a>
+                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Sign up</a>
+                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Log in</a>
             </div>
         </div>
     @endguest
@@ -73,14 +73,14 @@
     <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
             <span class="mr-3">
-                Дата посещения
+                Date of visit
             </span>
             <span @click="toggleDate" class="cursor-pointer text-blue-600 text-xs"
                 :class="{
                     'font-bold': ! withDate
                 }"
             >
-                не указывать
+                unknown
             </span>
         </label>
         <input x-show="withDate" x-model="visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
@@ -96,26 +96,21 @@
     <div class="mt-4">
         <div>
             <div class="mb-2">
-                <x-chip-radio name="💧 Вода есть" key="state" value="running" />
-                <x-chip-radio name="🌵 Воды нет" key="state" value="dry" />
-                <x-chip-radio name="😡 Источник не обнаружен" key="state" value="notfound" />
+                <x-chip-radio name="💧 Watered" key="state" value="running" />
+                <x-chip-radio name="🌵 Dry" key="state" value="dry" />
+                <x-chip-radio name="😡 Water source not found" key="state" value="notfound" />
             </div>
             <div x-show="state !== 'dry' && state !== 'notfound'">
-                <x-chip-radio name="🚰 Вода хорошая" key="quality" value="good" />
-                <x-chip-radio name="🚱 Вода плохая" key="quality" value="bad" />
+                <x-chip-radio name="🚰 Good water" key="quality" value="good" />
+                <x-chip-radio name="🚱 Poor water" key="quality" value="bad" />
             </div>
-
-
-
-
-
         </div>
     </div>
 
     <div class="mt-2">
       <div class="relative">
         <textarea wire:model.defer="report.comment" rows="4" name="comment" id="comment"
-            placeholder="Комментарий"
+            placeholder="Comment"
           @class([
             'max-w-lg',
             'shadow-sm',
@@ -252,19 +247,19 @@
                     </div>
                     <div class="text-sm text-gray-600">
                         <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
-                            <span class="font-bold">Выберите фото</span>
+                            <span class="font-bold">Choose a photo</span>
                             <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">
                         </label>
-                        <p class="inline pl-1">или перетащите сюда</p>
+                        <p class="inline pl-1">or drag and drop here</p>
                     </div>
-                    <p class="text-xs text-gray-500">PNG, JPG, GIF не более 10 Мб</p>
+                    <p class="text-xs text-gray-500">PNG, JPG, GIF (10 MB max)</p>
                     <div x-show="0 && filesInProgress.length" class="mt-6">
                         <template x-for="file in filesInProgress">
                             <div class="mt-2 mb-2">
-                                <b>Файл <span x-text="file.name"></span> загружается</b><br>
-                                исходный размер <span x-text="file.oldSize"></span> байт<br>
-                                загружаемый размер <span x-text="file.newSize"></span> байт<br>
-                                загружено <span x-text="file.progress"></span>%
+                                <b>File <span x-text="file.name"></span> uploading</b><br>
+                                original size <span x-text="file.oldSize"></span> B<br>
+                                resized size <span x-text="file.newSize"></span> B<br>
+                                <span x-text="file.progress"></span>% uploaded
                             </div>
                         </template>
                     </div>
@@ -317,8 +312,8 @@
             <button type="button" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 x-data="{
                     storing: false,
-                    buttonText: '{{ $report->id ? 'Сохранить изменения' : 'Добавить отчет' }}',
-                    storingText: '{{ $report->id ? 'Сохраняется...' : 'Добавляется...' }}',
+                    buttonText: '{{ $report->id ? 'Save changes' : 'Add report' }}',
+                    storingText: '{{ $report->id ? 'Saving...' : 'Adding...' }}',
                     text: function() {
                         return this.storing ? this.storingText : this.buttonText;
                     },

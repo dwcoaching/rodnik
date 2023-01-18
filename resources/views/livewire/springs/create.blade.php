@@ -61,16 +61,16 @@
     @guest
         <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">
             <div class="font-bold max-w-prose">
-                Вы пишете анонимно
+                You are writing anonymously
             </div>
             <div class="mt-2 max-w-prose">
-                Так тоже можно, но лучше писать под своим именем — тогда у вас
-                будет копиться история и будет возможность редактировать и удалять
-                свои отчеты.
+                That's fine! But if you sign up, you'll grow the collection
+                of your water sources, and you'll be able to edit
+                and delete your reports.
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Зарегистрироваться</a>
-                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Войти</a>
+                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Sign up</a>
+                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Log in</a>
             </div>
         </div>
     @endguest
@@ -81,14 +81,15 @@
                 <span class="mr-2 inline-flex items-center">
                     @if ($spring->id)
                         <div>
-                            Редактировать источник
+                            Edit water source
                             <div class="text-sm mt-1 font-normal">
-                                Все изменения применяются сразу. Пишите только если уверены 😇
+                                All changes will be applied immediately.
+                                Please double-check before changing anything 😇
                             </div>
                         </div>
                     @else
-                        <span class="mr-2">Новый</span>
-                        <span x-text="type ? type.toLowerCase() : 'источник воды'">источник воды</span>
+                        <span class="mr-2">New</span>
+                        <span x-text="type ? type.toLowerCase() : 'water source'">water source</span>
                     @endif
                 </span>
             </span>
@@ -97,10 +98,10 @@
 
     <div class="mt-4">
         <div class="">
-            <x-chip-radio name="💧 Родник" key="type" value="Родник" />
-            <x-chip-radio name="🪣 Колодец" key="type" value="Колодец" />
-            <x-chip-radio name="🚰 Кран" key="type" value="Кран" />
-            <x-chip-radio name="🐳 Другой" key="type" value="Источник воды" />
+            <x-chip-radio name="💧 Spring" key="type" value="Родник" />
+            <x-chip-radio name="🪣 Water well" key="type" value="Колодец" />
+            <x-chip-radio name="🚰 Water tap" key="type" value="Кран" />
+            <x-chip-radio name="🐳 Other" key="type" value="Источник воды" />
             @error('type')
                 <div class="text-red-600 text-sm mb-4">{{ $message }}</div>
             @enderror
@@ -122,7 +123,7 @@
                 }"
             >
                 <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">
-                    Широта, долгота
+                    Latitude, longitude
                     <svg x-cloak x-show="! coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-green-600">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
                     </svg>
@@ -134,7 +135,7 @@
             </div>
 
             <div class="mt-2 border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                <label for="name" class="block text-sm font-light text-gray-600 mb-1">Название источника (если есть)</label>
+                <label for="name" class="block text-sm font-light text-gray-600 mb-1">Water source name (if any)</label>
                 <input wire:model.defer="name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
             </div>
         </div>
@@ -153,7 +154,7 @@
                     'focus:bg-blue-700': ! error(),
                 }"
             >
-                {{ $spring->id ? 'Сохранить изменения' : 'Добавить источник' }}
+                {{ $spring->id ? 'Save changes' : 'Add water source' }}
             </button>
         </div>
     </div>
