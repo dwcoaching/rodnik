@@ -102,7 +102,7 @@
                                         <input @change="toggleAllFilters" x-model="filters.all" id="filters.all" name="filter__all" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.all" class="font-bold text-gray-700">Все источники</label>
+                                        <label for="filters.all" class="font-bold text-gray-700">All water sources</label>
                                     </div>
                                 </div>
                                 <div class="relative flex items-start">

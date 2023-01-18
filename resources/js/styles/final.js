@@ -49,27 +49,27 @@ let reportedStyle = new Style({
 
 // export { style as default }
 export default (feature, resolution) => {
-    if (! window.rodnikMap.filters.spring && feature.get('type') == 'Родник') {
+    if (! window.rodnikMap.filters.spring && feature.get('type') == 'Spring') {
         return hiddenStyle;
     }
 
-    if (! window.rodnikMap.filters.water_well && feature.get('type') == 'Колодец') {
+    if (! window.rodnikMap.filters.water_well && feature.get('type') == 'Water well') {
         return hiddenStyle;
     }
 
-    if (! window.rodnikMap.filters.water_tap && feature.get('type') == 'Кран') {
+    if (! window.rodnikMap.filters.water_tap && feature.get('type') == 'Water tap') {
         return hiddenStyle;
     }
 
-    if (! window.rodnikMap.filters.drinking_water && feature.get('type') == 'Источник питьевой воды') {
+    if (! window.rodnikMap.filters.drinking_water && feature.get('type') == 'Drinking water source') {
         return hiddenStyle;
     }
 
-    if (! window.rodnikMap.filters.fountain && feature.get('type') == 'Фонтан') {
+    if (! window.rodnikMap.filters.fountain && feature.get('type') == 'Fountain') {
         return hiddenStyle;
     }
 
-    if (! window.rodnikMap.filters.other && feature.get('type') == 'Источник воды') {
+    if (! window.rodnikMap.filters.other && feature.get('type') == 'Water source') {
         return hiddenStyle;
     }
 

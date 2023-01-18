@@ -108,7 +108,7 @@ class Spring extends Model
             return 'Fountain';
         }
 
-        return 'Источник воды';
+        return 'Water source';
     }
 
     public function invalidateTiles()

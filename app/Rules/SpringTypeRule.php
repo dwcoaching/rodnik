@@ -25,7 +25,7 @@ class SpringTypeRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return in_array($value, ['Родник', 'Колодец', 'Кран', 'Источник воды']);
+        return in_array($value, ['Spring', 'Water well', 'Water tap', 'Water source']);
     }
 
     /**
@@ -35,6 +35,6 @@ class SpringTypeRule implements Rule
      */
     public function message()
     {
-        return 'Выберите тип источника';
+        return 'Choose water source type';
     }
 }

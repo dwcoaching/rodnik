@@ -98,10 +98,10 @@
 
     <div class="mt-4">
         <div class="">
-            <x-chip-radio name="💧 Spring" key="type" value="Родник" />
-            <x-chip-radio name="🪣 Water well" key="type" value="Колодец" />
-            <x-chip-radio name="🚰 Water tap" key="type" value="Кран" />
-            <x-chip-radio name="🐳 Other" key="type" value="Источник воды" />
+            <x-chip-radio name="💧 Spring" key="type" value="Spring" />
+            <x-chip-radio name="🪣 Water well" key="type" value="Water well" />
+            <x-chip-radio name="🚰 Water tap" key="type" value="Water tap" />
+            <x-chip-radio name="🐳 Other" key="type" value="Water source" />
             @error('type')
                 <div class="text-red-600 text-sm mb-4">{{ $message }}</div>
             @enderror
