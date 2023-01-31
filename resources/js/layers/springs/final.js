@@ -19,6 +19,7 @@ export default class SpringsFinalLayer extends VectorLayer {
             //source: new SpringsFinalSource(),
             style: style,
             zIndex: 500,
+            opacity: 0.8
         });
     }
 

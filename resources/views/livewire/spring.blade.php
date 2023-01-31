@@ -80,7 +80,7 @@
                             <div class="-mt-2 text-sm font-semibold text-gray-900">{{ $user->rating }}</div>
                         </div>
                     @else
-                        <div class="mt-6 text-2xl font-bold">New reports</div>
+                        <div class="mt-6 text-xl font-black">New reports</div>
                     @endif
 
                     <ul role="list" class="mt-2 space-y-4" wire:key="reports">
@@ -95,11 +95,11 @@
         @if ($spring)
             <div class="" wire:key="spring.{{ $spring->id }}">
                 <div class="flex items-center flex-wrap">
-                    <span class="text-3xl font-bold mr-3">
+                    <span class="text-xl font-bold mr-3">
                         {{ $spring->name ? $spring->name : $spring->type }}
                     </span>
                     <div class="flex items-center">
-                        <span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
+                        {{--<span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>--}}
                         @can('update', $spring)
                             <a href="{{ route('springs.edit', $spring) }}"
                                 class="inline-block text-xs font-regular text-blue-600 cursor-pointer rounded-full bg-white border shadow-sm  px-2.5 py-1 border-white">
@@ -174,7 +174,7 @@
 
             @if ($reports->count())
                 <div class="flex mt-16 items-center justify-between">
-                    <div class="text-3xl font-bold">Reports</div>
+                    <div class="text-xl font-extrabold">Reports</div>
                     <a href="{{ route('reports.create', ['spring_id' => $spring]) }}" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />

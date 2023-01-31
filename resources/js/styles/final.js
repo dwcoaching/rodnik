@@ -6,7 +6,7 @@ let width = 1;
 let intermittentStyle = new Style({
     image: new CircleStyle({
         radius: radius,
-        fill: new Fill({color: [51, 169, 255, 0.1]}),
+        fill: new Fill({color: [51, 169, 255, 0.125]}),
         stroke: new Stroke({
             color: '#33A9FF',
             width: width,

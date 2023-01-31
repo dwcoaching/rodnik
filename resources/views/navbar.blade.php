@@ -3,7 +3,7 @@
         <!-- Logo -->
         <div class="shrink-0 flex items-center my-1 mr-4">
             <a href="{{ route('index') }}">
-                <img src="/rodnik-inline-logo.svg" class="h-6" />
+                <img src="/rodnik-nunito-logo.svg" class="h-6" />
             </a>
         </div>
 

@@ -4,7 +4,7 @@
             @if ($hasName)
                 <div class="flex justify-between">
                     <a href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
-                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-xl mr-2 font-semibold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
+                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-bold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
                         <span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>
                     </a>
                     @if (! $report->spring_edit
