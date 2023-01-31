@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Reports;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\Report;
 
 class Show extends Component
 {
@@ -14,7 +15,7 @@ class Show extends Component
     public $hasName;
     public $justHidden = false;
 
-    public function mount($report, $hasName)
+    public function mount(Report $report, $hasName)
     {
         $this->report = $report;
         $this->hasName = $hasName == 'true' ? true : false;

@@ -4,8 +4,8 @@
             @if ($hasName)
                 <div class="flex justify-between">
                     <a href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
-                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-bold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
-                        <span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>
+                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
+                        {{--<span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>--}}
                     </a>
                     @if (! $report->spring_edit
                         && Auth::check()
@@ -21,8 +21,12 @@
                 <div class="flex-1">
                     <div class="flex justify-between">
                         <h3 class="flex flex-wrap items-baseline text-base font-light">
-                            <span class="mr-1 font-semibold">{{ Date::parse($report->visited_at)->format('j F Y') }}<span class="text-sm font-regular">,</span>
-                            </span>
+                            @if ($report->visited_at)
+                                <span class="mr-1 text-sm font-bold">
+                                    {{ $report->visited_at->format('F d, Y') }}
+                                    <span class="text-sm font-regular">,</span>
+                                </span>
+                            @endif
                             <div class="flex">
                                 @if ($report->user_id)
                                     <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700" href="{{ route('users.show', $report->user) }}">
@@ -138,8 +142,8 @@
             @if ($hasName)
                 <div class="text-xs mt-2 text-gray-500">
                     Added on
-                    <span>{{ Date::parse($report->created_at)->format('j F Y') }}</span>
-                    at <span>{{ Date::parse($report->created_at)->format('H:i') }} UTC</span>
+                    <span>{{ $report->created_at->format('F d, Y') }}</span>
+                    at <span>{{ $report->created_at->format('H:i') }} UTC</span>
                 </div>
             @endif
         </div>
