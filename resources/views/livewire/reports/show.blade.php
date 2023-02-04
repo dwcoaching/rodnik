@@ -23,8 +23,7 @@
                         <h3 class="flex flex-wrap items-baseline text-base font-light">
                             @if ($report->visited_at)
                                 <span class="mr-1 text-sm font-bold">
-                                    {{ $report->visited_at->format('F d, Y') }}
-                                    <span class="text-sm font-regular">,</span>
+                                    {{ $report->visited_at->format('F d, Y') }}<span class="text-sm font-regular">,</span>
                                 </span>
                             @endif
                             <div class="flex">
