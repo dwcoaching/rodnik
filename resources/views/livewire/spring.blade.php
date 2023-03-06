@@ -65,8 +65,8 @@
                     </ul>
                     <div class="mt-2">
                         Verified information gets reported back to
-                        OpenStreetMap, augmenting the human knowledge
-                        about public water sources.
+                        OpenStreetMap, augmenting human knowledge
+                        on public water sources.
                     </div>
                 </div>
                 <div class="text-sm mt-3">
