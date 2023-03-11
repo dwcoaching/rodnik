@@ -25,7 +25,7 @@ class Create extends Component
 
     protected function rules() {
         return [
-            'report.visited_at' => 'nullable|date',
+            'visited_at' => 'nullable|date',
             'report.state' => [
                 'nullable',
                 Rule::in(['dry', 'dripping', 'running', 'notfound'])
@@ -46,10 +46,11 @@ class Create extends Component
         if (! $this->report) {
             $this->report = new Report();
             $this->report->spring_id = $this->spring->id;
-            $this->report->visited_at = now()->format('Y-m-d');
+            $this->visited_at = now()->format('Y-m-d');
         } else {
             $this->authorize('update', $this->report);
 
+            $this->visited_at = $this->report->visited_at->format('Y-m-d');
             $this->photosIds = $this->report->photos->pluck('id')->all();
         }
     }
@@ -76,6 +77,8 @@ class Create extends Component
         if (Auth::check()) {
             $this->report->user_id = Auth::user()->id;
         }
+
+        $this->report->visited_at = $this->visited_at;
 
         $this->report->save();
 

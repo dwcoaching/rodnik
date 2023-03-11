@@ -2,9 +2,13 @@
     <div class="">
         <!-- Logo -->
         <div class="shrink-0 flex items-center my-1 mr-4">
-            <a href="{{ route('index') }}">
+            <a href="{{ route('index') }}"
+                class="mr-4">
                 <img src="/rodnik-nunito-logo.svg" class="h-6" />
             </a>
+            <div>
+                <a href="/about" class="text-blue-600 text-sm">About</a>
+            </div>
         </div>
 
         <!-- Navigation Links -->

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Livewire\Pages\About;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReportController;
@@ -46,6 +47,7 @@ Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'inde
 //Route::get('coverage', [CoverageController::class, 'index']);
 
 Route::resource('reports', ReportController::class);
+Route::get('/about', About::class);
 
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {

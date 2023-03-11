@@ -56,41 +56,14 @@
     </div>
     <div wire:loading.remove class="grow">
         @if (! $spring)
-            <div class="-mt-3 rounded-md bg-black/[0.05] p-4">
-                <div class="max-w-xl leading-relaxed">
-                    Rodnik.today is a social layer on top of OpenStreetMap for:
-                    <ul class="list-inside list-disc">
-                        <li>exploring public water sources</li>
-                        <li>sharing up-to-date information with community enthusiasts</li>
-                    </ul>
-                    <div class="mt-2">
-                        Verified information gets reported back to
-                        OpenStreetMap, augmenting human knowledge
-                        on public water sources.
-                    </div>
-                </div>
-                <div class="text-sm mt-3">
-                    <a href="https://t.me/rodnik_today" target="_blank" class="font-normal text-blue-600 hover:text-blue-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/>
-                                </svg> Join the Discussion Group
-                    </a>
-                    &nbsp;or&nbsp;
-                    <a href="https://t.me/rodniktoday" target="_blank" class="font-normal text-blue-600 hover:text-blue-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline" viewBox="0 0 16 16">
-                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/>
-                                </svg> Subscribe to the Notifications Channel
-                    </a>
-                </div>
-            </div>
-            <div>
+            <div class="-mt-3">
                 @if ($user)
-                    <div class="mt-2 text-2xl font-bold flex items-center">
+                    <div class="mt-0 text-2xl font-bold flex items-center">
                         <div class="mr-1">{{ $user->name }}</div>
                         <div class="-mt-2 text-sm font-semibold text-gray-900">{{ $user->rating }}</div>
                     </div>
                 @else
-                    <div class="mt-6 text-xl font-black">New reports</div>
+                    <div class="mt-0 text font-normal">New Reports</div>
                 @endif
 
                 <ul role="list" class="mt-2 space-y-4" wire:key="reports">
@@ -188,7 +161,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                         </svg>
-                        New report
+                        New Report
                     </a>
                 </div>
                 <div class="mt-3">
@@ -204,7 +177,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                         </svg>
-                        New report
+                        New Report
                     </a>
                 </div>
             @endif

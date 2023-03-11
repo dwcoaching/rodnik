@@ -1,6 +1,6 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
-        visited_at: @entangle('report.visited_at').defer,
+        visited_at: @entangle('visited_at').defer,
         state: @entangle('report.state').defer,
         quality: @entangle('report.quality').defer,
 
@@ -73,14 +73,14 @@
     <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
             <span class="mr-3">
-                Date of visit
+                Visit Date
             </span>
             <span @click="toggleDate" class="cursor-pointer text-blue-600 text-xs"
                 :class="{
                     'font-bold': ! withDate
                 }"
             >
-                unknown
+                Do Not Specify
             </span>
         </label>
         <input x-show="withDate" x-model="visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
@@ -312,7 +312,7 @@
             <button type="button" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 x-data="{
                     storing: false,
-                    buttonText: '{{ $report->id ? 'Save changes' : 'Add report' }}',
+                    buttonText: '{{ $report->id ? 'Save Changes' : 'Add Report' }}',
                     storingText: '{{ $report->id ? 'Saving...' : 'Adding...' }}',
                     text: function() {
                         return this.storing ? this.storingText : this.buttonText;
