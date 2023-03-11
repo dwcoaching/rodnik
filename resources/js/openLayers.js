@@ -138,12 +138,15 @@ export default class OpenLayersMap {
                     }
                 }
 
-                this.selectFeature(features[0]);
+                this.selectFeature(features[0])
 
                 let springId = features[0].get('id');
                 window.history.pushState({springId: springId}, 'Rodnik.today', window.location.origin + '/' + springId);
 
-                const event = new CustomEvent('spring-selected', {detail: {id: springId}});
+                const event = new CustomEvent('spring-selected', {detail: {
+                    id: springId,
+                    feature: features[0],
+                }});
                 window.dispatchEvent(event);
             } else {
                 if (this.previouslySelectedFeature) {
@@ -322,6 +325,15 @@ export default class OpenLayersMap {
         );
     }
 
+    centerFeature(feature) {
+        this.view.animate(
+            {
+                center: feature.getGeometry().flatCoordinates,
+                duration: 50
+            }
+        );
+    }
+
     locate(coordinates) {
         this.view.animate(
             {
@@ -341,6 +353,11 @@ export default class OpenLayersMap {
 
         this.previouslySelectedFeature = feature;
         feature.setStyle(selectedStyle);
+
+        if (this.fullscreen) {
+            this.setFullscreen(false);
+            this.centerFeature(feature);
+        }
     }
 
     unselectPreviousFeature() {
@@ -376,5 +393,9 @@ export default class OpenLayersMap {
 
             this.springsFinalLayer.setSource(this.springsFinalSource);
         }
+    }
+
+    setFullscreen(value) {
+        this.fullscreen = value;
     }
 }

@@ -7,13 +7,14 @@
                 fullscreen: false,
                 toggleFullscreen: function() {
                     this.fullscreen = ! this.fullscreen;
+                    window.rodnikMap.setFullscreen(this.fullscreen);
                     $nextTick(() => window.rodnikMap.map.updateSize());
                 },
                 enterFullscreen: function() {
                     this.fullscreen = true;
                     $nextTick(() => window.rodnikMap.map.updateSize());
                 },
-                exitFullscreen: function() {
+                exitFullscreen: function(event) {
                     this.fullscreen = false;
                     $nextTick(() => window.rodnikMap.map.updateSize());
                 }
