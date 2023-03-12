@@ -11,10 +11,9 @@
     }"
     x-on:spring-selected.window="
         if (previousSpringId == $event.detail.id) {
-            previousSpringId = springId;
+            previousSpringId = null;
             springId = $event.detail.id;
         } else {
-            previousSpringId = springId;
             springId = $event.detail.id;
             $wire.render();
         }
