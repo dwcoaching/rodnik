@@ -130,34 +130,9 @@ export default class OpenLayersMap {
             });
 
             if (features.length > 0) {
-                if (this.previouslySelectedFeature) {
-                    if (features[0].get('id') == this.previouslySelectedFeature.get('id')) {
-                        return false;
-                    } else {
-                        this.previouslySelectedFeature.setStyle(finalStyle);
-                    }
-                }
-
                 this.selectFeature(features[0])
-
-                let springId = features[0].get('id');
-                window.history.pushState({springId: springId}, 'Rodnik.today', window.location.origin + '/' + springId);
-
-                const event = new CustomEvent('spring-selected', {detail: {
-                    id: springId,
-                    feature: features[0],
-                }});
-                window.dispatchEvent(event);
             } else {
-                if (this.previouslySelectedFeature) {
-                    this.previouslySelectedFeature.setStyle(finalStyle);
-                    this.previouslySelectedFeature = null;
-
-                    window.history.pushState({springId: null}, 'Rodnik.today', window.location.origin + '/');
-
-                    const event = new CustomEvent('spring-unselected');
-                    window.dispatchEvent(event);
-                }
+                this.unselectFeature()
             }
         });
     }
@@ -349,6 +324,14 @@ export default class OpenLayersMap {
     }
 
     selectFeature(feature) {
+        if (this.previouslySelectedFeature) {
+            if (feature.get('id') == this.previouslySelectedFeature.get('id')) {
+                return false;
+            } else {
+                this.previouslySelectedFeature.setStyle(finalStyle);
+            }
+        }
+
         this.unselectPreviousFeature();
 
         this.previouslySelectedFeature = feature;
@@ -357,6 +340,27 @@ export default class OpenLayersMap {
         if (this.fullscreen) {
             this.setFullscreen(false);
             this.centerFeature(feature);
+        }
+
+        let springId = feature.get('id');
+        window.history.pushState({springId: springId}, 'Rodnik.today', window.location.origin + '/' + springId);
+
+        const event = new CustomEvent('spring-selected', {detail: {
+            id: springId,
+            feature: feature,
+        }});
+        window.dispatchEvent(event);
+    }
+
+    unselectFeature() {
+        if (this.previouslySelectedFeature) {
+            this.previouslySelectedFeature.setStyle(finalStyle);
+            this.previouslySelectedFeature = null;
+
+            window.history.pushState({springId: null}, 'Rodnik.today', window.location.origin + '/');
+
+            const event = new CustomEvent('spring-unselected');
+            window.dispatchEvent(event);
         }
     }
 

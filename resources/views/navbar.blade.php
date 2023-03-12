@@ -2,10 +2,10 @@
     <div class="">
         <!-- Logo -->
         <div class="shrink-0 flex items-center my-1 mr-4">
-            <a href="{{ route('index') }}"
-                class="mr-4">
+            <span x-data @click="window.rodnikMap.unselectFeature()"
+                class="mr-4 cursor-pointer">
                 <img src="/rodnik-nunito-logo.svg" class="h-6" />
-            </a>
+            </span>
             <div>
                 <a href="/about" class="text-blue-600 text-sm">About</a>
             </div>
