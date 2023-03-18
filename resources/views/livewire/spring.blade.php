@@ -1,53 +1,96 @@
 <div id="spring"
     x-data="{
         locateMap: true,
-        springsSource: function(userId = 0) {
-            window.rodnikMap.springsSource(userId);
-            this.userId = userId;
-        },
+        myId: {{ intval(Auth::check() ? Auth::user()->id : 0) }},
         userId: @entangle('userId'),
+        personal: {{ intval($user && (Auth::check() && $user->id === Auth::user()->id)) }},
+        setPersonal: function(value) {
+            this.personal = value
+            this.setUserId(value ? this.myId : 0)
+            this.registerHomeVisit()
+        },
+        setUserId: function(userId) {
+            this.userId = userId
+            window.rodnikMap.springsSource(userId);
+        },
+        setSpringId: function(springId) {
+            this.springId = springId
+            if (this.previousSpringId !== springId) {
+                $wire.render()
+            }
+
+            this.previousSpringId = null
+        },
+        unsetSpringId: function() {
+            this.previousSpringId = this.springId
+            this.springId = null
+        },
         springId: @entangle('springId').defer,
         previousSpringId: null,
+        registerVisit: function(details, location) {
+            window.history.pushState(details, 'Rodnik.today', location);
+            ym(90143259, 'hit', location)
+        },
+        registerSpringVisit: function(springId) {
+            this.registerVisit({springId: springId}, window.location.origin + '/' + springId)
+        },
+        registerHomeVisit: function() {
+            const location = this.userId ? window.location.origin + '/users/' + this.userId : window.location.origin
+            this.registerVisit({userId: this.userId ? this.userId : 0}, location)
+        }
     }"
-    x-on:spring-selected.window="
-        if (previousSpringId == $event.detail.id) {
-            previousSpringId = null;
-            springId = $event.detail.id;
-        } else {
-            springId = $event.detail.id;
-            $wire.render();
+    x-on:spring-selected-on-map.window="
+        setSpringId($event.detail.id)
+        registerSpringVisit($event.detail.id)
+    "
+    x-on:spring-deselected-on-map.window="
+        unsetSpringId()
+        registerHomeVisit()
+    "
+    x-on:spring-turbo-visit.window="
+        setSpringId($event.detail.id)
+        registerSpringVisit($event.detail.id)
+
+        window.rodnikMap.locate($event.detail.coordinates);
+        window.rodnikMap.highlightFeatureById($event.detail.id);
+    "
+    x-on:spring-turbo-visit-home.window="
+        window.rodnikMap.dehighlightFeature();
+        unsetSpringId()
+        registerHomeVisit()
+    "
+    x-on:turbo-visit-user.window="
+        if ($event.detail.userId == myId) {
+            personal = true
         }
 
-        ym(90143259, 'hit', window.location.origin + '/' + $event.detail.id);
-    "
-    x-on:spring-unselected.window="
-        previousSpringId = springId;
-        springId = null;
-        ym(90143259, 'hit', window.location.origin + '/');
+        setUserId($event.detail.userId)
+        unsetSpringId()
+        registerHomeVisit()
     "
     x-on:popstate.window="
         if ($event.state && $event.state.springId) {
-            locateMap = true;
-            const event = new CustomEvent('spring-selected', {detail: {id: $event.state.springId}});
-            window.dispatchEvent(event);
-        } else if ($event.state && $event.state.userId) {
-            springsSource($event.state.userId);
-            window.rodnikMap.unselectPreviousFeature();
-            const event = new CustomEvent('spring-unselected');
-            window.dispatchEvent(event);
-        } else {
-            springsSource(0);
-            const event = new CustomEvent('spring-unselected');
-            window.dispatchEvent(event);
+            setSpringId($event.state.springId)
+            window.rodnikMap.highlightFeatureById($event.state.springId);
+        } else if ($event.state) {
+            if ($event.state.userId == myId) {
+                personal = true
+            } else {
+                personal = false
+            }
+
+            setUserId($event.state.userId);
+            unsetSpringId()
+            window.rodnikMap.dehighlightPreviousFeature();
         }"
     x-init="
         if ({{ intval($springId)}} && locateMap) {
             window.rodnikMap.locate({{ json_encode($coordinates) }});
-            window.rodnikMap.showFeature({{ $springId }});
+            window.rodnikMap.highlightFeatureById({{ $springId }});
         }
 
         if ({{ intval($user instanceof \App\Models\User) }}) {
-            window.rodnikMap.locateWorld();
+
         }
 
         locateMap = false;
@@ -57,15 +100,13 @@
 >
     <div class="grow" class="">
         <div x-show="! springId" class="">
-            <livewire:springs.last-reports
-                :user="$user"
-            />
+            @include('springs.last-reports')
         </div>
         <div x-show="springId" wire:loading.delay.flex class="grow hidden w-full h-full flex justify-center items-center">
             <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
         </div>
         <div
-            x-show="springId" wire:loading.remove>
+            x-show="springId && ! previousSpringId" wire:loading.remove>
             @if ($spring)
                 <div class="" wire:key="spring.{{ $spring->id }}">
                     <div class="flex items-center flex-wrap">

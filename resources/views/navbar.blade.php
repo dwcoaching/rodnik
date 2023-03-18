@@ -2,7 +2,9 @@
     <div class="">
         <!-- Logo -->
         <div class="shrink-0 flex items-center my-1 mr-4">
-            <span x-data @click="window.rodnikMap.unselectFeature()"
+            <span x-data
+                @click.prevent="
+                    window.dispatchEvent(new CustomEvent('spring-turbo-visit-home'))"
                 class="mr-4 cursor-pointer">
                 <img src="/rodnik-nunito-logo.svg" class="h-6" />
             </span>
@@ -55,7 +57,17 @@
                             {{ __('New water source') }}
                         </x-jet-dropdown-link>
 
-                        <x-jet-dropdown-link href="{{ route('users.show', Auth::user()->id) }}">
+                        <x-jet-dropdown-link href="{{ route('users.show', Auth::user()->id) }}"
+                            @click.prevent="
+                                window.dispatchEvent(
+                                    new CustomEvent('spring-turbo-visit-user',
+                                        {
+                                            detail: {
+                                                userId: {{ intval(Auth::user()->id) }},
+                                            }
+                                        }
+                                    )
+                                )">
                             {{ __('My water sources') }}
                         </x-jet-dropdown-link>
 

@@ -132,7 +132,7 @@ export default class OpenLayersMap {
             if (features.length > 0) {
                 this.selectFeature(features[0])
             } else {
-                this.unselectFeature()
+                this.deselectFeature()
             }
         });
     }
@@ -142,7 +142,7 @@ export default class OpenLayersMap {
 
         if (id) {
             this.featureIdToBeSelected = null;
-            this.showFeature(id);
+            this.highlightFeatureById(id);
         }
     }
 
@@ -278,118 +278,125 @@ export default class OpenLayersMap {
         }
     }
 
-    showFeature(id) {
+    highlightFeatureById(id) {
         let feature = window.rodnikMap.springsFinalLayer.getSource().getFeatureById(id);
 
         if (feature) {
             this.locateFeature(feature);
+            this.highlightFeature(feature);
         } else {
             this.featureIdToBeSelected = id;
         }
     }
 
     locateFeature(feature) {
-        this.selectFeature(feature);
-
         this.view.animate(
             {
                 center: feature.getGeometry().flatCoordinates,
-                zoom: 14,
                 duration: 250
             }
         );
     }
 
-    centerFeature(feature) {
-        this.view.animate(
-            {
-                center: feature.getGeometry().flatCoordinates,
-                duration: 50
-            }
-        );
-    }
+    // centerFeature(feature) {
+    //     this.view.animate(
+    //         {
+    //             center: feature.getGeometry().flatCoordinates,
+    //             duration: 50
+    //         }
+    //     );
+    // }
 
     locate(coordinates) {
+        const zoom = this.view.getZoom() < this.finalZoom ? 14 : this.view.getZoom()
+
         this.view.animate(
             {
                 center: fromLonLat(coordinates),
-                zoom: 14,
+                zoom: zoom,
                 duration: 250
             }
         );
     }
 
     locateWorld() {
-        this.view.fit(this.view.getProjection().getExtent());
+        this.view.fit(this.springsFinalLayer.getSource().getExtent());
+        this.view.setZoom(Math.floor(this.view.getZoom() - 1));
     }
 
-    selectFeature(feature) {
-        if (this.previouslySelectedFeature) {
-            if (feature.get('id') == this.previouslySelectedFeature.get('id')) {
+    highlightFeature(feature) {
+        if (this.previouslyHighlightedFeature) {
+            if (feature.get('id') == this.previouslyHighlightedFeature.get('id')) {
                 return false;
             } else {
-                this.previouslySelectedFeature.setStyle(finalStyle);
+                this.previouslyHighlightedFeature.setStyle(finalStyle);
             }
         }
 
-        this.unselectPreviousFeature();
+        this.dehighlightPreviousFeature();
 
-        this.previouslySelectedFeature = feature;
+        this.previouslyHighlightedFeature = feature;
         feature.setStyle(selectedStyle);
 
         if (this.fullscreen) {
             this.setFullscreen(false);
             this.centerFeature(feature);
         }
+    }
+
+    selectFeature(feature) {
+        this.highlightFeature(feature)
 
         let springId = feature.get('id');
-        window.history.pushState({springId: springId}, 'Rodnik.today', window.location.origin + '/' + springId);
 
-        const event = new CustomEvent('spring-selected', {detail: {
+        const event = new CustomEvent('spring-selected-on-map', {detail: {
             id: springId,
             feature: feature,
         }});
         window.dispatchEvent(event);
     }
 
-    unselectFeature() {
-        if (this.previouslySelectedFeature) {
-            this.previouslySelectedFeature.setStyle(finalStyle);
-            this.previouslySelectedFeature = null;
-
-            window.history.pushState({springId: null}, 'Rodnik.today', window.location.origin + '/');
-
-            const event = new CustomEvent('spring-unselected');
-            window.dispatchEvent(event);
+    dehighlightFeature() {
+        if (this.previouslyHighlightedFeature) {
+            this.previouslyHighlightedFeature.setStyle(finalStyle);
+            this.previouslyHighlightedFeature = null;
         }
     }
 
-    unselectPreviousFeature() {
-        if (this.previouslySelectedFeature) {
-            this.previouslySelectedFeature.setStyle(finalStyle);
+    deselectFeature() {
+        if (this.previouslyHighlightedFeature) {
+            this.dehighlightFeature()
+
+            const event = new CustomEvent('spring-deselected-on-map')
+            window.dispatchEvent(event)
+        }
+    }
+
+    dehighlightPreviousFeature() {
+        if (this.previouslyHighlightedFeature) {
+            this.previouslyHighlightedFeature.setStyle(finalStyle);
         }
 
-        this.previouslySelectedFeature = null;
+        this.previouslyHighlightedFeature = null;
     }
 
     springsSource(userId) {
         if (userId) {
             this.mode = 'user';
-            // let url = window.location.origin + '/users/' + userId;
-            // window.history.pushState({userId: userId}, 'Rodnik.today', url);
-            // ym(window.ymCode, 'hit', url);
 
             this.springsFinalLayer.setMinZoom(0);
             this.springsApproximatedLayer.setVisible(false);
             this.springsDistantLayer.setVisible(false);
 
-            this.springsUserSource.setUser(userId);
-            this.springsFinalLayer.setSource(this.springsUserSource);
+            if (this.springsUserSource.getUser() == userId) {
+                this.springsFinalLayer.setSource(this.springsUserSource)
+                this.locateWorld()
+            } else {
+                this.springsUserSource.setUser(userId);
+                this.springsFinalLayer.setSource(this.springsUserSource);
+            }
         } else {
             this.mode = 'global';
-            // let url = window.location.origin + '/';
-            // window.history.pushState(null, 'Rodnik.today', url);
-            // ym(window.ymCode, 'hit', url);
 
             this.springsFinalLayer.setMinZoom(9);
             this.springsApproximatedLayer.setVisible(true);

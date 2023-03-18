@@ -36,26 +36,22 @@ class Spring extends Component
                 floatval($spring->longitude),
                 floatval($spring->latitude)
             ];
-
-            $lastReports = [];
-        } else
-        {
-            $spring = null;
+        } else {
             $reports = [];
+            $spring = null;
             $coordinates = [];
+        }
 
-            if ($this->userId) {
-                $user = User::find($this->userId);
-                $lastReports = $user->reports()
-                    ->whereNull('hidden_at')
-                    ->latest()
-                    ->limit(10)
-                    ->get();
-            } else {
-                $user = null;
-                $lastReports = Report::whereNull('hidden_at')->latest()->limit(10)->get();
-            }
-
+        if ($this->userId) {
+            $user = User::find($this->userId);
+            $lastReports = $user->reports()
+                ->whereNull('hidden_at')
+                ->latest()
+                ->limit(10)
+                ->get();
+        } else {
+            $user = null;
+            $lastReports = Report::whereNull('hidden_at')->latest()->limit(10)->get();
         }
 
         return view('livewire.spring', compact('reports', 'spring', 'coordinates', 'lastReports', 'user'));

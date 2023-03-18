@@ -1,8 +1,7 @@
 <x-app-layout>
     <div class="flex flex-col-reverse sm:flex-row w-screen h-full">
         <div class="relative flex-none sm:h-full sm:w-1/2 h-1/2" id="map"
-            x-on:spring-selected.window="exitFullscreen"
-            {{--x-on:spring-unselected.window="enterFullscreen"--}}
+            x-on:spring-selected-on-map.window="exitFullscreen"
             x-data="{
                 fullscreen: false,
                 toggleFullscreen: function() {

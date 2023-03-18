@@ -1,43 +1,35 @@
-<li>
+@props(['report'])
+
+<li class="p-3 bg-white rounded-lg shadow">
     @if (! $report->hidden_at)
-        <div class="p-4 bg-white rounded-lg shadow">
-            @if ($hasName)
-                <div class="flex justify-between">
-                    <a @click.prevent="
-                        window.dispatchEvent(
-                            new CustomEvent('spring-turbo-visit',
-                                {
-                                    detail: {
-                                        id: {{ intval($report->spring->id )}},
-                                        coordinates: {{ json_encode([
-                                            floatval($report->spring->longitude),
-                                            floatval($report->spring->latitude)
-                                        ]) }},
-                                    }
+        <div>
+            <div class="flex justify-between">
+                <a @click.prevent="
+                    window.dispatchEvent(
+                        new CustomEvent('spring-turbo-visit',
+                            {
+                                detail: {
+                                    id: {{ intval($report->spring->id )}},
+                                    coordinates: {{ json_encode([
+                                        floatval($report->spring->longitude),
+                                        floatval($report->spring->latitude)
+                                    ]) }},
                                 }
-                            )
+                            }
                         )
-                    "
-                    href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
-                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
-                        {{--<span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>--}}
-                    </a>
-                    @if (! $report->spring_edit
-                        && Auth::check()
-                        && $report->user_id == Auth::user()->id)
-                        <div class="flex-1 text-right">
-                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">edit</a>
-                            <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
-                        </div>
-                    @endif
-                </div>
-            @endif
+                    )
+                "
+                href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
+                    <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
+                </a>
+            </div>
+
             <div class="flex space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">
                         <h3 class="flex flex-wrap items-baseline text-base font-light">
                             @if ($report->visited_at)
-                                <span class="mr-1 text-sm font-bold">
+                                <span class="mr-1 text-xs font-regular">
                                     {{ $report->visited_at->format('F d, Y') }}<span class="text-sm font-regular">,</span>
                                 </span>
                             @endif
@@ -64,14 +56,6 @@
                                 @endif
                             </div>
                         </h3>
-                        @if (! $report->spring_edit
-                            && ! $hasName && Auth::check()
-                            && $report->user_id == Auth::user()->id)
-                            <div class="flex-1 text-right">
-                                <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">edit</a>
-                                <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
-                            </div>
-                        @endif
                     </div>
 
 
@@ -146,39 +130,31 @@
 
                     @if ($report->photos->count())
                         <div class="mt-1">
-                            <ul role="list" class="pswp-gallery mt-3 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-2 sm:gap-x-3 lg:grid-cols-3 xl:grid-cols-4">
-                                @foreach ($report->photos as $photo)
-                                    <li class="">
-                                        <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
-                                            <a href="{{ $photo->url }}"
-                                                data-pswp-width="{{ $photo->width }}"
-                                                data-pswp-height="{{ $photo->height }}"
-                                                data-cropped="true"
-                                                target="blank" class="photoswipeImage">
-                                                <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full">
-                                            </a>
-                                        </div>
-                                    </li>
-                                @endforeach
+                            <ul role="list" class="pswp-gallery mt-3 gap-x-3 gap-y-3">
+                                <li class="">
+                                    <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
+                                        <a href="{{ $report->photos[0]->url }}"
+                                            data-pswp-width="{{ $report->photos[0]->width }}"
+                                            data-pswp-height="{{ $report->photos[0]->height }}"
+                                            data-cropped="true"
+                                            target="blank" class="photoswipeImage">
+                                            <img style="" src="{{ $report->photos[0]->url }}" alt="" class="object-cover absolute h-full w-full">
+                                        </a>
+                                    </div>
+                                </li>
                             </ul>
                         </div>
                     @endif
                 </div>
             </div>
-            @if ($hasName)
-                <div class="text-xs mt-2 text-gray-500">
-                    Added on
-                    <span>{{ $report->created_at->format('F d, Y') }}</span>
-                    at <span>{{ $report->created_at->format('H:i') }} UTC</span>
-                </div>
-            @endif
-        </div>
-    @elseif ($justHidden)
-        <div class="pb-8 flex items-center">
-            <div class="text-sm text-medium text-gray-600 mr-2">
-                Report deleted
+            {{--
+            <div class="text-xs mt-2 text-gray-500">
+                Added on
+                <span>{{ $report->created_at->format('F d, Y') }}</span>
+                at <span>{{ $report->created_at->format('H:i') }} UTC</span>
             </div>
-            <span wire:click="unhideByAuthor" class="rounded-full border-0 bg-green-600 hover:bg-green-700 cursor-pointer text-white text-xs px-3 py-1">Восстановить</span>
+            --}}
         </div>
     @endif
 </li>
+
