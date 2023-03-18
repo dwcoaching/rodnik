@@ -1,14 +1,15 @@
 <div>
     <div class="-mt-3">
-        <div wire:key="user" class="flex items-center">
+        <div wire:key="user" class="flex items-stretch" x-show="userId && userId !== myId">
             @if ($user && (! Auth::check() || $user->id !== Auth::user()->id))
-                <div x-show="userId !== myId"
-                class="bg-slate-300 text-black rounded-lg mr-1 px-3 py-1 my-1 text-sm font-medium flex items-center">
-                    <div class="mr-1">Showing Water Sources of <b>{{ $user->name }}</b></div>
-                    <div class="bg-slate-500 rounded-full text-xs px-1.5 font-semibold text-white">{{ $user->rating }}</div>
+                <div
+                class="bg-slate-300 text-black rounded-lg mr-1 px-3 py-1 my-1 text-sm font-medium flex items-stretch">
+                    <div class="mr-1">Showing Water Sources of <b>{{ $user->name }}</b>
+                        <span class="bg-slate-500 rounded-full text-xs px-1.5 font-semibold text-white">{{ $user->rating }}</span>
+                    </div>
                 </div>
                 <a href="/" @click.prevent="setUserId(0)"
-                class="bg-slate-500 text-white rounded-lg px-3 py-1 my-1 text-sm font-semibold flex items-center">Show All</a>
+                class="bg-slate-500 text-white rounded-lg px-3 py-1 my-1 text-sm font-semibold flex text-center items-center">Show All</a>
             @endif
         </div>
         <div wire:key="global" x-show="! userId || userId == myId">
