@@ -20,7 +20,7 @@
                     )
                 "
                 href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
-                    <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
+                    <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 leading-none mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
                 </a>
             </div>
 
@@ -59,8 +59,8 @@
                     </div>
 
 
-                    <div class="mt-1 text-base text-black">
-                        {!! nl2br(e($report->comment)) !!}
+                    <div class="mt-1 text-sm text-black">
+                        {!! nl2br(e($report->shortComment)) !!}
                     </div>
 
                     <div class="mt-1">

@@ -41,7 +41,7 @@
             <noscript><div><img src="https://mc.yandex.ru/watch/90143259" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
         <!-- /Yandex.Metrika counter -->
     </head>
-    <body class="w-full h-screen bg-gray-100 flex flex-col">
+    <body class="w-full h-screen bg-stone-100 flex flex-col">
         @if ($navbar)
             <div class="grow-0">
                 <nav class="">
