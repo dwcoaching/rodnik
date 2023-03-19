@@ -105,19 +105,19 @@
         <div x-show="springId" wire:loading.delay.flex class="grow hidden w-full h-full flex justify-center items-center">
             <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
         </div>
-        <div
+        <div class="-mt-2 bg-white p-4 rounded-lg shadow"
             x-show="springId && ! previousSpringId" wire:loading.remove>
             @if ($spring)
                 <div class="" wire:key="spring.{{ $spring->id }}">
-                    <div class="flex items-center flex-wrap">
+                    <div class="flex items-center justify-between flex-wrap">
                         <span class="text-xl font-bold mr-3">
                             {{ $spring->name ? $spring->name : $spring->type }}
                         </span>
-                        <div class="flex items-center">
+                        <div class="flex  items-center">
                             {{--<span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>--}}
                             @can('update', $spring)
                                 <a href="{{ route('springs.edit', $spring) }}"
-                                    class="inline-block text-xs font-regular text-blue-600 cursor-pointer rounded-full bg-white border shadow-sm  px-2.5 py-1 border-white">
+                                    class="inline-block text-xs font-regular text-blue-600 cursor-pointer rounded-full bg-slate-200 border  px-2.5 py-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
                                         <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
                                         <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
@@ -165,7 +165,7 @@
                 </div>
 
                 @if ($spring->osm_tags->count())
-                    <div class="mt-3">
+                    <div class="mt-0">
                         <div class="text-gray-900 text-sm">
                             <span class="font-semibold mr-3">
                                 OSM tags
@@ -188,7 +188,7 @@
                 @endif
 
                 @if ($reports->count())
-                    <div class="flex mt-16 items-center justify-between">
+                    <div class="flex mt-3 pb-2 items-end justify-between">
                         <div class="text-xl font-extrabold">Reports</div>
                         <a href="{{ route('reports.create', ['spring_id' => $spring]) }}" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -197,8 +197,8 @@
                             New Report
                         </a>
                     </div>
-                    <div class="mt-3">
-                        <ul role="list" class="space-y-4">
+                    <div class="mt">
+                        <ul role="list" class="">
                             @foreach ($reports as $report)
                                 <livewire:reports.show has-name="false" :report="$report" wire:key="spring.reports.show.{{ $report->id }}" />
                             @endforeach

@@ -1,6 +1,6 @@
 <li>
     @if (! $report->hidden_at)
-        <div class="p-4 bg-white rounded-lg shadow">
+        <div class="border-t border-slade-200 pt-4 mb-4">
             @if ($hasName)
                 <div class="flex justify-between">
                     <a @click.prevent="
