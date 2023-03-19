@@ -51,7 +51,7 @@ class Spring extends Component
                 ->get();
         } else {
             $user = null;
-            $lastReports = Report::whereNull('hidden_at')->latest()->limit(10)->get();
+            $lastReports = Report::whereNull('hidden_at')->latest()->limit(12)->get();
         }
 
         return view('livewire.spring', compact('reports', 'spring', 'coordinates', 'lastReports', 'user'));
