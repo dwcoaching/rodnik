@@ -27,8 +27,6 @@
             x-init="
                 initOpenLayers($el.id);
                 window.rodnikMap.springsSource({{ intval($userId) }});
-
-                window.scrollTo(0, document.body.scrollHeight);
             ">
             <div class="absolute top-2 right-2" style="z-index: 10000;">
                 <div @click="toggleFullscreen" class="h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center">
