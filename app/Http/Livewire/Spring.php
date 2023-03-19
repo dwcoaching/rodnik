@@ -47,7 +47,7 @@ class Spring extends Component
             $lastReports = $user->reports()
                 ->whereNull('hidden_at')
                 ->latest()
-                ->limit(10)
+                ->limit(12)
                 ->get();
         } else {
             $user = null;
