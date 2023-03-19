@@ -340,7 +340,7 @@ export default class OpenLayersMap {
 
         if (this.fullscreen) {
             this.setFullscreen(false);
-            this.centerFeature(feature);
+            this.locateFeature(feature);
         }
     }
 
