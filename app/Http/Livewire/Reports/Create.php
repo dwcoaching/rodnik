@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Create extends Component
@@ -111,14 +112,18 @@ class Create extends Component
         $photo->width = $image->width();
         $photo->height = $image->height();
 
+        $image->resize(1280, 1280, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+
         $exif = new Exif($this->file);
 
         $photo->latitude = $exif->latitude();
         $photo->longitude = $exif->longitude();
 
         $photo->save();
-
-        $this->file->storeAs('/', $photo->filename, 'photos');
+        Storage::disk('photos')->put($photo->filename, $image->stream('jpg', 80));
 
         $this->photosIds[] = $photo->id;
     }
