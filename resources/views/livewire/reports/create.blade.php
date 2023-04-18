@@ -167,13 +167,23 @@
         x-data="{
             dragover: false,
             filesInProgress: [],
+            filesInResize: [],
             addFileInProgress: function(data) {
                 this.filesInProgress.push(data)
+            },
+            addFileInResize: function(data) {
+                this.filesInResize.push(data)
             },
             removeFileInProgress: function(id) {
                 $nextTick(() => {
                     const key = this.filesInProgress.findIndex(item => item.id !== id)
                     this.filesInProgress.splice(key, 1)
+                })
+            },
+            removeFileInResize: function(id) {
+                $nextTick(() => {
+                    const key = this.filesInResize.findIndex(item => item.id !== id)
+                    this.filesInResize.splice(key, 1)
                 })
             },
             updateFileInProgress: function(id, event) {
@@ -186,8 +196,16 @@
             uploadFile: function (file) {
                 let id = window.uuidv1();
 
+                this.addFileInResize({
+                    id: id,
+                    name: file.name,
+                    oldSize: file.size,
+                })
+
                 window.ImageBlobReduce.toBlob(file, {max: 1280})
                     .then(newFile => {
+                        this.removeFileInResize(id)
+
                         this.addFileInProgress({
                             id: id,
                             name: file.name,
@@ -234,6 +252,15 @@
                 x-on:dragleave.prevent="dragover = false"
             >
                 <div class="text-center">
+                    <div x-show="filesInResize.length" class="mt-6">
+                        <template x-for="file in filesInResize">
+                            <div class="mt-2 mb-2">
+                                <b>File <span x-text="file.name"></span> preparing for upload</b><br>
+                                Original size <span x-text="file.oldSize"></span> B<br>
+                                Resized size <span x-text="file.newSize"></span> B<br>
+                            </div>
+                        </template>
+                    </div>
                     <div x-show="filesInProgress.length" class="mt-6">
                         <template x-for="file in filesInProgress">
                             <div class="mt-2 mb-2">
@@ -244,13 +271,13 @@
                             </div>
                         </template>
                     </div>
-                    <div class="h-12 mb-1 flex items-center" x-show="false && filesInProgress.length > 0">
+                    <div class="h-12 mb-1 flex items-center" x-cloak x-show="filesInProgress.length > 0 || filesInResize.length > 0">
                         <svg class="mx-auto flex animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                     </div>
-                    <div x-show="filesInProgress.length == 0" class="h-12 mb-1">
+                    <div x-show="filesInProgress.length == 0 && filesInResize.length == 0" class="h-12 mb-1">
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
