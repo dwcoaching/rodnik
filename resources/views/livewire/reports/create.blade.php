@@ -186,19 +186,22 @@
             uploadFile: function (file) {
                 let id = window.uuidv1();
 
-                this.addFileInProgress({
-                    id: id,
-                    name: file.name,
-                    oldSize: file.size,
-                    newSize: file.size,
-                    progress: 0,
-                });
+                window.ImageBlobReduce.toBlob(file, {max: 1280})
+                    .then(newFile => {
+                        this.addFileInProgress({
+                            id: id,
+                            name: file.name,
+                            oldSize: file.size,
+                            newSize: newFile.size,
+                            progress: 0,
+                        })
 
-                @this.upload('file', file,
-                    (uploadedFilename) => {this.removeFileInProgress(id)}, {{-- success callback --}}
-                    () => {this.removeFileInProgress(id)}, {{-- error callback --}}
-                    (event) => {this.updateFileInProgress(id, event)} {{-- progress callback --}}
-                );
+                        @this.upload('file', newFile,
+                            (uploadedFilename) => {this.removeFileInProgress(id)}, {{-- success callback --}}
+                            () => {this.removeFileInProgress(id)}, {{-- error callback --}}
+                            (event) => {this.updateFileInProgress(id, event)} {{-- progress callback --}}
+                        )
+                    })
             },
             handleFileDrop: function (event) {
                 if (event.dataTransfer.files.length > 0) {
@@ -235,8 +238,8 @@
                         <template x-for="file in filesInProgress">
                             <div class="mt-2 mb-2">
                                 <b>File <span x-text="file.name"></span> uploading</b><br>
-                                Size <span x-text="file.oldSize"></span> B<br>
-                                {{-- resized size <span x-text="file.newSize"></span> B<br> --}}
+                                Original size <span x-text="file.oldSize"></span> B<br>
+                                Resized size <span x-text="file.newSize"></span> B<br>
                                 <span x-text="file.progress"></span>% uploaded
                             </div>
                         </template>
