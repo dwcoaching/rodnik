@@ -108,7 +108,7 @@ class Create extends Component
         $photo->original_filename = $this->file->getClientOriginalName();
         $photo->extension = $this->file->extension();
 
-        $image = Image::make($this->file);
+        $image = Image::make($this->file)->orientate();
         $photo->width = $image->width();
         $photo->height = $image->height();
 
