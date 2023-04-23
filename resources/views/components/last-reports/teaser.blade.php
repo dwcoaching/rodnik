@@ -1,7 +1,7 @@
 @props(['report'])
 
 <li class="p-3 bg-white rounded-lg shadow">
-    <div class="overflow-hidden">
+    <div class="">
         @if (! $report->hidden_at)
             <div>
                 <div class="flex justify-between">
@@ -60,7 +60,7 @@
                         </div>
 
 
-                        <div class="mt-1 text-sm text-black">
+                        <div class="mt-1 text-sm text-black break-all">
                             {!! nl2br(e($report->shortComment)) !!}
                         </div>
 
