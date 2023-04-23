@@ -75,7 +75,7 @@
                     </div>
 
 
-                    <div class="mt-1 text-base text-black">
+                    <div class="mt-1 text-base text-black break-normal [overflow-wrap:anywhere]">
                         {!! nl2br(e($report->comment)) !!}
                     </div>
 
