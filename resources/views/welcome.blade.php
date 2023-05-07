@@ -26,6 +26,7 @@
             }"
             x-init="
                 initOpenLayers($el.id);
+                window.scrollTo(0,1);
                 window.rodnikMap.springsSource({{ intval($userId) }});
             ">
             <div class="absolute top-2 right-2" style="z-index: 10000;">
