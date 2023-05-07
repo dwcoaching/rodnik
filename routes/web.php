@@ -44,7 +44,7 @@ Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'inde
 
 
 
-//Route::get('coverage', [CoverageController::class, 'index']);
+Route::get('coverage', [CoverageController::class, 'index']);
 
 Route::resource('reports', ReportController::class);
 Route::get('/about', About::class);
