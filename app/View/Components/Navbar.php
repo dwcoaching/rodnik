@@ -4,14 +4,12 @@ namespace App\View\Components;
 
 use Illuminate\View\Component;
 
-class AppLayout extends Component
+class Navbar extends Component
 {
-    public $navbar;
     public $map;
 
-    public function __construct($navbar = null, $map = null)
+    public function __construct($map = null)
     {
-        $this->navbar = $navbar;
         $this->map = $map;
     }
 
@@ -22,6 +20,6 @@ class AppLayout extends Component
      */
     public function render()
     {
-        return view('layouts.app');
+        return view('components.navbar');
     }
 }

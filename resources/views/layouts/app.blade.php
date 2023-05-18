@@ -46,7 +46,7 @@
             <div class="grow-0">
                 <nav class="">
                     <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                        @include('navbar')
+                        <x-navbar :map="$map" />
                     </div>
                 </nav>
             </div>
