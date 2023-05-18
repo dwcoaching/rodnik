@@ -32,6 +32,7 @@ class OverpassBatchCreate extends Command
 
         $overpassBatch->imports_status = ['not_started', 'queued', 'creating', 'created'];
         $overpassBatch->fetch_status = ['not_started', 'queued', 'fetching', 'fetched'];
+        $overpassBatch->parse_status = ['not_started', 'queued', 'parsing', 'parsed'];
 
         // for each step
         // filament — create, run actions $overpassBatch->generateImports
@@ -40,12 +41,12 @@ class OverpassBatchCreate extends Command
         // update statuses
         // go step by step
 
-        OverpassImportGlobalCreate
-        OverpassCoverage
-        OverpassImportGlobalFetch
-        OverpassImportGlobalCheck
-        OverpassImportGlobalGrindUpFailed
-        OverpassImportGlobalParse
+        // OverpassImportGlobalCreate
+        // OverpassCoverage
+        // OverpassImportGlobalFetch
+        // OverpassImportGlobalCheck
+        // OverpassImportGlobalGrindUpFailed
+        // OverpassImportGlobalParse
 
         return Command::SUCCESS;
     }

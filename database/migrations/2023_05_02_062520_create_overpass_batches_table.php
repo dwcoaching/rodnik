@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\OverpassBatch;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -15,8 +16,25 @@ return new class extends Migration
     {
         Schema::create('overpass_batches', function (Blueprint $table) {
             $table->id();
+            $table->string('imports_status')->nullable();
+            $table->string('fetch_status')->nullable();
+            $table->string('parse_status')->nullable();
             $table->timestamps();
         });
+
+        Schema::table('overpass_imports', function (Blueprint $table) {
+            $table->foreignId('overpass_batch_id');
+        });
+
+        Schema::table('overpass_checks', function (Blueprint $table) {
+            $table->foreignId('overpass_batch_id');
+        });
+
+        $overpassBatch = new OverpassBatch();
+        $overpassBatch->save();
+
+        DB::table('overpass_imports')->update(['overpass_batch_id' => $overpassBatch->id]);
+        DB::table('overpass_checks')->update(['overpass_batch_id' => $overpassBatch->id]);
     }
 
     /**
@@ -26,6 +44,14 @@ return new class extends Migration
      */
     public function down()
     {
+        Schema::table('overpass_imports', function (Blueprint $table) {
+            $table->dropColumn('overpass_batch_id');
+        });
+
+        Schema::table('overpass_checks', function (Blueprint $table) {
+            $table->dropColumn('overpass_batch_id');
+        });
+
         Schema::dropIfExists('overpass_batches');
     }
 };
