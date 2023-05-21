@@ -2,12 +2,20 @@
     <div class="">
         <!-- Logo -->
         <div class="shrink-0 flex items-center my-1 mr-4">
-            <span x-data
-                @click.prevent="
-                    window.dispatchEvent(new CustomEvent('spring-turbo-visit-home'))"
-                class="mr-4 cursor-pointer">
-                <img src="/rodnik-nunito-logo.svg" class="h-6" />
-            </span>
+            @if ($map)
+                <span x-data
+                    @click.prevent="
+                        window.dispatchEvent(new CustomEvent('spring-turbo-visit-home'))"
+                    class="mr-4 cursor-pointer">
+                    <img src="/rodnik-nunito-logo.svg" class="h-6" />
+                </span>
+            @else
+                <a href="/"
+                    class="mr-4 cursor-pointer">
+                    <img src="/rodnik-nunito-logo.svg" class="h-6" />
+                </a>
+            @endif
+
             <div>
                 <a href="/about" class="text-blue-600 text-sm">About</a>
             </div>

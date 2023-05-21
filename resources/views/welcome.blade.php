@@ -287,7 +287,7 @@
             </div>
         </div>
         <div class="w-full sm:w-1/2 sm:h-full h-1/2 overflow-y-scroll px-4 flex flex-col items-stretch">
-            @include('navbar')
+            <x-navbar map />
             <div class="grow flex">
                 <livewire:spring spring_id="{{ $springId }}" user_id="{{ $userId }}" />
             </div>

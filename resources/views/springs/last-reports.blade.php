@@ -8,7 +8,18 @@
                         <span class="bg-slate-500 rounded-full text-xs px-1.5 font-semibold text-white">{{ $user->rating }}</span>
                     </div>
                 </div>
-                <a href="/" @click.prevent="setUserId(0)"
+                <a href="/"
+                    @click.prevent="
+                        window.dispatchEvent(
+                            new CustomEvent('turbo-visit-user',
+                                {
+                                    detail: {
+                                        userId: 0,
+                                    }
+                                }
+                            )
+                        )
+                    "
                 class="bg-slate-500 text-white rounded-lg px-3 py-1 my-1 text-sm font-semibold flex text-center items-center">Show All</a>
             @endif
         </div>
