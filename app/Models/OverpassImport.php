@@ -25,19 +25,45 @@ class OverpassImport extends Model
 
         $this->started_at = now();
 
-        $result = $guzzle->request('GET', 'https://overpass-api.de/api/interpreter', [
-            'query' => [
-                'data' => $this->query
-            ],
-            'http_errors' => false
-        ]);
+        if (false && config('app.env') !== 'production') {
+            $this->fake();
+        } else {
+            $result = $guzzle->request('GET', 'https://overpass-api.de/api/interpreter', [
+                'query' => [
+                    'data' => $this->query
+                ],
+                'http_errors' => false
+            ]);
 
-        $this->response_code = $result->getStatusCode();
-        $this->response_phrase = $result->getReasonPhrase();
-        $this->response = $result->getBody();
+            $this->response_code = $result->getStatusCode();
+            $this->response_phrase = $result->getReasonPhrase();
+            $this->response = $result->getBody();
+        }
 
         $this->fetched_at = now();
         $this->save();
+    }
+
+    public function fake() {
+        $lottery = rand(0, 100);
+
+        if ($lottery >= 10) {
+            $this->fakeSuccess();
+        } else {
+            $this->fakeFailure();
+        }
+    }
+
+    public function fakeSuccess() {
+        $this->response_code = 200;
+        $this->response_phrase = 'OK';
+        $this->response = Storage::disk('local')->get('overpass/responses/4577.json');
+    }
+
+    public function fakeFailure() {
+        $this->response_code = 200;
+        $this->response_phrase = 'OK';
+        $this->response = Storage::disk('local')->get('overpass/responses/4578.json');
     }
 
     public function responseHasRemarks()
@@ -240,6 +266,7 @@ class OverpassImport extends Model
             $overpassImport->longitude_from = $longitude;
             $overpassImport->longitude_to = $longitude + $step;
             $overpassImport->parent_id = $this->id;
+            $overpassImport->overpass_batch_id = $this->overpass_batch_id;
             $overpassImport->save();
         }
 
@@ -270,6 +297,7 @@ class OverpassImport extends Model
             $overpassImport->longitude_from = $this->longitude_from;
             $overpassImport->longitude_to = $this->longitude_to;
             $overpassImport->parent_id = $this->id;
+            $overpassImport->overpass_batch_id = $this->overpass_batch_id;
             $overpassImport->save();
         }
 

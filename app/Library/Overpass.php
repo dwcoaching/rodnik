@@ -24,6 +24,8 @@ class Overpass
                     break;
             }
 
+            $report = new Report();
+
             if (! $spring) {
                 $new = $new + 1;
                 $spring = new Spring();
@@ -31,7 +33,6 @@ class Overpass
             } else {
                 $existing = $existing + 1;
                 $springExists = true;
-                $report = new Report();
             }
 
             switch ($element->type) {
@@ -47,8 +48,8 @@ class Overpass
                     break;
             }
 
-            $report = $spring->updateFromOSM('latitude', floatval($osm_lat), $report);
-            $report = $spring->updateFromOSM('longitude', floatval($osm_lon), $report);
+            $report = $spring->updateFromOSM('latitude', round(floatval($osm_lat), 6), $report);
+            $report = $spring->updateFromOSM('longitude', round(floatval($osm_lon), 6), $report);
 
             $spring->save();
 
@@ -74,10 +75,13 @@ class Overpass
 
             $spring->save();
 
-            if (false && $springExists && $report->isDirty()) {
+            if ($springExists && $report->isDirty()) {
                 $report->from_osm = true;
                 $report->spring_id = $spring->id;
                 $report->save();
+                $spring->invalidateTiles();
+            } elseif (! $springExists) {
+                $spring->invalidateTiles();
             }
         }
 

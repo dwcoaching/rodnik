@@ -17,8 +17,11 @@ return new class extends Migration
         Schema::create('overpass_batches', function (Blueprint $table) {
             $table->id();
             $table->string('imports_status')->nullable();
+            $table->string('checks_status')->nullable();
             $table->string('fetch_status')->nullable();
+            $table->double('coverage', 8, 5)->nullable();
             $table->string('parse_status')->nullable();
+            $table->double('parsed_percentage', 8, 5)->nullable();
             $table->timestamps();
         });
 

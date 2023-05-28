@@ -31,7 +31,12 @@ class Spring extends Component
                 abort(404);
             }
 
-            $reports = $spring->reports()->orderByDesc('visited_at')->get();
+            $reports = $spring
+                ->reports()
+                ->whereNull('from_osm')
+                ->orderByDesc('visited_at')
+                ->get();
+
             $coordinates = [
                 floatval($spring->longitude),
                 floatval($spring->latitude)
@@ -51,7 +56,13 @@ class Spring extends Component
                 ->get();
         } else {
             $user = null;
-            $lastReports = Report::whereNull('hidden_at')->latest()->limit(12)->get();
+
+            $lastReports =
+                Report::whereNull('hidden_at')
+                    ->whereNull('from_osm')
+                    ->latest()
+                    ->limit(12)
+                    ->get();
         }
 
         return view('livewire.spring', compact('reports', 'spring', 'coordinates', 'lastReports', 'user'));

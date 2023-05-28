@@ -7,12 +7,13 @@ use App\Models\Spring;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
 use Illuminate\Notifications\Notifiable;
+use Filament\Models\Contracts\FilamentUser;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens;
     use HasFactory;
@@ -75,5 +76,10 @@ class User extends Authenticatable
     public function getRatingAttribute()
     {
         return $this->loadCount('reports')->reports_count;
+    }
+
+    public function canAccessFilament(): bool
+    {
+        return $this->is_admin;
     }
 }

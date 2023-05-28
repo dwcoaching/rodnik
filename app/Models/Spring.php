@@ -119,8 +119,17 @@ class Spring extends Model
     public function updateFromOSM($key, $newValue, Report $report)
     {
         if ($this->{'osm_' . $key} != $newValue) {
-            if ($this->{$key} != $newValue) {
-                $report->{'old_' . $key} = $this->{$key};
+            if ($this->{$key} == $this->{'osm_' . $key}) {
+
+                echo $newValue;
+        echo "\n";
+        echo $this->{'osm_' . $key};
+        echo "\n";
+        echo $this->{$key};
+        echo "----------------\n";
+
+
+                $report->{'old_' . $key} = $this->{'osm_' . $key};
                 $report->{'new_' . $key} = $newValue;
 
                 $this->{$key} = $newValue;
