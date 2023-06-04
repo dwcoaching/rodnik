@@ -53,6 +53,7 @@ export default class OpenLayersMap {
             drinking_water: true,
             fountain: true,
             other: true,
+            confirmed: false,
         };
 
         this.overlays = {

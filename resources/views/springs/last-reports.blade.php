@@ -35,13 +35,13 @@
                             'bg-orange-400': personal,
                             'bg-blue-400': ! personal,
                         }"
-                        aria-hidden="true" class=" pointer-events-none absolute mx-auto h-4 w-9 rounded-full transition-colors duration-200 ease-in-out"></span>
+                        aria-hidden="true" class="pointer-events-none absolute mx-auto h-5 w-9 rounded-full transition-colors duration-200 ease-in-out"></span>
                     <span
                          :class="{
                             'translate-x-5': personal,
-                            'translate-x-0': ! personal,
+                            'translate-x-1': ! personal,
                         }"
-                        aria-hidden="true" class="translate-x-0 pointer-events-none absolute left-0 inline-block h-5 w-5 transform rounded-full border border-gray-200 bg-white shadow ring-0 transition-transform duration-200 ease-in-out"></span>
+                        aria-hidden="true" class="translate-x-0 pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out"></span>
                 </button>
                 <div class="mt-0 text-sm font-medium">My Water Sources</div>
                 @endauth

@@ -73,6 +73,10 @@ export default (feature, resolution) => {
         return hiddenStyle;
     }
 
+    if (window.rodnikMap.filters.confirmed && ! feature.get('waterConfirmed')) {
+        return hiddenStyle;
+    }
+
     if (feature.get('hasReports') > 0) {
         return reportedStyle;
     }
