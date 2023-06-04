@@ -163,9 +163,10 @@
                                         <label for="filters.other" class="font-regular text-gray-700">Other</label>
                                     </div>
                                 </div>
-                                <div class="mt-2 mb-4 flex items-start">
-                                    <button @click="filters.confirmed = ! filters.confirmed; updateFilters()" type="button"
-                                        x-model="filters.confirmed"
+                                <div class="mt-2 mb-4 flex items-start"
+                                    @click="filters.confirmed = ! filters.confirmed; updateFilters()"
+                                    x-model="filters.confirmed">
+                                    <button
                                         type="button" class="mt-2 -ml-1 mr-2 group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none" role="switch" aria-checked="false">
                                         <span aria-hidden="true" class="pointer-events-none absolute h-full w-full rounded-md"></span>
                                         <span
