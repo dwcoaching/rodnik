@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.0.2",
         "doctrine/dbal": "^3.4",
-        "filament/filament": "^2.0",
+        "filament/filament": "^2.17",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.7",
