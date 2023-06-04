@@ -11,6 +11,7 @@ use App\Http\Controllers\PhotosBatchController;
 use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\SpringAggregatesJsonController;
+use App\Http\Controllers\WateredSpringTileJsonController;
 
 
 /*
@@ -37,6 +38,7 @@ Route::get('photos/create', [PhotosBatchController::class, 'create']);
 Route::get('springs.json', [SpringJsonController::class, 'index']);
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
 Route::get('tiles/{z}/{x}/{y}.json', [SpringTileJsonController::class, 'show']);
+Route::get('watered-tiles/{z}/{x}/{y}.json', [WateredSpringTileJsonController::class, 'show']);
 
 Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'index']);
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\SpringTile;
 use Illuminate\Console\Command;
+use App\Models\WateredSpringTile;
 
 class SpringTilesGlobalCreate extends Command
 {
@@ -28,19 +29,30 @@ class SpringTilesGlobalCreate extends Command
      */
     public function handle()
     {
-        // zoom levels: 0, 5, 8
-        $z = 8;
+        // $zoom = collect([0, 5, 8]);
 
-        $zoom = collect([0, 5, 8]);
+        // $zoom->each(function ($z) {
+        //     $tileCount = pow(2, $z);
+
+        //     for ($x = 0; $x < $tileCount; $x++) {
+        //         for ($y = 0; $y < $tileCount; $y++) {
+        //             $springTile = SpringTile::fromXYZ($x, $y, $z);
+
+        //             echo "Generating Spring Tile /{$z}/{$x}/{$y}/\n";
+        //         }
+        //     }
+        // });
+
+        $zoom = collect([0, 5]);
 
         $zoom->each(function ($z) {
             $tileCount = pow(2, $z);
 
             for ($x = 0; $x < $tileCount; $x++) {
                 for ($y = 0; $y < $tileCount; $y++) {
-                    $springTile = SpringTile::fromXYZ($x, $y, $z);
+                    $springTile = WateredSpringTile::fromXYZ($x, $y, $z);
 
-                    echo "Generating Spring Tile /{$z}/{$x}/{$y}/\n";
+                    echo "Generating Watered Spring Tile /{$z}/{$x}/{$y}/\n";
                 }
             }
         });

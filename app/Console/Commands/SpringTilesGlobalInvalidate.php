@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\SpringTile;
 use Illuminate\Console\Command;
+use App\Models\WateredSpringTile;
 
 class SpringTilesGlobalInvalidate extends Command
 {
@@ -32,6 +33,12 @@ class SpringTilesGlobalInvalidate extends Command
             ->each(function ($item) {
                 $item->deleteFile();
                 echo 'SpringTile ' . $item->id . ' invalidated' . "\n";
+            });
+
+        WateredSpringTile::whereNotNull('generated_at')
+            ->each(function ($item) {
+                $item->deleteFile();
+                echo 'WateredSpringTile ' . $item->id . ' invalidated' . "\n";
             });
     }
 }

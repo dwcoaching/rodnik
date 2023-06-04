@@ -21,6 +21,8 @@ import GoogleSatelliteLayer from '@/layers/googleSatellite';
 import SpringsFinalLayer from '@/layers/springs/final';
 import SpringsApproximatedLayer from '@/layers/springs/approximated';
 import SpringsDistantLayer from '@/layers/springs/distant';
+import WateredSpringsApproximatedLayer from '@/layers/springs/wateredApproximated';
+import WateredSpringsDistantLayer from '@/layers/springs/wateredDistant';
 
 import StravaPublicLayer from '@/layers/stravaPublic';
 import OSMTracesLayer from '@/layers/osmTraces';
@@ -74,6 +76,8 @@ export default class OpenLayersMap {
         this.springsFinalLayer = new SpringsFinalLayer();
         this.springsApproximatedLayer = new SpringsApproximatedLayer();
         this.springsDistantLayer = new SpringsDistantLayer();
+        this.wateredSpringsApproximatedLayer = new WateredSpringsApproximatedLayer();
+        this.wateredSpringsDistantLayer = new WateredSpringsDistantLayer();
 
         this.springsFinalSource = new SpringsFinalSource();
         this.springsUserSource = new SpringsUserSource();
@@ -108,7 +112,7 @@ export default class OpenLayersMap {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
-            layers: [this.osmLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
+            layers: [this.osmLayer, this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
             view: this.view,
         });
 
@@ -387,6 +391,8 @@ export default class OpenLayersMap {
             this.springsFinalLayer.setMinZoom(0);
             this.springsApproximatedLayer.setVisible(false);
             this.springsDistantLayer.setVisible(false);
+            this.wateredSpringsApproximatedLayer.setVisible(false);
+            this.wateredSpringsDistantLayer.setVisible(false);
 
             if (this.springsUserSource.getUser() == userId) {
                 this.springsFinalLayer.setSource(this.springsUserSource)
@@ -401,6 +407,8 @@ export default class OpenLayersMap {
             this.springsFinalLayer.setMinZoom(9);
             this.springsApproximatedLayer.setVisible(true);
             this.springsDistantLayer.setVisible(true);
+            this.wateredSpringsApproximatedLayer.setVisible(true);
+            this.wateredSpringsDistantLayer.setVisible(true);
 
             this.springsFinalLayer.setSource(this.springsFinalSource);
         }

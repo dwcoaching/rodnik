@@ -37,5 +37,15 @@ class SpringTilesGlobalGenerate extends Command
             $time = round(microtime(true) - $starttime, 2);
             echo "Generated in {$time}\n\n";
         }
+
+        $tiles = WateredSpringTile::whereNull('generated_at')->get();
+
+        foreach ($tiles as $tile) {
+            echo "Generating File for Watered Spring Tile /{$tile->z}/{$tile->x}/{$tile->y}/\n";
+            $starttime = microtime(true);
+            $tile->saveFile();
+            $time = round(microtime(true) - $starttime, 2);
+            echo "Generated in {$time}\n\n";
+        }
     }
 }

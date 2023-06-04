@@ -10,7 +10,7 @@ let style = new Style({
 let reportedStyle = new Style({
     image: new CircleStyle({
         radius: 30,
-        fill: new Fill({color: [255, 200, 0, 0.8]})
+        fill: new Fill({color: [255, 175, 0, 0.8]})
     })
 });
 

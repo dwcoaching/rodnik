@@ -16,6 +16,14 @@ class SpringTile extends Model
 {
     use HasFactory;
 
+    const DISK = 'tiles';
+
+    const LIMITS = [
+        '0' => 1000,
+        '5' => 1000,
+        '8' => 0,
+    ];
+
     protected $fillable = [
         'z', 'x', 'y'
     ];
@@ -24,7 +32,7 @@ class SpringTile extends Model
 
     static public function fromXYZ($x, $y, $z)
     {
-        return self::firstOrCreate([
+        return static::firstOrCreate([
             'x' => $x,
             'y' => $y,
             'z' => $z
@@ -39,7 +47,7 @@ class SpringTile extends Model
             $x = floor((($longitude + 180) / 360) * pow(2, $z));
             $y = floor((1 - log(tan(deg2rad($latitude)) + 1 / cos(deg2rad($latitude))) / pi()) /2 * pow(2, $z));
 
-            return self::fromXYZ($x, $y, $z);
+            return static::fromXYZ($x, $y, $z);
         });
 
         return $springTiles;
@@ -47,7 +55,7 @@ class SpringTile extends Model
 
     static public function invalidate($longitude, $latitude)
     {
-        $springTiles = self::fromCoordinates($longitude, $latitude);
+        $springTiles = static::fromCoordinates($longitude, $latitude);
 
         $springTiles->each(function($item) {
             $item->deleteFile();
@@ -65,62 +73,24 @@ class SpringTile extends Model
         return $this->geoJSONString;
     }
 
+    public function getLimit()
+    {
+        return static::LIMITS[$this->z];
+    }
+
     public function generateGeoJSONString()
     {
-        $tileCount = pow(2, $this->z);
-        $longitude_from = $this->x / $tileCount * 360 - 180;
-        $longitude_to = ($this->x + 1) / $tileCount * 360 - 180;
-
-        $latitude_from = rad2deg(atan(sinh(pi() * (1 - 2 * ($this->y + 1) / $tileCount))));
-        $latitude_to = rad2deg(atan(sinh(pi() * (1 - 2 * $this->y / $tileCount))));
-
-        switch ($this->z) {
-            case '0':
-            case '5':
-                $limit = 1000;
-                break;
-            default:
-                $limit = 0;
-                break;
-        }
-
         $springsQuery = Spring::query();
 
-        $coordinatesFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
-            $query->where('latitude', '>', $latitude_from)
-                ->where('latitude', '<', $latitude_to)
-                ->where('longitude', '>', $longitude_from)
-                ->where('longitude', '<', $longitude_to);
-        };
+        if ($this->getLimit()) {
+            $randomQuery = $this->getRandomQuery();
 
-        $randomQuery = DB::table('springs')
-            ->leftJoin('reports', 'springs.id', '=', 'reports.spring_id')
-            ->select('springs.id', DB::raw('COUNT(reports.id) as reports_count'))
-            ->whereNull('reports.from_osm')
-            ->whereNull('reports.hidden_at')
-            ->where($coordinatesFunction)
-            ->inRandomOrder()
-            ->groupBy('springs.id');
-
-        if ($this->z == 0) {
-            $randomOuterQuery = DB::query()->fromSub($randomQuery, 'randomQuery')
-                ->limit($limit);
-        }
-
-        if ($this->z == 5) {
-            $randomOuterQuery = DB::query()->fromSub($randomQuery, 'randomQuery')
-                ->orderBy('reports_count', 'desc')
-                ->limit($limit);
-        }
-
-
-        if ($limit) {
-            $springsQuery->joinSub($randomOuterQuery, 'randomSprings', function($join) {
+            $springsQuery->joinSub($randomQuery, 'randomSprings', function($join) {
                 $join->on('springs.id', '=', 'randomSprings.id');
             });
         } else {
             $springsQuery
-                ->where($coordinatesFunction)
+                ->where($this->getCoordinatesFunction())
                 ->withCount(
                     [
                         'reports' => function(Builder $query) {
@@ -146,7 +116,7 @@ class SpringTile extends Model
 
     public function saveFile()
     {
-        Storage::disk('tiles')->put($this->path(), $this->geoJSON());
+        Storage::disk(static::DISK)->put($this->path(), $this->geoJSON());
 
         $this->generated_at = now();
         $this->save();
@@ -154,11 +124,38 @@ class SpringTile extends Model
 
     public function deleteFile()
     {
-        if (Storage::disk('tiles')->exists($this->path())) {
-            Storage::disk('tiles')->delete($this->path());
+        if (Storage::disk(static::DISK)->exists($this->path())) {
+            Storage::disk(static::DISK)->delete($this->path());
 
             $this->generated_at = null;
             $this->save();
         }
+    }
+
+    public function getRandomQuery()
+    {
+        return DB::table('springs')
+            ->select('springs.id')
+            ->where($this->getCoordinatesFunction())
+            ->inRandomOrder()
+            ->limit($this->getLimit());
+    }
+
+    public function getCoordinatesFunction() {
+        $tileCount = pow(2, $this->z);
+        $longitude_from = $this->x / $tileCount * 360 - 180;
+        $longitude_to = ($this->x + 1) / $tileCount * 360 - 180;
+
+        $latitude_from = rad2deg(atan(sinh(pi() * (1 - 2 * ($this->y + 1) / $tileCount))));
+        $latitude_to = rad2deg(atan(sinh(pi() * (1 - 2 * $this->y / $tileCount))));
+
+        $coordinatesFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
+            $query->where('latitude', '>', $latitude_from)
+                ->where('latitude', '<', $latitude_to)
+                ->where('longitude', '>', $longitude_from)
+                ->where('longitude', '<', $longitude_to);
+        };
+
+        return $coordinatesFunction;
     }
 }
