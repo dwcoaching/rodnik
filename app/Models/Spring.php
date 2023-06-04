@@ -114,6 +114,7 @@ class Spring extends Model
     public function invalidateTiles()
     {
         return SpringTile::invalidate($this->longitude, $this->latitude);
+        return WateredSpringTile::invalidate($this->longitude, $this->latitude);
     }
 
     public function updateFromOSM($key, $newValue, Report $report)
