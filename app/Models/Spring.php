@@ -141,6 +141,39 @@ class Spring extends Model
         return $report;
     }
 
+    public function waterConfirmed()
+    {
+        $presenceOfGoodWaterCount = 0;
+        $absenceOfGoodWaterCount = 0;
+
+        foreach ($this->reports as $report) {
+            if ($report->quality == 'good' && $report->state == 'running') {
+                $presenceOfGoodWaterCount++;
+            }
+
+            if (
+                    (
+                        ! is_null($report->quality)
+                        && $report->quality != 'good'
+                    )
+                    ||
+                    (
+                        ! is_null($report->state)
+                        && $report->state != 'running'
+                    )
+                ) {
+                $absenceOfGoodWaterCount++;
+            }
+
+            if ($presenceOfGoodWaterCount > $absenceOfGoodWaterCount) {
+                return true;
+            }
+
+            return false;
+        }
+
+    }
+
     //     public function apply()
     // {
     //     $this->spring->latitude = $this->latitude;

@@ -94,13 +94,28 @@ class SpringTile extends Model
         };
 
         $randomQuery = DB::table('springs')
-            ->select('id')
+            ->leftJoin('reports', 'springs.id', '=', 'reports.spring_id')
+            ->select('springs.id', DB::raw('COUNT(reports.id) as reports_count'))
+            ->whereNull('reports.from_osm')
+            ->whereNull('reports.hidden_at')
             ->where($coordinatesFunction)
             ->inRandomOrder()
-            ->limit($limit);
+            ->groupBy('springs.id');
+
+        if ($this->z == 0) {
+            $randomOuterQuery = DB::query()->fromSub($randomQuery, 'randomQuery')
+                ->limit($limit);
+        }
+
+        if ($this->z == 5) {
+            $randomOuterQuery = DB::query()->fromSub($randomQuery, 'randomQuery')
+                ->orderBy('reports_count', 'desc')
+                ->limit($limit);
+        }
+
 
         if ($limit) {
-            $springsQuery->joinSub($randomQuery, 'randomSprings', function($join) {
+            $springsQuery->joinSub($randomOuterQuery, 'randomSprings', function($join) {
                 $join->on('springs.id', '=', 'randomSprings.id');
             });
         } else {
@@ -109,7 +124,9 @@ class SpringTile extends Model
                 ->withCount(
                     [
                         'reports' => function(Builder $query) {
-                            $query->whereNull('hidden_at');
+                            $query
+                                ->whereNull('hidden_at')
+                                ->whereNull('from_osm');
                         }
                     ]
                 );

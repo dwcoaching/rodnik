@@ -22,6 +22,7 @@ class SpringsGeoJSON
                     'name' => $spring->name,
                     'intermittent' => $spring->intermittent,
                     'hasReports' => $spring->reports_count,
+                    'waterConfirmed' => $spring->waterConfirmed(),
                     'type' => $spring->type,
                 ]
             ];
