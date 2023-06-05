@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\SpringTile;
 use Illuminate\Console\Command;
+use App\Models\WateredSpringTile;
 
 class SpringTilesGlobalGenerate extends Command
 {
