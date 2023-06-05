@@ -29,16 +29,22 @@ class SpringTilesGlobalInvalidate extends Command
      */
     public function handle()
     {
-        SpringTile::whereNotNull('generated_at')
+        // SpringTile::whereNotNull('generated_at')
+        //     ->each(function ($item) {
+        //         $item->deleteFile();
+        //         echo 'SpringTile ' . $item->id . ' invalidated' . "\n";
+        //     });
+
+        // WateredSpringTile::whereNotNull('generated_at')
+        //     ->each(function ($item) {
+        //         $item->deleteFile();
+        //         echo 'WateredSpringTile ' . $item->id . ' invalidated' . "\n";
+        //     });
+
+        SpringTile::where('generated_at', '<', '2023-05-01')
             ->each(function ($item) {
                 $item->deleteFile();
                 echo 'SpringTile ' . $item->id . ' invalidated' . "\n";
-            });
-
-        WateredSpringTile::whereNotNull('generated_at')
-            ->each(function ($item) {
-                $item->deleteFile();
-                echo 'WateredSpringTile ' . $item->id . ' invalidated' . "\n";
             });
     }
 }
