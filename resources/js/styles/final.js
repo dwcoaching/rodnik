@@ -27,6 +27,7 @@ let style = new Style({
             //lineDash: [6],
         }),
     }),
+    zIndex: 5,
 });
 
 // window.color = [210, 51, 255, 1]; // pink
@@ -45,6 +46,7 @@ let reportedStyle = new Style({
             //lineDash: [6],
         }),
     }),
+    zIndex: 10,
 });
 
 // export { style as default }

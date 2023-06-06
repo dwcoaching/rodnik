@@ -4,13 +4,13 @@ export function getInitialCenter() {
     let centerLatitude = parseFloat(localStorage.getItem('centerLatitude'));
     let centerLongitude = parseFloat(localStorage.getItem('centerLongitude'));
 
-    return isNaN(centerLongitude) || isNaN(centerLatitude) ? fromLonLat([2.15, 41.4]) : [centerLongitude, centerLatitude];
+    return isNaN(centerLongitude) || isNaN(centerLatitude) ? fromLonLat([19.748, 49.213]) : [centerLongitude, centerLatitude];
 }
 
 export function getInitialZoom() {
     let lastZoom = parseFloat(localStorage.getItem('zoom'));
 
-    return isNaN(lastZoom) ? 12 : lastZoom;
+    return isNaN(lastZoom) ? 3 : lastZoom;
 }
 
 export function saveLastCenter(center) {
