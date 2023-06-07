@@ -62,6 +62,7 @@ class Spring extends Component
                     ->whereNull('from_osm')
                     ->latest()
                     ->limit(12)
+                    ->with(['spring', 'user', 'photos'])
                     ->get();
         }
 

@@ -235,14 +235,14 @@
                                             'text-white': active == 'osm'
                                         }"
                                     >OpenStreetMap</button>
-                                    <button @click="source('mapy')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
+                                    <button @click="source('outdoors')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
                                         :class="{
-                                            'bg-white': active != 'mapy',
-                                            'bg-blue-600': active == 'mapy',
-                                            'text-blue-700': active != 'mapy',
-                                            'text-white': active == 'mapy'
+                                            'bg-white': active != 'outdoors',
+                                            'bg-blue-600': active == 'outdoors',
+                                            'text-blue-700': active != 'outdoors',
+                                            'text-white': active == 'outdoors'
                                         }"
-                                    >Mapy.cz</button>
+                                    >OSM Outdoors</button>
                                 {{--
                                     <button @click="source('outdoors')" type="button" class="mr-0.5 inline-flex items-center px-3 py-1.5 border-2 border-blue-600 text-xs font-medium rounded-full shadow-sm"
                                         :class="{
