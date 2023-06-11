@@ -1,4 +1,4 @@
-<div x-data="{
+<div class="h-full" x-data="{
         previousSpringId: {{ intval($springId) }},
         loadSpring: function() {
             if (this.springId != this.previousSpringId) {
@@ -16,10 +16,10 @@
 
         locateMap = false;
     ">
-    <div x-show="springId" wire:loading.delay.flex class="grow hidden w-full h-full flex justify-center items-center">
+    <div x-show="springId" wire:loading.delay.long.flex class="grow hidden flex w-full h-full flex justify-center items-center">
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
-    <div x-cloak wire:loading.remove>
+    <div x-cloak wire:loading.remove x-show="previousSpringId == springId">
         <div
             class="-mt-2 bg-white p-4 rounded-lg shadow"
             x-show="springId">

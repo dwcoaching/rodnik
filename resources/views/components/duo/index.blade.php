@@ -100,10 +100,12 @@
     x-init="window.initPhotoSwipe('#spring');"
     class="flex grow justify-center pb-6"
 >
-    <div class="grow" class="">
-        <div x-show="! springId" class="">
+    <div class="grow">
+        <div x-show="! springId" class="h-full">
             <x-duo.global :userId="$userId" loaded="{{ ! $userId && ! $springId }}" />
         </div>
-        <livewire:duo.springs.show :springId="$springId" />
+        <div x-show="springId" class="h-full">
+            <livewire:duo.springs.show :springId="$springId" />
+        </div>
     </div>
 </div>
