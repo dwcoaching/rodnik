@@ -23,7 +23,7 @@ class Index extends Component
                 ->whereNull('from_osm')
                 ->latest()
                 ->limit(12)
-                ->with(['spring', 'user.reports', 'photos'])
+                ->with(['spring', 'user', 'photos'])
                 ->get();
         }
 

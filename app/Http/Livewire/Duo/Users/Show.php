@@ -26,7 +26,7 @@ class Show extends Component
 
             $lastReports = $user->reports()
                 ->whereNull('hidden_at')
-                ->with(['user.reports', 'photos', 'spring'])
+                ->with(['user', 'photos', 'spring'])
                 ->latest()
                 ->limit(12)
                 ->get();

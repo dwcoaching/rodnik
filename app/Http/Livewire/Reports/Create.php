@@ -85,6 +85,10 @@ class Create extends Component
 
         $this->report->spring->invalidateTiles();
 
+        if (Auth::check()) {
+            Auth::user()->updateRating();
+        }
+
         $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
 
         foreach ($photos as $photo) {

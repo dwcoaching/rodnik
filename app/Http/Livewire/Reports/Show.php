@@ -31,6 +31,8 @@ class Show extends Component
         $this->justHidden = true;
 
         $this->report->spring->invalidateTiles();
+        Auth::user()->updateRating();
+        $this->report->fresh();
     }
 
     // public function hideByModerator()
@@ -55,6 +57,8 @@ class Show extends Component
         $this->justHidden = false;
 
         $this->report->spring->invalidateTiles();
+        Auth::user()->updateRating();
+        $this->report->refresh();
     }
 
     public function render()

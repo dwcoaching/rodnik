@@ -98,6 +98,10 @@ class Create extends Component
                 $report->spring_edit = true;
                 $report->save();
 
+                if ($report->user_id) {
+                    Auth::user()->updateRating();
+                }
+
                 SendReportNotification::dispatch($report);
             } else {
                 $this->authorize('create', Spring::class);

@@ -76,7 +76,24 @@ class User extends Authenticatable implements FilamentUser
 
     public function getRatingAttribute()
     {
-        return $this->reports->count();
+        if (is_null($this->cached_rating)) {
+            $rating = $this->calculateRating();
+            $this->cached_rating = $rating;
+            $this->save();
+        }
+
+        return $this->cached_rating;
+    }
+
+    public function calculateRating()
+    {
+        return $this->reports()->whereNull('from_osm')->whereNull('hidden_at')->count();
+    }
+
+    public function updateRating()
+    {
+        $this->cached_rating = $this->calculateRating();
+        $this->save();
     }
 
     public function canAccessFilament(): bool

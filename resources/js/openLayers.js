@@ -313,7 +313,8 @@ export default class OpenLayersMap {
     // }
 
     locate(coordinates) {
-        const zoom = this.view.getZoom() < this.finalZoom ? 14 : this.view.getZoom()
+        // const zoom = this.view.getZoom() < this.finalZoom ? 14 : this.view.getZoom()
+        const zoom = 14
 
         this.view.animate(
             {

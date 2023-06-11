@@ -29,6 +29,7 @@ class Show extends Component
                 ->reports()
                 ->whereNull('from_osm')
                 ->orderByDesc('visited_at')
+                ->with(['user', 'photos'])
                 ->get();
 
             $coordinates = [
