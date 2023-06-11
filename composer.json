@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.0.2",
+        "barryvdh/laravel-debugbar": "^3.8",
         "doctrine/dbal": "^3.4",
         "filament/filament": "^2.17",
         "fruitcake/laravel-cors": "^2.0",
@@ -20,7 +21,6 @@
         "livewire/livewire": "^2.10.6"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.7",
         "fakerphp/faker": "^1.9.1",
         "laravel-lang/lang": "^11.0",
         "laravel-lang/publisher": "^14.0",
