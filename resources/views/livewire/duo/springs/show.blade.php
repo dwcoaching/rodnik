@@ -2,8 +2,8 @@
         previousSpringId: {{ intval($springId) }},
         loadSpring: function() {
             if (this.springId != this.previousSpringId) {
-                this.previousSpringId = this.springId
                 $wire.setSpring(this.springId)
+                this.previousSpringId = this.springId
             }
         }
     }"
