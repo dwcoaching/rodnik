@@ -1,4 +1,5 @@
 <div class="h-full" x-data="{
+        loadedSpringId: @entangle('springId'),
         previousSpringId: {{ intval($springId) }},
         loadSpring: function() {
             if (this.springId != this.previousSpringId) {
@@ -19,10 +20,8 @@
     <div x-show="springId" wire:loading.delay.long.flex class="grow hidden flex w-full h-full flex justify-center items-center">
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
-    <div x-cloak wire:loading.remove x-show="previousSpringId == springId">
-        <div
-            class="-mt-2 bg-white p-4 rounded-lg shadow"
-            x-show="springId">
+    <div x-cloak wire:loading.remove x-show="springId == loadedSpringId">
+        <div class="-mt-2 bg-white p-4 rounded-lg shadow">
             @if ($spring)
                 <div class="" wire:key="spring.{{ $spring->id }}">
                     <div class="flex items-center justify-between flex-wrap">
