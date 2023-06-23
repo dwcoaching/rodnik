@@ -41,7 +41,7 @@ class SpringTile extends Model
 
     static public function fromCoordinates($longitude, $latitude)
     {
-        $zoom = collect([0, 5, 8]);
+        $zoom = collect(array_keys(static::LIMITS));
 
         $springTiles = $zoom->map(function ($z) use ($longitude, $latitude) {
             $x = floor((($longitude + 180) / 360) * pow(2, $z));

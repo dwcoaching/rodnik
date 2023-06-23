@@ -98,11 +98,11 @@
             <div class="mb-2">
                 <x-chip-radio name="💧 Watered" key="state" value="running" />
                 <x-chip-radio name="🌵 Dry" key="state" value="dry" />
-                <x-chip-radio name="😡 Water source not found" key="state" value="notfound" />
+                <x-chip-radio name="😡 Not Found" key="state" value="notfound" />
             </div>
             <div x-show="state !== 'dry' && state !== 'notfound'">
-                <x-chip-radio name="🚰 Good water" key="quality" value="good" />
-                <x-chip-radio name="🚱 Poor water" key="quality" value="bad" />
+                <x-chip-radio name="🚰 Good Water" key="quality" value="good" />
+                <x-chip-radio name="🚱 Poor Water" key="quality" value="bad" />
             </div>
         </div>
     </div>

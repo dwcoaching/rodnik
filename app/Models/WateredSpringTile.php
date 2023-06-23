@@ -13,7 +13,6 @@ class WateredSpringTile extends SpringTile
     const LIMITS = [
         '0' => 1000,
         '5' => 1000,
-        '8' => 0,
     ];
 
     const DISK = 'watered-tiles';
