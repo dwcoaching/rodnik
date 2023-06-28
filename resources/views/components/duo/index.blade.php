@@ -19,6 +19,9 @@
                 window.dispatchEvent(new CustomEvent('duo-load-all-reports'))
             }
         },
+        unsetUserId: function() {
+            this.setUserId(0)
+        },
         setSpringId: function(springId) {
             this.springId = springId
             if (this.previousSpringId !== springId) {
@@ -73,6 +76,12 @@
         unsetSpringId()
         registerHomeVisit()
     "
+    x-on:spring-turbo-visit-index.window="
+        window.rodnikMap.dehighlightFeature();
+        unsetSpringId()
+        unsetUserId()
+        registerHomeVisit()
+    "
     x-on:turbo-visit-user.window="
         if ($event.detail.userId == myId) {
             personal = true
@@ -102,7 +111,12 @@
 >
     <div class="grow">
         <div x-show="! springId" class="h-full">
-            <x-duo.global :userId="$userId" loaded="{{ ! $userId && ! $springId }}" />
+            <div x-show="! userId" class="h-full">
+                <livewire:duo.reports.index loaded="{{ ! $userId && ! $springId }}" />
+            </div>
+            <div x-show="userId" class="h-full">
+                <livewire:duo.users.show :userId="$userId" />
+            </div>
         </div>
         <div x-show="springId" class="h-full">
             <livewire:duo.springs.show :springId="$springId" />

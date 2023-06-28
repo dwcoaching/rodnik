@@ -5,7 +5,7 @@
             @if ($map)
                 <span x-data
                     @click.prevent="
-                        window.dispatchEvent(new CustomEvent('spring-turbo-visit-home'))"
+                        window.dispatchEvent(new CustomEvent('spring-turbo-visit-index'))"
                     class="mr-4 cursor-pointer">
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </span>
