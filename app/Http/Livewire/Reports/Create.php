@@ -9,6 +9,7 @@ use Livewire\Component;
 use App\Rules\SpringTypeRule;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
+use App\Library\StatisticsService;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -84,9 +85,10 @@ class Create extends Component
         $this->report->save();
 
         $this->report->spring->invalidateTiles();
+        StatisticsService::invalidateReportsCount();
 
-        if (Auth::check()) {
-            Auth::user()->updateRating();
+        if ($this->report->user) {
+            $this->report->user->updateRating();
         }
 
         $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();

@@ -82,7 +82,7 @@
         unsetUserId()
         registerHomeVisit()
     "
-    x-on:turbo-visit-user.window="
+    x-on:spring-turbo-visit-user.window="
         if ($event.detail.userId == myId) {
             personal = true
         }

@@ -9,6 +9,7 @@ use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
 use Illuminate\Validation\Rule;
+use App\Library\StatisticsService;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -97,6 +98,7 @@ class Create extends Component
                 $report->spring_id = $this->spring->id;
                 $report->spring_edit = true;
                 $report->save();
+                StatisticsService::invalidateReportsCount();
 
                 if ($report->user_id) {
                     Auth::user()->updateRating();
@@ -109,6 +111,7 @@ class Create extends Component
 
             $this->spring->save();
             $this->spring->invalidateTiles();
+            StatisticsService::invalidateSpringsCount();
         }
 
         return redirect()->route('springs.show', $this->spring);

@@ -76,7 +76,8 @@
                                         }
                                     )
                                 )">
-                            {{ __('My water sources') }}
+                            <span class="mr-1">{{ __('My water sources') }}</span>
+                            <span class="ml-0 text-xs font-medium px-1 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ number_format(Auth::user()->rating, 0, ',', ' ') }}</span>
                         </x-jet-dropdown-link>
 
                         <!-- Account Management -->

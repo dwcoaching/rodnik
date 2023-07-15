@@ -5,6 +5,7 @@ namespace App\Library;
 use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\Spring;
+use App\Library\StatisticsService;
 use Illuminate\Support\Facades\DB;
 
 class Overpass
@@ -82,6 +83,7 @@ class Overpass
                 $spring->invalidateTiles();
             } elseif (! $springExists) {
                 $spring->invalidateTiles();
+                StatisticsService::invalidateSpringsCount();
             }
         }
 

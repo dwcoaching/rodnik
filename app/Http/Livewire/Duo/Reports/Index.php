@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Duo\Reports;
 use App\Models\Report;
 use App\Models\Spring;
 use Livewire\Component;
+use App\Library\StatisticsService;
 
 class Index extends Component
 {
@@ -29,11 +30,8 @@ class Index extends Component
                 ->with(['spring', 'user', 'photos'])
                 ->get();
 
-            $springsCount = Spring::count();
-            $reportsCount = Report
-                ::whereNull('hidden_at')
-                ->whereNull('from_osm')
-                ->count();
+            $springsCount = StatisticsService::getSpringsCount();
+            $reportsCount = StatisticsService::getReportsCount();
         }
 
         return view('livewire.duo.reports.index', compact(
