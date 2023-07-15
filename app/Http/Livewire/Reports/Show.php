@@ -2,10 +2,11 @@
 
 namespace App\Http\Livewire\Reports;
 
+use App\Models\Report;
 use Livewire\Component;
+use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use App\Models\Report;
 
 class Show extends Component
 {
@@ -32,6 +33,7 @@ class Show extends Component
 
         $this->report->spring->invalidateTiles();
         Auth::user()->updateRating();
+        StatisticsService::invalidateReportsCount();
         $this->report->fresh();
     }
 
@@ -58,6 +60,7 @@ class Show extends Component
 
         $this->report->spring->invalidateTiles();
         Auth::user()->updateRating();
+        StatisticsService::invalidateReportsCount();
         $this->report->refresh();
     }
 
