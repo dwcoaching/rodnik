@@ -68,7 +68,7 @@
                         <x-jet-dropdown-link href="{{ route('users.show', Auth::user()->id) }}"
                             @click.prevent="
                                 window.dispatchEvent(
-                                    new CustomEvent('spring-turbo-visit-user',
+                                    new CustomEvent('turbo-visit-user',
                                         {
                                             detail: {
                                                 userId: {{ intval(Auth::user()->id) }},
