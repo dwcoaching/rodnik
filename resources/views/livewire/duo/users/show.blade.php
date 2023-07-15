@@ -1,4 +1,5 @@
 <div class="h-full" x-data="{
+        loadedUserId: @entangle('userId'),
         previousUserId: {{ intval($userId) }},
         loadUser: function() {
             if (this.userId != this.previousUserId) {
@@ -11,7 +12,7 @@
     <div wire:loading.delay.long.flex class="grow hidden w-full h-full flex justify-center items-center">
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
-    <div wire:loading.remove>
+    <div x-cloak wire:loading.remove x-show="userId == loadedUserId">
         <div class="flex items-stretch -mt-3">
             <div
             class="rounded-lg flex items-center">
