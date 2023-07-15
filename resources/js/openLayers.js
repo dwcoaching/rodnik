@@ -115,7 +115,7 @@ export default class OpenLayersMap {
             target: this.elementId,
             layers: [this.osmLayer, this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
             view: this.view,
-            moveTolerance: 3,
+            moveTolerance: 5,
         });
 
         this.map.on('moveend', (e) => {
