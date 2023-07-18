@@ -178,7 +178,7 @@
             <div class="text-sm text-medium text-gray-600 mr-2">
                 Report deleted
             </div>
-            <span wire:click="unhideByAuthor" class="rounded-full border-0 bg-green-600 hover:bg-green-700 cursor-pointer text-white text-xs px-3 py-1">Восстановить</span>
+            <span wire:click="unhideByAuthor" class="rounded-full border-0 bg-green-600 hover:bg-green-700 cursor-pointer text-white text-xs px-3 py-1">Undo</span>
         </div>
     @endif
 </li>

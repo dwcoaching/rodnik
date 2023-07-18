@@ -87,7 +87,7 @@
     </div>
 {{--
     <div class="mt-4">
-      <label for="visited_at" class="block text-sm font-regular text-gray-700">Дата посещения</label>
+      <label for="visited_at" class="block text-sm font-regular text-gray-700">Visit date</label>
       <div class="mt-1">
         <input wire:model.defer="report.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
       </div>
@@ -298,40 +298,40 @@
 
 {{--
     <div class="mt-2 overflow-x-scroll">
-        <x-chip-checkbox name="Стоячая вода" key="stale" />
-        <x-chip-checkbox name="Очень слабый поток" key="dripping" />
-        <x-chip-checkbox name="Требуется фильтрация или кипячение" key="drinkingwaterconditional" />
-        <x-chip-checkbox name="Источник заброшен" key="abandoned" />
-        <x-chip-checkbox name="Табличка «Питьевая вода»" key="drinkingwaterlegal" />
-        <x-chip-checkbox name="Табличка «Вода не для питья»" key="drinkingwaterlegalno" />
+        <x-chip-checkbox name="Stale water" key="stale" />
+        <x-chip-checkbox name="Dripping" key="dripping" />
+        <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
+        <x-chip-checkbox name="Abandoned" key="abandoned" />
+        <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
+        <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
     </div>
 --}}
 {{--
-    <div class="mt-6 block text-sm font-regular text-gray-700">Источник</div>
+    <div class="mt-6 block text-sm font-regular text-gray-700">Water source</div>
     <div class="mt-2 overflow-x-scroll">
-        <x-chip-checkbox name="Стоячая вода" key="stale" />
-        <x-chip-checkbox name="Очень слабый поток" key="dripping" />
-        <x-chip-checkbox name="Источник заброшен" key="abandoned" />
-        <x-chip-checkbox name="Источник не обнаружен" key="notfound" />
+        <x-chip-checkbox name="Stale water" key="stale" />
+        <x-chip-checkbox name="Dripping" key="dripping" />
+        <x-chip-checkbox name="Abandoned" key="abandoned" />
+        <x-chip-checkbox name="Not found" key="notfound" />
     </div>
 
-    <div class="mt-6 block text-sm font-regular text-gray-700">Вода</div>
+    <div class="mt-6 block text-sm font-regular text-gray-700">Water</div>
     <div class="mt-2 overflow-x-scroll">
-        <x-chip-checkbox name="Питьевая вода" key="drinkingwater" />
-        <x-chip-checkbox name="Требуется фильтрация или кипячение" key="drinkingwaterconditional" />
-        <x-chip-checkbox name="Не пригодна для питья" key="drinkingwaterno" />
+        <x-chip-checkbox name="Drinking water" key="drinkingwater" />
+        <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
+        <x-chip-checkbox name="Not drinkable" key="drinkingwaterno" />
 
-        <x-chip-checkbox name="Табличка «Питьевая вода»" key="drinkingwaterlegal" />
-        <x-chip-checkbox name="Табличка «Вода не для питья»" key="drinkingwaterlegalno" />
+        <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
+        <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
     </div>
 --}}
 
 {{--
     <label for="" class="mt-6 block text-sm font-medium text-gray-700"></label>
     <div class="">
-        <x-chip-checkbox name="Доступ на коляске" key="wheelchair" />
-        <x-chip-checkbox name="Удобно набрать в бутылку" key="bottle" />
-        <x-chip-checkbox name="Миска для животных" key="dog" />
+        <x-chip-checkbox name="Wheelchair access" key="wheelchair" />
+        <x-chip-checkbox name="Easy to fill up a bottle" key="bottle" />
+        <x-chip-checkbox name="Access for dogs" key="dog" />
     </div>
 --}}
 

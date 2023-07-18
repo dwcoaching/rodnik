@@ -57,11 +57,11 @@ class ReportNotification extends Notification
 
         $tags = [];
 
-        if ($this->report->state == 'notfound') {$tags[] = 'источник не обнаружен';}
-        if ($this->report->state == 'running') {$tags[] = 'вода есть';}
-        if ($this->report->state == 'dry') {$tags[] = 'воды нет';}
-        if ($this->report->quality == 'good') {$tags[] = 'вода хорошая';}
-        if ($this->report->quality == 'bad') {$tags[] = 'вода плохая';}
+        if ($this->report->state == 'notfound') {$tags[] = 'water source not found';}
+        if ($this->report->state == 'running') {$tags[] = 'watered';}
+        if ($this->report->state == 'dry') {$tags[] = 'dry';}
+        if ($this->report->quality == 'good') {$tags[] = 'good water';}
+        if ($this->report->quality == 'bad') {$tags[] = 'poor water';}
 
         if (count($tags)) {
             $tags[0] = mb_ucfirst($tags[0]);

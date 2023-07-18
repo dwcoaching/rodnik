@@ -39,6 +39,6 @@ class LatitudeRule implements Rule
      */
     public function message()
     {
-        return 'Неверные координаты';
+        return 'Invalid coordinates';
     }
 }

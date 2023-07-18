@@ -71,7 +71,7 @@ class ReportPhotoNotification extends Notification
         if ($this->photoCount < 2) {
             $content = route('springs.show', $this->photo->report->spring->id);
         } else {
-            $content = 'Еще ' . decline_number($this->photoCount - 1, ['фотография', 'фотографии', 'фотографий']) . ' на ' . route('springs.show', $this->photo->report->spring->id);
+            $content = decline_number($this->photoCount - 1, [' more photo', 'more photos', 'more photos']) . ' at ' . route('springs.show', $this->photo->report->spring->id);
         }
 
         return TelegramFile::create()

@@ -68,11 +68,11 @@
             class="text-center py-16"
         >
             <div class="text-2xl font-semibold">
-                Перетащите сюда фото родника
+                Drag photos here
             </div>
             <div class="mt-5 text-center">
                 <div class="text-sm">
-                    Или выберите файл на диске:
+                    Or choose a file on disk:
                 </div>
                 <div>
                     <input
@@ -81,20 +81,20 @@
                 </div>
             </div>
             <div class="mt-8 text-lg">
-                GPS-координаты определятся сами
+                GPS coordinates will be parsed from the image
             </div>
             @error('files.*')
                 <div class="mt-4 text-red-600">
-                    Загружать можно фотографии размером до 10 мегабайт
+                    Up to 10 MB:
                 </div>
             @enderror
             <div x-show="filesInProgress.length" class="mt-6">
                 <template x-for="file in filesInProgress">
                     <div class="mt-2 mb-2">
-                        <b>Файл <span x-text="file.name"></span> загружается</b><br>
-                        исходный размер <span x-text="file.oldSize"></span> байт<br>
-                        загружаемый размер <span x-text="file.newSize"></span> байт<br>
-                        загружено <span x-text="file.progress"></span>%
+                        <b>File <span x-text="file.name"></span> is uploading</b><br>
+                        initial size <span x-text="file.oldSize"></span> bytes<br>
+                        resized size <span x-text="file.newSize"></span> bytes<br>
+                        uploaded <span x-text="file.progress"></span>%
                     </div>
                 </template>
             </div>
@@ -137,7 +137,7 @@
                     @if ($photo->latitude && $photo->longitude)
                         {{ $photo->latitude }}, {{ $photo->longitude }}
                     @else
-                        Фотография не содержит координат
+                        No coordinates for this image
                     @endif
                 </div>
             </div>

@@ -280,7 +280,7 @@
                                             <div class="ml-3 text-sm">
                                                 <label for="overlays.stravaPublic" class="font-regular text-gray-700">Strava Heatmap</label>
                                                 {{--
-                                                    <p class="text-gray-500">Без подробной Heatmap для крупного масштаба — Strava это не разрешает</p>
+                                                    <p class="text-gray-500">Without detailed heatmap for zoomed in maps — Strava does not permit that</p>
                                                 --}}
                                             </div>
                                         </div>
