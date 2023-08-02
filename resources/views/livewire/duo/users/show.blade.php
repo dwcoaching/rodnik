@@ -25,5 +25,10 @@
                 <x-last-reports.teaser :report="$report" />
             @endforeach
         </ul>
+        <livewire:duo.components.show-more-reports
+            wire:key="show-more-reports-user-{{ $userId }}"
+            skip="{{ $limit }}"
+            take="{{ $limit }}"
+            :userId="$userId" />
     </div>
 </div>

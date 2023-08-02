@@ -8,6 +8,7 @@ use Livewire\Component;
 class Show extends Component
 {
     public $userId;
+    public $limit = 12;
 
     public function setUser($userId)
     {
@@ -28,7 +29,7 @@ class Show extends Component
                 ->whereNull('hidden_at')
                 ->with(['user', 'photos', 'spring'])
                 ->latest()
-                ->limit(12)
+                ->limit($this->limit)
                 ->get();
         }
 

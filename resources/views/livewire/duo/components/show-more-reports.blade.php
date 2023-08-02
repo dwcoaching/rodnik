@@ -5,11 +5,14 @@
                 <x-last-reports.teaser :report="$report" />
             @endforeach
         </ul>
-        <livewire:duo.components.show-more-reports
-            skip="{{ $skip * 2 }}"
-            take="{{ $take * 2 }}"
-        />
-    @elseif ($take < 50)
+        @if (count($reports) == $take)
+            <livewire:duo.components.show-more-reports
+                skip="{{ $skip * 2 }}"
+                take="{{ $take * 2 }}"
+                userId="{{ $userId }}"
+            />
+        @endif
+    @elseif ($take > 0 && $take < 50)
         <button wire:loading.remove
             class="w-full p-3 bg-stone-200 rounded-xl mt-4 text-sm flex items-center justify-center"
             wire:click="show" type="button">

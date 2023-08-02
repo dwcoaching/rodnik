@@ -25,6 +25,8 @@
                 <x-last-reports.teaser :report="$report" />
             @endforeach
         </ul>
-        <livewire:duo.components.show-more-reports skip="{{ $limit }}" take="{{ $limit }}" />
+        @if (count($lastReports) == $limit)
+            <livewire:duo.components.show-more-reports skip="{{ $limit }}" take="{{ $limit }}" />
+        @endif
     </div>
 </div>
