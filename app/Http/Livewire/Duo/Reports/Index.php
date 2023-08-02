@@ -11,6 +11,8 @@ class Index extends Component
 {
     public $loaded;
 
+    public $limit = 12;
+
     public function setLoaded()
     {
         $this->loaded = true;
@@ -26,7 +28,7 @@ class Index extends Component
             $lastReports = Report::whereNull('hidden_at')
                 ->whereNull('from_osm')
                 ->latest()
-                ->limit(12)
+                ->limit($this->limit)
                 ->with(['spring', 'user', 'photos'])
                 ->get();
 
