@@ -15,13 +15,13 @@
             $nextTick(() => window.rodnikMap.map.updateSize());
         }
     }">
-        <div class="top-0 h-1/2 w-full sm:h-full overflow-y-scroll sm:ml-[50%]"
+        <div class="top-0 h-1/2 w-full sm:h-full sm:ml-[50%]"
             :class="{
                 hidden: fullscreen,
                 fixed: ! fullscreen,
             }"
         >
-            <div class="w-full sm:w-1/2 sm:h-full  px-4 flex flex-col items-stretch">
+            <div class="overflow-y-scroll h-full w-full sm:w-1/2 sm:h-full px-4 flex flex-col items-stretch">
                 <x-navbar map />
                 <div class="grow flex">
                     <x-duo spring_id="{{ $springId }}" user_id="{{ $userId }}" />
