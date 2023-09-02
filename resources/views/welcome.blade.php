@@ -35,7 +35,7 @@
 
         <div class="fixed bottom-0 w-full sm:h-full"
             :class="{
-                'h-1/2': ! fullscreen,
+                'h-[50vh]': ! fullscreen,
                 'sm:w-1/2': ! fullscreen,
 
                 'h-full': fullscreen,
