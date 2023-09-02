@@ -15,13 +15,13 @@
             $nextTick(() => window.rodnikMap.map.updateSize());
         }
     }">
-        <div class="top-0 h-1/2 w-full sm:h-full sm:ml-[50%] pb-[50vh] sm:pb-0"
+        <div class="top-0 w-full sm:h-full sm:ml-[50%] pb-[46.5vh] sm:pb-0"
             :class="{
                 hidden: fullscreen,
                 block: ! fullscreen,
             }"
         >
-            <div class="w-full sm:w-1/2 sm:h-full  px-4 flex flex-col items-stretch">
+            <div class="w-full sm:w-1/2 sm:h-full px-4 flex flex-col items-stretch">
                 <x-navbar map />
                 <div class="grow flex">
                     <x-duo spring_id="{{ $springId }}" user_id="{{ $userId }}" />
@@ -33,9 +33,9 @@
 
 
 
-        <div class="fixed bottom-0 h-[50vh] sm:w-1/2 w-full sm:h-full bg-stone-100"
+        <div class="fixed bottom-0 h-[46.5vh] sm:w-1/2 w-full sm:h-full bg-stone-100"
             :class="{
-                'h-[50vh]': ! fullscreen,
+                'h-[46.5vh]': ! fullscreen,
                 'sm:w-1/2': ! fullscreen,
 
                 'h-full': fullscreen,
