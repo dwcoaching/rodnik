@@ -1,29 +1,48 @@
 <x-app-layout>
-    <div class="flex flex-col-reverse sm:flex-row w-screen h-full">
-        <div class="relative flex-none sm:h-full sm:w-1/2 h-1/2" id="map"
-            x-on:spring-selected-on-map.window="exitFullscreen"
-            x-data="{
-                fullscreen: false,
-                toggleFullscreen: function() {
-                    this.fullscreen = ! this.fullscreen;
-                    window.rodnikMap.setFullscreen(this.fullscreen);
-                    $nextTick(() => window.rodnikMap.map.updateSize());
-                },
-                enterFullscreen: function() {
-                    this.fullscreen = true;
-                    $nextTick(() => window.rodnikMap.map.updateSize());
-                },
-                exitFullscreen: function(event) {
-                    this.fullscreen = false;
-                    $nextTick(() => window.rodnikMap.map.updateSize());
-                }
-            }"
+    <div x-data="{
+        fullscreen: false,
+        toggleFullscreen: function() {
+            this.fullscreen = ! this.fullscreen;
+            window.rodnikMap.setFullscreen(this.fullscreen);
+            $nextTick(() => window.rodnikMap.map.updateSize());
+        },
+        enterFullscreen: function() {
+            this.fullscreen = true;
+            $nextTick(() => window.rodnikMap.map.updateSize());
+        },
+        exitFullscreen: function(event) {
+            this.fullscreen = false;
+            $nextTick(() => window.rodnikMap.map.updateSize());
+        }
+    }">
+        <div class="top-0 h-1/2 w-full sm:h-full overflow-y-scroll sm:ml-[50%]"
             :class="{
-                'sm:w-1/2': ! fullscreen,
-                'w-full': fullscreen,
-                'h-full': fullscreen,
-                'h-1/2': ! fullscreen,
+                hidden: fullscreen,
+                fixed: ! fullscreen,
             }"
+        >
+            <div class="w-full sm:w-1/2 sm:h-full  px-4 flex flex-col items-stretch">
+                <x-navbar map />
+                <div class="grow flex">
+                    <x-duo spring_id="{{ $springId }}" user_id="{{ $userId }}" />
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="fixed bottom-0 w-full sm:h-full"
+            :class="{
+                'h-1/2': ! fullscreen,
+                'sm:w-1/2': ! fullscreen,
+
+                'h-full': fullscreen,
+                'sm:w-full': fullscreen,
+            }"
+            id="map"
+            x-on:spring-selected-on-map.window="exitFullscreen"
             x-init="
                 initOpenLayers($el.id);
                 window.rodnikMap.springsSource({{ intval($userId) }});
@@ -305,12 +324,6 @@
                         <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/><
                     </svg>
                 </div>
-            </div>
-        </div>
-        <div class="w-full sm:w-1/2 sm:h-full h-1/2 overflow-y-scroll px-4 flex flex-col items-stretch">
-            <x-navbar map />
-            <div class="grow flex">
-                <x-duo spring_id="{{ $springId }}" user_id="{{ $userId }}" />
             </div>
         </div>
     </div>
