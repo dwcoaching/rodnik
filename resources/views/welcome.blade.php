@@ -1,20 +1,26 @@
 <x-app-layout>
-    <div x-data="{
-        fullscreen: false,
-        toggleFullscreen: function() {
-            this.fullscreen = ! this.fullscreen;
-            window.rodnikMap.setFullscreen(this.fullscreen);
-            $nextTick(() => window.rodnikMap.map.updateSize());
-        },
-        enterFullscreen: function() {
-            this.fullscreen = true;
-            $nextTick(() => window.rodnikMap.map.updateSize());
-        },
-        exitFullscreen: function(event) {
-            this.fullscreen = false;
-            $nextTick(() => window.rodnikMap.map.updateSize());
-        }
-    }">
+    <div
+        x-data="{
+            fullscreen: false,
+            toggleFullscreen: function() {
+                this.fullscreen = ! this.fullscreen;
+                window.rodnikMap.setFullscreen(this.fullscreen);
+                $nextTick(() => window.rodnikMap.map.updateSize());
+            },
+            enterFullscreen: function() {
+                this.fullscreen = true;
+                $nextTick(() => window.rodnikMap.map.updateSize());
+            },
+            exitFullscreen: function(event) {
+                this.fullscreen = false;
+                $nextTick(() => window.rodnikMap.map.updateSize());
+            }
+        }"
+        x-init="
+            initOpenLayers($refs.rodnikMap.id);
+            window.rodnikMap.springsSource({{ intval($userId) }});
+        "
+    >
         <div class="top-0 h-1/2 w-full sm:h-full sm:ml-[50%] pb-[50vh] sm:pb-0"
             :class="{
                 hidden: fullscreen,
@@ -43,10 +49,7 @@
             }"
             id="map"
             x-on:spring-selected-on-map.window="exitFullscreen"
-            x-init="
-                initOpenLayers($el.id);
-                window.rodnikMap.springsSource({{ intval($userId) }});
-            ">
+            x-ref="rodnikMap">
             <div class="absolute top-2 right-2" style="z-index: 10000;">
                 <div @click="toggleFullscreen" class="h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center">
                     <div x-show="! fullscreen" class="">
