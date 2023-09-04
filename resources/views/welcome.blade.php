@@ -18,7 +18,6 @@
             },
             toggleMinimized: function() {
                 this.minimized = ! this.minimized;
-                window.rodnikMap.setMinimized(this.minimized);
                 $nextTick(() => window.rodnikMap.map.updateSize());
             },
         }"
