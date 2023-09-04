@@ -49,7 +49,7 @@
                 @endif
             ]
         );"
-        >
+    >
     <a x-data href="#" x-on:click.prevent="history.back();" class="text-3xl font-bold text-blue-600 hover:text-blue-700"">
         <span class="mr-2 inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 mb-6" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
@@ -114,9 +114,17 @@
             <div class="absolute w-full h-full flex items-center justify-center" style="pointer-events: none;">
                 <div class="text-red-600 text-4xl font-light">○</div>
             </div>
+            <!-- COPIED -->
+                <div x-cloak class="absolute sm:block top-2 right-2" style="z-index: 10000;">
+                    <div @click="window.rodnikPicker.locateMe()" class="mt-2 h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" class="h-5 w-5">
+                            <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/><
+                        </svg>
+                    </div>
+                </div>
+            <!-- END OF COPIED -->
         </div>
-
-            <div class="max-w-lg">
+        <div class="max-w-lg">
             <div class="mt-2 relative border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600"
                 x-bind:class="{
                     'border-red-600': coordinatesError,
@@ -139,8 +147,6 @@
                 <input wire:model.defer="name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
             </div>
         </div>
-
-
     </div>
 
     <div class="mt-4 pb-6">

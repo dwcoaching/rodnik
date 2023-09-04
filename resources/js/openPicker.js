@@ -71,6 +71,13 @@ export default class OpenPicker {
             enableRotation: false,
         });
 
+        this.geolocation = new Geolocation({
+            trackingOptions: {
+                enableHighAccuracy: true,
+            },
+            projection: this.view.getProjection(),
+        });
+
         this.scaleControl = new ScaleLine({
             units: 'metric',
             bar: false,
@@ -136,5 +143,81 @@ export default class OpenPicker {
     mapMoved(coordinates) {
         const event = new CustomEvent('map-moved', {detail: {coordinates: coordinates}});
         window.dispatchEvent(event);
+    }
+
+    locateMe() {
+        if (this.geolocation.getPosition()) {
+            this.view.animate(
+                {
+                    center: this.geolocation.getPosition(),
+                    zoom: 18,
+                    duration: 250
+                }
+            );
+        } else {
+            navigator.geolocation.getCurrentPosition((position) => {
+                this.view.animate(
+                    {
+                        center: fromLonLat([position.coords.longitude, position.coords.latitude]),
+                        zoom: 18,
+                        duration: 250
+                    }
+                );
+
+                this.watchMe();
+            }, (error) => {
+                console.log(error);
+            });
+        }
+    }
+
+    watchMe() {
+        this.geolocation.setTracking(true);
+
+        const accuracyFeature = new Feature();
+        this.geolocation.on('change:accuracyGeometry', () => {
+            accuracyFeature.setGeometry(this.geolocation.getAccuracyGeometry());
+        });
+
+        this.geolocation.on('error', function (error) {
+            console.log(error)
+        });
+
+        const positionFeature = new Feature();
+        positionFeature.setStyle(
+            new Style({
+                image: new CircleStyle({
+                    radius: 6,
+                    fill: new Fill({
+                        color: '#000000',
+                    }),
+                    stroke: new Stroke({
+                        color: '#fff',
+                        width: 2,
+                    }),
+                }),
+            })
+        );
+
+        accuracyFeature.setStyle(
+            new Style({
+                fill: new Fill({
+                    color: [255, 255, 255, 0.5],
+                }),
+                stroke: new Stroke({
+                    color: '#00000',
+                    width: 2,
+                }),
+            })
+        );
+
+        this.geolocation.on('change:position', () => {
+        const coordinates = this.geolocation.getPosition();
+            positionFeature.setGeometry(coordinates ? new Point(coordinates) : null);
+        });
+
+        this.geolocationLayer = new GeolocationLayer(accuracyFeature, positionFeature);
+
+        this.map.addLayer(this.geolocationLayer);
     }
 }
