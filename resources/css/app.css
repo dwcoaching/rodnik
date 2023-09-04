@@ -23,3 +23,14 @@ html {
 }
 
 
+.ol-minimized .ol-attribution,
+.ol-minimized .ol-zoom,
+.ol-minimized .ol-scale-line
+    {display: none;}
+
+@media screen(sm) {
+    .ol-minimized .ol-attribution,
+    .ol-minimized .ol-zoom,
+    .ol-minimized .ol-scale-line
+        {display: inherit;}
+}

@@ -6,7 +6,7 @@ import { OSM, XYZ, Vector as VectorSource} from 'ol/source';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
-import { ScaleLine, FullScreen, defaults as defaultControls } from 'ol/control';
+import { ScaleLine, defaults as defaultControls } from 'ol/control';
 
 import { createXYZ } from 'ol/tilegrid';
 import { tile } from 'ol/loadingstrategy';
@@ -107,8 +107,6 @@ export default class OpenLayersMap {
             text: true,
             minWidth: 100,
         });
-
-        this.fullScreenControl = new FullScreen();
 
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),

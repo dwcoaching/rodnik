@@ -2,6 +2,7 @@
     <div
         x-data="{
             fullscreen: false,
+            minimized: false,
             toggleFullscreen: function() {
                 this.fullscreen = ! this.fullscreen;
                 window.rodnikMap.setFullscreen(this.fullscreen);
@@ -14,7 +15,12 @@
             exitFullscreen: function(event) {
                 this.fullscreen = false;
                 $nextTick(() => window.rodnikMap.map.updateSize());
-            }
+            },
+            toggleMinimized: function() {
+                this.minimized = ! this.minimized;
+                window.rodnikMap.setMinimized(this.minimized);
+                $nextTick(() => window.rodnikMap.map.updateSize());
+            },
         }"
         x-init="
             initOpenLayers($refs.rodnikMap.id);
@@ -41,16 +47,23 @@
 
         <div class="fixed bottom-0 h-[50vh] sm:w-1/2 w-full sm:h-full bg-stone-100"
             :class="{
-                'h-[50vh]': ! fullscreen,
-                'sm:w-1/2': ! fullscreen,
+                'h-[50vh]': ! fullscreen && ! minimized,
+                'h-full': fullscreen && ! minimized,
 
-                'h-full': fullscreen,
+                'sm:w-1/2': ! fullscreen,
                 'sm:w-full': fullscreen,
+
+                'h-10': minimized,
+                'ol-minimized': minimized,
             }"
             id="map"
             x-on:spring-selected-on-map.window="exitFullscreen"
             x-ref="rodnikMap">
-            <div class="absolute top-2 right-2" style="z-index: 10000;">
+            <div x-cloak class="absolute sm:block top-2 right-2" style="z-index: 10000;"
+                :class="{
+                    'hidden': minimized
+                }"
+                >
                 <div @click="toggleFullscreen" class="h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center">
                     <div x-show="! fullscreen" class="">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -325,6 +338,23 @@
                 <div @click="window.rodnikMap.locateMe()" class="mt-2 h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" class="h-5 w-5">
                         <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/><
+                    </svg>
+                </div>
+
+
+            </div>
+            <div class="sm:hidden absolute right-2" style="z-index: 10000;"
+                :class="{
+                    'bottom-7': ! minimized,
+                    'bottom-2': minimized,
+                }"
+            >
+                <div @click="toggleMinimized" class="mt-2 h-6 w-9 bg-black opacity-50 hover:opacity-90 text-white shadow-sm rounded-md cursor-pointer flex items-center justify-center">
+                    <svg x-cloak x-show="! minimized" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" class="h-3 w-3 mt-0.5" fill="currentColor">
+                        <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                    </svg>
+                    <svg x-cloak x-show="minimized" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" class="h-3 w-3" fill="currentColor">
+                         <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
                     </svg>
                 </div>
             </div>
