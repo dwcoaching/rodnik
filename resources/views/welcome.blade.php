@@ -27,7 +27,7 @@
             window.rodnikMap.springsSource({{ intval($userId) }});
         "
     >
-        <div class="top-0 h-1/2 w-full sm:h-full sm:ml-[50%] sm:pb-0"
+        <div class="top-0 h-1/2 w-full sm:h-full sm:pl-[50%] sm:pb-0"
             :class="{
                 hidden: fullscreen,
                 block: ! fullscreen,
@@ -35,7 +35,7 @@
                 'pb-10': minimized,
             }"
         >
-            <div class="w-full sm:w-1/2 sm:h-full  px-4 flex flex-col items-stretch">
+            <div class="w-full sm:h-full  px-4 flex flex-col items-stretch">
                 <x-navbar map />
                 <div class="grow flex">
                     <x-duo spring_id="{{ $springId }}" user_id="{{ $userId }}" />
