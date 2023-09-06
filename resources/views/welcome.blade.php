@@ -5,6 +5,7 @@
             minimized: false,
             toggleFullscreen: function() {
                 this.fullscreen = ! this.fullscreen;
+                this.minimized = false;
                 window.rodnikMap.setFullscreen(this.fullscreen);
                 $nextTick(() => window.rodnikMap.map.updateSize());
             },
