@@ -21,7 +21,7 @@
                     let parsedCoordinates = window.parseCoordinates(coordinates);
                     this.latitude = parsedCoordinates.getLatitude();
                     this.longitude = parsedCoordinates.getLongitude();
-                    this.coordinates = this.latitude + ', ' + this.longitude;
+                    this.coordinates = this.latitude.toFixed(6) + ', ' + this.longitude.toFixed(6);
                     window.rodnikPicker.updateCoordinates([this.longitude, this.latitude]);
                     this.coordinatesError = false;
                 } catch (error) {
@@ -33,7 +33,7 @@
                     let parsedCoordinates = window.parseCoordinates(coordinates);
                     this.latitude = parsedCoordinates.getLatitude();
                     this.longitude = parsedCoordinates.getLongitude();
-                    this.coordinates = this.latitude + ', ' + this.longitude;
+                    this.coordinates = this.latitude.toFixed(6) + ', ' + this.longitude.toFixed(6);
                     this.coordinatesError = false;
                 } catch (error) {
                     this.coordinatesError = true;
@@ -139,7 +139,15 @@
                         <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                     </svg>
                 </label>
-                <input x-ref="coordinates" x-model="coordinates" @change="updateCoordinates($event.target.value)" {{--wire:model.defer="coordinates"--}} type="text" name="coordinates" id="coordinates" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
+                <input
+                    x-ref="coordinates"
+                    x-model="coordinates"
+                    @change="updateCoordinates($event.target.value)"
+                    {{--wire:model.defer="coordinates"--}}
+                    type="text"
+                    name="coordinates"
+                    id="coordinates"
+                    class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
             </div>
 
             <div class="mt-2 border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
