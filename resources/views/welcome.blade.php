@@ -141,66 +141,66 @@
                             x-cloak
                             x-show="filtersOpen"
                             @click.stop=""
-                            class="shadow absolute top-0 right-11 w-64 rounded-md bg-white px-4 py-2"
+                            class="cursor-default shadow absolute top-0 right-11 w-64 rounded-md bg-white"
                         >
-                            <fieldset class="space-y-2">
-                                <div class="relative flex items-start">
+                            <fieldset>
+                                <label for="filters.all" class="relative flex items-start cursor-pointer px-4 py-2 pb-1">
                                     <div class="flex items-center h-5">
                                         <input @change="toggleAllFilters" x-model="filters.all" id="filters.all" name="filter__all" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.all" class="font-bold text-gray-700">All water sources</label>
+                                        <span class="font-bold text-gray-700">All water sources</span>
                                     </div>
-                                </div>
-                                <div class="relative flex items-start">
+                                </label>
+                                <label for="filters.spring" class="relative flex items-start cursor-pointer px-4 py-1">
                                     <div class="flex items-center h-5">
                                         <input @change="updateFilters" x-model="filters.spring" id="filters.spring" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.spring" class="font-regular text-gray-700">Springs</label>
+                                        <span class="font-regular text-gray-700">Springs</span>
                                     </div>
-                                </div>
-                                <div class="relative flex items-start">
+                                </label>
+                                <label for="filters.water_well"  class="relative flex items-start cursor-pointer px-4 py-1">
                                     <div class="flex items-center h-5">
                                         <input @change="updateFilters" x-model="filters.water_well" id="filters.water_well" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.water_well" class="font-regular text-gray-700">Water well</label>
+                                        <span class="font-regular text-gray-700">Water well</span>
                                     </div>
-                                </div>
-                                <div class="relative flex items-start">
+                                </label>
+                                <label for="filters.water_tap" class="relative flex items-start cursor-pointer px-4 py-1">
                                     <div class="flex items-center h-5">
                                         <input @change="updateFilters" x-model="filters.water_tap" id="filters.water_tap" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.water_tap" class="font-regular text-gray-700">Water taps</label>
+                                        <span class="font-regular text-gray-700">Water taps</label>
                                     </div>
-                                </div>
-                                <div class="relative flex items-start">
+                                </label>
+                                <label for="filters.drinking_water"  class="relative flex items-start cursor-pointer px-4 py-1">
                                     <div class="flex items-center h-5">
                                         <input @change="updateFilters" x-model="filters.drinking_water" id="filters.drinking_water" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.drinking_water" class="font-regular text-gray-700">Drinking water sources</label>
+                                        <span class="font-regular text-gray-700">Drinking water sources</span>
                                     </div>
-                                </div>
-                                <div class="relative flex items-start">
+                                </label>
+                                <label for="filters.fountain" class="relative flex items-start cursor-pointer px-4 py-1">
                                     <div class="flex items-center h-5">
                                         <input @change="updateFilters" x-model="filters.fountain" id="filters.fountain" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.fountain" class="font-regular text-gray-700">Fountains</label>
+                                        <span class="font-regular text-gray-700">Fountains</span>
                                     </div>
-                                </div>
-                                <div class="relative flex items-start">
+                                </label>
+                                <label for="filters.other"  class="relative flex items-start cursor-pointer px-4 py-1">
                                     <div class="flex items-center h-5">
                                         <input @change="updateFilters" x-model="filters.other" id="filters.other" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="filters.other" class="font-regular text-gray-700">Other</label>
+                                        <span class="font-regular text-gray-700">Other</span>
                                     </div>
-                                </div>
-                                <div class="mt-2 mb-4 flex items-start"
+                                </label>
+                                <div class="pt-1 px-4 pb-2 flex items-start cursor-pointer"
                                     @click="filters.confirmed = ! filters.confirmed; updateFilters()"
                                     x-model="filters.confirmed">
                                     <button
