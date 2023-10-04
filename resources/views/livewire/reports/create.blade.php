@@ -337,7 +337,7 @@
 
     <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
-            <button type="button" class="cursor-pointer inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-blue-600  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            <button type="button" class="cursor-pointer inline-flex items-center px-12 py-3 border border-transparent text-base font-semibold rounded-md shadow-sm text-white bg-blue-600  focus:outline-none"
                 x-data="{
                     storing: false,
                     buttonText: '{{ $report->id ? 'Save Changes' : 'Add Report' }}',
@@ -361,7 +361,7 @@
                 x-bind:class="{
                     'bg-blue-600': ! storing,
                     'hover:bg-blue-700': ! storing,
-                    'bg-gray-600': storing,
+                    'bg-blue-700': storing,
                 }"
                 @click="store"
                 x-text="text()"

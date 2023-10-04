@@ -159,11 +159,14 @@
 
     <div class="mt-4 pb-6">
         <div class="flex justify-start">
-            <button type="button" @click="if (! error()) {$wire.store();}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white"
+            <button type="button" @click="if (! error()) {$wire.store();}" class="inline-flex items-center px-12 py-3 border border-transparent text-base font-medium rounded-md"
                 x-bind:class="{
-                    'bg-gray-500': error(),
+                    'bg-blue-300': error(),
                     'cursor-not-allowed': error(),
+                    'text-blue-50': error(),
+                    'text-white': ! error(),
                     'bg-blue-600': ! error(),
+                    'hover:bg-blue-700': ! error(),
                     'cursor-pointer': ! error(),
                     'focus:bg-blue-700': ! error(),
                 }"
