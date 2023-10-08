@@ -21,7 +21,8 @@
                         )
                     "
                     href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
-                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 leading-none mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
+                        <div
+                            class="text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</div>
                     </a>
                 </div>
 

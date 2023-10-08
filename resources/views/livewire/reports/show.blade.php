@@ -19,14 +19,14 @@
                         )
                     "
                     href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
-                        <span class="text-blue-600 group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
+                        <span class="text-blue-600 leading-relaxed group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
                         {{--<span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>--}}
                     </a>
                     @if (! $report->spring_edit
                         && Auth::check()
                         && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
-                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">edit</a>
+                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
                             <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
                         </div>
                     @endif
@@ -68,7 +68,7 @@
                             && ! $hasName && Auth::check()
                             && $report->user_id == Auth::user()->id)
                             <div class="flex-1 text-right">
-                                <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">edit</a>
+                                <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
                                 <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
                             </div>
                         @endif
@@ -175,10 +175,10 @@
         </div>
     @elseif ($justHidden)
         <div class="pb-8 flex items-center">
-            <div class="text-sm text-medium text-gray-600 mr-2">
+            <div class="text-sm text-medium text-red-700 mr-2">
                 Report deleted
             </div>
-            <span wire:click="unhideByAuthor" class="rounded-full border-0 bg-green-600 hover:bg-green-700 cursor-pointer text-white text-xs px-3 py-1">Undo</span>
+            <span wire:click="unhideByAuthor" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">Restore</span>
         </div>
     @endif
 </li>

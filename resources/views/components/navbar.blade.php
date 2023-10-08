@@ -1,4 +1,4 @@
-<div class="py-3 flex justify-between flex-nowrap">
+<div class="py-2 flex justify-between flex-nowrap">
     <div class="flex flex-wrap">
         <!-- Logo -->
         <div class="shrink-0 flex items-center">
@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    <div class="flex items-center">
+    <div class="flex items-start">
         @guest
             <div class="my-1 block">
                 <a href="{{ route('login') }}" class="mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
@@ -64,7 +64,7 @@
                     <x-slot name="trigger">
                         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                             <div>
-                                <button class="flex text-sm rounded-full focus:outline-none transition">
+                                <button class="h-7 w-7 flex text-sm rounded-full focus:outline-none transition">
                                     <img class="h-7 w-7 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
                                 </button>
                             </div>

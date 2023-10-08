@@ -13,7 +13,7 @@
     </div>
     <div wire:loading.remove>
         @if ($loaded)
-            <div class="-mt-2 mb-3 text-sm font-medium">
+            <div class="-mt-1 mb-3 text-sm font-medium">
                 <span class="px-1.5 py-0 rounded-full bg-[#33A9FF]/[0.1] border border-[#33A9FF]">{{ number_format($springsCount, 0, ',', ' ') }}</span>
                 {{ \Str::plural('water source', $springsCount) }} with
                 <span class="ml-0 px-1.5 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ number_format($reportsCount, 0, ',', ' ') }}</span>
