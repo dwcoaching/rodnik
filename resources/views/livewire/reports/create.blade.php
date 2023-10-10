@@ -112,7 +112,8 @@
             <textarea wire:model.defer="report.comment" rows="4" name="comment" id="comment"
                 placeholder="Comment"
                 @class([
-                    'max-w-lg' => true,
+                    'w-full' => true,
+                    'sm:max-w-lg' => true,
                     'shadow-sm' => true,
                     'block' => true,
                     'w-full' => true,
@@ -337,7 +338,7 @@
 
     <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
-            <button type="button" class="cursor-pointer inline-flex items-center px-12 py-3 border border-transparent text-base font-semibold rounded-md shadow-sm text-white bg-blue-600  focus:outline-none"
+            <button type="button" class="w-full sm:w-fit justify-center cursor-pointer inline-flex items-center px-12 py-3 border border-transparent text-base font-semibold rounded-md shadow-sm text-white bg-blue-600 focus:outline-none"
                 x-data="{
                     storing: false,
                     buttonText: '{{ $report->id ? 'Save Changes' : 'Add Report' }}',

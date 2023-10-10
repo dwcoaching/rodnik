@@ -1,4 +1,4 @@
-<div class="py-2 flex justify-between flex-nowrap">
+<div class="pt-3 pb-2 flex justify-between flex-nowrap">
     <div class="flex flex-wrap">
         <!-- Logo -->
         <div class="shrink-0 flex items-center">
