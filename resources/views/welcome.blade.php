@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div
+    <div class="h-full"
         x-data="{
             fullscreen: false,
             minimized: false,

@@ -1,8 +1,8 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
-        visited_at: @entangle('visited_at').defer,
-        state: @entangle('report.state').defer,
-        quality: @entangle('report.quality').defer,
+        visited_at: @entangle('visited_at'),
+        state: @entangle('report.state'),
+        quality: @entangle('report.quality'),
 
         withDate: true,
         previousDate: null,
@@ -18,7 +18,7 @@
         }
     }">
 
-    <a href="{{ route('springs.show', $spring) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
+    <a href="{{ route('springs.show', $springId) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
         <span class="mr-2 inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 mb-6" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
@@ -89,7 +89,7 @@
     <div class="mt-4">
       <label for="visited_at" class="block text-sm font-regular text-gray-700">Visit date</label>
       <div class="mt-1">
-        <input wire:model.defer="report.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
+        <input wire:model="report.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
       </div>
     </div>
 --}}
@@ -109,7 +109,7 @@
 
     <div class="mt-2">
         <div class="relative">
-            <textarea wire:model.defer="report.comment" rows="4" name="comment" id="comment"
+            <textarea wire:model="report.comment" rows="4" name="comment" id="comment"
                 placeholder="Comment"
                 @class([
                     'w-full' => true,
@@ -341,8 +341,8 @@
             <button type="button" class="w-full sm:w-fit justify-center cursor-pointer inline-flex items-center px-12 py-3 border border-transparent text-base font-semibold rounded-md shadow-sm text-white bg-blue-600 focus:outline-none"
                 x-data="{
                     storing: false,
-                    buttonText: '{{ $report->id ? 'Save Changes' : 'Add Report' }}',
-                    storingText: '{{ $report->id ? 'Saving...' : 'Adding...' }}',
+                    buttonText: '{{ $reportId ? 'Save Changes' : 'Add Report' }}',
+                    storingText: '{{ $reportId ? 'Saving...' : 'Adding...' }}',
                     text: function() {
                         return this.storing ? this.storingText : this.buttonText;
                     },

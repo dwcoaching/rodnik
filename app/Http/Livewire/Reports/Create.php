@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Reports;
 use App\Library\Exif;
 use App\Models\Photo;
 use App\Models\Report;
+use App\Models\Spring;
 use Livewire\Component;
 use App\Rules\SpringTypeRule;
 use Livewire\WithFileUploads;
@@ -20,38 +21,48 @@ class Create extends Component
 {
     use WithFileUploads, AuthorizesRequests;
 
-    public $spring;
-    public $report;
+    public $springId;
+    public $reportId;
     public $photosIds = [];
     public $file;
+
+    protected $spring;
+    protected $report;
+
+    public $state;
+    public $quality;
+    public $comment;
+    public $visited_at;
 
     protected function rules() {
         return [
             'visited_at' => 'nullable|date',
-            'report.state' => [
+            'state' => [
                 'nullable',
                 Rule::in(['dry', 'dripping', 'running', 'notfound'])
             ],
-            'report.quality' => [
+            'quality' => [
                 'nullable',
                 Rule::in(['bad', 'uncertain', 'good'])
             ],
-            'report.comment' => 'nullable|string|max:65535',
-            'report.spring_id' => 'required|integer',
+            'comment' => 'nullable|string|max:65535',
+            'springId' => 'required|integer',
         ];
     }
 
-    public function mount($spring)
+    public function mount()
     {
-        $this->spring = $spring;
+        $this->spring = Spring::findOrFail($this->springId);
 
-        if (! $this->report) {
-            $this->report = new Report();
-            $this->report->spring_id = $this->spring->id;
+        if (! $this->reportId) {
             $this->visited_at = now()->format('Y-m-d');
         } else {
+            $this->report = Report::findOrFail($this->reportId);
             $this->authorize('update', $this->report);
 
+            $this->state = $this->report->state;
+            $this->quality = $this->report->quality;
+            $this->comment = $this->report->comment;
             $this->visited_at = $this->report->visited_at->format('Y-m-d');
             $this->photosIds = $this->report->photos->pluck('id')->all();
         }
@@ -61,18 +72,22 @@ class Create extends Component
     {
         $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
 
-        return view('livewire.reports.create', ['photos' => $photos]);
+        return view('livewire.reports.create', [
+            'photos' => $photos,
+            'spring' => $this->spring,
+            'report' => $this->report,
+        ]);
     }
 
     public function store()
     {
         $this->validate();
 
-        if (in_array($this->report->state, ['dry', 'notfound'])) {
-            $this->report->quality = null;
+        if (in_array($this->state, ['dry', 'notfound'])) {
+            $this->quality = null;
         }
 
-        if ($this->report->id) {
+        if ($this->reportId) {
             $this->authorize('update', $this->report);
         }
 

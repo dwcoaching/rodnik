@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Filament\Panel;
 use App\Models\Report;
 use App\Models\Spring;
 use Laravel\Sanctum\HasApiTokens;
@@ -99,5 +100,10 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessFilament(): bool
     {
         return $this->is_admin;
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return false;
     }
 }

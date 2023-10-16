@@ -1,5 +1,5 @@
 <div class="h-full" x-data="{
-        loadedUserId: @entangle('userId'),
+        loadedUserId: $wire.$entangle('userId').live,
         previousUserId: {{ intval($userId) }},
         loadUser: function() {
             if (this.userId != this.previousUserId) {

@@ -22,7 +22,7 @@
         <!-- Scripts -->
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @livewireScripts
+        @livewireScriptConfig
 
         <!-- Yandex.Metrika counter -->
             <script type="text/javascript" >

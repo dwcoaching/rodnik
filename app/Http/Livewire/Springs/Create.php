@@ -18,12 +18,14 @@ class Create extends Component
 {
     use AuthorizesRequests;
 
-    public $spring;
+    public $springId;
     public $name;
     public $type;
     public $coordinates;
     public $latitude;
     public $longitude;
+
+    protected $spring;
 
     protected function rules()
     {
@@ -35,19 +37,19 @@ class Create extends Component
         ];
     }
 
-    public function mount(Spring $spring)
+    public function mount()
     {
-        if ($spring) {
-            $this->authorize('update', $spring);
-            $this->spring = $spring;
+        if ($this->springId) {
+            $this->spring = Spring::find($this->springId);
+
+            $this->authorize('update', $this->spring);
+
+            $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
+            $this->type = $this->spring->type;
+            $this->name = $this->spring->name;
         } else {
             $this->authorize('create', Spring::class);
-            $this->spring = new Spring();
         }
-
-        $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
-        $this->type = $this->spring->type;
-        $this->name = $this->spring->name;
     }
 
     public function render()

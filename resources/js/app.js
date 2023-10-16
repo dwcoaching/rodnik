@@ -1,4 +1,4 @@
-import Alpine from 'alpinejs';
+import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm'
 import Clipboard from "@ryangjchandler/alpine-clipboard"
 import ImageBlobReduce from 'image-blob-reduce'
 import { v1 as uuidv1 } from 'uuid';
@@ -52,6 +52,6 @@ window.initPhotoSwipe = function(id) {
     lightbox.init();
 }
 
-Alpine.start();
+Livewire.start()
 
 window.ymCode = 90143259;

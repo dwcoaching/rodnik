@@ -1,9 +1,9 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
-            type: @entangle('type').defer,
-            latitude: @entangle('latitude').defer,
-            longitude: @entangle('longitude').defer,
-            coordinates: @entangle('coordinates').defer,
+            type: @entangle('type'),
+            latitude: @entangle('latitude'),
+            longitude: @entangle('longitude'),
+            coordinates: @entangle('coordinates'),
             coordinatesError: false,
             error: function() {
                 if (this.coordinatesError) {
@@ -44,8 +44,8 @@
         x-on:map-moved.window="mapMoved($event.detail.coordinates)"
         x-init="initOpenPicker(document.getElementById('openPicker'),
             [
-                @if ($spring->id)
-                    {{ $spring->longitude }}, {{ $spring->latitude }}
+                @if ($springId)
+                    {{ $longitude }}, {{ $latitude }}
                 @endif
             ]
         );"
@@ -79,7 +79,7 @@
         <div class="flex-1 min-w-0">
             <span class="block text-3xl font-bold">
                 <span class="mr-2 inline-flex items-center">
-                    @if ($spring->id)
+                    @if ($springId)
                         <div>
                             Edit water source
                             <div class="text-sm mt-1 font-normal">
@@ -143,7 +143,7 @@
                     x-ref="coordinates"
                     x-model="coordinates"
                     @change="updateCoordinates($event.target.value)"
-                    {{--wire:model.defer="coordinates"--}}
+                    {{--wire:model="coordinates"--}}
                     type="text"
                     name="coordinates"
                     id="coordinates"
@@ -152,7 +152,7 @@
 
             <div class="mt-2 border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
                 <label for="name" class="block text-sm font-light text-gray-600 mb-1">Water source name (if any)</label>
-                <input wire:model.defer="name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
+                <input wire:model="name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
             </div>
         </div>
     </div>
@@ -171,7 +171,7 @@
                     'focus:bg-blue-700': ! error(),
                 }"
             >
-                {{ $spring->id ? 'Save changes' : 'Add water source' }}
+                {{ $springId ? 'Save changes' : 'Add water source' }}
             </button>
         </div>
     </div>

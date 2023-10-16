@@ -31,7 +31,7 @@
             crossorigin=""></script>
         <script src="/js/map.js" defer></script>
         <script src="{{ mix('js/app.js') }}" defer></script>
-        @livewireScripts
+        @livewireScriptConfig
     </head>
     <body class="w-full h-screen bg-gray-100">
         @include('navbar')
