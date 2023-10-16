@@ -14,10 +14,10 @@ class Report extends Model
 {
     use HasFactory;
 
-    protected $dates = [
-        'visited_at',
-        'created_at',
-        'updated_at'
+    protected $casts = [
+        'visited_at' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     public function user()

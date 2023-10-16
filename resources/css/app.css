@@ -34,3 +34,5 @@ html {
     .ol-minimized .ol-scale-line
         {display: inherit;}
 }
+
+#nprogress .spinner { visibility: hidden; }
