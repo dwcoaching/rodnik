@@ -23,8 +23,6 @@ class CreateSpringsTable extends Migration
             $table->unsignedBigInteger('osm_way_id')->nullable();
             $table->timestamps();
         });
-
-        Artisan::call('db:seed --class=SpringsSeeder --force');
     }
 
     /**
