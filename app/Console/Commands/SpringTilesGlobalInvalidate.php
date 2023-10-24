@@ -41,7 +41,8 @@ class SpringTilesGlobalInvalidate extends Command
         //         echo 'WateredSpringTile ' . $item->id . ' invalidated' . "\n";
         //     });
 
-        SpringTile::where('generated_at', '<', '2023-06-04 18:21:48')
+        //SpringTile::where('generated_at', '<', '2023-06-04 18:21:48')
+        SpringTile::all()
             ->each(function ($item) {
                 $item->deleteFile();
                 echo 'SpringTile ' . $item->id . ' invalidated' . "\n";
