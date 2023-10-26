@@ -74,7 +74,7 @@ class Spring extends Model
                 return $item->key == 'natural' &&
                     ($item->value == 'spring' | $item->value == 'spring_box');
             }))) {
-            return 'Natural spring';
+            return 'Spring';
         }
 
         if (count(

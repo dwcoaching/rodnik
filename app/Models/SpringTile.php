@@ -126,10 +126,10 @@ class SpringTile extends Model
     {
         if (Storage::disk(static::DISK)->exists($this->path())) {
             Storage::disk(static::DISK)->delete($this->path());
-
-            $this->generated_at = null;
-            $this->save();
         }
+
+        $this->generated_at = null;
+        $this->save();
     }
 
     public function getRandomQuery()
