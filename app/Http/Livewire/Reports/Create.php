@@ -21,9 +21,15 @@ class Create extends Component
 {
     use WithFileUploads, AuthorizesRequests;
 
+    #[Locked]
     public $springId;
+
+    #[Locked]
     public $reportId;
+
     public $photosIds = [];
+
+    #[Rule('image|max:10240')]
     public $file;
 
     protected $spring;
@@ -50,8 +56,11 @@ class Create extends Component
         ];
     }
 
-    public function mount()
+    public function mount($springId, $reportId)
     {
+        $this->springId = $springId;
+        $this->reportId = $reportId;
+
         $this->spring = Spring::findOrFail($this->springId);
 
         if (! $this->reportId) {
@@ -70,6 +79,8 @@ class Create extends Component
 
     public function render()
     {
+        $this->spring = Spring::findOrFail($this->springId);
+
         $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
 
         return view('livewire.reports.create', [
@@ -83,6 +94,14 @@ class Create extends Component
     {
         $this->validate();
 
+        if ($this->reportId) {
+            $this->report = Report::findOrFail($this->reportId);
+        } else {
+            $this->report = new Report();
+        }
+
+        $this->report->spring_id = $this->springId;
+
         if (in_array($this->state, ['dry', 'notfound'])) {
             $this->quality = null;
         }
@@ -95,6 +114,9 @@ class Create extends Component
             $this->report->user_id = Auth::user()->id;
         }
 
+        $this->report->state = $this->state;
+        $this->report->quality = $this->quality;
+        $this->report->comment = $this->comment;
         $this->report->visited_at = $this->visited_at;
 
         $this->report->save();
@@ -115,7 +137,7 @@ class Create extends Component
 
         SendReportNotification::dispatch($this->report);
 
-        return redirect()->route('springs.show', $this->spring);
+        return redirect()->route('springs.show', $this->springId);
     }
 
     public function updatedFile()

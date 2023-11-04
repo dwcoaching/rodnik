@@ -32,7 +32,7 @@ class SpringController extends Controller
     {
         $this->authorize('create', Spring::class);
 
-        return view('springs.create', ['spring' => null]);
+        return view('springs.create', ['springId' => null]);
     }
 
     /**

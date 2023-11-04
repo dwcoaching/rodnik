@@ -1,9 +1,9 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
-            type: @entangle('type'),
-            latitude: @entangle('latitude'),
-            longitude: @entangle('longitude'),
-            coordinates: @entangle('coordinates'),
+            type: $wire.$entangle('type'),
+            latitude: $wire.$entangle('latitude'),
+            longitude: $wire.$entangle('longitude'),
+            coordinates: $wire.$entangle('coordinates'),
             coordinatesError: false,
             error: function() {
                 if (this.coordinatesError) {
@@ -159,7 +159,10 @@
 
     <div class="mt-4 pb-6">
         <div class="flex justify-start">
-            <button type="button" @click="if (! error()) {$wire.store();}" class="inline-flex w-full sm:w-fit justify-center items-center px-12 py-3 border border-transparent text-base font-medium rounded-md"
+            <button type="button"
+                @click="if (! error()) {
+                    $wire.$call('store')
+                }" class="inline-flex w-full sm:w-fit justify-center items-center px-12 py-3 border border-transparent text-base font-medium rounded-md"
                 x-bind:class="{
                     'bg-blue-300': error(),
                     'cursor-not-allowed': error(),

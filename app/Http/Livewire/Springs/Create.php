@@ -37,8 +37,10 @@ class Create extends Component
         ];
     }
 
-    public function mount()
+    public function mount($springId)
     {
+        $this->springId = $springId;
+
         if ($this->springId) {
             $this->spring = Spring::find($this->springId);
 
@@ -47,6 +49,8 @@ class Create extends Component
             $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
             $this->type = $this->spring->type;
             $this->name = $this->spring->name;
+            $this->latitude = $this->spring->latitude;
+            $this->longitude = $this->spring->longitude;
         } else {
             $this->authorize('create', Spring::class);
         }
@@ -60,6 +64,12 @@ class Create extends Component
     public function store()
     {
         $this->validate();
+
+        if ($this->springId) {
+            $this->spring = Spring::find($this->springId);
+        } else {
+            $this->spring = new Spring();
+        }
 
         $springChangeCount = 0;
         $report = new Report();

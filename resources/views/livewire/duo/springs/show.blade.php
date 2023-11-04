@@ -126,7 +126,7 @@
                     <div class="mt">
                         <ul role="list" class="">
                             @foreach ($reports as $report)
-                                <livewire:reports.show has-name="false" :report="$report" wire:key="spring.reports.show.{{ $report->id }}" />
+                                <livewire:reports.show has-name="false" :report="$report" />
                             @endforeach
                         </ul>
                     </div>

@@ -1,8 +1,8 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
-        visited_at: @entangle('visited_at'),
-        state: @entangle('report.state'),
-        quality: @entangle('report.quality'),
+        visited_at: $wire.$entangle('visited_at'),
+        state: $wire.$entangle('state'),
+        quality: $wire.$entangle('quality'),
 
         withDate: true,
         previousDate: null,
@@ -18,7 +18,7 @@
         }
     }">
 
-    <a href="{{ route('springs.show', $springId) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
+    <a href="{{ route('springs.show', $spring->id) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
         <span class="mr-2 inline-flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 mb-6" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
                 <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
@@ -89,7 +89,7 @@
     <div class="mt-4">
       <label for="visited_at" class="block text-sm font-regular text-gray-700">Visit date</label>
       <div class="mt-1">
-        <input wire:model="report.visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
+        <input wire:model="visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
       </div>
     </div>
 --}}
@@ -109,7 +109,7 @@
 
     <div class="mt-2">
         <div class="relative">
-            <textarea wire:model="report.comment" rows="4" name="comment" id="comment"
+            <textarea wire:model="comment" rows="4" name="comment" id="comment"
                 placeholder="Comment"
                 @class([
                     'w-full' => true,
@@ -119,16 +119,16 @@
                     'w-full' => true,
                     'sm:text-sm' => true,
                     'rounded-md' => true,
-                    'border-gray-300' => ! $errors->has('report.comment'),
-                    'focus:ring-blue-500' => ! $errors->has('report.comment'),
-                    'focus:border-blue-500' => ! $errors->has('report.comment'),
-                    'border-red-300' => $errors->has('report.comment'),
-                    'text-red-900' => $errors->has('report.comment'),
-                    'focus:ring-red-500' => $errors->has('report.comment'),
-                    'focus:border-red-500' => $errors->has('report.comment'),
+                    'border-gray-300' => ! $errors->has('comment'),
+                    'focus:ring-blue-500' => ! $errors->has('comment'),
+                    'focus:border-blue-500' => ! $errors->has('comment'),
+                    'border-red-300' => $errors->has('comment'),
+                    'text-red-900' => $errors->has('comment'),
+                    'focus:ring-red-500' => $errors->has('comment'),
+                    'focus:border-red-500' => $errors->has('comment'),
                 ])
             ></textarea>
-            @error('report.comment')
+            @error('comment')
               <div class="absolute top-0 pt-3 right-0 pr-3 flex items-center pointer-events-none">
                 <!-- Heroicon name: solid/exclamation-circle -->
                 <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -137,7 +137,7 @@
               </div>
             @enderror
         </div>
-        @error('report.comment') <p class="mt-2 text-sm text-red-600" id="email-error">{{ $message }}</p> @enderror
+        @error('comment') <p class="mt-2 text-sm text-red-600" id="email-error">{{ $message }}</p> @enderror
     </div>
 
     @if ($photos->count())
@@ -214,7 +214,6 @@
                             newSize: newFile.size,
                             progress: 0,
                         })
-
                         @this.upload('file', newFile,
                             (uploadedFilename) => {this.removeFileInProgress(id)}, {{-- success callback --}}
                             () => {this.removeFileInProgress(id)}, {{-- error callback --}}
@@ -291,7 +290,6 @@
                         <p class="inline pl-1">or drag and drop here</p>
                     </div>
                     <p class="text-xs text-gray-500">PNG, JPG, GIF (10 MB max)</p>
-
                 </div>
             </div>
         </label>

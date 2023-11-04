@@ -35,7 +35,7 @@
                 'pb-10': minimized,
             }"
         >
-            <div class="w-full sm:h-full  px-4 flex flex-col items-stretch">
+            <div class="w-full sm:h-full px-4 flex flex-col items-stretch">
                 <x-navbar map />
                 <div class="grow flex">
                     <x-duo spring_id="{{ $springId }}" user_id="{{ $userId }}" />
