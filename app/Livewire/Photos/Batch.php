@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Photos;
+namespace App\Livewire\Photos;
 
 use App\Library\Exif;
 use App\Models\Photo;

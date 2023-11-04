@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Duo\Reports;
+namespace App\Livewire\Duo\Reports;
 
 use App\Models\Report;
 use App\Models\Spring;

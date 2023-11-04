@@ -21,14 +21,14 @@
     <div class="flex items-center">
         @guest
             <div class="my-1 block">
-                <a href="{{ route('login') }}" class="mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" class="text-sm text-gray-500">{{ __('Register') }}</a>
+                <a href="{{ route('login') }}" wire:navigate class="mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
+                <a href="{{ route('register') }}" wire:navigate class="text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth
             <!-- Settings Dropdown -->
             <div class="relative">
-                <x-jet-dropdown align="right" width="48">
+                <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
                             <div>
@@ -50,11 +50,11 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-jet-dropdown-link wire:navigate href="{{ route('springs.create') }}">
+                        <x-dropdown-link wire:navigate href="{{ route('springs.create') }}">
                             {{ __('New water source') }}
-                        </x-jet-dropdown-link>
+                        </x-dropdown-link>
 
-                        <x-jet-dropdown-link href="{{ route('users.show', Auth::user()->id) }}"
+                        <x-dropdown-link href="{{ route('users.show', Auth::user()->id) }}" wire:navigate
                             @click.prevent="
                                 window.dispatchEvent(
                                     new CustomEvent('turbo-visit-user',
@@ -67,21 +67,21 @@
                                 )">
                             <span class="mr-1">{{ __('My water sources') }}</span>
                             <span class="ml-0 text-xs font-medium px-1 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ number_format(Auth::user()->rating, 0, ',', ' ') }}</span>
-                        </x-jet-dropdown-link>
+                        </x-dropdown-link>
 
                         <!-- Account Management -->
                         <div class="block px-4 py-2 text-xs text-gray-400">
                             {{ __('Manage Account') }}
                         </div>
 
-                        <x-jet-dropdown-link href="{{ route('profile.show') }}">
+                        <x-dropdown-link href="{{ route('profile.show') }}">
                             {{ __('Profile') }}
-                        </x-jet-dropdown-link>
+                        </x-dropdown-link>
 
                         @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                            <x-jet-dropdown-link href="{{ route('api-tokens.index') }}">
+                            <x-dropdown-link href="{{ route('api-tokens.index') }}">
                                 {{ __('API Tokens') }}
-                            </x-jet-dropdown-link>
+                            </x-dropdown-link>
                         @endif
 
                         <div class="border-t border-gray-100"></div>
@@ -90,13 +90,13 @@
                         <form method="POST" action="{{ route('logout') }}" x-data>
                             @csrf
 
-                            <x-jet-dropdown-link href="{{ route('logout') }}"
+                            <x-dropdown-link href="{{ route('logout') }}"
                                      @click.prevent="$root.submit();">
                                 {{ __('Log Out') }}
-                            </x-jet-dropdown-link>
+                            </x-dropdown-link>
                         </form>
                     </x-slot>
-                </x-jet-dropdown>
+                </x-dropdown>
             </div>
         @endauth
     </div>

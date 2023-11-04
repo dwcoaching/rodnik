@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Livewire\Pages\About;
+use App\Livewire\Pages\About;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReportController;

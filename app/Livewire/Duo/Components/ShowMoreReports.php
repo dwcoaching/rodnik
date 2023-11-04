@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire\Duo\Components;
+namespace App\Livewire\Duo\Components;
 
 use App\Models\User;
 use App\Models\Report;

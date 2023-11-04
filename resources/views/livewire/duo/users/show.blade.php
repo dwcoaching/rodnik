@@ -13,7 +13,7 @@
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
     <div x-cloak wire:loading.remove x-show="userId == loadedUserId">
-        <div class="flex items-stretch -mt-3">
+        <div class="flex items-stretch">
             <div
             class="rounded-lg flex items-center">
                 <div class="mr-2 text-xl font-medium">{{ $user?->name }}</div>

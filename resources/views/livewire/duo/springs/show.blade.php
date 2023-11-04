@@ -20,7 +20,7 @@
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
     <div x-cloak wire:loading.remove x-show="springId == $wire.springId">
-        <div class="-mt-1 bg-white p-4 rounded-lg shadow">
+        <div class="mt-1 bg-white p-4 rounded-lg shadow">
             @if ($spring)
                 <div class="" wire:key="spring.{{ $spring->id }}">
                     <div class="flex items-start justify-between flex-nowrap">
