@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jetstream;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,8 +11,6 @@ use Tests\TestCase;
 
 class UpdatePasswordTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_password_can_be_updated()
     {
         $this->actingAs($user = User::factory()->create());

@@ -1,17 +1,16 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jetstream;
 
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Faker\Factory;
+use Tests\TestCase;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
-use Tests\TestCase;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class RegistrationTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_registration_screen_can_be_rendered()
     {
         if (! Features::enabled(Features::registration())) {
@@ -36,13 +35,15 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register()
     {
+        $faker = Factory::create();
+
         if (! Features::enabled(Features::registration())) {
             return $this->markTestSkipped('Registration support is not enabled.');
         }
 
         $response = $this->post('/register', [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => $faker->email(),
             'password' => 'password',
             'password_confirmation' => 'password',
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),

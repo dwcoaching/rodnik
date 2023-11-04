@@ -16,4 +16,5 @@ yarn-error.log
 .htpasswd
 .DS_Store
 .my.cnf
+.my.testing.cnf
 latest.sh

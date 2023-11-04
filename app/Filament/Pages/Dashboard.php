@@ -15,17 +15,17 @@ class Dashboard extends BasePage
 
     protected static string $view = 'filament::pages.dashboard';
 
-    protected static function getNavigationLabel(): string
+    public static function getNavigationLabel(): string
     {
         return static::$navigationLabel ?? static::$title ?? __('filament::pages/dashboard.title');
     }
 
-    protected function getColumns(): int | string | array
+    public function getColumns(): int | string | array
     {
         return 3;
     }
 
-    protected function getTitle(): string
+    public function getTitle(): string
     {
         return static::$title ?? __('filament::pages/dashboard.title');
     }

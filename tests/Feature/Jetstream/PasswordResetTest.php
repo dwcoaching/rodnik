@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jetstream;
 
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -11,8 +11,6 @@ use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_reset_password_link_screen_can_be_rendered()
     {
         if (! Features::enabled(Features::resetPasswords())) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jetstream;
 
 use Tests\TestCase;
 use App\Models\User;
@@ -13,8 +13,6 @@ use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
 
 class ApiTokenPermissionsTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_api_token_permissions_can_be_updated()
     {
         if (! Features::hasApiFeatures()) {

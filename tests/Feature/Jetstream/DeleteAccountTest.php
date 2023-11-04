@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jetstream;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,8 +11,6 @@ use Tests\TestCase;
 
 class DeleteAccountTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_user_accounts_can_be_deleted()
     {
         if (! Features::hasAccountDeletionFeatures()) {

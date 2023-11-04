@@ -1,17 +1,16 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jetstream;
 
+use Faker\Factory;
+use Tests\TestCase;
 use App\Models\User;
+use Livewire\Livewire;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm;
-use Livewire\Livewire;
-use Tests\TestCase;
 
 class ProfileInformationTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_current_profile_information_is_available()
     {
         $this->actingAs($user = User::factory()->create());
@@ -26,11 +25,15 @@ class ProfileInformationTest extends TestCase
     {
         $this->actingAs($user = User::factory()->create());
 
+        $faker = Factory::create();
+        $newName = $faker->name();
+        $newEmail = $faker->unique()->safeEmail();
+
         Livewire::test(UpdateProfileInformationForm::class)
-                ->set('state', ['name' => 'Test Name', 'email' => 'test@example.com'])
+                ->set('state', ['name' => $newName, 'email' => $newEmail])
                 ->call('updateProfileInformation');
 
-        $this->assertEquals('Test Name', $user->fresh()->name);
-        $this->assertEquals('test@example.com', $user->fresh()->email);
+        $this->assertEquals($newName, $user->fresh()->name);
+        $this->assertEquals($newEmail, $user->fresh()->email);
     }
 }

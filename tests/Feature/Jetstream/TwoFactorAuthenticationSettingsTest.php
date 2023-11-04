@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Jetstream;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,8 +10,6 @@ use Tests\TestCase;
 
 class TwoFactorAuthenticationSettingsTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_two_factor_authentication_can_be_enabled()
     {
         $this->actingAs($user = User::factory()->create());
