@@ -126,6 +126,6 @@ class Create extends Component
             StatisticsService::invalidateSpringsCount();
         }
 
-        return redirect()->route('springs.show', $this->spring);
+        return $this->redirect(route('springs.show', $this->spring), navigate: true);
     }
 }
