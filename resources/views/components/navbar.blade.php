@@ -10,7 +10,7 @@
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </span>
             @else
-                <a href="/" wire:navigate
+                <a wire:navigate href="/"
                     class="pt-4 pb-2 mr-4 cursor-pointer">
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </a>
@@ -21,8 +21,8 @@
     <div class="flex items-center">
         @guest
             <div class="my-1 flex">
-                <a href="{{ route('login') }}" wire:navigate class="pt-4 pb-2 block mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" wire:navigate class="pt-4 pb-2 block text-sm text-gray-500">{{ __('Register') }}</a>
+                <a wire:navigate href="{{ route('login') }}" class="pt-4 pb-2 block mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
+                <a wire:navigate href="{{ route('register') }}" class="pt-4 pb-2 block text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth
@@ -74,12 +74,12 @@
                             {{ __('Manage Account') }}
                         </div>
 
-                        <x-dropdown-link href="{{ route('profile.show') }}">
+                        <x-dropdown-link wire:navigate href="{{ route('profile.show') }}">
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
                         @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                            <x-dropdown-link href="{{ route('api-tokens.index') }}">
+                            <x-dropdown-link wire:navigate href="{{ route('api-tokens.index') }}">
                                 {{ __('API Tokens') }}
                             </x-dropdown-link>
                         @endif

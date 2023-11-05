@@ -38,8 +38,7 @@
                         <div class="flex items-center">
                             {{--<span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>--}}
                             @can('update', $spring)
-                                <a href="{{ route('springs.edit', $spring) }}"
-                                    wire:navigate
+                                <a wire:navigate href="{{ route('springs.edit', $spring) }}"
                                     class="flex items-center text-sm font-regular text-blue-600 cursor-pointer rounded-md bg-white border border-transparent px-2 py-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 mr-2">
                                         <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
@@ -114,8 +113,7 @@
                 @if ($reports->count())
                     <div class="flex mt-3 pb-2 items-end justify-between">
                         <div class="text-xl font-extrabold">Reports</div>
-                        <a href="{{ route('reports.create', ['spring_id' => $spring]) }}"
-                            wire:navigate
+                        <a wire:navigate href="{{ route('reports.create', ['spring_id' => $spring]) }}"
                             type="button" class="inline-flex items-center px-4 py-2 h-[40px] shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none">
                             <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
