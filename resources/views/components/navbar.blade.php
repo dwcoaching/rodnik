@@ -20,9 +20,9 @@
 
     <div class="flex items-center">
         @guest
-            <div class="my-1 block">
-                <a href="{{ route('login') }}" wire:navigate class="mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" wire:navigate class="text-sm text-gray-500">{{ __('Register') }}</a>
+            <div class="my-1 flex">
+                <a href="{{ route('login') }}" wire:navigate class="pt-4 pb-2 block mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
+                <a href="{{ route('register') }}" wire:navigate class="pt-4 pb-2 block text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth

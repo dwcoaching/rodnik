@@ -53,7 +53,7 @@ class OverpassBatchResource extends Resource
                     ->action(function (OverpassBatch $record): void {
                         FetchOverpassBatchImports::dispatch($record);
                     })
-                    ->icon('heroicon-s-download')
+                    ->icon('heroicon-s-arrow-down-tray')
                     ->visible(fn (OverpassBatch $record): bool =>
                         $record->imports_status === 'created'
                         && $record->checks_status === 'created'

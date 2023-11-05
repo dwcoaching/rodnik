@@ -11,14 +11,8 @@ class Dashboard extends BasePage
 
     protected static ?string $navigationIcon = 'heroicon-o-home';
 
-    protected static ?int $navigationSort = -2;
-
-    protected static string $view = 'filament::pages.dashboard';
-
-    public static function getNavigationLabel(): string
-    {
-        return static::$navigationLabel ?? static::$title ?? __('filament::pages/dashboard.title');
-    }
+    protected static ?string $navigationLabel = 'Dashboard';
+    protected static ?string $title = 'Dashboard';
 
     public function getColumns(): int | string | array
     {
