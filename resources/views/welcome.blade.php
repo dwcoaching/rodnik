@@ -42,7 +42,6 @@
                 </div>
             </div>
         </div>
-
         <div class="fixed bottom-0 h-[50vh] sm:w-1/2 w-full sm:h-full bg-stone-100"
             :class="{
                 'h-[50vh]': ! fullscreen && ! minimized,

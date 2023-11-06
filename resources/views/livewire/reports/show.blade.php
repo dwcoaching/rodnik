@@ -26,7 +26,7 @@
                         && Auth::check()
                         && $report->user_id == Auth::user()->id)
                         <div class="flex-1 text-right">
-                            <a wire:navigate href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
+                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
                             <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
                         </div>
                     @endif
@@ -68,7 +68,7 @@
                             && ! $hasName && Auth::check()
                             && $report->user_id == Auth::user()->id)
                             <div class="flex-1 text-right">
-                                <a wire:navigate href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
+                                <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
                                 <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
                             </div>
                         @endif

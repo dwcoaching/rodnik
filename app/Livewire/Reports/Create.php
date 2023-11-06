@@ -137,7 +137,7 @@ class Create extends Component
 
         SendReportNotification::dispatch($this->report);
 
-        return $this->redirect(route('springs.show', $this->springId), navigate: true);
+        return $this->redirect(route('springs.show', $this->springId));
     }
 
     public function updatedFile()
