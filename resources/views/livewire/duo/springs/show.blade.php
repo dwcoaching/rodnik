@@ -124,7 +124,7 @@
                     <div class="mt">
                         <ul role="list" class="">
                             @foreach ($reports as $report)
-                                <livewire:reports.show has-name="false" :report="$report" :key="$report" />
+                                <livewire:reports.show has-name="false" :report="$report" :key="$report->id" />
                             @endforeach
                         </ul>
                     </div>
