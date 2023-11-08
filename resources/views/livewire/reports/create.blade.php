@@ -42,8 +42,8 @@
                 OpenStreetMap database.
             </div>
             <div class="mt-2 max-w-prose">
-                Additionally, you will have your personal page and a collection
-                of personal reports and edits, which is really nice!
+                Besides, you will have your personal page and a collection
+                of reports, and you'll be able to edit everything!
             </div>
             <div class="mt-4 max-w-prose">
                 <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login</a>
