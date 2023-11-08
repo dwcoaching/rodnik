@@ -92,6 +92,10 @@ class Create extends Component
 
     public function store()
     {
+        if (! Auth::check()) {
+            abort(401);
+        }
+
         $this->validate();
 
         if ($this->reportId) {
@@ -142,6 +146,10 @@ class Create extends Component
 
     public function updatedFile()
     {
+        if (! Auth::check()) {
+            abort(401);
+        }
+
         $this->validate([
             'file' => 'image|max:10240', // 10MB Max
         ]);
@@ -173,6 +181,10 @@ class Create extends Component
 
     public function removePhoto($photoId)
     {
+        if (! Auth::check()) {
+            abort(401);
+        }
+
         $this->report = Report::find($this->reportId);
 
         if ($this->report) {
