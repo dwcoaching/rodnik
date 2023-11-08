@@ -173,7 +173,9 @@ class Create extends Component
 
     public function removePhoto($photoId)
     {
-        if ($this->report->id) {
+        $this->report = Report::find($this->reportId);
+
+        if ($this->report) {
             if (! Auth::check() || Auth::user()->cannot('update', $this->report)) {
                 abort(403);
             }

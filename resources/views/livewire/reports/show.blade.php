@@ -1,37 +1,6 @@
 <li>
     @if (! $report->hidden_at)
         <div class="border-t border-slade-200 pt-4 mb-4">
-            @if ($hasName)
-                <div class="flex justify-between">
-                    <a @click.prevent="
-                        window.dispatchEvent(
-                            new CustomEvent('spring-turbo-visit',
-                                {
-                                    detail: {
-                                        id: {{ intval($report->spring->id )}},
-                                        coordinates: {{ json_encode([
-                                            floatval($report->spring->longitude),
-                                            floatval($report->spring->latitude)
-                                        ]) }},
-                                    }
-                                }
-                            )
-                        )
-                    "
-                    href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
-                        <span class="text-blue-600 leading-relaxed group-hover:underline group-hover:text-blue-700 text-lg mr-2 font-extrabold ">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</span>
-                        {{--<span class="text-gray-600 text-sm font-light">#{{ $report->spring_id }}</span>--}}
-                    </a>
-                    @if (! $report->spring_edit
-                        && Auth::check()
-                        && $report->user_id == Auth::user()->id)
-                        <div class="flex-1 text-right">
-                            <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
-                            <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
-                        </div>
-                    @endif
-                </div>
-            @endif
             <div class="flex space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">
@@ -65,11 +34,17 @@
                             </div>
                         </h3>
                         @if (! $report->spring_edit
-                            && ! $hasName && Auth::check()
+                            && Auth::check()
                             && $report->user_id == Auth::user()->id)
                             <div class="flex-1 text-right">
                                 <a href="{{ route('reports.edit', $report) }}" class="text-xs text-gray-400 hover:text-blue-600 hover:underline cursor-pointer">edit</a>
                                 <span wire:click="hideByAuthor" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">delete</span>
+                            </div>
+                        @elseif (! $report->spring_edit
+                            && Auth::check()
+                            && Auth::user()->is_admin)
+                            <div class="flex-1 text-right">
+                                <span wire:click="hideByModerator" class="ml-1 text-xs text-gray-400 hover:text-red-600 hover:underline cursor-pointer">hide</span>
                             </div>
                         @endif
                     </div>
@@ -165,7 +140,7 @@
                     @endif
                 </div>
             </div>
-            @if ($hasName)
+            @if (false)
                 <div class="text-xs mt-2 text-gray-500">
                     Added on
                     <span>{{ $report->created_at->format('F d, Y') }}</span>
@@ -175,10 +150,18 @@
         </div>
     @elseif ($justHidden)
         <div class="pb-8 flex items-center">
-            <div class="text-sm text-medium text-red-700 mr-2">
-                Report deleted
-            </div>
-            <span wire:click="unhideByAuthor" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">Restore</span>
+            @if ($report->hidden_by_author_id)
+                <div class="text-sm text-medium text-red-700 mr-2">
+                    Report deleted
+                </div>
+                <span wire:click="unhideByAuthor" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">Restore</span>
+            @endif
+            @if ($report->hidden_by_moderator_id)
+                <div class="text-sm text-medium text-red-700 mr-2">
+                    Report hidden
+                </div>
+                <span wire:click="unhideByModerator" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">Unhide</span>
+            @endif
         </div>
     @endif
 </li>
