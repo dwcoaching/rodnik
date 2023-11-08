@@ -59,7 +59,9 @@ class Show extends Component
             $this->justHidden = true;
 
             $this->report->spring->invalidateTiles();
-            $this->report->user->updateRating();
+            if ($this->report->user_id) {
+                $this->report->user->updateRating();
+            }
             StatisticsService::invalidateReportsCount();
         }
     }
@@ -73,7 +75,9 @@ class Show extends Component
             $this->justHidden = false;
 
             $this->report->spring->invalidateTiles();
-            $this->report->user->updateRating();
+            if ($this->report->user_id) {
+                $this->report->user->updateRating();
+            }
             StatisticsService::invalidateReportsCount();
         }
     }
