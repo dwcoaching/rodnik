@@ -13,13 +13,11 @@ class Show extends Component
     use AuthorizesRequests;
 
     public $report;
-    public $hasName;
     public $justHidden = false;
 
-    public function mount(Report $report, $hasName)
+    public function mount(Report $report)
     {
         $this->report = $report;
-        $this->hasName = $hasName == 'true' ? true : false;
     }
 
     public function hideByAuthor()
@@ -37,18 +35,6 @@ class Show extends Component
         $this->report->fresh();
     }
 
-    // public function hideByModerator()
-    // {
-    //     if (Auth::user()->is_moderator) {
-    //         $this->report->hidden_at = now();
-    //         $this->report->hidden_by_moderator_id = Auth::user()->id;
-    //         $this->report->save();
-    //         $this->justHidden = true;
-
-    //         $this->report->spring->invalidateTiles();
-    //     }
-    // }
-
     public function unhideByAuthor()
     {
         $this->authorize('update', $this->report);
@@ -62,6 +48,34 @@ class Show extends Component
         Auth::user()->updateRating();
         StatisticsService::invalidateReportsCount();
         $this->report->refresh();
+    }
+
+    public function hideByModerator()
+    {
+        if (Auth::user()->is_admin) {
+            $this->report->hidden_at = now();
+            $this->report->hidden_by_moderator_id = Auth::user()->id;
+            $this->report->save();
+            $this->justHidden = true;
+
+            $this->report->spring->invalidateTiles();
+            $this->report->user->updateRating();
+            StatisticsService::invalidateReportsCount();
+        }
+    }
+
+    public function unhideByModerator()
+    {
+        if (Auth::user()->is_admin) {
+            $this->report->hidden_at = null;
+            $this->report->hidden_by_moderator_id = null;
+            $this->report->save();
+            $this->justHidden = false;
+
+            $this->report->spring->invalidateTiles();
+            $this->report->user->updateRating();
+            StatisticsService::invalidateReportsCount();
+        }
     }
 
     public function render()
