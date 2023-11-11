@@ -178,7 +178,6 @@ class Spring extends Model
 
             return false;
         }
-
     }
 
     //     public function apply()
@@ -195,4 +194,6 @@ class Spring extends Model
     //     $this->spring->save();
     //     $this->spring->invalidateTiles();
     // }
+
+
 }
