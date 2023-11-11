@@ -22,6 +22,6 @@ class SpringHistoryController extends Controller
                 return $item->created_at;
             });
 
-        return view('springs.history', compact('spring', 'events'));
+        return view('springs.history.index', compact('spring', 'events'));
     }
 }

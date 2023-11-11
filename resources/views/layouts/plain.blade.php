@@ -20,7 +20,7 @@
         @livewireStyles
 
         <!-- Scripts -->
-
+        {{--<script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>--}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireScriptConfig
 
@@ -42,7 +42,7 @@
             <noscript><div><img src="https://mc.yandex.ru/watch/90143259" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
         <!-- /Yandex.Metrika counter -->
     </head>
-    <body class="w-full h-screen bg-stone-100 flex flex-col">
+    <body class="w-full min-h-screen bg-stone-100 flex flex-col">
         <div class="grow h-full">
             @yield('main')
         </div>
