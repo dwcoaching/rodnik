@@ -1,6 +1,6 @@
 @props(['report'])
 
-<li class="p-3 bg-white rounded-lg shadow">
+<li class="p-3 bg-white md:rounded-lg md:shadow">
     <div class="">
         @if (! $report->hidden_at)
             <div>

@@ -8,6 +8,7 @@ use App\Http\Controllers\SpringController;
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\PhotosBatchController;
+use App\Http\Controllers\SpringHistoryController;
 use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\SpringAggregatesJsonController;
@@ -50,3 +51,5 @@ Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::cla
 
 Route::resource('reports', ReportController::class);
 Route::get('/about', About::class);
+
+Route::get('springs/{spring}/history', [SpringHistoryController::class, 'index'])->name('springs.history');

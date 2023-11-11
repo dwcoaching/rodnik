@@ -1,6 +1,6 @@
 <li>
     @if (! $report->hidden_at)
-        <div class="border-t border-slade-200 pt-4 mb-4">
+        <div class="border-t border-slade-200 p-4">
             <div class="flex space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">
@@ -149,7 +149,7 @@
             @endif
         </div>
     @elseif ($justHidden)
-        <div class="pb-8 flex items-center">
+        <div class="border-t border-slade-200 p-4 pb-8 flex items-center">
             @if ($report->hidden_by_author_id)
                 <div class="text-sm text-medium text-red-700 mr-2">
                     Report deleted

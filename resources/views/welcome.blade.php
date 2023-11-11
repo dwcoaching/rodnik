@@ -26,19 +26,26 @@
             initOpenLayers($refs.rodnikMap.id);
             window.rodnikMap.springsSource({{ intval($userId) }});
         "
+        class="h-full"
     >
-        <div class="top-0 h-1/2 w-full sm:h-full sm:pl-[50%] sm:pb-0"
+        <div class="top-0 w-full h-full sm:pl-[50%] sm:pb-0 flex flex-col"
             :class="{
                 hidden: fullscreen,
                 block: ! fullscreen,
-                'pb-[50vh]': ! minimized,
-                'pb-10': minimized,
+
             }"
         >
-            <div class="w-full sm:h-full px-4 flex flex-col items-stretch">
+            <div class="grow h-full w-full sm:h-full flex flex-col items-stretch">
                 <x-navbar map />
-                <div class="grow flex">
+                <div class="flex grow">
                     <x-duo spring_id="{{ $springId }}" user_id="{{ $userId }}" />
+                </div>
+                <div class="grow-0 sm:hidden"
+                    :class="{
+                        'pb-[50vh]': ! minimized,
+                        'pb-10': minimized,
+                    }"
+                >
                 </div>
             </div>
         </div>

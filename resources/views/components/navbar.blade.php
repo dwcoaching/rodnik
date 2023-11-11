@@ -1,4 +1,4 @@
-<div class="flex justify-between flex-nowrap">
+<div class="flex px-4 justify-between flex-nowrap">
     <div class="flex flex-wrap">
         <!-- Logo -->
         <div class="shrink-0 flex items-center">

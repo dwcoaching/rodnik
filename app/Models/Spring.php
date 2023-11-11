@@ -6,6 +6,7 @@ use Faker\Factory;
 use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\SpringTile;
+use App\Models\SpringRevision;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +18,11 @@ class Spring extends Model
     public function reports()
     {
         return $this->hasMany(Report::class);
+    }
+
+    public function springRevisions()
+    {
+        return $this->hasMany(SpringRevision::class);
     }
 
     public function osm_tags()

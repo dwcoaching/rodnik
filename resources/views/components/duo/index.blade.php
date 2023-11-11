@@ -107,7 +107,7 @@
             window.rodnikMap.dehighlightPreviousFeature();
         }"
     x-init="window.initPhotoSwipe('#spring');"
-    class="flex grow justify-center pb-6"
+    class="flex grow justify-center"
 >
     <div class="grow">
         <div x-show="! springId" class="h-full">

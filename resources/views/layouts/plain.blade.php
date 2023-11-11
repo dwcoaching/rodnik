@@ -42,18 +42,9 @@
             <noscript><div><img src="https://mc.yandex.ru/watch/90143259" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
         <!-- /Yandex.Metrika counter -->
     </head>
-    <body class="w-full min-h-screen bg-stone-100 flex flex-col">
-        @if ($navbar)
-            <div class="grow-0">
-                <nav class="">
-                    <div class="max-w-7xl mx-auto px-6 lg:px-8">
-                        <x-navbar :map="$map" />
-                    </div>
-                </nav>
-            </div>
-        @endif
+    <body class="w-full h-screen bg-stone-100 flex flex-col">
         <div class="grow h-full">
-            {{ $slot }}
+            @yield('main')
         </div>
     </body>
 </html>

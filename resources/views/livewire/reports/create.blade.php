@@ -18,14 +18,6 @@
         }
     }">
 
-    <a href="{{ route('springs.show', $spring->id) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
-        <span class="mr-2 inline-flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 mb-6" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
-            </svg>
-        </span>
-    </a>
-
     @guest
         <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">
             <div class="font-bold max-w-prose">
@@ -45,31 +37,19 @@
 
     <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
-            <a ref="{{ route('springs.show', $spring) }}" class="block text-3xl font-bold text-blue-600 hover:text-blue-700"">
+            <a href="{{ route('springs.show', $spring) }}" class="block text-base font-semibold text-blue-600 hover:text-blue-700"">
                 <span class="mr-2 inline-flex items-center">
-                    {{--<svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
-                    </svg>--}}
-                    {{ $spring->name ? $spring->name : $spring->type }}
+                    </svg>
+                    {{ without_http(route('springs.show', $spring)) }}
                 </span>
-                <span class="text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>
             </a>
-            <div class="text-gray-600 mt-2 text-sm flex flex-wrap items-center">
-                @if ($spring->name)
-                    <div class="text-sm mr-3 mb-2">
-                        {{ $spring->type }}
-                    </div>
-                @endif
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="mb-2 mr-1 block w-5 h-5">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-1.5 0a6.5 6.5 0 11-11-4.69v.447a3.5 3.5 0 001.025 2.475L8.293 10 8 10.293a1 1 0 000 1.414l1.06 1.06a1.5 1.5 0 01.44 1.061v.363a1 1 0 00.553.894l.276.139a1 1 0 001.342-.448l1.454-2.908a1.5 1.5 0 00-.281-1.731l-.772-.772a1 1 0 00-1.023-.242l-.384.128a.5.5 0 01-.606-.25l-.296-.592a.481.481 0 01.646-.646l.262.131a1 1 0 00.447.106h.188a1 1 0 00.949-1.316l-.068-.204a.5.5 0 01.149-.538l1.44-1.234A6.492 6.492 0 0116.5 10z" clip-rule="evenodd" />
-                </svg>
-                <span class="mr-3 mb-2">
-                    {{ $spring->latitude }}, {{ $spring->longitude }}
-                </span>
-            </div>
         </div>
     </div>
-
+    <div class="font-bold mt-2 text-lg">
+        New Report
+    </div>
     <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
             <span class="mr-3">
