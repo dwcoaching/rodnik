@@ -10,7 +10,9 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\SpringResource\Pages;
@@ -40,11 +42,21 @@ class SpringResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('springs.id'),
+                TextColumn::make('id')->url(function ($record) {
+                    return route('springs.show', $record->id);
+                }, shouldOpenInNewTab: true)->color('primary'),
                 TextColumn::make('name'),
+                TextColumn::make('type'),
                 TextColumn::make('longitude'),
                 TextColumn::make('latitude'),
+                TextColumn::make('intermittent'),
+                TextColumn::make('osm_tags')->formatStateUsing(function ($record) {
+                    return $record->osm_tags->map(function ($tag) {
+                        return $tag->key . '=' . $tag->value;
+                    })->implode('<br>');
+                })->html()
             ])
+            ->recordUrl(false)
             ->filters([
                 Filter::make('tags')
                     ->form([
@@ -67,7 +79,7 @@ class SpringResource extends Resource
                     })
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([
@@ -87,8 +99,8 @@ class SpringResource extends Resource
     {
         return [
             'index' => Pages\ListSprings::route('/'),
-            'create' => Pages\CreateSpring::route('/create'),
-            'edit' => Pages\EditSpring::route('/{record}/edit'),
+            // 'create' => Pages\CreateSpring::route('/create'),
+            // 'edit' => Pages\EditSpring::route('/{record}/edit'),
         ];
     }    
 

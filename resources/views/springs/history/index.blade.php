@@ -116,21 +116,21 @@
                                             'new' => $event->new_latitude . ', ' . $event->new_longitude,
                                         ])
                                     @endif
-                                    @if (! $event->old_name === $event->new_name)
+                                    @if ($event->old_name !== $event->new_name)
                                         @include('springs.history.change', [
                                             'key' => 'Name',
                                             'old' => $event->old_name,
                                             'new' => $event->new_name,
                                         ])
                                     @endif
-                                    @if (! $event->old_type === $event->new_type)
+                                    @if ($event->old_type !== $event->new_type)
                                         @include('springs.history.change', [
                                             'key' => 'Type',
                                             'old' => $event->old_type,
                                             'new' => $event->new_type,
                                         ])
                                     @endif
-                                    @if (! $event->old_intermittent === $event->new_intermittent)
+                                    @if ($event->old_intermittent !== $event->new_intermittent)
                                         @include('springs.history.change', [
                                             'key' => 'Intermittent',
                                             'old' => $event->old_intermittent,

@@ -8,10 +8,12 @@ use Livewire\Component;
 use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
+use App\Models\SpringRevision;
 use Illuminate\Validation\Rule;
 use App\Library\StatisticsService;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
+use App\Jobs\SendSpringRevisionNotification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Create extends Component
@@ -72,32 +74,32 @@ class Create extends Component
         }
 
         $springChangeCount = 0;
-        $report = new Report();
+        $revision = new SpringRevision();
 
         if ($this->spring->latitude != $this->latitude) {
-            $report->old_latitude = $this->spring->latitude;
-            $report->new_latitude = $this->latitude;
+            $revision->old_latitude = $this->spring->latitude;
+            $revision->new_latitude = $this->latitude;
             $this->spring->latitude = $this->latitude;
             $springChangeCount++;
         }
 
         if ($this->spring->longitude != $this->longitude) {
-            $report->old_longitude = $this->spring->longitude;
-            $report->new_longitude = $this->longitude;
+            $revision->old_longitude = $this->spring->longitude;
+            $revision->new_longitude = $this->longitude;
             $this->spring->longitude = $this->longitude;
             $springChangeCount++;
         }
 
         if ($this->spring->name != $this->name) {
-            $report->old_name = $this->spring->name;
-            $report->new_name = $this->name;
+            $revision->old_name = $this->spring->name;
+            $revision->new_name = $this->name;
             $this->spring->name = $this->name;
             $springChangeCount++;
         }
 
         if ($this->spring->type != $this->type) {
-            $report->old_type = $this->spring->type;
-            $report->new_type = $this->type;
+            $revision->old_type = $this->spring->type;
+            $revision->new_type = $this->type;
             $this->spring->type = $this->type;
             $springChangeCount++;
         }
@@ -105,25 +107,25 @@ class Create extends Component
         if ($springChangeCount) {
             if ($this->spring->id) {
                 $this->authorize('update', $this->spring);
-
-                $report->user_id = Auth::check() ? Auth::user()->id : null;
-                $report->spring_id = $this->spring->id;
-                $report->spring_edit = true;
-                $report->save();
-                StatisticsService::invalidateReportsCount();
-
-                if ($report->user_id) {
-                    Auth::user()->updateRating();
-                }
-
-                SendReportNotification::dispatch($report);
             } else {
                 $this->authorize('create', Spring::class);
+            }
+
+            $revision->user_id = Auth::check() ? Auth::user()->id : null;
+            $revision->spring_id = $this->spring->id;
+            $revision->revision_type = 'user';
+            $revision->save();
+            StatisticsService::invalidateReportsCount();
+
+            if ($revision->user_id) {
+                Auth::user()->updateRating();
             }
 
             $this->spring->save();
             $this->spring->invalidateTiles();
             StatisticsService::invalidateSpringsCount();
+
+            SendSpringRevisionNotification::dispatch($revision);
         }
 
         return $this->redirect(route('springs.show', $this->spring));

@@ -18,7 +18,7 @@ class SpringHistoryController extends Controller
         $reports = $spring->reports;
 
         $events = $springRevisions->merge($reports)
-            ->sortBy(function ($item) {
+            ->sortByDesc(function ($item) {
                 return $item->created_at;
             });
 
