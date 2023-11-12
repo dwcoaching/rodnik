@@ -88,6 +88,9 @@ return new class extends Migration
                     $springRevision->new_type = $report->new_type;
                     $springRevision->new_intermittent = $report->new_intermittent;
 
+                    $springRevision->created_at = $report->created_at;
+                    $springRevision->updated_at = $report->updated_at;
+
                     $springRevision->save();
                     $reportModel = Report::find($report->id)->delete();
                 }
@@ -114,6 +117,9 @@ return new class extends Migration
                     $springRevision->new_name = $report->new_name;
                     $springRevision->new_type = $report->new_type;
                     $springRevision->new_intermittent = $report->new_intermittent;
+
+                    $springRevision->created_at = $report->created_at;
+                    $springRevision->updated_at = $report->updated_at;
 
                     $springRevision->save();
                     $reportModel = Report::find($report->id)->delete();
