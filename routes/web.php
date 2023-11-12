@@ -30,6 +30,9 @@ Route::get('/', [WebController::class, 'index'])->name('index');
 
 Route::get('/{springId}', [SpringController::class, 'show'])->name('springs.show')->where('springId', '[0-9]+');
 Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
+Route::get('/{spring}/history', [SpringHistoryController::class, 'index'])->name('springs.history')->where('spring', '[0-9]+');
+
+
 Route::get('/create', [SpringController::class, 'create'])->name('springs.create');
 
 Route::get('/users/{userId}', [WebController::class, 'user'])->name('users.show')->where('userId', '[0-9]+');
@@ -52,4 +55,4 @@ Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::cla
 Route::resource('reports', ReportController::class);
 Route::get('/about', About::class);
 
-Route::get('springs/{spring}/history', [SpringHistoryController::class, 'index'])->name('springs.history');
+
