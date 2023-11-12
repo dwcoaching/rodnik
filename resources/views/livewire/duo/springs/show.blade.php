@@ -1,4 +1,4 @@
-<div class="px-0 md:px-4 pb-6 h-full bg-stone-100" x-data="{
+<div class="px-0 md:px-4 md:pb-4 h-full bg-stone-100" x-data="{
         previousSpringId: {{ intval($springId) }},
         loadSpring: function() {
             if (this.springId != this.previousSpringId) {

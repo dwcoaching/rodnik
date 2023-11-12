@@ -24,7 +24,7 @@
                     <div class="card bg-stone-50 shadow-xl">
                         <div class="card-body p-4">
                             <div class="md:flex">
-                                <div class="md:w-64 flex flex-row md:flex-col items-stretch justify-between">
+                                <div class="md:w-64 shrink-0 flex flex-row md:flex-col items-stretch justify-between">
                                     <div class="flex items-center md:block">
                                         <div class="font-extrabold mr-2">{{ $event->created_at }}</div>
                                         <div class="text-sm font-semibold text-gray-600">
@@ -86,7 +86,7 @@
                         ">
                         <div class="card-body p-4">
                             <div class="md:flex">
-                                <div class="md:w-64 flex flex-row md:flex-col items-stretch justify-between">
+                                <div class="md:w-64 shrink-0 flex flex-row md:flex-col items-stretch justify-between">
                                     <div class="flex items-center md:block">
                                         <div class="font-extrabold mr-2">{{ $event->created_at }}</div>
                                         <div class="text-sm font-semibold text-gray-600">

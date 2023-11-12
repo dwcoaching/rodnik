@@ -1,4 +1,4 @@
-<div>
+<div x-cloak>
     @if ($shown)
         <ul role="list" class="
             grid grid-cols-2 lg:grid-cols-3 md:mt-4 md:px-4
