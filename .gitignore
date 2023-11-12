@@ -18,3 +18,4 @@ yarn-error.log
 .my.cnf
 .my.testing.cnf
 latest.sh
+backup.sh
