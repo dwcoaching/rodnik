@@ -81,26 +81,36 @@
                     </div>
                 @endif
                 @if  (get_class($event) == 'App\Models\SpringRevision')
-                    <div class="card bg-indigo-50 shadow-xl">
+                    <div class="card shadow-xl
+                        {{ $event->revision_type == 'from_osm' ? 'bg-amber-50' : 'bg-indigo-50' }}
+                        ">
                         <div class="card-body p-4">
                             <div class="md:flex">
                                 <div class="md:w-64 flex flex-row md:flex-col items-stretch justify-between">
                                     <div class="flex items-center md:block">
                                         <div class="font-extrabold mr-2">{{ $event->created_at }}</div>
                                         <div class="text-sm font-semibold text-gray-600">
-                                            @if ($event->user)
-                                                <a class="block flex flex-wrap items-center text-sm text-blue-600 cursor-pointer hover:text-blue-700"
-                                                    href="{{ route('users.show', $event->user) }}">
-                                                    <div class="mr-1">{{ $event->user->name }}</div>
-                                                    <div class="text-xs font-semibold text-gray-600">{{ $event->user->rating }}</div>
-                                                </a>
+                                            @if ($event->revision_type == 'from_osm')
+
                                             @else
-                                                Anonymous
+                                                @if ($event->user)
+                                                    <a class="block flex flex-wrap items-center text-sm text-blue-600 cursor-pointer hover:text-blue-700"
+                                                        href="{{ route('users.show', $event->user) }}">
+                                                        <div class="mr-1">{{ $event->user->name }}</div>
+                                                        <div class="text-xs font-semibold text-gray-600">{{ $event->user->rating }}</div>
+                                                    </a>
+                                                @else
+                                                    Anonymous
+                                                @endif
                                             @endif
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge bg-indigo-600 text-white text-xs">Edit</span>
+                                        @if ($event->revision_type == 'from_osm')
+                                            <span class="badge bg-amber-600 text-white text-xs">OSM Update</span>
+                                        @else
+                                            <span class="badge bg-indigo-600 text-white text-xs">Edit</span>
+                                        @endif
                                     </div>
                                 </div>
                                 <div>

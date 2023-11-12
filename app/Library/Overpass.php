@@ -5,6 +5,7 @@ namespace App\Library;
 use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\Spring;
+use App\Models\SpringRevision;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +26,7 @@ class Overpass
                     break;
             }
 
-            $report = new Report();
+            $revision = new SpringRevision();
 
             if (! $spring) {
                 $new = $new + 1;
@@ -49,8 +50,8 @@ class Overpass
                     break;
             }
 
-            $report = $spring->updateFromOSM('latitude', round(floatval($osm_lat), 6), $report);
-            $report = $spring->updateFromOSM('longitude', round(floatval($osm_lon), 6), $report);
+            $revision = $spring->updateFromOSM('latitude', round(floatval($osm_lat), 6), $revision);
+            $revision = $spring->updateFromOSM('longitude', round(floatval($osm_lon), 6), $revision);
 
             $spring->save();
 
@@ -70,16 +71,16 @@ class Overpass
             $osm_type = $spring->parseOSMType();
             $osm_intermittent = $spring->parseOSMIntermittent();
 
-            $report = $spring->updateFromOSM('name', $osm_name, $report);
-            $report = $spring->updateFromOSM('type', $osm_type, $report);
-            $report = $spring->updateFromOSM('intermittent', $osm_intermittent, $report);
+            $revision = $spring->updateFromOSM('name', $osm_name, $revision);
+            $revision = $spring->updateFromOSM('type', $osm_type, $revision);
+            $revision = $spring->updateFromOSM('intermittent', $osm_intermittent, $revision);
 
             $spring->save();
 
-            if ($springExists && $report->isDirty()) {
-                $report->from_osm = true;
-                $report->spring_id = $spring->id;
-                $report->save();
+            if ($springExists && $revision->isDirty()) {
+                $revision->revision_type = 'from_osm';
+                $revision->spring_id = $spring->id;
+                $revision->save();
                 $spring->invalidateTiles();
             } elseif (! $springExists) {
                 $spring->invalidateTiles();

@@ -1,0 +1,39 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.61.5 4133829e",
+  "osm3s": {
+    "timestamp_osm_base": "2023-11-05T03:04:09Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+{
+  "type": "node",
+  "id": 7600556407,
+  "lat": 55.655136,
+  "lon": 36.709845,
+  "tags": {
+    "natural": "spring"
+  }
+},
+{
+  "type": "node",
+  "id": 7600556407,
+  "lat": 55.655135,
+  "lon": 36.709844,
+  "tags": {
+    "name": "Родник святого Дионисия",
+    "natural": "spring"
+  }
+},
+{
+  "type": "node",
+  "id": 5070099876,
+  "lat": -35.7550323,
+  "lon": -58.5023909,
+  "tags": {
+    "name": "arroyo",
+    "natural": "spring"
+  }
+}
+]
+}

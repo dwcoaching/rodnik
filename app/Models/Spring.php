@@ -123,29 +123,30 @@ class Spring extends Model
         WateredSpringTile::invalidate($this->longitude, $this->latitude);
     }
 
-    public function updateFromOSM($key, $newValue, Report $report)
+    public function updateFromOSM($key, $newValue, SpringRevision $revision)
     {
         if ($this->{'osm_' . $key} != $newValue) {
             if ($this->{$key} == $this->{'osm_' . $key}) {
 
                 echo $newValue;
-        echo "\n";
-        echo $this->{'osm_' . $key};
-        echo "\n";
-        echo $this->{$key};
-        echo "----------------\n";
+                echo "\n";
+                echo $this->{'osm_' . $key};
+                echo "\n";
+                echo $this->{$key};
+                echo "----------------\n";
 
-
-                $report->{'old_' . $key} = $this->{'osm_' . $key};
-                $report->{'new_' . $key} = $newValue;
+                $revision->{'old_' . $key} = $this->{'osm_' . $key};
+                $revision->{'new_' . $key} = $newValue;
 
                 $this->{$key} = $newValue;
             }
 
+            $revision->{'old_osm_' . $key} = $this->{'osm_' . $key};
+            $revision->{'new_osm_' . $key} = $newValue;
             $this->{'osm_' . $key} = $newValue;
         }
 
-        return $report;
+        return $revision;
     }
 
     public function waterConfirmed()
