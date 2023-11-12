@@ -1,4 +1,4 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
     x-data="{
         visited_at: $wire.$entangle('visited_at'),
         state: $wire.$entangle('state'),
