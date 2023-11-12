@@ -105,6 +105,7 @@ return new class extends Migration
                     $springRevision = new SpringRevision();
                     $springRevision->revision_type = 'user';
                     $springRevision->spring_id = $report->spring_id;
+                    $springRevision->user_id = $report->user_id;
 
                     $springRevision->old_latitude = $report->old_latitude;
                     $springRevision->old_longitude = $report->old_longitude;
