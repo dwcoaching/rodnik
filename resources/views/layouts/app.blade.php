@@ -52,7 +52,7 @@
                 </nav>
             </div>
         @endif
-        <div class="grow h-full">
+        <div class="grow h-full flex flex-col">
             {{ $slot }}
         </div>
     </body>

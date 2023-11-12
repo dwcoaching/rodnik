@@ -17,7 +17,7 @@
         locateMap = false;
     ">
     <div x-show="springId" wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
-        <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
+        <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
     <div x-cloak wire:loading.remove x-show="springId == $wire.springId">
         @if ($spring)
