@@ -21,16 +21,25 @@
     @guest
         <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">
             <div class="font-bold max-w-prose">
-                You are writing anonymously
+                Please log in or register
             </div>
             <div class="mt-2 max-w-prose">
-                That's fine! But if you sign up, you'll grow the collection
-                of your water sources, and you'll be able to edit
-                and delete your reports.
+                The main reason we ask you to register is to establish a reputation
+                for each piece of knowledge. Nobody knows whether to trust an anonymous
+                reporter on the web.
+            </div>
+            <div class="mt-2 max-w-prose">
+                By having a history of your reports, we will know that the information
+                from you is reliable, and we will make necessary changes to the
+                OpenStreetMap database.
+            </div>
+            <div class="mt-2 max-w-prose">
+                Besides, you will have your personal page and a collection
+                of reports, and you'll be able to edit everything!
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Sign up</a>
-                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Log in</a>
+                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login</a>
+                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Register</a>
             </div>
         </div>
     @endguest
@@ -275,44 +284,44 @@
         </label>
     </div>
 
-{{--
-    <div class="mt-2 overflow-x-scroll">
-        <x-chip-checkbox name="Stale water" key="stale" />
-        <x-chip-checkbox name="Dripping" key="dripping" />
-        <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
-        <x-chip-checkbox name="Abandoned" key="abandoned" />
-        <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
-        <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
-    </div>
---}}
-{{--
-    <div class="mt-6 block text-sm font-regular text-gray-700">Water source</div>
-    <div class="mt-2 overflow-x-scroll">
-        <x-chip-checkbox name="Stale water" key="stale" />
-        <x-chip-checkbox name="Dripping" key="dripping" />
-        <x-chip-checkbox name="Abandoned" key="abandoned" />
-        <x-chip-checkbox name="Not found" key="notfound" />
-    </div>
+    {{--
+        <div class="mt-2 overflow-x-scroll">
+            <x-chip-checkbox name="Stale water" key="stale" />
+            <x-chip-checkbox name="Dripping" key="dripping" />
+            <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
+            <x-chip-checkbox name="Abandoned" key="abandoned" />
+            <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
+            <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
+        </div>
+    --}}
+    {{--
+        <div class="mt-6 block text-sm font-regular text-gray-700">Water source</div>
+        <div class="mt-2 overflow-x-scroll">
+            <x-chip-checkbox name="Stale water" key="stale" />
+            <x-chip-checkbox name="Dripping" key="dripping" />
+            <x-chip-checkbox name="Abandoned" key="abandoned" />
+            <x-chip-checkbox name="Not found" key="notfound" />
+        </div>
 
-    <div class="mt-6 block text-sm font-regular text-gray-700">Water</div>
-    <div class="mt-2 overflow-x-scroll">
-        <x-chip-checkbox name="Drinking water" key="drinkingwater" />
-        <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
-        <x-chip-checkbox name="Not drinkable" key="drinkingwaterno" />
+        <div class="mt-6 block text-sm font-regular text-gray-700">Water</div>
+        <div class="mt-2 overflow-x-scroll">
+            <x-chip-checkbox name="Drinking water" key="drinkingwater" />
+            <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
+            <x-chip-checkbox name="Not drinkable" key="drinkingwaterno" />
 
-        <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
-        <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
-    </div>
---}}
+            <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
+            <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
+        </div>
+    --}}
 
-{{--
-    <label for="" class="mt-6 block text-sm font-medium text-gray-700"></label>
-    <div class="">
-        <x-chip-checkbox name="Wheelchair access" key="wheelchair" />
-        <x-chip-checkbox name="Easy to fill up a bottle" key="bottle" />
-        <x-chip-checkbox name="Access for dogs" key="dog" />
-    </div>
---}}
+    {{--
+        <label for="" class="mt-6 block text-sm font-medium text-gray-700"></label>
+        <div class="">
+            <x-chip-checkbox name="Wheelchair access" key="wheelchair" />
+            <x-chip-checkbox name="Easy to fill up a bottle" key="bottle" />
+            <x-chip-checkbox name="Access for dogs" key="dog" />
+        </div>
+    --}}
 
     <div class="mt-4 pt-5 pb-6">
         <div class="flex justify-start">
