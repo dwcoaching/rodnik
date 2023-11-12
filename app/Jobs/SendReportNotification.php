@@ -38,15 +38,15 @@ class SendReportNotification implements ShouldQueue
      */
     public function handle()
     {
-        $mapNotification = new ReportMapNotification($this->report);
+        // $mapNotification = new ReportMapNotification($this->report);
 
-        Notification::route('telegram', config('services.telegram-bot-api.channel_id'))
-            ->notify($mapNotification);
+        // Notification::route('telegram', config('services.telegram-bot-api.channel_id'))
+        //     ->notify($mapNotification);
+
         $notification = new ReportNotification($this->report);
 
         Notification::route('telegram', config('services.telegram-bot-api.channel_id'))
             ->notify($notification);
-
 
         // $photoCount = $this->report->photos->count();
 
