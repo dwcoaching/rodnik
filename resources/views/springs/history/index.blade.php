@@ -6,14 +6,12 @@
         x-init="window.initPhotoSwipe('#photos');">
 
         <div class="flex items-center justify-between">
-            <div class="flex-1 min-w-0">
-                <a href="{{ route('springs.show', $spring) }}" class="block text-base font-semibold text-blue-600 hover:text-blue-700"">
-                    <span class="mr-2 inline-flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
-                        </svg>
-                        {{ without_http(route('springs.show', $spring)) }}
-                    </span>
+            <div class="flex-1 min-w-0 flex">
+                <a href="{{ route('springs.show', $spring) }}" class="block btn btn-sm text-base font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                        <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
+                    </svg>
+                    {{ without_http(route('springs.show', $spring)) }}
                 </a>
             </div>
         </div>

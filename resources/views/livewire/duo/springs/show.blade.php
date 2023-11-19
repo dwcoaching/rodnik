@@ -75,7 +75,7 @@
                                                 </svg>
                                                 View history
                                                 <div class="border-stone-400 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">
-                                                    {{ $spring->springRevisions->count() ? $spring->springRevisions->count() : 'Emtpy' }}
+                                                    {{ $spring->springRevisions->count() ? $spring->springRevisions->count() : 'Empty' }}
                                                 </div>
                                             </a>
                                         </li>
