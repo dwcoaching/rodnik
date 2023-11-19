@@ -72,7 +72,7 @@ return new class extends Migration
             ->chunkById(100, function (Collection $reports) {
                 foreach ($reports as $report) {
                     $springRevision = new SpringRevision();
-                    $springRevision->revision_type = 'user';
+                    $springRevision->revision_type = 'from_osm';
                     $springRevision->spring_id = $report->spring_id;
                     $springRevision->user_id = $report->user_id;
 

@@ -7,6 +7,7 @@ use App\Models\Report;
 use App\Models\Spring;
 use App\Models\SpringTile;
 use App\Models\OverpassBatch;
+use App\Models\SpringRevision;
 use App\Models\WateredSpringTile;
 use Filament\Widgets\StatsOverviewWidget\Card;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
@@ -35,13 +36,9 @@ class StatsOverview extends BaseWidget
             $query->visible();
         })->count();
 
-        $springsWithUserUpdates = Spring::whereHas('springRevisions', function($query) {
-            $query->where('revision_type', 'user');
-        })->count();
+        $userSpringUpdates = SpringRevision::where('revision_type', 'user')->count();
 
-        $springsWithOSMUpdates = Spring::whereHas('springRevisions', function($query) {
-            $query->where('revision_type', 'from_osm');
-        })->count();
+        $osmSpringUpdates = SpringRevision::where('revision_type', 'from_osm')->count();
 
         $users = User::count();
         $usersWithReports = User::whereHas('reports', function($query) {
@@ -57,8 +54,8 @@ class StatsOverview extends BaseWidget
             Card::make('Rodnik Sources', $rodnikSources),
             Card::make('Reports', $totalReports),
             Card::make('Springs with Reports', $springsWithReports),
-            Card::make('User Spring Updates', $springsWithUserUpdates),
-            Card::make('OSM Spring Updates', $springsWithOSMUpdates),
+            Card::make('User Spring Updates', $userSpringUpdates),
+            Card::make('OSM Spring Updates', $osmSpringUpdates),
             Card::make('Users', $users),
             Card::make('Users with Reports', $usersWithReports),
             Card::make('LastOSMUpdate', $lastOSMUpdate),
