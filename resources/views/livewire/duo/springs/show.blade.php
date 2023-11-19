@@ -37,14 +37,23 @@
                         <div class="flex items-center">
                             {{--<span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>--}}
                             @can('update', $spring)
-                                <details class="dropdown dropdown-end">
-                                    <summary tabindex="0" class="text-blue-600 btn btn-sm flex flex-nowrap">
+                                <details class="dropdown dropdown-end" x-ref="editDropdownContent">
+                                    <summary tabindex="0" class="text-blue-600 btn btn-sm flex flex-nowrap"
+                                        >
                                         Edit
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                                         </svg>
                                     </summary>
-                                    <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 rounded-box w-52">
+                                    <ul
+                                        x-on:click.outside="
+                                            if ($refs.editDropdownContent.hasAttribute('open')) {
+                                                $nextTick(() => {
+                                                    $refs.editDropdownContent.removeAttribute('open')
+                                                })
+                                            }"
+
+                                        tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 rounded-box w-52">
                                         <li>
                                             <a href="{{ route('springs.edit', $spring) }}"
                                                 class="flex items-center py-3">

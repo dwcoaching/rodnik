@@ -1,6 +1,6 @@
 <li>
     @if (! $report->hidden_at)
-        <div class="border-t border-slade-200 p-4">
+        <div class="border-t border-stone-200 p-4">
             <div class="flex space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">

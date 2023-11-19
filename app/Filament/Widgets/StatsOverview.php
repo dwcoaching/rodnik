@@ -34,6 +34,15 @@ class StatsOverview extends BaseWidget
         $springsWithReports = Spring::whereHas('reports', function($query) {
             $query->visible();
         })->count();
+
+        $springsWithUserUpdates = Spring::whereHas('springRevisions', function($query) {
+            $query->where('revision_type', 'user');
+        })->count();
+
+        $springsWithOSMUpdates = Spring::whereHas('springRevisions', function($query) {
+            $query->where('revision_type', 'from_osm');
+        })->count();
+
         $users = User::count();
         $usersWithReports = User::whereHas('reports', function($query) {
             $query->visible();
@@ -47,7 +56,9 @@ class StatsOverview extends BaseWidget
             Card::make('OSM Sources', $osmSources),
             Card::make('Rodnik Sources', $rodnikSources),
             Card::make('Reports', $totalReports),
-            Card::make('Spring with Reports', $springsWithReports),
+            Card::make('Springs with Reports', $springsWithReports),
+            Card::make('User Spring Updates', $springsWithUserUpdates),
+            Card::make('OSM Spring Updates', $springsWithOSMUpdates),
             Card::make('Users', $users),
             Card::make('Users with Reports', $usersWithReports),
             Card::make('LastOSMUpdate', $lastOSMUpdate),

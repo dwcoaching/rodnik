@@ -111,6 +111,7 @@ class Create extends Component
                 $this->authorize('create', Spring::class);
             }
 
+            $this->spring->save();
             $revision->user_id = Auth::check() ? Auth::user()->id : null;
             $revision->spring_id = $this->spring->id;
             $revision->revision_type = 'user';
@@ -121,7 +122,6 @@ class Create extends Component
                 Auth::user()->updateRating();
             }
 
-            $this->spring->save();
             $this->spring->invalidateTiles();
             StatisticsService::invalidateSpringsCount();
 
