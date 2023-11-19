@@ -18,7 +18,8 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-1 mt-4">
+        <h1 class="mt-4 mb-2 text-3xl font-bold">Water Source History</h1>
+        <div class="grid grid-cols-1 gap-1 ">
             @foreach($events as $event)
                 @if (get_class($event) == 'App\Models\Report')
                     <div class="card bg-stone-50 shadow-xl">

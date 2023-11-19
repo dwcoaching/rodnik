@@ -40,10 +40,13 @@
                                 <details class="dropdown dropdown-end" x-ref="editDropdownContent">
                                     <summary tabindex="0" class="text-blue-600 btn btn-sm flex flex-nowrap"
                                         >
-                                        Edit
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                            <path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z" />
+                                        </svg>
+                                        {{--Edit
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                                        </svg>
+                                        </svg>--}}
                                     </summary>
                                     <ul
                                         x-on:click.outside="
@@ -53,7 +56,7 @@
                                                 })
                                             }"
 
-                                        tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 rounded-box w-52">
+                                        tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 rounded-box w-56">
                                         <li>
                                             <a href="{{ route('springs.edit', $spring) }}"
                                                 class="flex items-center py-3">
@@ -71,7 +74,9 @@
                                                   <path d="M5.127 3.502L5.25 3.5h9.5c.041 0 .082 0 .123.002A2.251 2.251 0 0012.75 2h-5.5a2.25 2.25 0 00-2.123 1.502zM1 10.25A2.25 2.25 0 013.25 8h13.5A2.25 2.25 0 0119 10.25v5.5A2.25 2.25 0 0116.75 18H3.25A2.25 2.25 0 011 15.75v-5.5zM3.25 6.5c-.04 0-.082 0-.123.002A2.25 2.25 0 015.25 5h9.5c.98 0 1.814.627 2.123 1.502a3.819 3.819 0 00-.123-.002H3.25z" />
                                                 </svg>
                                                 View history
-                                                <div class="border-stone-400 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">{{ $spring->springRevisions->count() }}</div>
+                                                <div class="border-stone-400 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">
+                                                    {{ $spring->springRevisions->count() ? $spring->springRevisions->count() : 'Emtpy' }}
+                                                </div>
                                             </a>
                                         </li>
                                     </ul>
@@ -79,7 +84,7 @@
                             @endcan
                         </div>
                     </div>
-                    <div class="text-gray-600 mt-3 text-sm md:flex flex-wrap items-center">
+                    <div class="text-gray-600 mt-3 text-sm flex gap-y-2 flex-wrap items-start">
                         <div class="mr-3 flex-1">
                             <div class="text-gray-600 text-sm cursor-pointer"
                                 x-data="{
@@ -109,7 +114,7 @@
                                     </div>
                                 </div>
                         </div>
-                        <div class="mr-3 mt-2 md:mt-0 flex-1">
+                        <div class="mr-3 flex-1">
                             <div class="text-gray-600 text-sm cursor-pointer"
                                 x-data="{
                                     copied: false,
@@ -170,7 +175,7 @@
                                 </span>
                             @endif
                             @foreach ($spring->osm_tags as $tag)
-                                <div class="text-gray-900 text-sm">{{ $tag->key }}={{ $tag->value }}</div>
+                                <div class="text-gray-900 text-sm break-all">{{ $tag->key }}={{ $tag->value }}</div>
                             @endforeach
                         </div>
                     </div>
