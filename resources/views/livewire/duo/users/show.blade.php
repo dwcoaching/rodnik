@@ -34,6 +34,7 @@
             @endforeach
         </ul>
         <livewire:duo.components.show-more-reports
+            key="show-more-reports-user-{{ $userId }}-skip-{{ $limit }}-take-{{ $limit }}"
             skip="{{ $limit }}"
             take="{{ $limit }}"
             :userId="$userId" />

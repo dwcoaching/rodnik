@@ -16,6 +16,7 @@
         </ul>
         @if (count($reports) == $take)
             <livewire:duo.components.show-more-reports
+                key="show-more-reports-user-{{ $userId }}-skip-{{ $skip }}-take-{{ $take }}"
                 skip="{{ $skip * 2 }}"
                 take="{{ $take * 2 }}"
                 userId="{{ $userId }}"
@@ -35,5 +36,7 @@
                 <div class="animate-spin w-5 h-5 border border-4 rounded-full border-stone-400 border-t-transparent"></div>
             </div>
         </div>
+    @else
+        <div class="h-4"></div>
     @endif
 </div>

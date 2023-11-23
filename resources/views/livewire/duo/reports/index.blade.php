@@ -68,7 +68,11 @@
             @endforeach
         </ul>
         @if (count($lastReports) == $limit)
-            <livewire:duo.components.show-more-reports skip="{{ $limit }}" take="{{ $limit }}" />
+            <livewire:duo.components.show-more-reports
+                skip="{{ $limit }}"
+                take="{{ $limit }}"
+                key="show-more-reports-skip-{{ $limit }}-take-{{ $limit }}"
+                />
         @endif
     </div>
 </div>
