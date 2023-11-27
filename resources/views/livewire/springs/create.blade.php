@@ -60,26 +60,9 @@
         </span>
     </a>
 
-    @guest
-        <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">
-            <div class="font-bold max-w-prose">
-                You are writing anonymously
-            </div>
-            <div class="mt-2 max-w-prose">
-                That's fine! But if you sign up, you'll grow the collection
-                of your water sources, and you'll be able to edit
-                and delete your reports.
-            </div>
-            <div class="mt-4 max-w-prose">
-                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Sign up</a>
-                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Log in</a>
-            </div>
-        </div>
-    @endguest
-
     <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
-            <span class="block text-3xl font-bold">
+            <span class="block text-3xl font-extrabold">
                 <span class="mr-2 inline-flex items-center">
                     @if ($springId)
                         <div>
@@ -99,16 +82,25 @@
     </div>
 
     <div class="mt-4">
-        <div class="">
-            <x-chip-radio name="💧 Spring" key="type" value="Spring" />
-            <x-chip-radio name="🪣 Water well" key="type" value="Water well" />
-            <x-chip-radio name="🚰 Water tap" key="type" value="Water tap" />
-            <x-chip-radio name="🐳 Other" key="type" value="Water source" />
+        <div class="form-control w-full max-w-xs">
+            <label class="label">
+                <span class="label-text">Type</span>
+            </label>
+            <select name="type" class="select select-primary" x-model="type">
+                <option value="" x-bind:disabled="true">Choose water source type</option>
+                <option value="Spring">💧 Spring</option>
+                <option value="Water well">🪣 Water well</option>
+                <option value="Water tap">🚰 Water tap</option>
+                <option value="Other">🐳 Other</option>
+            </select>
             @error('type')
-                <div class="text-red-600 text-sm mb-4">{{ $message }}</div>
+                {{--<div class="text-red-600 text-sm mb-4"></div>--}}
+                <label class="label">
+                    <span class="label-text-alt">{{ $message }}</span>
+                    <span class="label-text-alt">Bottom Right label</span>
+                </label>
             @enderror
         </div>
-
         <div class="mt-2 sm:max-w-xl w-full h-80 rounded-md overflow-hidden relative">
             <div class="absolute w-full h-full" wire:ignore
                 id="openPicker">
