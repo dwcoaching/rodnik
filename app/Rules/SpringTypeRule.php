@@ -2,6 +2,7 @@
 
 namespace App\Rules;
 
+use App\Models\Spring;
 use Illuminate\Contracts\Validation\Rule;
 
 class SpringTypeRule implements Rule
@@ -25,7 +26,7 @@ class SpringTypeRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        return in_array($value, ['Spring', 'Water well', 'Water tap', 'Water source']);
+        return in_array($value, Spring::TYPES);
     }
 
     /**

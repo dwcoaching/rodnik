@@ -230,7 +230,7 @@
                     <div
                         x-data="{
                             layersOpen: false,
-                            active: 'osm',
+                            active: window.getInitialSourceName(),
                             source: function(name) {
                                 this.active = name;
                                 window.rodnikMap.source(name);

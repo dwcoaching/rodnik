@@ -60,7 +60,9 @@ class Create extends Component
 
     public function render()
     {
-        return view('livewire.springs.create');
+        return view('livewire.springs.create', [
+            'waterSourceTypes' => Spring::TYPES
+        ]);
     }
 
     public function store()

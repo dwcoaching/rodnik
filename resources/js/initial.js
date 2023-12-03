@@ -13,6 +13,12 @@ export function getInitialZoom() {
     return isNaN(lastZoom) ? 3 : lastZoom;
 }
 
+export function getInitialSourceName() {
+    let source = localStorage.getItem('source')
+
+    return source ? source : 'osm';
+}
+
 export function saveLastCenter(center) {
     localStorage.setItem('centerLongitude', center[0]);
     localStorage.setItem('centerLatitude', center[1]);
@@ -22,3 +28,6 @@ export function saveLastZoom(zoom) {
     localStorage.setItem('zoom', zoom);
 }
 
+export function saveLastSourceName(source) {
+    localStorage.setItem('source', source);
+}
