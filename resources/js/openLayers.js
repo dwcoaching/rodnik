@@ -30,7 +30,7 @@ import OSMTracesLayer from '@/layers/osmTraces';
 
 import finalStyle from '@/styles/final';
 import selectedStyle from '@/styles/selected';
-import { getInitialCenter, getInitialZoom, saveLastCenter, saveLastZoom } from '@/initial';
+import { getInitialCenter, getInitialZoom, getInitialSourceName, saveLastCenter, saveLastZoom, saveLastSourceName } from '@/initial';
 
 import GeolocationLayer from '@/layers/geolocation';
 
@@ -111,10 +111,12 @@ export default class OpenLayersMap {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
-            layers: [this.osmLayer, this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
+            layers: [this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
             view: this.view,
             moveTolerance: 5,
         });
+
+        this.source(getInitialSourceName())
 
         this.map.on('moveend', (e) => {
             saveLastCenter(this.map.getView().getCenter());
@@ -254,6 +256,8 @@ export default class OpenLayersMap {
                 this.map.addLayer(this.currentLayer);
                 break;
         }
+
+        saveLastSourceName(name)
     }
 
     updateOverlays() {

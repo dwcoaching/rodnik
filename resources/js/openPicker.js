@@ -17,6 +17,8 @@ import OSMLayer from '@/layers/osm';
 import MapyLayer from '@/layers/mapy';
 import OutdoorsLayer from '@/layers/outdoors';
 import GoogleTerrainLayer from '@/layers/googleTerrain';
+import GoogleSatelliteLayer from '@/layers/googleSatellite';
+
 import SpringsFinalLayer from '@/layers/springs/final';
 import SpringsApproximatedLayer from '@/layers/springs/approximated';
 import SpringsDistantLayer from '@/layers/springs/distant';
@@ -27,7 +29,7 @@ import OSMTracesLayer from '@/layers/osmTraces';
 
 import finalStyle from '@/styles/final';
 import selectedStyle from '@/styles/selected';
-import { getInitialCenter, getInitialZoom, saveLastCenter, saveLastZoom } from '@/initial';
+import { getInitialCenter, getInitialZoom, getInitialSourceName, saveLastCenter, saveLastZoom, saveLastSourceName } from '@/initial';
 
 import GeolocationLayer from '@/layers/geolocation';
 
@@ -37,6 +39,10 @@ import SpringsUserSource from '@/sources/user.js';
 export default class OpenPicker {
     constructor(element, oldCoordinates) {
         this.osmLayer = new OSMLayer();
+        this.mapyLayer = new MapyLayer();
+        this.outdoorsLayer = new OutdoorsLayer();
+        this.googleTerrainLayer = new GoogleTerrainLayer();
+        this.googleSatelliteLayer = new GoogleSatelliteLayer();
 
         let hasOldCoordinates = oldCoordinates.length ? true : false;
         let center = hasOldCoordinates ? fromLonLat(oldCoordinates) : getInitialCenter();
@@ -89,9 +95,10 @@ export default class OpenPicker {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: element,
-            layers: [this.osmLayer],
             view: this.view,
         });
+
+        this.source(getInitialSourceName())
 
         if (hasOldCoordinates) {
             this.map.addLayer(this.springLayer);
@@ -138,6 +145,38 @@ export default class OpenPicker {
                 duration: 100
             }
         );
+    }
+
+    source(name) {
+        switch(name) {
+            case 'osm':
+                this.map.removeLayer(this.currentLayer);
+                this.currentLayer = this.osmLayer;
+                this.map.addLayer(this.currentLayer);
+                break;
+            case 'mapy':
+                this.map.removeLayer(this.currentLayer);
+                this.currentLayer = this.mapyLayer;
+                this.map.addLayer(this.currentLayer);
+                break;
+            case 'outdoors' :
+                this.map.removeLayer(this.currentLayer);
+                this.currentLayer = this.outdoorsLayer;
+                this.map.addLayer(this.currentLayer);
+                break;
+            case 'terrain' :
+                this.map.removeLayer(this.currentLayer);
+                this.currentLayer = this.googleTerrainLayer;
+                this.map.addLayer(this.currentLayer);
+                break;
+            case 'satellite' :
+                this.map.removeLayer(this.currentLayer);
+                this.currentLayer = this.googleSatelliteLayer;
+                this.map.addLayer(this.currentLayer);
+                break;
+        }
+
+        saveLastSourceName(name)
     }
 
     mapMoved(coordinates) {

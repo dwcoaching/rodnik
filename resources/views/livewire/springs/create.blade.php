@@ -5,6 +5,7 @@
             longitude: $wire.$entangle('longitude'),
             coordinates: $wire.$entangle('coordinates'),
             coordinatesError: false,
+            mapLocked: true,
             error: function() {
                 if (this.coordinatesError) {
                     return true;
@@ -82,17 +83,25 @@
     </div>
 
     <div class="mt-4">
-        <div class="form-control w-full max-w-xs">
-            <label class="label">
-                <span class="label-text">Type</span>
-            </label>
-            <select name="type" class="select select-primary" x-model="type">
+        <div class="w-full max-w-xs relative">
+            <select name="type" class="h-[60px] font-bold w-full pl-3 pt-[30px] text-base select select-primary" x-model="type">
                 <option value="" x-bind:disabled="true">Choose water source type</option>
-                <option value="Spring">💧 Spring</option>
-                <option value="Water well">🪣 Water well</option>
-                <option value="Water tap">🚰 Water tap</option>
-                <option value="Other">🐳 Other</option>
+                @foreach ($waterSourceTypes as $waterSourceType)
+                    <option value="{{ $waterSourceType }}">
+                        @if ($waterSourceType == 'Water source')
+                            Other
+                        @elseif ($waterSourceType == 'Fountain')
+                            Decorative fountain
+                        @else
+                            {{ $waterSourceType }}
+                        @endif
+                    </option>
+                @endforeach
             </select>
+            <label class="pointer-events-none absolute top-2 left-3 text-sm font-medium text-gray-500">
+                <span class="">Type</span>
+            </label>
+
             @error('type')
                 {{--<div class="text-red-600 text-sm mb-4"></div>--}}
                 <label class="label">
@@ -101,7 +110,58 @@
                 </label>
             @enderror
         </div>
-        <div class="mt-2 sm:max-w-xl w-full h-80 rounded-md overflow-hidden relative">
+        <div class="w-full sm:max-w-xl">
+            <div class="mt-2 w-full relative">
+                <input wire:model="name" type="text" name="name" id="name"
+                    class="h-[60px] font-bold w-full pl-3 pt-[32px] text-base input input-primary" placeholder="">
+                <label class="pointer-events-none absolute top-2 left-3 text-sm font-medium text-gray-500">
+                    <span class="">Water source name (if any)</span>
+                </label>
+            </div>
+
+            <div class="flex items-center">
+                <div class="mt-2 w-full relative">
+                    <input
+                        x-ref="coordinates"
+                        x-model="coordinates"
+                        @change="updateCoordinates($event.target.value)"
+                        type="text"
+                        name="coordinates"
+                        id="coordinates"
+                        type="text" name="name" id="name"
+                        class="h-[60px] font-bold w-full pl-3 pt-[32px] text-base input input-primary"
+                        x-bind:class="{
+                            'border-red-600': coordinatesError,
+                        }"
+                        placeholder="">
+                    <label class="pointer-events-none absolute top-2 left-3 text-sm font-medium text-gray-500">
+                        <span class="">Latitude, longitude</span>
+                        {{--
+                            <svg x-cloak x-show="! coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-green-600">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                            </svg>
+                        --}}
+                        <svg x-cloak x-show="coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-red-600">
+                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                        </svg>
+                    </label>
+                </div>
+                <div class="flex items-center px-4">
+                    <svg x-show="mapLocked" @click="mapLocked = false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-blue-600 cursor-pointer">
+                        <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd" />
+                    </svg>
+                    <svg x-cloak x-show="! mapLocked" @click="mapLocked = true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-green-600 cursor-pointer">
+                        <path d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 01-1.5 0V6.75a3.75 3.75 0 10-7.5 0v3a3 3 0 013 3v6.75a3 3 0 01-3 3H3.75a3 3 0 01-3-3v-6.75a3 3 0 013-3h9v-3c0-2.9 2.35-5.25 5.25-5.25z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2 sm:max-w-xl w-full h-80 rounded-md overflow-hidden relative"
+        >
+            <div x-show="mapLocked" class="z-10 absolute w-full h-full bg-gray-100 opacity-50">
+
+            </div>
             <div class="absolute w-full h-full" wire:ignore
                 id="openPicker">
             </div>
@@ -109,7 +169,7 @@
                 <div class="text-red-600 text-4xl font-light">○</div>
             </div>
             <!-- COPIED -->
-                <div x-cloak class="absolute sm:block top-2 right-2" style="z-index: 10000;">
+                <div x-cloak class="absolute sm:block top-2 right-2 z-5">
                     <div @click="window.rodnikPicker.locateMe()" class="mt-2 h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
                         <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" class="h-5 w-5">
                             <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/><
@@ -118,37 +178,7 @@
                 </div>
             <!-- END OF COPIED -->
         </div>
-        <div class="w-full sm:max-w-lg">
-            <div class="mt-2 relative border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600"
-                x-bind:class="{
-                    'border-red-600': coordinatesError,
-                }"
-            >
-                <label for="coordinates" class="block text-sm font-light text-gray-600 mb-1">
-                    Latitude, longitude
-                    <svg x-cloak x-show="! coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-green-600">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                    </svg>
-                    <svg x-cloak x-show="coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-red-600">
-                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                    </svg>
-                </label>
-                <input
-                    x-ref="coordinates"
-                    x-model="coordinates"
-                    @change="updateCoordinates($event.target.value)"
-                    {{--wire:model.live="coordinates"--}}
-                    type="text"
-                    name="coordinates"
-                    id="coordinates"
-                    class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm">
-            </div>
 
-            <div class="mt-2 border border-gray-300 rounded-md bg-white px-3 py-2 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-                <label for="name" class="block text-sm font-light text-gray-600 mb-1">Water source name (if any)</label>
-                <input wire:model.live="name" type="text" name="name" id="name" class="block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
-            </div>
-        </div>
     </div>
 
     <div class="mt-4 pb-6">

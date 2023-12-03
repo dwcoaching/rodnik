@@ -15,6 +15,16 @@ class Spring extends Model
 {
     use HasFactory;
 
+    public const TYPES = [
+        'Spring',
+        'Water well',
+        'Water tap',
+        'Drinking water source',
+        'Fountain',
+        'Water source',
+        //'Not a water source',
+    ];
+
     public function reports()
     {
         return $this->hasMany(Report::class);
