@@ -26,21 +26,25 @@ module.exports = {
         themes: [
           {
             mytheme: {
-              "primary": "#2563eb",
-              "primary-content": "#fff",
-              "secondary": "#f6d860",
-              "accent": "#37cdbe",
-              "neutral": "#3d4451",
-              "base-100": "#ffffff",
+                "primary": "#2563eb",
+                "primary-content": "#fff",
+                "secondary": "#f6d860",
+                "accent": "#37cdbe",
+                "neutral": "#3d4451",
+                "base-100": "#ffffff",
 
-              ".select, .input": {
-                  "&-primary": {
-                      "@apply border-gray-300": "",
-                  },
-                  "&-primary:focus": {
-                      "@apply outline-offset-0 outline-0 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600": "",
-                  },
-              },
+                ".select, .input": {
+                    "&-primary": {
+                        "@apply border-gray-300": "",
+                    },
+                    "&-primary:focus": {
+                        "@apply outline-offset-0 outline-0 focus-within:z-10 focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600": "",
+                    },
+                },
+
+                ".drawer-toggle:checked ~ .drawer-side > .drawer-overlay": {
+                    "background-color": "rgba(17, 24, 39, 0.8)",
+                },
 
               "--rounded-box": "0.5rem", // border radius rounded-box utility class, used in card and other large boxes
               "--rounded-btn": "0.5rem", // border radius rounded-btn utility class, used in buttons and similar element

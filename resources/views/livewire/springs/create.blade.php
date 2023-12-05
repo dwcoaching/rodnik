@@ -74,8 +74,7 @@
                             </div>
                         </div>
                     @else
-                        <span class="mr-2">New</span>
-                        <span x-text="type ? type.toLowerCase() : 'water source'">water source</span>
+                        New water source
                     @endif
                 </span>
             </span>
