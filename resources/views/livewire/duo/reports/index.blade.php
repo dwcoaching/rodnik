@@ -62,7 +62,7 @@
             gap-[1px]
             md:bg-inherit
             md:border-0
-            md:gap-4 items-stretch" wire:key="reports">
+            md:gap-4 items-stretch md:items-start" wire:key="reports">
             @foreach ($lastReports as $report)
                 <x-last-reports.teaser :report="$report" />
             @endforeach

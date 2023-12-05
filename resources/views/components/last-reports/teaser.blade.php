@@ -1,10 +1,10 @@
 @props(['report'])
 
-<li class="p-3 bg-white md:rounded-lg md:shadow">
+<li class="bg-white md:rounded-lg md:shadow overflow-hidden">
     <div class="">
         @if (! $report->hidden_at)
             <div>
-                <div class="flex justify-between">
+                <div class="px-3 pt-3 flex justify-between">
                     <a @click.prevent="
                         window.dispatchEvent(
                             new CustomEvent('spring-turbo-visit',
@@ -26,7 +26,7 @@
                     </a>
                 </div>
 
-                <div class="flex space-x-3">
+                <div class="flex space-x-3 px-3 pb-3">
                     <div class="flex-1">
                         <div class="flex justify-between">
                             <h3 class="flex flex-wrap items-baseline text-base font-light">
@@ -129,12 +129,15 @@
                                 </div>
                             @endif
                         </div>
-
+                    </div>
+                </div>
+                <div class="p-3 md:p-0">
+                    <div>
                         @if ($report->photos->count())
-                            <div class="mt-1">
-                                <ul role="list" class="pswp-gallery mt-3 gap-x-3 gap-y-3">
+                            <div class="mt-0">
+                                <ul role="list" class="pswp-gallery mt-0 gap-x-3 gap-y-3">
                                     <li class="">
-                                        <div style="padding-bottom: 100%;" class="relative group block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
+                                        <div style="padding-bottom: 100%;" class="rounded-lg md:rounded-none relative group block w-full h-0 bg-gray-100 overflow-hidden">
                                             <a href="{{ $report->photos[0]->url }}"
                                                 data-pswp-width="{{ $report->photos[0]->width }}"
                                                 data-pswp-height="{{ $report->photos[0]->height }}"
