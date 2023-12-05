@@ -109,4 +109,13 @@ class User extends Authenticatable implements FilamentUser
 
         return false;
     }
+
+    protected function defaultProfilePhotoUrl()
+    {
+        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
+            return mb_substr($segment, 0, 1);
+        })->join(' '));
+
+        return 'https://ui-avatars.com/api/?name='.urlencode($name).'&color=ffffff&background=1d4ed8';
+    }
 }
