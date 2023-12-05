@@ -84,7 +84,7 @@
     <div class="mt-4">
         <div class="w-full max-w-xs relative">
             <select name="type" class="h-[60px] font-bold w-full pl-3 pt-[30px] text-base select select-primary" x-model="type">
-                <option value="" x-bind:disabled="true">Choose water source type</option>
+                <option value="" x-bind:disabled="true" hidden>Choose water source type</option>
                 @foreach ($waterSourceTypes as $waterSourceType)
                     <option value="{{ $waterSourceType }}">
                         @if ($waterSourceType == 'Water source')
