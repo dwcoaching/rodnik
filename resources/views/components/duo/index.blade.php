@@ -106,7 +106,6 @@
             unsetSpringId()
             window.rodnikMap.dehighlightPreviousFeature();
         }"
-    x-init="window.initPhotoSwipe('#spring');"
     class="flex grow justify-center"
 >
     <div class="grow">

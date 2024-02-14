@@ -198,7 +198,9 @@
                     </a>
                 </div>
                 <div class="mt">
-                    <ul role="list" class="">
+                    <ul role="list" class="photoSwipeGallery"
+                        x-data
+                        x-init="window.initPhotoSwipe('.photoSwipeGallery')">
                         @foreach ($reports as $report)
                             <livewire:reports.show :report="$report" :key="$report->id" />
                         @endforeach

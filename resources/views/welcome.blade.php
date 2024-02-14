@@ -273,6 +273,14 @@
                                             'text-white': active == 'osm'
                                         }"
                                     >OpenStreetMap</button>
+                                    <button @click="source('openTopoMap')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
+                                        :class="{
+                                            'bg-white': active != 'openTopoMap',
+                                            'bg-blue-600': active == 'openTopoMap',
+                                            'text-blue-700': active != 'openTopoMap',
+                                            'text-white': active == 'openTopoMap'
+                                        }"
+                                    >OpenTopoMap</button>
                                     <button @click="source('outdoors')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-sm"
                                         :class="{
                                             'bg-white': active != 'outdoors',

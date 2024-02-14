@@ -134,7 +134,11 @@
                 <div class="p-3 md:p-0">
                     <div>
                         @if ($report->photos->count())
-                            <div class="mt-0">
+                            <div
+                                class="mt-0 photoSwipeGallery"
+                                x-data
+                                x-init="window.initPhotoSwipe('.photoSwipeGallery')">
+                            >
                                 <ul role="list" class="pswp-gallery mt-0 gap-x-3 gap-y-3">
                                     <li class="">
                                         <div style="padding-bottom: 100%;" class="rounded-lg md:rounded-none relative group block w-full h-0 bg-gray-100 overflow-hidden">

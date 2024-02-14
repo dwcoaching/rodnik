@@ -14,6 +14,7 @@ import Geolocation from 'ol/Geolocation';
 import Point from 'ol/geom/Point';
 
 import OSMLayer from '@/layers/osm';
+import OpenTopoMapLayer from '@/layers/openTopoMap';
 import MapyLayer from '@/layers/mapy';
 import OutdoorsLayer from '@/layers/outdoors';
 import GoogleTerrainLayer from '@/layers/googleTerrain';
@@ -66,6 +67,7 @@ export default class OpenLayersMap {
         this.osmLayer = new OSMLayer();
         this.mapyLayer = new MapyLayer();
         this.outdoorsLayer = new OutdoorsLayer();
+        this.openTopoMapLayer = new OpenTopoMapLayer();
         this.googleTerrainLayer = new GoogleTerrainLayer();
         this.googleSatelliteLayer = new GoogleSatelliteLayer();
 
@@ -243,6 +245,11 @@ export default class OpenLayersMap {
             case 'outdoors' :
                 this.map.removeLayer(this.currentLayer);
                 this.currentLayer = this.outdoorsLayer;
+                this.map.addLayer(this.currentLayer);
+                break;
+              case 'openTopoMap' :
+                this.map.removeLayer(this.currentLayer);
+                this.currentLayer = this.openTopoMapLayer;
                 this.map.addLayer(this.currentLayer);
                 break;
             case 'terrain' :
