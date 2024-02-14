@@ -137,7 +137,7 @@
                             <div
                                 class="mt-0 photoSwipeGallery"
                                 x-data
-                                x-init="window.initPhotoSwipe('.photoSwipeGallery')">
+                                x-init="window.initPhotoSwipe('.photoSwipeGallery')"
                             >
                                 <ul role="list" class="pswp-gallery mt-0 gap-x-3 gap-y-3">
                                     <li class="">
