@@ -92,6 +92,10 @@
         registerHomeVisit()
     "
     x-on:popstate.window="
+        if (window.openedPhotoswipe) {
+            window.openedPhotoswipe.destroy()
+        }
+
         if ($event.state && $event.state.springId) {
             setSpringId($event.state.springId)
             window.rodnikMap.highlightFeatureById($event.state.springId);

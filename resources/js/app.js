@@ -46,13 +46,22 @@ window.initOpenDiffer = function(element, oldCoordinates, newCoordinates) {
     window.rodnikDiffer = new OpenDiffer(element, oldCoordinates, newCoordinates);
 }
 
+window.openedPhotoswipe = null;
+
 window.initPhotoSwipe = function(id) {
     const lightbox = new PhotoSwipeLightbox({
         gallery: id,
         children: '.photoswipeImage',
-        pswpModule: () => import('photoswipe')
+        pswpModule: () => import('photoswipe'),
+        loop: false
     });
     lightbox.init();
+    lightbox.on('beforeOpen', () => {
+          window.openedPhotoswipe = lightbox.pswp
+    })
+    lightbox.on('destroy', () => {
+          window.openedPhotoswipe = null
+    })
 }
 
 Livewire.start()
