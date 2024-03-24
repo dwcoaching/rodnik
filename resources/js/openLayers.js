@@ -26,10 +26,10 @@ import SpringsApproximatedLayer from '@/layers/springs/approximated';
 import SpringsDistantLayer from '@/layers/springs/distant';
 import WateredSpringsApproximatedLayer from '@/layers/springs/wateredApproximated';
 import WateredSpringsDistantLayer from '@/layers/springs/wateredDistant';
+import TrackLayer from '@/layers/tracks/track';
 
 import StravaPublicLayer from '@/layers/stravaPublic';
 import OSMTracesLayer from '@/layers/osmTraces';
-
 
 import finalStyle from '@/styles/final';
 import selectedStyle from '@/styles/selected';
@@ -87,6 +87,8 @@ export default class OpenLayersMap {
         this.springsFinalSource = new SpringsFinalSource();
         this.springsUserSource = new SpringsUserSource();
 
+        this.trackLayer = new TrackLayer()
+
         this.featureToBeSelected = null;
         this.selectedFeature = null;
         this.featureIdToBeSelected = null;
@@ -115,7 +117,7 @@ export default class OpenLayersMap {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
-            layers: [this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer],
+            layers: [this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer, this.trackLayer],
             view: this.view,
             moveTolerance: 5,
         });
@@ -269,6 +271,22 @@ export default class OpenLayersMap {
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
+    }
+
+    upload(file) {
+        if (file) {
+            const reader = new FileReader()
+            reader.readAsText(file);
+            reader.onload = (e) => {
+                const content = e.target.result
+                this.trackLayer.getSource().setFromGPXString(content)
+
+                if (this.trackLayer.getSource().getFeatures().length) {
+                    this.view.fit(this.trackLayer.getSource().getExtent())
+                    this.view.setZoom(this.view.getZoom() - 0.5);
+                }
+            }
+        }
     }
 
     source(name) {
