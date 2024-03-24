@@ -235,7 +235,7 @@ export default class OpenLayersMap {
     download() {
         if (this.view.getZoom() < 9
             && this.springsFinalLayer.getSource() instanceof SpringsFinalSource) {
-            alert('Zoom in before exporting GPX')
+            alert('Please zoom in to export GPX')
             return false
         }
 
