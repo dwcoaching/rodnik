@@ -1,4 +1,5 @@
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import visible from '@/filters/visible.js'
 
 let radius = 12;
 let width = 1;
@@ -49,34 +50,9 @@ let reportedStyle = new Style({
     zIndex: 10,
 });
 
-// export { style as default }
 export default (feature, resolution) => {
-    if (! window.rodnikMap.filters.spring && feature.get('type') == 'Spring') {
-        return hiddenStyle;
-    }
-
-    if (! window.rodnikMap.filters.water_well && feature.get('type') == 'Water well') {
-        return hiddenStyle;
-    }
-
-    if (! window.rodnikMap.filters.water_tap && feature.get('type') == 'Water tap') {
-        return hiddenStyle;
-    }
-
-    if (! window.rodnikMap.filters.drinking_water && feature.get('type') == 'Drinking water source') {
-        return hiddenStyle;
-    }
-
-    if (! window.rodnikMap.filters.fountain && feature.get('type') == 'Fountain') {
-        return hiddenStyle;
-    }
-
-    if (! window.rodnikMap.filters.other && feature.get('type') == 'Water source') {
-        return hiddenStyle;
-    }
-
-    if (window.rodnikMap.filters.confirmed && ! feature.get('waterConfirmed')) {
-        return hiddenStyle;
+    if (! visible(feature)) {
+        return hiddenStyle
     }
 
     if (feature.get('hasReports') > 0) {

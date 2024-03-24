@@ -1,7 +1,7 @@
 import { Vector as VectorSource } from 'ol/source';
 import GeoJSON from 'ol/format/GeoJSON';
 
-export default class SpringsFinalSource extends VectorSource {
+export default class SpringsUserSource extends VectorSource {
     constructor() {
         super({
             format: new GeoJSON()

@@ -7,6 +7,8 @@ import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import { ScaleLine, defaults as defaultControls } from 'ol/control';
+import GPX from 'ol/format/GPX';
+import visible from '@/filters/visible.js'
 
 import { createXYZ } from 'ol/tilegrid';
 import { tile } from 'ol/loadingstrategy';
@@ -228,6 +230,45 @@ export default class OpenLayersMap {
         this.geolocationLayer = new GeolocationLayer(accuracyFeature, positionFeature);
 
         this.map.addLayer(this.geolocationLayer);
+    }
+
+    download() {
+        if (this.view.getZoom() < 9
+            && this.springsFinalLayer.getSource() instanceof SpringsFinalSource) {
+            alert('Zoom in before exporting GPX')
+            return false
+        }
+
+        const extent = this.map.getView().calculateExtent(this.map.getSize())
+
+        const features = this.springsFinalLayer.getSource().getFeaturesInExtent(extent)
+        const renamedFeatures = features.map((feature) => {
+            if (! feature.getProperties().name) {
+                feature.setProperties({
+                    name: feature.getProperties().type
+                })
+            }
+            return feature
+        })
+
+        const visibleFeatures = features.filter((feature) => {
+            return visible(feature)
+        })
+
+        const gpx = new GPX()
+        const gpxString = gpx.writeFeatures(visibleFeatures, {
+            dataProjection: 'EPSG:4326', // GPX standard projection
+            featureProjection: this.map.getView().getProjection() // Your map's projec
+        })
+
+        const blob = new Blob([gpxString], { type: 'application/gpx+xml;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = 'rodnik.today.gpx'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
     }
 
     source(name) {
