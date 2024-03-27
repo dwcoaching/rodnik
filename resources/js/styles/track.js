@@ -2,14 +2,14 @@ import { Stroke, Style, Circle, Fill } from 'ol/style'
 
 export default new Style({
     stroke: new Stroke({
-        color: '#000000',
+        color: '#ff0000',
         width: 2,
 
     }),
     image: new Circle({
-        radius: 2,
+        radius: 3,
         fill: new Fill({
-            color: '#000000',
+            color: '#ff0000',
         }),
     })
 })
