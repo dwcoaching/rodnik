@@ -1,3 +1,8 @@
+import { pointToLineDistance } from '@turf/turf';
+import { point, lineString, multiLineString } from '@turf/helpers';
+import GeoJSON from 'ol/format/GeoJSON';
+import { transform } from 'ol/proj';
+
 export default (feature) => {
     if (! window.rodnikMap.filters.spring && feature.get('type') == 'Spring') {
         return false
@@ -25,6 +30,27 @@ export default (feature) => {
 
     if (window.rodnikMap.filters.confirmed && ! feature.get('waterConfirmed')) {
         return false
+    }
+
+    if (window.rodnikMap.trackLayer.getSource().getFeatures().length) {
+        var transformedCoordinates = feature.getGeometry().clone().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
+        var turfPoint = point(transformedCoordinates);
+
+        let closestDistance = Infinity; // Start with a very high value to ensure any real distance is smaller
+
+        // Loop through each LineString in the MultiLineString
+        window.turfMultiLineString.geometry.coordinates.forEach(line => {
+          const turfLineString = lineString(line); // Convert each line to a LineString feature
+          const distance = pointToLineDistance(turfPoint, turfLineString, {units: 'meters'}); // Calculate distance
+          if (distance < closestDistance) {
+            closestDistance = distance; // Update closest distance if current distance is smaller
+          }
+        });
+
+        //console.log(closestDistance)
+        if (closestDistance > 100) {
+            return false
+        }
     }
 
     return true

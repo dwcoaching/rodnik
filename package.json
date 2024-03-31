@@ -23,6 +23,8 @@
     "dependencies": {
         "@mapbox/sphericalmercator": "^1.2.0",
         "@ryangjchandler/alpine-clipboard": "^2.2.0",
+        "@turf/helpers": "^6.5.0",
+        "@turf/turf": "^6.5.0",
         "coordinate-parser": "^1.0.7",
         "image-blob-reduce": "^4.1.0",
         "ol": "^7.3.0",

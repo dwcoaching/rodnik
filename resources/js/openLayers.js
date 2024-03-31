@@ -284,7 +284,11 @@ export default class OpenLayersMap {
                 if (this.trackLayer.getSource().getFeatures().length) {
                     this.view.fit(this.trackLayer.getSource().getExtent())
                     this.view.setZoom(this.view.getZoom() - 0.5);
+
+                    window.rodnikMap.springsFinalLayer.updateStyle();
                 }
+
+
             }
         }
     }
