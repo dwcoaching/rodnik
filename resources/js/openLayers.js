@@ -27,6 +27,7 @@ import SpringsDistantLayer from '@/layers/springs/distant';
 import WateredSpringsApproximatedLayer from '@/layers/springs/wateredApproximated';
 import WateredSpringsDistantLayer from '@/layers/springs/wateredDistant';
 import TrackLayer from '@/layers/tracks/track';
+import BufferLayer from '@/layers/tracks/buffer';
 
 import StravaPublicLayer from '@/layers/stravaPublic';
 import OSMTracesLayer from '@/layers/osmTraces';
@@ -88,6 +89,7 @@ export default class OpenLayersMap {
         this.springsUserSource = new SpringsUserSource();
 
         this.trackLayer = new TrackLayer()
+        this.bufferLayer = new BufferLayer()
 
         this.featureToBeSelected = null;
         this.selectedFeature = null;
@@ -117,7 +119,7 @@ export default class OpenLayersMap {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
-            layers: [this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer, this.trackLayer],
+            layers: [this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer, this.trackLayer, this.bufferLayer],
             view: this.view,
             moveTolerance: 5,
         });
@@ -285,7 +287,7 @@ export default class OpenLayersMap {
                     this.view.fit(this.trackLayer.getSource().getExtent())
                     this.view.setZoom(this.view.getZoom() - 0.5);
 
-                    window.rodnikMap.springsFinalLayer.updateStyle();
+                    //window.rodnikMap.springsFinalLayer.updateStyle();
                 }
 
 
