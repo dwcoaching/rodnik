@@ -28,6 +28,7 @@ import WateredSpringsApproximatedLayer from '@/layers/springs/wateredApproximate
 import WateredSpringsDistantLayer from '@/layers/springs/wateredDistant';
 import TrackLayer from '@/layers/tracks/track';
 import BufferLayer from '@/layers/tracks/buffer';
+import TrackSimplifiedLayer from '@/layers/tracks/trackSimplified';
 
 import StravaPublicLayer from '@/layers/stravaPublic';
 import OSMTracesLayer from '@/layers/osmTraces';
@@ -90,6 +91,7 @@ export default class OpenLayersMap {
 
         this.trackLayer = new TrackLayer()
         this.bufferLayer = new BufferLayer()
+        this.trackSimplifiedLayer = new TrackSimplifiedLayer()
 
         this.featureToBeSelected = null;
         this.selectedFeature = null;
@@ -119,7 +121,16 @@ export default class OpenLayersMap {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
-            layers: [this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer, this.trackLayer, this.bufferLayer],
+            layers: [
+                this.wateredSpringsDistantLayer,
+                this.wateredSpringsApproximatedLayer,
+                this.springsDistantLayer,
+                this.springsApproximatedLayer,
+                this.springsFinalLayer,
+                this.trackLayer,
+                this.bufferLayer,
+                this.trackSimplifiedLayer,
+            ],
             view: this.view,
             moveTolerance: 5,
         });
