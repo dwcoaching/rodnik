@@ -9,6 +9,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import { ScaleLine, defaults as defaultControls } from 'ol/control';
 import GPX from 'ol/format/GPX';
 import visible from '@/filters/visible.js'
+import Buffer from '@/buffer.js'
 
 import { createXYZ } from 'ol/tilegrid';
 import { tile } from 'ol/loadingstrategy';
@@ -45,12 +46,14 @@ import SpringsUserSource from '@/sources/user.js';
 export default class OpenLayersMap {
 
     constructor(elementId) {
+        this.debug = false
+
         this.finalZoom = 9;
         this.approximatedZoom = 6;
 
         this.elementId = elementId;
 
-        this.filters = {
+        this.filters = Alpine.reactive({
             all: true,
             spring: true,
             water_well: true,
@@ -59,7 +62,8 @@ export default class OpenLayersMap {
             fountain: true,
             other: true,
             confirmed: false,
-        };
+            along: false,
+        });
 
         this.overlays = {
             stravaPublic: false,
@@ -96,6 +100,8 @@ export default class OpenLayersMap {
         this.featureToBeSelected = null;
         this.selectedFeature = null;
         this.featureIdToBeSelected = null;
+
+        this.buffer = new Buffer();
 
         this.view = new View({
             center: getInitialCenter(),
@@ -298,10 +304,8 @@ export default class OpenLayersMap {
                     this.view.fit(this.trackLayer.getSource().getExtent())
                     this.view.setZoom(this.view.getZoom() - 0.5);
 
-                    //window.rodnikMap.springsFinalLayer.updateStyle();
+                    window.rodnikMap.filters.along = true
                 }
-
-
             }
         }
     }

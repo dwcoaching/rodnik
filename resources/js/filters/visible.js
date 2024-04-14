@@ -32,42 +32,19 @@ export default (feature) => {
         return false
     }
 
-    if (window.rodnikMap.trackLayer.getSource().getFeatures().length) {
+    if (window.rodnikMap.filters.along && ! window.rodnikMap.buffer.buffer) {
+        return false
+    }
+
+    if (window.rodnikMap.filters.along
+            && window.rodnikMap.trackLayer.getSource().getFeatures().length
+            && window.rodnikMap.buffer.buffer) {
+
         var transformedCoordinates = feature.getGeometry().clone().transform('EPSG:3857', 'EPSG:4326').getCoordinates();
         var turfPoint = point(transformedCoordinates);
 
-        const t1 = performance.now()
-        const a = booleanPointInPolygon(turfPoint, window.turfBuffered)
-        const t2 = performance.now()
-        window.visibletimer += t2 - t1
-        console.log(window.visibletimer)
-        return a
-
-        /**
-        const t1 = performance.now()
-
-        let closestDistance = Infinity; // Start with a very high value to ensure any real distance is smaller
-
-        // Loop through each LineString in the MultiLineString
-        window.turfMultiLineString.geometry.coordinates.forEach(line => {
-          const turfLineString = lineString(line); // Convert each line to a LineString feature
-          const distance = pointToLineDistance(turfPoint, turfLineString, {units: 'meters'}); // Calculate distance
-          if (distance < closestDistance) {
-            closestDistance = distance; // Update closest distance if current distance is smaller
-          }
-        });
-
-        let a = true
-        //console.log(closestDistance)
-        if (closestDistance > 1000) {
-            a = false
-        }
-
-        const t2 = performance.now()
-        window.visibletimer += t2 - t1
-        console.log(window.visibletimer)
-        return a
-        **/
+        return booleanPointInPolygon(turfPoint, window.rodnikMap.buffer.buffer)
+        // buffered polygon approach is at least 20 times faster than using pointToLineDistance
     }
 
     return true

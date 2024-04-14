@@ -142,7 +142,7 @@
                             x-cloak
                             x-show="filtersOpen"
                             @click.stop=""
-                            class="cursor-default shadow absolute top-0 right-11 w-64 rounded-md bg-white"
+                            class="cursor-default shadow absolute top-0 right-11 w-64 rounded-md bg-white pb-2"
                         >
                             <fieldset>
                                 <label for="filters.all" class="relative flex items-start cursor-pointer px-4 py-2 pb-1">
@@ -201,11 +201,11 @@
                                         <span class="font-regular text-gray-700">Other</span>
                                     </div>
                                 </label>
-                                <div class="pt-1 px-4 pb-2 flex items-start cursor-pointer"
+                                <div class="px-4 py-1 flex items-center cursor-pointer"
                                     @click="filters.confirmed = ! filters.confirmed; updateFilters()"
                                     x-model="filters.confirmed">
                                     <button
-                                        type="button" class="mt-2 -ml-1 mr-2 group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none" role="switch" aria-checked="false">
+                                        type="button" class="-ml-1 mr-2 group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none" role="switch" aria-checked="false">
                                         <span aria-hidden="true" class="pointer-events-none absolute h-full w-full rounded-md"></span>
                                         <span
                                             :class="{
@@ -220,7 +220,28 @@
                                             }"
                                             aria-hidden="true" class="translate-x-0 pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out"></span>
                                     </button>
-                                    <div class="mt-2 font-regular text-gray-700 text-sm">Only confirmed with good water</div>
+                                    <div class="font-regular text-gray-700 text-sm">Only confirmed good water</div>
+                                </div>
+                                <div class="px-4 py-1 flex items-center cursor-pointer"
+                                    @click="filters.along = ! filters.along; updateFilters()"
+                                    x-model="filters.along">
+                                    <button
+                                        type="button" class="-ml-1 mr-2 group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none" role="switch" aria-checked="false">
+                                        <span aria-hidden="true" class="pointer-events-none absolute h-full w-full rounded-md"></span>
+                                        <span
+                                            :class="{
+                                                'bg-orange-400': filters.along,
+                                                'bg-gray-300': ! filters.along,
+                                            }"
+                                            aria-hidden="true" class="pointer-events-none absolute mx-auto h-5 w-9 rounded-full transition-colors duration-200 ease-in-out"></span>
+                                        <span
+                                             :class="{
+                                                'translate-x-5': filters.along,
+                                                'translate-x-1': ! filters.along,
+                                            }"
+                                            aria-hidden="true" class="translate-x-0 pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition-transform duration-200 ease-in-out"></span>
+                                    </button>
+                                    <div class="font-regular text-gray-700 text-sm">Only along uploaded track</div>
                                 </div>
                             </fieldset>
                         </div>
@@ -356,7 +377,7 @@
                         <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z" />
                         <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                     </svg>
-                    <input id="gpx-track-upload" type="file" x-on:change="window.rodnikMap.upload($event.target.files[0])" class="hidden">
+                    <input id="gpx-track-upload" type="file" x-on:change="window.rodnikMap.upload($event.target.files[0]); $event.target.value = null;" class="hidden">
                 </label>
                 <div @click="window.rodnikMap.download()" title="Download Water Sources as GPX Waypoints" class="mt-2 h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
