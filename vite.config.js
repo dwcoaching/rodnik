@@ -25,7 +25,7 @@ export default defineConfig({
           output: {
             manualChunks: {
               'ol': ['ol'],
-              "turf": ['@turf/helpers', '@turf/turf'],
+              'turf': ['@turf/helpers', '@turf/turf'],
             }
           }
         }
