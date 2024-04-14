@@ -9,6 +9,7 @@ import GeoJSON from 'ol/format/GeoJSON';
 import { ScaleLine, defaults as defaultControls } from 'ol/control';
 import GPX from 'ol/format/GPX';
 import visible from '@/filters/visible.js'
+import Buffer from '@/buffer.js'
 
 import { createXYZ } from 'ol/tilegrid';
 import { tile } from 'ol/loadingstrategy';
@@ -27,6 +28,8 @@ import SpringsDistantLayer from '@/layers/springs/distant';
 import WateredSpringsApproximatedLayer from '@/layers/springs/wateredApproximated';
 import WateredSpringsDistantLayer from '@/layers/springs/wateredDistant';
 import TrackLayer from '@/layers/tracks/track';
+import BufferLayer from '@/layers/tracks/buffer';
+import TrackSimplifiedLayer from '@/layers/tracks/trackSimplified';
 
 import StravaPublicLayer from '@/layers/stravaPublic';
 import OSMTracesLayer from '@/layers/osmTraces';
@@ -43,12 +46,14 @@ import SpringsUserSource from '@/sources/user.js';
 export default class OpenLayersMap {
 
     constructor(elementId) {
+        this.debug = false
+
         this.finalZoom = 9;
         this.approximatedZoom = 6;
 
         this.elementId = elementId;
 
-        this.filters = {
+        this.filters = Alpine.reactive({
             all: true,
             spring: true,
             water_well: true,
@@ -57,7 +62,8 @@ export default class OpenLayersMap {
             fountain: true,
             other: true,
             confirmed: false,
-        };
+            along: false,
+        });
 
         this.overlays = {
             stravaPublic: false,
@@ -88,10 +94,14 @@ export default class OpenLayersMap {
         this.springsUserSource = new SpringsUserSource();
 
         this.trackLayer = new TrackLayer()
+        this.bufferLayer = new BufferLayer()
+        this.trackSimplifiedLayer = new TrackSimplifiedLayer()
 
         this.featureToBeSelected = null;
         this.selectedFeature = null;
         this.featureIdToBeSelected = null;
+
+        this.buffer = new Buffer();
 
         this.view = new View({
             center: getInitialCenter(),
@@ -117,7 +127,16 @@ export default class OpenLayersMap {
         this.map = new Map({
             controls: defaultControls().extend([this.scaleControl]),
             target: this.elementId,
-            layers: [this.wateredSpringsDistantLayer, this.wateredSpringsApproximatedLayer, this.springsDistantLayer, this.springsApproximatedLayer, this.springsFinalLayer, this.trackLayer],
+            layers: [
+                this.wateredSpringsDistantLayer,
+                this.wateredSpringsApproximatedLayer,
+                this.springsDistantLayer,
+                this.springsApproximatedLayer,
+                this.springsFinalLayer,
+                this.trackLayer,
+                this.bufferLayer,
+                this.trackSimplifiedLayer,
+            ],
             view: this.view,
             moveTolerance: 5,
         });
@@ -284,6 +303,8 @@ export default class OpenLayersMap {
                 if (this.trackLayer.getSource().getFeatures().length) {
                     this.view.fit(this.trackLayer.getSource().getExtent())
                     this.view.setZoom(this.view.getZoom() - 0.5);
+
+                    window.rodnikMap.filters.along = true
                 }
             }
         }
