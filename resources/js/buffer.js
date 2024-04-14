@@ -1,4 +1,3 @@
-import { multiLineString } from '@turf/helpers';
 import { buffer, simplify, featureCollection, union } from '@turf/turf';
 import GeoJSON from 'ol/format/GeoJSON';
 

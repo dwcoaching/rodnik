@@ -20,6 +20,16 @@ export default defineConfig({
             '@' : path.resolve(__dirname, './resources/js')
         },
     },
+    build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'ol': ['ol'],
+              "turf": ['@turf/helpers', '@turf/turf'],
+            }
+          }
+        }
+      }
 });
 
 function detectServerConfig(host) {
