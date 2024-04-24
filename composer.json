@@ -13,6 +13,7 @@
         "intervention/image": "^2.7",
         "jenssegers/date": "^4.0",
         "laravel-notification-channels/telegram": "^4.0",
+        "laravel/folio": "^1.1",
         "laravel/framework": "^10.0",
         "laravel/jetstream": "^4.0",
         "laravel/sanctum": "^3.2",

@@ -16,7 +16,9 @@
                 this.withDate = true;
             }
         }
-    }">
+    }"
+    x-init="withDate = !! visited_at"
+    >
 
     @guest
         <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">

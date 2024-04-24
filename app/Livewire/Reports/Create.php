@@ -72,7 +72,7 @@ class Create extends Component
             $this->state = $this->report->state;
             $this->quality = $this->report->quality;
             $this->comment = $this->report->comment;
-            $this->visited_at = $this->report->visited_at->format('Y-m-d');
+            $this->visited_at = $this->report->visited_at?->format('Y-m-d');
             $this->photosIds = $this->report->photos->pluck('id')->all();
         }
     }

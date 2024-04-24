@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "549b1eba9822acc04ac1412f5a04ca24",
+    "content-hash": "418f65f6ec4e0dac372eebf759d397c8",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2480,6 +2480,79 @@
                 "source": "https://github.com/laravel-notification-channels/telegram/tree/4.0.0"
             },
             "time": "2023-02-14T18:21:03+00:00"
+        },
+        {
+            "name": "laravel/folio",
+            "version": "v1.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/folio.git",
+                "reference": "f0a891a0fac410ab4b5b796451f87d3ffc85acd2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/folio/zipball/f0a891a0fac410ab4b5b796451f87d3ffc85acd2",
+                "reference": "f0a891a0fac410ab4b5b796451f87d3ffc85acd2",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/console": "^10.19|^11.0",
+                "illuminate/container": "^10.19|^11.0",
+                "illuminate/contracts": "^10.19|^11.0",
+                "illuminate/filesystem": "^10.19|^11.0",
+                "illuminate/pipeline": "^10.19|^11.0",
+                "illuminate/routing": "^10.19|^11.0",
+                "illuminate/support": "^10.19|^11.0",
+                "illuminate/view": "^10.19|^11.0",
+                "php": "^8.1",
+                "spatie/once": "^3.1",
+                "symfony/console": "^6.0|^7.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.6.0|^9.0",
+                "pestphp/pest": "^2.5",
+                "phpstan/phpstan": "^1.10"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.x-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Folio\\FolioServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "functions.php"
+                ],
+                "psr-4": {
+                    "Laravel\\Folio\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Page based routing for Laravel.",
+            "homepage": "https://github.com/laravel/folio",
+            "keywords": [
+                "laravel",
+                "routing"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/folio/issues",
+                "source": "https://github.com/laravel/folio"
+            },
+            "time": "2024-03-19T20:07:55+00:00"
         },
         {
             "name": "laravel/fortify",
@@ -5626,6 +5699,68 @@
                 }
             ],
             "time": "2023-08-23T09:04:39+00:00"
+        },
+        {
+            "name": "spatie/once",
+            "version": "3.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/spatie/once.git",
+                "reference": "aab3fc8694e7caec98b2d330c4a8420391c7559d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/spatie/once/zipball/aab3fc8694e7caec98b2d330c4a8420391c7559d",
+                "reference": "aab3fc8694e7caec98b2d330c4a8420391c7559d",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "pestphp/pest": "^1.21",
+                "symfony/var-dumper": "^5.1"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Spatie\\Once\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Freek Van der Herten",
+                    "email": "freek@spatie.be",
+                    "homepage": "https://spatie.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A magic memoization function",
+            "homepage": "https://github.com/spatie/once",
+            "keywords": [
+                "cache",
+                "callable",
+                "memoization",
+                "once",
+                "spatie"
+            ],
+            "support": {
+                "source": "https://github.com/spatie/once/tree/3.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://spatie.be/open-source/support-us",
+                    "type": "custom"
+                }
+            ],
+            "time": "2022-04-21T12:23:20+00:00"
         },
         {
             "name": "symfony/console",
