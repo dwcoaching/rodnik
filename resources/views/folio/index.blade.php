@@ -19,11 +19,13 @@
               <input id="my-drawer" type="checkbox" class="drawer-toggle" />
               <div class="drawer-content">
                 <div class="lg:hidden navbar bg-base-200">
-                  <div class="flex-1">
-                    <label for="my-drawer" class="btn btn-square btn-ghost">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                  <div class="flex-1 items-stretch">
+                    <label for="my-drawer" class="btn btn-ghost flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </label>
-                    <img src="/rodnik-nunito-logo.svg" class="h-6 mt-0.5" />
+                    <a href="/" class="btn btn-ghost flex items-center">
+                      <img src="/rodnik-nunito-logo.svg" class="h-6 mt-0.5 " />
+                    </a>
 
                   </div>
                 </div>
@@ -35,11 +37,15 @@
                 <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
                 <ul data-theme="light" class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
                   <!-- Sidebar content here -->
-                  <li><a class="/">
+                  <li class="mb-2"><a href="/">
                       <img src="/rodnik-nunito-logo.svg" class="h-6 mt-0.5" />
                   </a></li>
-                  <li><a href="/">🌍&nbsp; Map</a></li>
-                  <li><a href="/docs/about">😀&nbsp; About</a></li>
+                  {{--<li><a href="/">🌍&nbsp; Map</a></li>--}}
+                  <li><a href="/docs/about"
+                    @if (Request::is('docs/about'))
+                      class="active"
+                    @endif
+                  >😀&nbsp; About</a></li>
                 </ul>
               </div>
             </div>

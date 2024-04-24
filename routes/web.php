@@ -53,6 +53,8 @@ Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'inde
 Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::class, 'index'])->name('coverage');
 
 Route::resource('reports', ReportController::class);
-Route::get('/about', About::class);
+
+// Keep only as an example
+// Route::get('/about', About::class);
 
 

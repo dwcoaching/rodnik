@@ -4,24 +4,24 @@
     <div class="prose">
         <h1>Coll de Sa Batalla</h1>
         <p>
-            Mallorca es nuestro lugar favorita para bicicleta y vacaciones!
-            Coll de Sa Batalla es un punto muy importante en las carretera montañas,
-            siempre se monta su bici por este coll. Y aqui está el cafe donde muchissimos
-            cyclistas descansan y toman el cafe y croissants. Esto es nuestro cafe favorito!
+            Coll de Sa Batalla es el paso de montaña más importante en Mallorca.
+            Siempre se pasa este punto en bicicleta.
+            Aquí está el café donde muchísimos ciclistas descansan y toman café y croissants.
+            ¡Este es nuestro café favorito tambien!
         </p>
         <h2>2012</h2>
         <p>
-            Un primer vez en Mallorca! Desafortunadamente, no fotos del café de ese año!
+            ¡Una primera vez en Mallorca! Desafortunadamente, no hay fotos del café de ese año.
         </p>
         <h2>2013</h2>
         <p>
-            Un primer año en que mucha gente de Rúsia llega a Mallorca
+            Un primer año en que mucha gente de Rusia llegó a Mallorca.
         </p>
         <p><img src="/i/coll-de-sa-batalla/2013/1.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2013/2.jpg" /></p>
         <h2>2014</h2>
         <p>
-            Un primer vez en Mallorca para Lena.
+            La primera vez en Mallorca para Lena.
         </p>
         <p><img src="/i/coll-de-sa-batalla/2014/1.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2014/2.jpg" /></p>
@@ -30,8 +30,8 @@
 
         <h2>2015</h2>
         <p>
-            En 2015 tuvimos un gran Camp del Triathlon, pero no los fotos solo
-            sin mucha gente y muy tranquilos.
+            En 2015 tuvimos un gran campamento de triatlón, pero no tenemos fotos con mucha gente,
+            solo un ambiente muy tranquilo.
         </p>
         <p><img src="/i/coll-de-sa-batalla/2015/1.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2015/2.jpg" /></p>
@@ -40,8 +40,8 @@
 
         <h2>2016</h2>
         <p>
-            Un otro año con Triathlon Camp. La Muñeca Rusa —
-            un regalo de Rúsia.
+            Otro año con un campamento de triatlón. Trajimos la muñeca rusa
+            (la matrioshka), un regalo de Rusia.
         </p>
         <p><img src="/i/coll-de-sa-batalla/2016/2.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2016/4.jpg" /></p>
@@ -49,17 +49,17 @@
 
         <h2>2017</h2>
         <p>
-            Andreu estuvo cambiando su trabajo i debería
-            quedarse en Moscú, pero Lena estuve la jefa del Triathlon Camp.
-            (Un regalo de ese año – Un silbato en la forma de pajaro.)
+            Andreu estuvo cambiando de trabajo y debía quedarse en Moscú,
+            pero Lena fue la jefa del campamento de triatlón.
+            (Un regalo de ese año: un silbato de madera en forma de pájaro.)
         </p>
         <p><img src="/i/coll-de-sa-batalla/2017/1.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2017/2.jpg" /></p>
 
         <h2>2018</h2>
         <p>
-            Un otro buen año! Un recuerdo de ese año — el oso de madera
-            con el barril de miel y una cuchara!
+            ¡Otro buen año! Un recuerdo de ese año:
+            el oso de madera con el barril de miel y una cuchara.
         </p>
         <p><img src="/i/coll-de-sa-batalla/2018/1.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2018/2.jpg" /></p>
@@ -68,8 +68,7 @@
 
         <h2>2019</h2>
         <p>
-            Y un otro mas buen año! Un regalo: un caballo de madera pintada
-            en estilo rúso tradicional.
+            ¡Y otro buen año! Un regalo: un caballo de madera pintado al estilo tradicional ruso.
         </p>
         <p><img src="/i/coll-de-sa-batalla/2019/1.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2019/2.jpg" /></p>
@@ -81,18 +80,17 @@
         <p>Covid 🦠</p>
 
         <h2>2021</h2>
-        <p>Un otro año de Covid 🦠</p>
+        <p>Otro año de Covid 🦠</p>
 
         <h2>2022</h2>
         <p>Guerra 😢</p>
 
         <h2>2023</h2>
         <p>
-            Nos hemos mudado a Finlandia! La vida no estuvo fácil,
-            pero necesitamos algo bueno para recargarse y coger
-            fuerzas!
+            ¡Nos hemos mudado a Finlandia! La vida no fue fácil,
+            pero necesitamos algo positivo para recargarnos y tomar fuerzas.
 
-            Y ese año trajimos un recuerdos tradicionales de Finladia!
+            Ese año trajimos recuerdos tradicionales de Finlandia.
         </p>
         <p><img src="/i/coll-de-sa-batalla/2023/1.jpg" /></p>
         <p><img src="/i/coll-de-sa-batalla/2023/2.jpg" /></p>
