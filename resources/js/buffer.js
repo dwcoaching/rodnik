@@ -50,6 +50,8 @@ export default class Buffer {
             mutate: true,
         })
 
+        // Union is slow when there are 1000s of individual points,
+        // But it is required later to check whether the point is inside the polygon
         this.buffer = this.buffer.features.reduce((joined, feature) => {
             return union(joined, feature)
         })
