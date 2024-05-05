@@ -103,6 +103,25 @@
 
         <h2>2024</h2>
         <p>
+            Andreu tuvo que quedarse en Lahti, pero Lena llegó una vez más a Mallorca.
+            Lena trajo un regalo tradicional de Finlandia: Joulupukki, que significa
+            «Cabro navideño». Históricamente, Joulupukki era un cabro, pero ahora también
+            se refiere a Papá Noel.
+        </p>
+        <p>
+            Miguel envió un regalo muy especial a Lena: ¡aceite de oliva en
+            una botella de 5 litros! Ahora Lena está planeando cómo llevarlo de vuelta
+            a Finlandia en avión ✈️.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 not-prose gap-4">
+        <p><img src="/i/coll-de-sa-batalla/2024/1.jpg" /></p>
+        <p><img src="/i/coll-de-sa-batalla/2024/2.jpg" /></p>
+        <p><img src="/i/coll-de-sa-batalla/2024/3.jpg" /></p>
+        <p><img src="/i/coll-de-sa-batalla/2024/5.jpg" /></p>
+    </div>
+
+
+        <p>
             Continuará!
         </p>
 
