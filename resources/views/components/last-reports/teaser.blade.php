@@ -26,18 +26,16 @@
                     </a>
                 </div>
 
-                <div class="flex space-x-3 px-3 pb-3">
+                <div class="mt-1 flex space-x-3 px-3 pb-3">
                     <div class="flex-1">
+                        <div class="text-xs text-black text-gray-500">
+                            {{ $report->created_at->format('d.m.Y') }}
+                        </div>
                         <div class="flex justify-between">
-                            <h3 class="flex flex-wrap items-baseline text-base font-light">
-                                @if ($report->visited_at)
-                                    <span class="mr-1 text-xs font-regular">
-                                        {{ $report->visited_at->format('F d, Y') }}<span class="text-sm font-regular">,</span>
-                                    </span>
-                                @endif
+                            <h3 class="flex flex-wrap items-baseline text-base">
                                 <div class="flex">
                                     @if ($report->user_id)
-                                        <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700"
+                                        <a class="block flex flex-wrap text-sm hover:underline text-blue-600 cursor-pointer hover:text-blue-700"
                                             @click.prevent="
                                                 window.dispatchEvent(
                                                     new CustomEvent('turbo-visit-user',
@@ -59,6 +57,7 @@
                                 </div>
                             </h3>
                         </div>
+
 
 
                         <div class="mt-1 text-sm text-black break-normal [overflow-wrap:anywhere]">

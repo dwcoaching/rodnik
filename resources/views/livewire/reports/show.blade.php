@@ -4,10 +4,10 @@
             <div class="flex space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">
-                        <h3 class="flex flex-wrap items-baseline text-base font-light">
-                            @if ($report->visited_at)
-                                <span class="mr-1 text-sm font-bold">
-                                    {{ $report->visited_at->format('F d, Y') }}<span class="text-sm font-regular">,</span>
+                        <h3 class="flex flex-wrap items-baseline text-base">
+                            @if ($report->created_at)
+                                <span class="mr-1 text-sm">
+                                    {{ $report->created_at->format('d.m.Y') }}<span class="text-sm font-regular">,</span>
                                 </span>
                             @endif
                             <div class="flex">
@@ -140,11 +140,10 @@
                     @endif
                 </div>
             </div>
-            @if (false)
-                <div class="text-xs mt-2 text-gray-500">
-                    Added on
-                    <span>{{ $report->created_at->format('F d, Y') }}</span>
-                    at <span>{{ $report->created_at->format('H:i') }} UTC</span>
+            @if ($report->visited_at)
+                <div class="text-sm mt-3 text-gray-500">
+                    Date of visit:
+                    <span>{{ $report->visited_at->format('d.m.Y') }}</span>
                 </div>
             @endif
         </div>

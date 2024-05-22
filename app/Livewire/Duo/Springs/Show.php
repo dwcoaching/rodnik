@@ -28,7 +28,7 @@ class Show extends Component
             $reports = $spring
                 ->reports()
                 ->whereNull('from_osm')
-                ->orderByDesc('visited_at')
+                ->latest()
                 ->with(['user', 'photos'])
                 ->get();
 
