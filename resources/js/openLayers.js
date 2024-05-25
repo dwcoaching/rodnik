@@ -282,7 +282,7 @@ export default class OpenLayersMap {
             featureProjection: this.map.getView().getProjection() // Your map's projec
         })
 
-        const blob = new Blob([gpxString], { type: 'application/gpx+xml;charset=utf-8;' })
+        const blob = new Blob([`<?xml version="1.0" encoding="utf-8"?>\n${gpxString}`], { type: 'application/gpx+xml;charset=utf-8;' })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
