@@ -114,12 +114,16 @@
             a Finlandia en avión ✈️.
         </p>
         <div class="grid grid-cols-1 sm:grid-cols-2 not-prose gap-4">
-        <p><img src="/i/coll-de-sa-batalla/2024/1.jpg" /></p>
-        <p><img src="/i/coll-de-sa-batalla/2024/2.jpg" /></p>
-        <p><img src="/i/coll-de-sa-batalla/2024/3.jpg" /></p>
-        <p><img src="/i/coll-de-sa-batalla/2024/5.jpg" /></p>
-    </div>
-
+            <p><img src="/i/coll-de-sa-batalla/2024/1.jpg" /></p>
+            <p><img src="/i/coll-de-sa-batalla/2024/2.jpg" /></p>
+            <p><img src="/i/coll-de-sa-batalla/2024/3.jpg" /></p>
+            <p><img src="/i/coll-de-sa-batalla/2024/5.jpg" /></p>
+        </div>
+        <p>
+        El Aceite llegó a Lahti en botellas pequeñas. ¡Es muy especial
+        y tiene el sabor de Mallorca!
+        </p>
+        <img src="/i/coll-de-sa-batalla/2024/6.jpg" />
 
         <p>
             Continuará!

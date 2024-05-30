@@ -4,6 +4,7 @@ namespace App\Livewire\Duo\Springs;
 
 use App\Models\Spring;
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
 class Show extends Component
 {
@@ -39,5 +40,17 @@ class Show extends Component
     }
 
         return view('livewire.duo.springs.show', compact('reports', 'spring', 'coordinates'));
+    }
+
+    public function annihilate()
+    {
+        if (Auth::check() && Auth::user()->is_superadmin) {
+            $spring = Spring::find($this->springId);
+            $spring->annihilate();
+
+            $this->redirectRoute('index');
+        } else {
+            abort(403);
+        }
     }
 }

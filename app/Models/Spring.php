@@ -7,6 +7,7 @@ use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\SpringTile;
 use App\Models\SpringRevision;
+use App\Library\StatisticsService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -189,6 +190,35 @@ class Spring extends Model
 
             return false;
         }
+    }
+
+    public function annihilate()
+    {
+        if (! $this->canBeAnnihilated()) {
+            throw new \Exception("Spring can not be annihilated");
+        }
+
+        $latitude = $this->latitude;
+        $longitude = $this->longitude;
+
+        $this->delete();
+
+        SpringTile::invalidate($this->longitude, $this->latitude);
+        WateredSpringTile::invalidate($this->longitude, $this->latitude);
+        StatisticsService::invalidateSpringsCount();
+    }
+
+    public function canBeAnnihilated()
+    {
+        if ($this->reports->count() > 0) {
+            return false;
+        }
+
+        if ($this->osm_node_id || $this->osm_way_id) {
+            return false;
+        }
+
+        return true;
     }
 
     //     public function apply()
