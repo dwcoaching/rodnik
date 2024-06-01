@@ -44,7 +44,7 @@ class Report extends Model
 
     public function scopeVisible(Builder $query): void
     {
-        $query->whereNull('from_osm')
-            ->whereNull('hidden_at');
+        $query->whereNull('reports.from_osm')
+            ->whereNull('reports.hidden_at');
     }
 }

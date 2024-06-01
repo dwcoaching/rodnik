@@ -23,9 +23,10 @@ class ShowMoreReports extends Component
     {
         if ($this->userId) {
             $user = User::find($this->userId);
+            $userReportCount = $user->calculateRating(); // That will be unnecessary if we ensure that the cached rating is always updated
 
-            if ($this->skip + $this->take > $user->rating) {
-                $this->take = $user->rating - $this->skip;
+            if ($this->skip + $this->take > $userReportCount) {
+                $this->take = $userReportCount - $this->skip;
             }
 
             if ($this->take < 0) {
@@ -36,15 +37,22 @@ class ShowMoreReports extends Component
         if ($this->shown) {
             if ($this->userId) {
                 $this->reports = $user->reports()
-                    ->whereNull('hidden_at')
+                    ->select('reports.*')
+                    ->join('springs', 'springs.id', '=', 'reports.spring_id')
+                    ->whereNull('reports.hidden_at')
+                    ->whereNull('reports.from_osm')
+                    ->whereNull('springs.hidden_at')
                     ->with(['user', 'photos', 'spring'])
                     ->latest()
                     ->skip($this->skip)
                     ->take($this->take)
                     ->get();
             } else {
-                $this->reports = Report::whereNull('hidden_at')
-                    ->whereNull('from_osm')
+                $this->reports = Report::select('reports.*')
+                    ->join('springs', 'springs.id', '=', 'reports.spring_id')
+                    ->whereNull('reports.hidden_at')
+                    ->whereNull('reports.from_osm')
+                    ->whereNull('springs.hidden_at')
                     ->latest()
                     ->take($this->take)
                     ->skip($this->skip)

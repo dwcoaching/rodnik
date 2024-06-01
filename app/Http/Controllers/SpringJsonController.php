@@ -43,7 +43,7 @@ class SpringJsonController extends Controller
                 ->withCount(
                     [
                         'reports' => function(Builder $query) {
-                            $query->whereNull('hidden_at');
+                            $query->whereNull('reports.hidden_at');
                         }
                     ]
                 );

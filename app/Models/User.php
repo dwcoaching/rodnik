@@ -67,7 +67,7 @@ class User extends Authenticatable implements FilamentUser
     public function springs()
     {
         return $this->belongsToMany(Spring::class, 'reports', 'user_id', 'spring_id')
-            ->whereNull('hidden_at');
+            ->whereNull('springs.hidden_at');
     }
 
     public function reports()
@@ -88,7 +88,13 @@ class User extends Authenticatable implements FilamentUser
 
     public function calculateRating()
     {
-        return $this->reports()->whereNull('from_osm')->whereNull('hidden_at')->count();
+        return $this->reports()
+            ->select('reports.*')
+            ->join('springs', 'springs.id', '=', 'reports.spring_id')
+            ->whereNull('reports.hidden_at')
+            ->whereNull('reports.from_osm')
+            ->whereNull('springs.hidden_at')
+            ->count();
     }
 
     public function updateRating()
