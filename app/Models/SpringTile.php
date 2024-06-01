@@ -80,7 +80,8 @@ class SpringTile extends Model
 
     public function generateGeoJSONString()
     {
-        $springsQuery = Spring::query();
+        $springsQuery = Spring::query()
+            ->whereNull('hidden_at');
 
         if ($this->getLimit()) {
             $randomQuery = $this->getRandomQuery();
@@ -136,6 +137,7 @@ class SpringTile extends Model
     {
         return DB::table('springs')
             ->select('springs.id')
+            ->whereNull('hidden_at')
             ->where($this->getCoordinatesFunction())
             ->inRandomOrder()
             ->limit($this->getLimit());

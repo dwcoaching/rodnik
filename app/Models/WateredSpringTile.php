@@ -24,6 +24,7 @@ class WateredSpringTile extends SpringTile
             ->select('springs.id', DB::raw('COUNT(reports.id) as reports_count'))
             ->whereNull('reports.from_osm')
             ->whereNull('reports.hidden_at')
+            ->whereNull('springs.hidden_at')
             ->where($this->getCoordinatesFunction())
             ->groupBy('springs.id')
             ->having('reports_count', '>', 0)

@@ -53,4 +53,16 @@ class Show extends Component
             abort(403);
         }
     }
+
+    public function hide()
+    {
+        if (Auth::check() && Auth::user()->is_superadmin) {
+            $spring = Spring::find($this->springId);
+            $spring->hide();
+
+            $this->redirectRoute('index');
+        } else {
+            abort(403);
+        }
+    }
 }

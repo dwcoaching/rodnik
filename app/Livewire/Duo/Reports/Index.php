@@ -6,6 +6,7 @@ use App\Models\Report;
 use App\Models\Spring;
 use Livewire\Component;
 use App\Library\StatisticsService;
+use Illuminate\Database\Eloquent\Builder;
 
 class Index extends Component
 {
@@ -25,9 +26,12 @@ class Index extends Component
             $springsCount = null;
             $reportsCount = null;
         } else {
-            $lastReports = Report::whereNull('hidden_at')
-                ->whereNull('from_osm')
-                ->latest()
+            $lastReports = Report::select('reports.*')
+                ->join('springs', 'springs.id', '=', 'reports.spring_id')
+                ->whereNull('reports.hidden_at')
+                ->whereNull('reports.from_osm')
+                ->whereNull('springs.hidden_at')
+                ->latest('reports.created_at')
                 ->limit($this->limit)
                 ->with(['spring', 'user', 'photos'])
                 ->get();

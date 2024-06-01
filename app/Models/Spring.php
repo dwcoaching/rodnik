@@ -208,6 +208,16 @@ class Spring extends Model
         StatisticsService::invalidateSpringsCount();
     }
 
+    public function hide()
+    {
+        $this->hidden_at = now();
+        $this->save();
+
+        SpringTile::invalidate($this->longitude, $this->latitude);
+        WateredSpringTile::invalidate($this->longitude, $this->latitude);
+        StatisticsService::invalidateSpringsCount();
+    }
+
     public function canBeAnnihilated()
     {
         if ($this->reports->count() > 0) {
@@ -219,6 +229,11 @@ class Spring extends Model
         }
 
         return true;
+    }
+
+    public function visible()
+    {
+        return ! $this->hidden_at;
     }
 
     //     public function apply()

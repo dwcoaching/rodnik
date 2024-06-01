@@ -284,9 +284,11 @@ export default class OpenLayersMap {
 
         const blob = new Blob([`<?xml version="1.0" encoding="utf-8"?>\n${gpxString}`], { type: 'application/gpx+xml;charset=utf-8;' })
         const url = URL.createObjectURL(blob)
+
+        const date = (new Date()).toISOString().slice(0, 19).replace('T', '--').replaceAll(':', '-');
         const link = document.createElement('a')
         link.href = url
-        link.download = 'rodnik.today.gpx'
+        link.download = `rodnik-${date}.gpx`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)

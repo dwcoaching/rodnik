@@ -11,7 +11,9 @@ class StatisticsService
     static public function getSpringsCount()
     {
         if (! Cache::has('springsCount')) {
-            $springsCount = Spring::count();
+            $springsCount = Spring
+                ::whereNull('hidden_at')
+                ->count();
 
             Cache::put('springsCount', $springsCount);
         }
