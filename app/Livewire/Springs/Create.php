@@ -5,11 +5,13 @@ namespace App\Livewire\Springs;
 use App\Models\Report;
 use App\Models\Spring;
 use Livewire\Component;
+use App\Models\SpringTile;
 use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
 use App\Models\SpringRevision;
 use Illuminate\Validation\Rule;
+use App\Models\WateredSpringTile;
 use App\Library\StatisticsService;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
@@ -77,6 +79,14 @@ class Create extends Component
 
         $springChangeCount = 0;
         $revision = new SpringRevision();
+
+        if ($this->spring->latitude != $this->latitude
+            || $this->spring->longitude != $this->longitude) {
+            SpringTile::invalidate($this->spring->longitude, $this->spring->latitude);
+            WateredSpringTile::invalidate($this->spring->longitude, $this->spring->latitude);
+            SpringTile::invalidate($this->longitude, $this->latitude);
+            WateredSpringTile::invalidate($this->longitude, $this->latitude);
+        }
 
         if ($this->spring->latitude != $this->latitude) {
             $revision->old_latitude = $this->spring->latitude;
