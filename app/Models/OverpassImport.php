@@ -139,6 +139,10 @@ class OverpassImport extends Model
               {$this->area}
             out;
             node
+              [amenity=watering_place]
+              {$this->area}
+            out;
+            node
               [man_made=drinking_fountain]
               {$this->area}
             out;
@@ -189,6 +193,10 @@ class OverpassImport extends Model
             out center;
             way
               [amenity=fountain]
+              {$this->area}
+            out center;
+            way
+            [amenity=watering_place]
               {$this->area}
             out center;
             way
