@@ -44,7 +44,7 @@ class Show extends Component
 
     public function annihilate()
     {
-        if (Auth::check() && Auth::user()->is_superadmin) {
+        if (Auth::check() && Auth::user()->is_admin) {
             $spring = Spring::find($this->springId);
             $spring->annihilate();
 
