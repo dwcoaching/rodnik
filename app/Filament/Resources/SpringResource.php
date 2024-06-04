@@ -77,7 +77,9 @@ class SpringResource extends Resource
                         }
 
                         return $query;
-                    })
+                    }),
+                Filter::make('hidden_at')->label('Visible')->default(true)
+                    ->query(fn (Builder $query): Builder => $query->whereNull('hidden_at')),
             ])
             ->actions([
                 //Tables\Actions\EditAction::make(),
