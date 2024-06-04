@@ -43,6 +43,7 @@ class OverpassBatchResource extends Resource
                     ->url(fn (OverpassBatch $record): String => route('coverage', ['overpassBatch' => $record])),
                 TextColumn::make('parse_status'),
                 TextColumn::make('parsed_percentage'),
+                TextColumn::make('cleanup_status'),
                 TextColumn::make('created_at'),
             ])
             ->filters([

@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Spring;
+use App\Library\Tagger;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -65,7 +66,7 @@ class SpringResource extends Resource
                             ->live(onBlur: true)
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        $tags = static::parseTags($data['tags']);
+                        $tags = Tagger::parseTags($data['tags']);
 
                         foreach ($tags as $tag) {
                             $query->whereHas('osm_tags', function($query) use ($tag) {
@@ -102,26 +103,5 @@ class SpringResource extends Resource
             // 'create' => Pages\CreateSpring::route('/create'),
             // 'edit' => Pages\EditSpring::route('/{record}/edit'),
         ];
-    }    
-
-    protected static function parseTags($tags)
-    {
-        $tagLine = collect(explode("\n", $tags));
-
-        return $result = $tagLine->map(function($tagString) {
-            $explodedString = explode('=', $tagString);
-
-            if (count($explodedString) >= 2 && mb_strlen($explodedString[0]) > 0 && mb_strlen($explodedString[1])) {
-                return $explodedString;
-            } else {
-                return null;
-            }
-        })->filter(function($item) {
-            if (is_array($item) && count($item)) {
-                return true;
-            }
-
-            return false;
-        });
     }
 }

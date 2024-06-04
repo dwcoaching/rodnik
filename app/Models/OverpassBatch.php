@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\OverpassCheck;
 use App\Models\OverpassImport;
+use App\Jobs\CleanupOSMSprings;
 use App\Jobs\ParseOverpassBatchImports;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -116,6 +117,7 @@ class OverpassBatch extends Model
 
         if ($percentage === 1.0) {
             $this->parse_status = "parsed";
+            CleanupOSMSprings::dispatch($this);
         } else {
             $this->parse_status = "parsing";
         }
