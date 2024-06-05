@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Library\Laundry;
+use App\Models\OverpassBatch;
 use App\Jobs\CleanupOSMSprings;
 use Illuminate\Console\Command;
 

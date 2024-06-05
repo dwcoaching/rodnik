@@ -25,6 +25,7 @@ class CleanupOSMSprings implements ShouldQueue
      * @return void
      */
     public function __construct(?OverpassBatch $overpassBatch = null) {
+        $this->overpassBatch = $overpassBatch;
         $this->onQueue('overpass');
     }
 
