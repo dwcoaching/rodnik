@@ -59,9 +59,6 @@ class Laundry
                 tourism=camp_site
                 drinking_water=no
             ', '
-                amenity=fountain
-                drinking_water=no
-            ', '
                 tourism=wilderness_hut
                 drinking_water=no
             ',
