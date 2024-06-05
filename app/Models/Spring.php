@@ -218,6 +218,16 @@ class Spring extends Model
         StatisticsService::invalidateSpringsCount();
     }
 
+    public function unhide()
+    {
+        $this->hidden_at = null;
+        $this->save();
+
+        SpringTile::invalidate($this->longitude, $this->latitude);
+        WateredSpringTile::invalidate($this->longitude, $this->latitude);
+        StatisticsService::invalidateSpringsCount();
+    }
+
     public function canBeAnnihilated()
     {
         if ($this->reports->count() > 0) {
