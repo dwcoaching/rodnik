@@ -19,3 +19,4 @@ yarn-error.log
 .my.testing.cnf
 latest.sh
 backup.sh
+.DS_Store

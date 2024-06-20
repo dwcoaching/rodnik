@@ -29,19 +29,19 @@ class SpringTilesGlobalCreate extends Command
      */
     public function handle()
     {
-        // $zoom = collect([0, 5, 8]);
+        $zoom = collect([0, 5, 8]);
 
-        // $zoom->each(function ($z) {
-        //     $tileCount = pow(2, $z);
+        $zoom->each(function ($z) {
+            $tileCount = pow(2, $z);
 
-        //     for ($x = 0; $x < $tileCount; $x++) {
-        //         for ($y = 0; $y < $tileCount; $y++) {
-        //             $springTile = SpringTile::fromXYZ($x, $y, $z);
+            for ($x = 0; $x < $tileCount; $x++) {
+                for ($y = 0; $y < $tileCount; $y++) {
+                    $springTile = SpringTile::fromXYZ($x, $y, $z);
 
-        //             echo "Generating Spring Tile /{$z}/{$x}/{$y}/\n";
-        //         }
-        //     }
-        // });
+                    echo "Generating Spring Tile /{$z}/{$x}/{$y}/\n";
+                }
+            }
+        });
 
         $zoom = collect([0, 5]);
 
