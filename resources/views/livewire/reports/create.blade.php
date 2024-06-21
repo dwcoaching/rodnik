@@ -58,11 +58,11 @@
             </a>
         </div>
     </div>
-    <div class="font-bold mt-2 text-lg">
+    <div class="font-black mt-2 text-lg">
         New Report
     </div>
     <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
-        <label for="date" class="block text-sm font-light text-gray-600 flex justify-between items-center">
+        <label for="date" class="block text-sm font-bold text-gray-500 flex justify-between items-center">
             <span class="mr-3">
                 Visit Date
             </span>
@@ -78,7 +78,7 @@
     </div>
 {{--
     <div class="mt-4">
-      <label for="visited_at" class="block text-sm font-regular text-gray-700">Visit date</label>
+      <label for="visited_at" class="block text-sm font-bold text-gray-500">Visit date</label>
       <div class="mt-1">
         <input wire:model.live="visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
       </div>
@@ -87,11 +87,13 @@
     <div class="mt-4">
         <div>
             <div class="mb-2">
-                <x-chip-radio name="💧 Watered" key="state" value="running" />
-                <x-chip-radio name="🌵 Dry" key="state" value="dry" />
-                <x-chip-radio name="😡 Not Found" key="state" value="notfound" />
+                <div class="text-sm font-bold text-gray-500 mt-4 mb-2">Condition</div>
+                <x-chip-radio name="💧 There is water" key="state" value="running" />
+                <x-chip-radio name="🌵 No water" key="state" value="dry" />
+                <x-chip-radio name="😡 Water source not found" key="state" value="notfound" />
             </div>
             <div x-show="state !== 'dry' && state !== 'notfound'">
+                <div class="text-sm font-bold text-gray-500 mt-2 mb-2">Water quality</div>
                 <x-chip-radio name="🚰 Good Water" key="quality" value="good" />
                 <x-chip-radio name="🚱 Poor Water" key="quality" value="bad" />
             </div>
