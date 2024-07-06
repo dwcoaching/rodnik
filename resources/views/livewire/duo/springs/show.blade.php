@@ -19,7 +19,7 @@
     <div x-show="springId" wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
-    <div x-cloak wire:loading.remove x-show="springId == $wire.springId">
+    <div x-cloak wire:loading.remove x-show="springId == $wire.springId" class="w-full">
         @if ($spring)
             @if ($spring->hidden_at)
                 <div class="alert alert-warning mb-2">
@@ -45,50 +45,96 @@
                         <div class="flex items-center">
                             {{--<span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>--}}
                             @can('update', $spring)
-                                <details class="dropdown dropdown-end" x-ref="editDropdownContent">
-                                    <summary tabindex="0" class="text-blue-600 btn btn-sm flex flex-nowrap"
-                                        >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                            <path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z" />
-                                        </svg>
-                                        {{--Edit
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                                        </svg>--}}
-                                    </summary>
-                                    <ul
-                                        x-on:click.outside="
-                                            if ($refs.editDropdownContent.hasAttribute('open')) {
-                                                $nextTick(() => {
-                                                    $refs.editDropdownContent.removeAttribute('open')
-                                                })
-                                            }"
+                                <div class="relative">
+                                    <div x-data>
+                                        <div x-menu class="relative">
+                                            <button x-menu:button
+                                                class="rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-stone-600 hover:bg-stone-300
+                                                    outline-blue-700 outline-2 outline-offset-[3px]">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                                                        <path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z" />
+                                                    </svg>
+                                            </button>
 
-                                        tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 rounded-box w-56">
-                                        <li>
-                                            <a href="{{ route('springs.edit', $spring) }}"
-                                                class="flex items-center py-3">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                                                    <path d="M5.433 13.917l1.262-3.155A4 4 0 017.58 9.42l6.92-6.918a2.121 2.121 0 013 3l-6.92 6.918c-.383.383-.84.685-1.343.886l-3.154 1.262a.5.5 0 01-.65-.65z" />
-                                                    <path d="M3.5 5.75c0-.69.56-1.25 1.25-1.25H10A.75.75 0 0010 3H4.75A2.75 2.75 0 002 5.75v9.5A2.75 2.75 0 004.75 18h9.5A2.75 2.75 0 0017 15.25V10a.75.75 0 00-1.5 0v5.25c0 .69-.56 1.25-1.25 1.25h-9.5c-.69 0-1.25-.56-1.25-1.25v-9.5z" />
-                                                </svg>
-                                                Edit
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="{{ route('springs.history', $spring) }}"
-                                                class="flex items-center py-3">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                                  <path d="M5.127 3.502L5.25 3.5h9.5c.041 0 .082 0 .123.002A2.251 2.251 0 0012.75 2h-5.5a2.25 2.25 0 00-2.123 1.502zM1 10.25A2.25 2.25 0 013.25 8h13.5A2.25 2.25 0 0119 10.25v5.5A2.25 2.25 0 0116.75 18H3.25A2.25 2.25 0 011 15.75v-5.5zM3.25 6.5c-.04 0-.082 0-.123.002A2.25 2.25 0 015.25 5h9.5c.98 0 1.814.627 2.123 1.502a3.819 3.819 0 00-.123-.002H3.25z" />
-                                                </svg>
-                                                View history
-                                                <div class="border-stone-400 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">
-                                                    {{ $spring->springRevisions->count() ? $spring->springRevisions->count() : 'Empty' }}
-                                                </div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </details>
+                                            <div x-menu:items x-cloak
+                                                class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
+                                                focus:outline-none
+                                                ">
+                                                <a x-menu:item href="{{ route('springs.edit', $spring) }}"
+                                                    :class="{
+                                                        'bg-stone-200 text-gray-900': $menuItem.isActive,
+                                                        'text-gray-600': ! $menuItem.isActive,
+                                                        'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                    }"
+                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
+                                                        <path fill-rule="evenodd" d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    Edit
+                                                </a>
+                                                <a x-menu:item href="{{ route('springs.history', $spring) }}"
+                                                    :class="{
+                                                        'bg-stone-200 text-gray-900': $menuItem.isActive,
+                                                        'text-gray-600': ! $menuItem.isActive,
+                                                        'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                    }"
+                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
+                                                        <path d="M3 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3Z" />
+                                                        <path fill-rule="evenodd" d="M3 6h10v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Zm3 2.75A.75.75 0 0 1 6.75 8h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 6 8.75Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    View history
+                                                    <div class="border-stone-300 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">
+                                                        {{ $spring->springRevisions->count() ? $spring->springRevisions->count() : 'Empty' }}
+                                                    </div>
+                                                </a>
+
+
+                                                @if (Gate::allows('admin') && $spring->visible())
+                                                    <div class="border-t border-stone-300 h-0 -mx-1 px-5 mt-1 mb-1 text-sm text-gray-400 font-bold">
+                                                        {{--Admin Zone--}}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        x-menu:item
+                                                        wire:click="hide"
+                                                        wire:confirm="Hide this water source?"
+                                                        :class="{
+                                                            'bg-amber-200 text-amber-700': $menuItem.isActive,
+                                                            'text-amber-600': ! $menuItem.isActive,
+                                                            'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                        }"
+                                                        class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                            <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l10.5 10.5a.75.75 0 1 0 1.06-1.06l-1.322-1.323a7.012 7.012 0 0 0 2.16-3.11.87.87 0 0 0 0-.567A7.003 7.003 0 0 0 4.82 3.76l-1.54-1.54Zm3.196 3.195 1.135 1.136A1.502 1.502 0 0 1 9.45 8.389l1.136 1.135a3 3 0 0 0-4.109-4.109Z" clip-rule="evenodd" />
+                                                            <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
+                                                        </svg>
+                                                        Hide water source
+                                                    </button>
+                                                    @if ($spring->canBeAnnihilated())
+                                                        <button
+                                                            type="button"
+                                                            @click.prevent=""
+                                                            x-menu:item
+                                                            wire:click.prevent="annihilate"
+                                                            wire:confirm="Annihilate this water source? This auction is not reversible"
+                                                            :class="{
+                                                                'bg-red-200 text-red-700': $menuItem.isActive,
+                                                                'text-red-600': ! $menuItem.isActive,
+                                                                'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                            }"
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                                <path fill-rule="evenodd" d="M8.074.945A4.993 4.993 0 0 0 6 5v.032c.004.6.114 1.176.311 1.709.16.428-.204.91-.61.7a5.023 5.023 0 0 1-1.868-1.677c-.202-.304-.648-.363-.848-.058a6 6 0 1 0 8.017-1.901l-.004-.007a4.98 4.98 0 0 1-2.18-2.574c-.116-.31-.477-.472-.744-.28Zm.78 6.178a3.001 3.001 0 1 1-3.473 4.341c-.205-.365.215-.694.62-.59a4.008 4.008 0 0 0 1.873.03c.288-.065.413-.386.321-.666A3.997 3.997 0 0 1 8 8.999c0-.585.126-1.14.351-1.641a.42.42 0 0 1 .503-.235Z" clip-rule="evenodd" />
+                                                            </svg>
+                                                            Delete water source
+                                                        </button>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             @endcan
                         </div>
                     </div>
@@ -215,26 +261,6 @@
                     </ul>
                 </div>
             </div>
-            @if (Gate::allows('admin') && $spring->visible())
-                <div class="alert mt-4 items-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                    <div x-data="{ dangerZoneShown: false }">
-                        <div class="cursor-pointer hover:text-red-600 font-bold" @click="dangerZoneShown = ! dangerZoneShown">Admin Danger Zone</div>
-                        <div x-show="dangerZoneShown" x-cloak>
-                            <button
-                                wire:click="hide"
-                                wire:confirm="Hide this water source?"
-                                class="btn btn-warning mt-2">Hide water source</button>
-                            @if ($spring->canBeAnnihilated())
-                                <button
-                                    wire:click="annihilate"
-                                    wire:confirm="Annihilate this water source? This auction is not reversible"
-                                    class="btn btn-error mt-2">Annihilate water source</button>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            @endif
         @endif
     </div>
 </div>

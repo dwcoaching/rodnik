@@ -40,6 +40,10 @@ class Create extends Component
     public $comment;
     public $visited_at;
 
+    public $not_found;
+    public $no_access;
+    public $difficult_access;
+
     protected function rules() {
         return [
             'visited_at' => 'nullable|date',
@@ -74,6 +78,10 @@ class Create extends Component
             $this->comment = $this->report->comment;
             $this->visited_at = $this->report->visited_at?->format('Y-m-d');
             $this->photosIds = $this->report->photos->pluck('id')->all();
+
+            $this->not_found = false;
+            $this->no_access = false;
+            $this->difficult_access = false;
         }
     }
 

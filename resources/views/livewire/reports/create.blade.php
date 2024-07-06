@@ -4,6 +4,10 @@
         state: $wire.$entangle('state'),
         quality: $wire.$entangle('quality'),
 
+        not_found: $wire.$entangle('not_found'),
+        no_access: $wire.$entangle('no_access'),
+        difficult_access: $wire.$entangle('difficult_access'),
+
         withDate: true,
         previousDate: null,
         toggleDate: function() {
@@ -287,7 +291,37 @@
             </div>
         </label>
     </div>
-
+    {{--
+    <div class="collapse mt-4 p-4 bg-gray-200 rounded-xl max-w-3xl">
+        <div>
+            <div class="font-black text-lg">Extra parameters</div>
+            <div class="mt-2">
+                <div class="text-sm font-bold text-gray-500 mb-2">Access to the object</div>
+                <x-chip-radio name="Free" key="not_found" value="notfound" />
+                <x-chip-radio name="Restricted" key="no_access" value="notfound" />
+                <x-chip-radio name="No access" key="difficult_access" value="notfound" />
+            </div>
+            <div class="mt-4">
+                <div class="text-sm font-bold text-gray-500 mb-2">Access to the water</div>
+                <x-chip-radio name="Easy" key="not_found" value="notfound" />
+                <x-chip-radio name="Difficult" key="no_access" value="notfound" />
+                <x-chip-radio name="No access" key="difficult_access" value="notfound" />
+            </div>
+            <div class="mt-4">
+                <div class="text-sm font-bold text-gray-500 mb-2">State of repair</div>
+                <x-chip-radio name="Good" key="not_found" value="notfound" />
+                <x-chip-radio name="Needs repair" key="no_access" value="notfound" />
+                <x-chip-radio name="Ruined" key="difficult_access" value="notfound" />
+            </div>
+            <div class="mt-4">
+                <div class="text-sm font-bold text-gray-500 mb-2">Additional information</div>
+                <x-chip-checkbox name="Aggressive vegetation" key="not_found" value="notfound" />
+                <x-chip-checkbox name="Littered" key="no_access" value="notfound" />
+                <x-chip-checkbox name="Decorative" key="difficult_access" value="notfound" />
+            </div>
+        </div>
+    </div>
+    --}}
     {{--
         <div class="mt-2 overflow-x-scroll">
             <x-chip-checkbox name="Stale water" key="stale" />
@@ -327,9 +361,9 @@
         </div>
     --}}
 
-    <div class="mt-4 pt-5 pb-6">
+    <div class="mt-0 pt-4 pb-6">
         <div class="flex justify-start">
-            <button type="button" class="w-full sm:w-fit justify-center cursor-pointer inline-flex items-center px-12 py-3 border border-transparent text-base font-semibold rounded-md shadow-sm text-white bg-blue-600 focus:outline-none"
+            <button type="button" class="btn btn-lg font-bold btn-primary btn-block max-w-3xl"
                 x-data="{
                     storing: false,
                     buttonText: '{{ $reportId ? 'Save Changes' : 'Add Report' }}',

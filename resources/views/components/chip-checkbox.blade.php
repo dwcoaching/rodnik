@@ -7,8 +7,8 @@ class="mr-1 mb-2 bg-white inline-flex flex-nowrap whitespace-nowrap border-2 ite
         'text-blue-700': {{ $key }}
     }"
 >
-    <svg x-show="! {{ $key }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#ddd" class="w-5 h-5 -ml-2 mr-1">
-      <circle cx="10" cy="10" r="8"/>
+    <svg x-show="! {{ $key }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#eeeeee" class="w-5 h-5 -ml-2 mr-1">
+      <circle cx="10" cy="10" r="8" {{--stroke="#ddd" stroke-width="2"--}} />
     </svg>
 
     <svg x-cloak x-show="{{ $key }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 -ml-2 mr-1">

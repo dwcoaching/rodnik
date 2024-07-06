@@ -34,10 +34,10 @@ class Show extends Component
                 ->get();
 
             $coordinates = [
-                floatval($spring->longitude),
-                floatval($spring->latitude)
-        ];
-    }
+                    floatval($spring->longitude),
+                    floatval($spring->latitude)
+            ];
+        }
 
         return view('livewire.duo.springs.show', compact('reports', 'spring', 'coordinates'));
     }
@@ -60,7 +60,7 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->hide();
 
-            $this->redirectRoute('index');
+            return $this->redirectRoute('index');
         } else {
             abort(403);
         }
