@@ -50,6 +50,7 @@
                                     </button>
 
                                     <div x-menu:items x-cloak
+                                        style="display: none;"
                                         class="absolute overflow-hidden border border-stone-300 right-0 w-48 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg shadow-lg
                                         focus:outline-none
                                     ">

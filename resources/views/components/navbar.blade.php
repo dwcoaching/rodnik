@@ -30,18 +30,27 @@
         @auth
             <!-- Settings Dropdown -->
             <div class="relative">
-                <div x-data>
-                    <div x-menu class="relative">
+                <div x-data="{
+                    navbarDropdownMenuOpen: false
+                }">
+                    <div x-menu x-model="navbarDropdownMenuOpen" class="relative">
                         <button x-menu:button
                             class="border-0 h-7 w-7 flex text-sm rounded-full outline-blue-700 outline-2 outline-offset-[3px] opacity-80 hover:opacity-100">
                                 <img class="h-7 w-7 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
                         </button>
 
                         <div x-menu:items x-cloak
+                            style="display: none;"
                             class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg shadow-lg border border-stone-300
                             focus:outline-none
                             ">
                             <a x-menu:item href="{{ route('springs.create') }}"
+                                @click.prevent="
+                                    window.dispatchEvent(
+                                        new CustomEvent('turbo-location-create')
+                                    )
+                                    navbarDropdownMenuOpen = false
+                                    "
                                 :class="{
                                     'bg-stone-200 text-gray-900': $menuItem.isActive,
                                     'text-gray-600': ! $menuItem.isActive,
@@ -60,7 +69,8 @@
                                                 }
                                             }
                                         )
-                                    )"
+                                    )
+                                    navbarDropdownMenuOpen = false"
                                 :class="{
                                     'bg-stone-200 text-gray-900': $menuItem.isActive,
                                     'text-gray-600': ! $menuItem.isActive,

@@ -9,6 +9,7 @@ use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\PhotosBatchController;
 use App\Http\Controllers\SpringHistoryController;
+use App\Http\Controllers\SpringLocationController;
 use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\SpringAggregatesJsonController;
@@ -32,8 +33,8 @@ Route::get('/{springId}', [SpringController::class, 'show'])->name('springs.show
 Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
 Route::get('/{spring}/history', [SpringHistoryController::class, 'index'])->name('springs.history')->where('spring', '[0-9]+');
 
-
 Route::get('/create', [SpringController::class, 'create'])->name('springs.create');
+Route::get('/{spring}/location/edit', [SpringLocationController::class, 'edit'])->name('springs.location.edit')->where('spring', '[0-9]+');
 
 Route::get('/users/{userId}', [WebController::class, 'user'])->name('users.show')->where('userId', '[0-9]+');
 

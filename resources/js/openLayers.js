@@ -103,6 +103,10 @@ export default class OpenLayersMap {
 
         this.buffer = new Buffer();
 
+        this.locationMode = Alpine.reactive({
+            value: false
+        });
+
         this.view = new View({
             center: getInitialCenter(),
             zoom: getInitialZoom(),
@@ -144,14 +148,23 @@ export default class OpenLayersMap {
         this.source(getInitialSourceName())
 
         this.map.on('moveend', (e) => {
+            if (this.locationMode.value) {
+                let coordinates = toLonLat(this.view.getCenter());
+                coordinates[0] = coordinates[0].toFixed(6);
+                coordinates[1] = coordinates[1].toFixed(6);
+                coordinates = coordinates.reverse().join(', ');
+
+                this.mapMoved(coordinates);
+            }
+
             saveLastCenter(this.map.getView().getCenter());
             saveLastZoom(this.map.getView().getZoom());
         });
 
         this.map.on('click', (e) => {
-            // if (this.map.getView().getZoom() < 10) {
-            //     return false;
-            // }
+            if (this.locationMode.value) {
+                return
+            }
 
             let features = this.map.getFeaturesAtPixel(e.pixel, {
                 hitTolerance: 2,
@@ -166,6 +179,26 @@ export default class OpenLayersMap {
                 this.deselectFeature()
             }
         });
+
+        this.map.on('pointerdrag', (e) => {
+            if (this.locationMode.value) {
+                let coordinates = toLonLat(this.view.getCenter());
+                coordinates[0] = coordinates[0].toFixed(6);
+                coordinates[1] = coordinates[1].toFixed(6);
+                coordinates = coordinates.reverse().join(', ');
+
+                this.mapMoved(coordinates);
+            }
+        });
+    }
+
+    enterLocationMode() {
+        this.locationMode.value = true
+        this.dehighlightFeature()
+    }
+
+    exitLocationMode() {
+        this.locationMode.value = false
     }
 
     featuresLoadEnd() {
@@ -417,6 +450,21 @@ export default class OpenLayersMap {
         );
     }
 
+    locateWithZoom(coordinates) {
+        let zoom = this.view.getZoom();
+
+        saveLastCenter(coordinates);
+        saveLastZoom(zoom);
+
+        this.view.animate(
+            {
+                center: fromLonLat(coordinates),
+                zoom: zoom,
+                duration: 100
+            }
+        );
+    }
+
     locateWorld() {
         this.view.fit(this.springsFinalLayer.getSource().getExtent());
         this.view.setZoom(Math.floor(this.view.getZoom() - 1));
@@ -510,5 +558,10 @@ export default class OpenLayersMap {
 
     setFullscreen(value) {
         this.fullscreen = value;
+    }
+
+    mapMoved(coordinates) {
+        const event = new CustomEvent('map-moved', {detail: {coordinates: coordinates}});
+        window.dispatchEvent(event);
     }
 }

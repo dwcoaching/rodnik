@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Spring;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SpringController extends Controller
 {
@@ -32,7 +33,11 @@ class SpringController extends Controller
     {
         $this->authorize('create', Spring::class);
 
-        return view('springs.create', ['springId' => null]);
+        $springId = null;
+        $userId = Auth::user()->id;
+        $locationMode = true;
+
+        return view('welcome', compact('springId', 'userId', 'locationMode'));
     }
 
     /**
@@ -55,8 +60,9 @@ class SpringController extends Controller
     public function show($springId)
     {
         $userId = null;
+        $locationMode = false;
 
-        return view('welcome', compact('springId', 'userId'));
+        return view('welcome', compact('springId', 'userId', 'locationMode'));
     }
 
     /**

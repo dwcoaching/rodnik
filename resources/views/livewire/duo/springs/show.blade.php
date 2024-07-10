@@ -46,8 +46,10 @@
                             {{--<span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>--}}
                             @can('update', $spring)
                                 <div class="relative">
-                                    <div x-data>
-                                        <div x-menu class="relative">
+                                    <div x-data="{
+                                        springDropdownOpen: false
+                                    }">
+                                        <div x-menu x-model="springDropdownOpen" class="relative">
                                             <button x-menu:button
                                                 class="rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-stone-600 hover:bg-stone-300
                                                     outline-blue-700 outline-2 outline-offset-[3px]">
@@ -57,9 +59,35 @@
                                             </button>
 
                                             <div x-menu:items x-cloak
+                                                style="display: none;"
                                                 class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
                                                 focus:outline-none
                                                 ">
+                                                <a x-menu:item href="{{ route('springs.location.edit', $spring) }}"
+                                                    @click.prevent="
+                                                        window.dispatchEvent(
+                                                            new CustomEvent('turbo-location-edit',
+                                                                {
+                                                                    detail: {
+                                                                        coordinates: {{ json_encode($coordinates) }},
+                                                                        springId: {{ intval($springId) }},
+                                                                    }
+                                                                })
+                                                        )
+                                                        springDropdownOpen = false
+                                                        "
+                                                    :class="{
+                                                        'bg-stone-200 text-gray-900': $menuItem.isActive,
+                                                        'text-gray-600': ! $menuItem.isActive,
+                                                        'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                    }"
+                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                    {{--<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                        <path fill-rule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clip-rule="evenodd" />
+                                                    </svg>--}}
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="#000000" viewBox="0 0 256 256"><path d="M232,116h-4.72A100.21,100.21,0,0,0,140,28.72V24a12,12,0,0,0-24,0v4.72A100.21,100.21,0,0,0,28.72,116H24a12,12,0,0,0,0,24h4.72A100.21,100.21,0,0,0,116,227.28V232a12,12,0,0,0,24,0v-4.72A100.21,100.21,0,0,0,227.28,140H232a12,12,0,0,0,0-24Zm-92,87v-3a12,12,0,0,0-24,0v3a76.15,76.15,0,0,1-63-63h3a12,12,0,0,0,0-24H53a76.15,76.15,0,0,1,63-63v3a12,12,0,0,0,24,0V53a76.15,76.15,0,0,1,63,63h-3a12,12,0,0,0,0,24h3A76.15,76.15,0,0,1,140,203ZM128,84a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,84Zm0,64a20,20,0,1,1,20-20A20,20,0,0,1,128,148Z"></path></svg>
+                                                    Change Location
+                                                </a>
                                                 <a x-menu:item href="{{ route('springs.edit', $spring) }}"
                                                     :class="{
                                                         'bg-stone-200 text-gray-900': $menuItem.isActive,
@@ -70,7 +98,7 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
                                                         <path fill-rule="evenodd" d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z" clip-rule="evenodd" />
                                                     </svg>
-                                                    Edit
+                                                    Edit Name and Type
                                                 </a>
                                                 <a x-menu:item href="{{ route('springs.history', $spring) }}"
                                                     :class="{
@@ -83,7 +111,7 @@
                                                         <path d="M3 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3Z" />
                                                         <path fill-rule="evenodd" d="M3 6h10v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Zm3 2.75A.75.75 0 0 1 6.75 8h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 6 8.75Z" clip-rule="evenodd" />
                                                     </svg>
-                                                    View history
+                                                    View History
                                                     <div class="border-stone-300 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">
                                                         {{ $spring->springRevisions->count() ? $spring->springRevisions->count() : 'Empty' }}
                                                     </div>
@@ -114,7 +142,7 @@
                                                     @if ($spring->canBeAnnihilated())
                                                         <button
                                                             type="button"
-                                                            @click.prevent=""
+                                                            @click.prevent="springDropdownOpen = false"
                                                             x-menu:item
                                                             wire:click.prevent="annihilate"
                                                             wire:confirm="Annihilate this water source? This auction is not reversible"

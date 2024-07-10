@@ -13,14 +13,16 @@ class WebController extends Controller
     {
         $springId = null;
         $userId = null;
+        $locationMode = false;
 
-        return view('welcome', compact('springId', 'userId'));
+        return view('welcome', compact('springId', 'userId', 'locationMode'));
     }
 
     public function user($userId)
     {
         $springId = null;
+        $locationMode = false;
 
-        return view('welcome', compact('userId', 'springId'));
+        return view('welcome', compact('userId', 'springId', 'locationMode'));
     }
 }

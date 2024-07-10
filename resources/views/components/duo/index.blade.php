@@ -29,13 +29,14 @@
             }
 
             this.previousSpringId = null
-
+            window.rodnikMap.exitLocationMode()
             window.dispatchEvent(new CustomEvent('duo-load-spring'))
         },
         unsetSpringId: function() {
             this.previousSpringId = this.springId
             this.springId = null
 
+            window.rodnikMap.exitLocationMode()
             if (this.userId) {
                 window.dispatchEvent(new CustomEvent('duo-load-user'))
             } else {
@@ -44,6 +45,7 @@
         },
         springId: {{ intval($springId) }},
         previousSpringId: null,
+        locationMode: window.rodnikMap.locationMode,
         registerVisit: function(details, location) {
             window.history.pushState(details, 'Rodnik.today', location);
             ym(90143259, 'hit', location)
@@ -54,7 +56,19 @@
         registerHomeVisit: function() {
             const location = this.userId ? window.location.origin + '/users/' + this.userId : window.location.origin
             this.registerVisit({userId: this.userId ? this.userId : 0}, location)
-        }
+        },
+        registerHomeVisit: function() {
+            const location = this.userId ? window.location.origin + '/users/' + this.userId : window.location.origin
+            this.registerVisit({userId: this.userId ? this.userId : 0}, location)
+        },
+        registerLocationCreateVisit: function() {
+            const location = window.location.origin + '/create'
+            this.registerVisit({}, location)
+        },
+        registerLocationEditVisit: function() {
+            const location = window.location.origin + '/' + this.springId + '/location/edit/'
+            this.registerVisit({springId: this.springId}, location)
+        },
     }"
     x-on:spring-selected-on-map.window="
         setSpringId($event.detail.id)
@@ -64,6 +78,7 @@
         unsetSpringId()
         registerHomeVisit()
     "
+
     x-on:spring-turbo-visit.window="
         setSpringId($event.detail.id)
         registerSpringVisit($event.detail.id)
@@ -109,11 +124,19 @@
             setUserId($event.state.userId);
             unsetSpringId()
             window.rodnikMap.dehighlightPreviousFeature();
+        }
+
+        if (window.location.pathname == '/create') {
+            window.rodnikMap.enterLocationMode()
+        } else if (window.location.pathname.includes('/location/edit')) {
+            window.rodnikMap.enterLocationMode()
+        } else {
+            window.rodnikMap.exitLocationMode()
         }"
     class="flex grow justify-center"
 >
     <div class="grow">
-        <div x-show="! springId" class="h-full">
+        <div x-show="! springId && ! locationMode.value" class="h-full">
             <div x-show="! userId" class="h-full">
                 <livewire:duo.reports.index loaded="{{ ! $userId && ! $springId }}" />
             </div>
@@ -121,8 +144,11 @@
                 <livewire:duo.users.show :userId="$userId" />
             </div>
         </div>
-        <div x-show="springId" class="h-full">
+        <div x-show="springId && ! locationMode.value" class="h-full">
             <livewire:duo.springs.show :springId="$springId" />
+        </div>
+        <div x-show="locationMode.value" class="h-full">
+            <livewire:duo.springs.create :springId="$springId" :locationMode="$locationMode" />
         </div>
     </div>
 </div>
