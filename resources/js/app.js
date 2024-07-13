@@ -4,7 +4,6 @@ import ImageBlobReduce from 'image-blob-reduce'
 import { v1 as uuidv1 } from 'uuid';
 import OpenLayersMap from './openLayers.js';
 import OpenHelper from './openHelper.js';
-import OpenPicker from './openPicker.js';
 import OpenDiffer from './openDiffer.js';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
@@ -32,10 +31,6 @@ window.initOpenLayers = function(id) {
 
 window.initOpenHelper = function(element, coordinates) {
     window.rodnikHelper = new OpenHelper(element, coordinates);
-}
-
-window.initOpenPicker = function(element, coordinates) {
-    window.rodnikPicker = new OpenPicker(element, coordinates);
 }
 
 window.parseCoordinates = function(coordinatesString) {
