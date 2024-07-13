@@ -108,9 +108,19 @@
                                     x-ref="coordinates"
                                     x-model="coordinates"
                                     @change="updateCoordinates($event.target.value)"
-                                    type="text" name="coordinates" id="coordintates" class="font-medium block w-full rounded-lg border-0 py-2.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:leading-6"
+                                    type="text" name="coordinates" id="coordintates" class="focus:ring-inset focus:ring-2 ring-inset font-medium block w-full rounded-lg border-0 py-2.5 text-gray-900ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 sm:leading-6"
                                     x-bind:class="{
+                                        'focus:ring-blue-600': ! coordinatesError,
+                                        'focus:ring-red-600': coordinatesError,
+                                        'ring-gray-300 ': ! coordinatesError,
+                                        'ring-1': ! coordinatesError,
                                         'ring-red-600': coordinatesError,
+                                        'ring-2': coordinatesError,
+
+
+
+
+
                                     }">
                             </div>
                         </div>
