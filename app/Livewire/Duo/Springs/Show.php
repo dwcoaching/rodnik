@@ -5,6 +5,7 @@ namespace App\Livewire\Duo\Springs;
 use App\Models\Spring;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class Show extends Component
 {
@@ -64,5 +65,18 @@ class Show extends Component
         } else {
             abort(403);
         }
+    }
+
+    public function invalidateTiles()
+    {
+        if (! Gate::allows('admin')) {
+            abort(403);
+        }
+
+        $spring = Spring::findOrFail($this->springId);
+
+        $spring->invalidateTiles();
+
+        return $this->redirectRoute('springs.show', $this->springId);
     }
 }

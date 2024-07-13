@@ -69,7 +69,6 @@
                                                             new CustomEvent('turbo-location-edit',
                                                                 {
                                                                     detail: {
-                                                                        coordinates: {{ json_encode($coordinates) }},
                                                                         springId: {{ intval($springId) }},
                                                                     }
                                                                 })
@@ -86,7 +85,7 @@
                                                         <path fill-rule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clip-rule="evenodd" />
                                                     </svg>--}}
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="#000000" viewBox="0 0 256 256"><path d="M232,116h-4.72A100.21,100.21,0,0,0,140,28.72V24a12,12,0,0,0-24,0v4.72A100.21,100.21,0,0,0,28.72,116H24a12,12,0,0,0,0,24h4.72A100.21,100.21,0,0,0,116,227.28V232a12,12,0,0,0,24,0v-4.72A100.21,100.21,0,0,0,227.28,140H232a12,12,0,0,0,0-24Zm-92,87v-3a12,12,0,0,0-24,0v3a76.15,76.15,0,0,1-63-63h3a12,12,0,0,0,0-24H53a76.15,76.15,0,0,1,63-63v3a12,12,0,0,0,24,0V53a76.15,76.15,0,0,1,63,63h-3a12,12,0,0,0,0,24h3A76.15,76.15,0,0,1,140,203ZM128,84a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,84Zm0,64a20,20,0,1,1,20-20A20,20,0,0,1,128,148Z"></path></svg>
-                                                    Change Location
+                                                    Update Location
                                                 </a>
                                                 <a x-menu:item href="{{ route('springs.edit', $spring) }}"
                                                     :class="{
@@ -118,27 +117,45 @@
                                                 </a>
 
 
-                                                @if (Gate::allows('admin') && $spring->visible())
+                                                @if (Gate::allows('admin'))
                                                     <div class="border-t border-stone-300 h-0 -mx-1 px-5 mt-1 mb-1 text-sm text-gray-400 font-bold">
                                                         {{--Admin Zone--}}
                                                     </div>
-                                                    <button
-                                                        type="button"
-                                                        x-menu:item
-                                                        wire:click="hide"
-                                                        wire:confirm="Hide this water source?"
-                                                        :class="{
-                                                            'bg-amber-200 text-amber-700': $menuItem.isActive,
-                                                            'text-amber-600': ! $menuItem.isActive,
-                                                            'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
-                                                        }"
-                                                        class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
-                                                            <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l10.5 10.5a.75.75 0 1 0 1.06-1.06l-1.322-1.323a7.012 7.012 0 0 0 2.16-3.11.87.87 0 0 0 0-.567A7.003 7.003 0 0 0 4.82 3.76l-1.54-1.54Zm3.196 3.195 1.135 1.136A1.502 1.502 0 0 1 9.45 8.389l1.136 1.135a3 3 0 0 0-4.109-4.109Z" clip-rule="evenodd" />
-                                                            <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
-                                                        </svg>
-                                                        Hide water source
-                                                    </button>
+                                                        <button
+                                                            type="button"
+                                                            x-menu:item
+                                                            wire:click="invalidateTiles"
+                                                            :class="{
+                                                                'bg-gray-200 text-gray-700': $menuItem.isActive,
+                                                                'text-gray-600': ! $menuItem.isActive,
+                                                                'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                            }"
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                                                <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                                            </svg>
+                                                            Regenerate Tiles
+                                                        </button>
+                                                    @if ($spring->visible())
+                                                        <button
+                                                            type="button"
+                                                            x-menu:item
+                                                            wire:click="hide"
+                                                            wire:confirm="Hide this water source?"
+                                                            :class="{
+                                                                'bg-amber-200 text-amber-700': $menuItem.isActive,
+                                                                'text-amber-600': ! $menuItem.isActive,
+                                                                'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                            }"
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                                <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l10.5 10.5a.75.75 0 1 0 1.06-1.06l-1.322-1.323a7.012 7.012 0 0 0 2.16-3.11.87.87 0 0 0 0-.567A7.003 7.003 0 0 0 4.82 3.76l-1.54-1.54Zm3.196 3.195 1.135 1.136A1.502 1.502 0 0 1 9.45 8.389l1.136 1.135a3 3 0 0 0-4.109-4.109Z" clip-rule="evenodd" />
+                                                                <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
+                                                            </svg>
+                                                            Hide water source
+                                                        </button>
+                                                    @endif
                                                     @if ($spring->canBeAnnihilated())
                                                         <button
                                                             type="button"

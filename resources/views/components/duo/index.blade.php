@@ -127,9 +127,19 @@
         }
 
         if (window.location.pathname == '/create') {
-            window.rodnikMap.enterLocationMode()
+            window.dispatchEvent(
+                new CustomEvent('turbo-location-create')
+            )
         } else if (window.location.pathname.includes('/location/edit')) {
-            window.rodnikMap.enterLocationMode()
+            window.dispatchEvent(
+                new CustomEvent('turbo-location-edit',
+                    {
+                        detail: {
+                            springId: $event.state.springId,
+                        }
+                    }
+                )
+            )
         } else {
             window.rodnikMap.exitLocationMode()
         }"

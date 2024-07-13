@@ -36,6 +36,6 @@ class SpringTypeRule implements Rule
      */
     public function message()
     {
-        return 'Choose water source type';
+        return 'Please select a water source type';
     }
 }

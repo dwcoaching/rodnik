@@ -149,12 +149,7 @@ export default class OpenLayersMap {
 
         this.map.on('moveend', (e) => {
             if (this.locationMode.value) {
-                let coordinates = toLonLat(this.view.getCenter());
-                coordinates[0] = coordinates[0].toFixed(6);
-                coordinates[1] = coordinates[1].toFixed(6);
-                coordinates = coordinates.reverse().join(', ');
-
-                this.mapMoved(coordinates);
+                this.mapMoved(this.getCoordinates());
             }
 
             saveLastCenter(this.map.getView().getCenter());
@@ -182,14 +177,16 @@ export default class OpenLayersMap {
 
         this.map.on('pointerdrag', (e) => {
             if (this.locationMode.value) {
-                let coordinates = toLonLat(this.view.getCenter());
-                coordinates[0] = coordinates[0].toFixed(6);
-                coordinates[1] = coordinates[1].toFixed(6);
-                coordinates = coordinates.reverse().join(', ');
-
-                this.mapMoved(coordinates);
+                this.mapMoved(this.getCoordinates());
             }
         });
+    }
+
+    getCoordinates() {
+        let coordinates = toLonLat(this.view.getCenter());
+        coordinates[0] = coordinates[0].toFixed(6);
+        coordinates[1] = coordinates[1].toFixed(6);
+        return coordinates.reverse().join(', ');
     }
 
     enterLocationMode() {
