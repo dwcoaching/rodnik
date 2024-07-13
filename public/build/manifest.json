@@ -1,6 +1,6 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.a14eac05.js",
+    "file": "assets/app.7ced68e8.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
@@ -26,7 +26,7 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app.894d90cf.css",
+    "file": "assets/app.b539c810.css",
     "src": "resources/css/app.css",
     "isEntry": true
   }
