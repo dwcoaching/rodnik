@@ -28,6 +28,8 @@ class Create extends Component
 
     public $spring;
 
+    public $saving = false;
+
     protected function rules()
     {
         return [
@@ -50,6 +52,8 @@ class Create extends Component
 
     public function render()
     {
+        $this->saving = false;
+
         return view('livewire.springs.create', [
             'waterSourceTypes' => Spring::TYPES,
         ]);

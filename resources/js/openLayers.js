@@ -196,6 +196,8 @@ export default class OpenLayersMap {
 
     exitLocationMode() {
         this.locationMode.value = false
+
+        window.dispatchEvent(new CustomEvent('location-mode-exited'));
     }
 
     featuresLoadEnd() {

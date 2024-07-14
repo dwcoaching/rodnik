@@ -385,9 +385,7 @@
                     'disabled': storing
                 }"
                 x-bind:class="{
-                    'bg-blue-600': ! storing,
-                    'hover:bg-blue-700': ! storing,
-                    'bg-blue-700': storing,
+                    'btn-disabled': storing,
                 }"
                 @click="store"
                 x-text="text()"

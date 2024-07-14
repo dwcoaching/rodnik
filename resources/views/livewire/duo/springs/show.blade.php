@@ -249,9 +249,9 @@
                     }">
                         <div @click="osmTagsShown = ! osmTagsShown" class="cursor-pointer text-gray-900 text-sm flex justify-between">
                             <div
-                                class="flex items-center font-medium mr-3 text-blue-500">
-                                <div class="mr-1 text-blue-600">OSM tags</div>
-                                <div class="border-blue-300 bg-blue-100 border rounded-full text-xs px-1.5 py-0.5">{{ $spring->osm_tags->count() }}</div>
+                                class="flex items-center font-semibold mr-3 text-gray-500">
+                                <div class="mr-1 text-gray-500">OpenStreetMap Data</div>
+                                <div class="border-gray-300 bg-gray-100 border rounded-full text-xs px-1.5 py-0.5">{{ $spring->osm_tags->count() }} {{ Str::plural('tag', $spring->osm_tags->count()) }}</div>
                             </div>
                             <div>
                                 <svg x-show="! osmTagsShown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -262,20 +262,62 @@
                                 </svg>
                             </div>
                         </div>
-                        <div x-show="osmTagsShown" class="">
-                            @if ($spring->osm_node_id)
-                                <span class="text-gray-900 text-sm font-bold">
-                                    Node Id: {{ $spring->osm_node_id }}
-                                </span>
-                            @endif
-                            @if ($spring->osm_way_id)
-                                <span class="text-gray-900 text-sm font-bold">
-                                    Way Id: {{ $spring->osm_way_id }}
-                                </span>
-                            @endif
+                        <div x-show="osmTagsShown" class="flex flex-col gap-y-1 mt-1">
                             @foreach ($spring->osm_tags as $tag)
                                 <div class="text-gray-900 text-sm break-all">{{ $tag->key }}={{ $tag->value }}</div>
                             @endforeach
+
+                            <div class="mt-1"></div>
+                            @if ($spring->osm_node_id)
+                                <span class="text-gray-900 text-sm font-bold flex items-center mt-1 gap-x-1">
+                                    <div class="text-gray-500 text-sm font-semibold">
+                                        OSM Node Id: </div>
+                                    <a class="cursor-pointer text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-x-1" target="_blank" href="https://www.openstreetmap.org/node/{{ $spring->osm_node_id }}">{{ $spring->osm_node_id }}
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 -mt-0.5">
+                                            <path d="M6.22 8.72a.75.75 0 0 0 1.06 1.06l5.22-5.22v1.69a.75.75 0 0 0 1.5 0v-3.5a.75.75 0 0 0-.75-.75h-3.5a.75.75 0 0 0 0 1.5h1.69L6.22 8.72Z" />
+                                            <path d="M3.5 6.75c0-.69.56-1.25 1.25-1.25H7A.75.75 0 0 0 7 4H4.75A2.75 2.75 0 0 0 2 6.75v4.5A2.75 2.75 0 0 0 4.75 14h4.5A2.75 2.75 0 0 0 12 11.25V9a.75.75 0 0 0-1.5 0v2.25c0 .69-.56 1.25-1.25 1.25h-4.5c-.69 0-1.25-.56-1.25-1.25v-4.5Z" />
+                                        </svg>
+                                    </a>
+                                </span>
+                            @endif
+                            @if ($spring->osm_way_id)
+                                <span class="text-gray-900 text-sm font-bold flex items-center mt-1 gap-x-1">
+                                    <div class="text-gray-500 text-sm font-semibold">
+                                        OSM Way Id: </div>
+                                    <a class="cursor-pointer text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-x-1" target="_blank" href="https://www.openstreetmap.org/way/{{ $spring->osm_way_id }}">{{ $spring->osm_way_id }}
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                            <path d="M6.22 8.72a.75.75 0 0 0 1.06 1.06l5.22-5.22v1.69a.75.75 0 0 0 1.5 0v-3.5a.75.75 0 0 0-.75-.75h-3.5a.75.75 0 0 0 0 1.5h1.69L6.22 8.72Z" />
+                                            <path d="M3.5 6.75c0-.69.56-1.25 1.25-1.25H7A.75.75 0 0 0 7 4H4.75A2.75 2.75 0 0 0 2 6.75v4.5A2.75 2.75 0 0 0 4.75 14h4.5A2.75 2.75 0 0 0 12 11.25V9a.75.75 0 0 0-1.5 0v2.25c0 .69-.56 1.25-1.25 1.25h-4.5c-.69 0-1.25-.56-1.25-1.25v-4.5Z" />
+                                        </svg>
+                                    </a>
+                                </span>
+                            @endif
+                            @if ($spring->osm_latitude && $spring->osm_longitude)
+                                <span class="text-gray-500 text-sm font-bold flex items-center gap-x-1"
+                                    x-data="{
+                                        copied: false,
+                                        timeout: null
+                                    }"
+                                    >
+                                    <div class="text-gray-500 font-semibold">OSM Location </div>
+                                    <span class="cursor-pointer text-gray-600" @click="
+                                        $clipboard('{{ $spring->osm_latitude }}, {{ $spring->osm_longitude }}');
+                                        copied = true;
+                                        clearTimeout(timeout);
+                                        timeout = setTimeout(() => {
+                                            copied = false;
+                                        }, 1000)
+                                    ">
+                                        {{ $spring->osm_latitude }}, {{ $spring->osm_longitude }}
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline -mt-0.5 w-4 h-4">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
+                                        </svg>
+                                        <span x-cloak x-show="copied" x-transition.opacity.duration.300 class="font-regular">
+                                            copied
+                                        </span>
+                                    </span>
+                                </span>
+                            @endif
                         </div>
                     </div>
                 @endif

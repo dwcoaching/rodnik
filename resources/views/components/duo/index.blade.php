@@ -57,10 +57,6 @@
             const location = this.userId ? window.location.origin + '/users/' + this.userId : window.location.origin
             this.registerVisit({userId: this.userId ? this.userId : 0}, location)
         },
-        registerHomeVisit: function() {
-            const location = this.userId ? window.location.origin + '/users/' + this.userId : window.location.origin
-            this.registerVisit({userId: this.userId ? this.userId : 0}, location)
-        },
         registerLocationCreateVisit: function() {
             const location = window.location.origin + '/create'
             this.registerVisit({}, location)
@@ -113,6 +109,7 @@
 
         if ($event.state && $event.state.springId) {
             setSpringId($event.state.springId)
+            unsetUserId();
             window.rodnikMap.highlightFeatureById($event.state.springId);
         } else if ($event.state) {
             if ($event.state.userId == myId) {

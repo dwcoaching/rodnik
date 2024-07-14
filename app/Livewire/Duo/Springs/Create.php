@@ -25,8 +25,8 @@ class Create extends Component
     public $saving;
 
     public $coordinates;
-    public $latitude;
-    public $longitude;
+    public $latitude = null;
+    public $longitude = null;
     public $locationMode = false;
 
     protected function rules()
@@ -96,14 +96,14 @@ class Create extends Component
         $springChangeCount = 0;
         $revision = new SpringRevision();
 
-        if ($this->spring->latitude != $this->latitude) {
+        if ($this->spring->latitude !== $this->latitude) {
             $revision->old_latitude = $this->spring->latitude;
             $revision->new_latitude = $this->latitude;
             $this->spring->latitude = $this->latitude;
             $springChangeCount++;
         }
 
-        if ($this->spring->longitude != $this->longitude) {
+        if ($this->spring->longitude !== $this->longitude) {
             $revision->old_longitude = $this->spring->longitude;
             $revision->new_longitude = $this->longitude;
             $this->spring->longitude = $this->longitude;

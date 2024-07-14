@@ -1,6 +1,7 @@
 <div class="w-full px-4 h-full"
     x-data="{
         saving: $wire.$entangle('saving'),
+        locationModeJustExited: false,
     }"
     x-on:turbo-location-create.window="
         $wire.$call('initializeCreating')
@@ -13,6 +14,10 @@
         window.rodnikMap.enterLocationMode()
         window.rodnikMap.highlightFeatureById($event.detail.springId)
         registerLocationEditVisit()
+    "
+
+    x-on:location-mode-exited.window="
+        locationModeJustExited = true
     ">
     <div wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
@@ -23,7 +28,7 @@
     <div wire:loading.remove>
         @if ($locationMode)
             <div
-                x-show="! saving"
+                x-show="! saving && ! locationModeJustExited"
                 x-cloak
                 x-data="{
                         latitude: $wire.$entangle('latitude'),
@@ -65,7 +70,10 @@
                 >
                 <div class="hidden" wire:key="{{ uniqid() }}"
                     x-data
-                    x-init="updateCoordinates(window.rodnikMap.getCoordinates())"
+                    x-init="
+                        updateCoordinates(window.rodnikMap.getCoordinates())
+                        locationModeJustExited = false
+                    "
                 ></div>
                 <div class="flex items-center justify-between">
                     <div class="flex-1 min-w-0">
@@ -81,7 +89,19 @@
                                     </div>
                                     <button type="button" class="rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-stone-600 hover:bg-stone-300
                                                     outline-blue-700 outline-2 outline-offset-[3px] gap-x-1 flex items-center"
-                                        onclick="window.history.back()"
+                                        @if ($springId)
+                                            x-on:click="
+                                            window.dispatchEvent(
+                                                new CustomEvent('spring-selected-on-map', {detail: {
+                                                    id: {{ intval($springId) }},
+                                                }}))
+                                            "
+                                        @else
+                                            x-on:click="
+                                                window.dispatchEvent(
+                                                    new CustomEvent('spring-deselected-on-map'))
+                                                "
+                                        @endif
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
                                             <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
@@ -116,11 +136,6 @@
                                         'ring-1': ! coordinatesError,
                                         'ring-red-600': coordinatesError,
                                         'ring-2': coordinatesError,
-
-
-
-
-
                                     }">
                             </div>
                         </div>
@@ -130,13 +145,12 @@
                 <div class="mt-4 pb-6">
                     <div class="flex justify-start">
                         <button type="button"
-                            @click="if (! error()) {
+                            @click="if (! error() && ! saving) {
                                 saving = true
                                 $wire.$call('store')
                             }" class="btn btn-primary btn-block"
                             x-bind:class="{
-                                'btn-disabled': error(),
-
+                                'btn-disabled': error() || saving,
                             }"
                         >
                             {{ $springId ? 'Save Location' : 'Add Water Source' }}

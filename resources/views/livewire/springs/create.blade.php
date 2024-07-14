@@ -1,6 +1,14 @@
 <form class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
-    wire:submit.prevent="store()"
+    x-on:submit.prevent="
+        if (saving) {
+            return
+        }
+
+        saving = true
+        $wire.$call('store')
+    "
     x-data="{
+            saving: $wire.$entangle('saving'),
             type: $wire.$entangle('type'),
             error: function() {
                 if (! this.type) {
@@ -104,6 +112,10 @@
         <div class="flex justify-start">
             <button type="submit"
                 class="btn font-bold btn-primary btn-block"
+                x-bind:disabled="saving"
+                :class="{
+                    btn-disabled: saving
+                }"
             >
                 {{ $spring->type ? 'Save changes' : 'Add Name and Type' }}
             </button>
