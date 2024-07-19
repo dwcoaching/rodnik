@@ -173,7 +173,15 @@
                                     let photo = event.target.files.item(0)
 
                                     const result = await window.exifrGPS(photo)
-                                    if (result && result.latitude !== undefined && result.longitude !== undefined) {
+                                    if (result
+                                        && result.latitude !== undefined
+                                        && ! isNaN(result.latitude)
+                                        && result.latitude >= -90
+                                        && result.latitude <= 90
+                                        && result.longitude !== undefined
+                                        && ! isNaN(result.longitude)
+                                        && result.latitude >= -180
+                                        && result.latitude <= 180) {
                                         this.updateCoordinates(result.latitude + ', ' + result.longitude)
                                     } else {
                                         alert('This photo doesn\'t have coordinates');
