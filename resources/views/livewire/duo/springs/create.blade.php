@@ -172,7 +172,7 @@
                                 if (event.target.files.length > 0) {
                                     let photo = event.target.files.item(0)
 
-                                    const result = await window.exifrParse(photo, { gps: true})
+                                    const result = await window.exifrGPS(photo)
                                     if (result && result.latitude !== undefined && result.longitude !== undefined) {
                                         this.updateCoordinates(result.latitude + ', ' + result.longitude)
                                     } else {
@@ -193,15 +193,15 @@
                     </label>
                 </div>
 
-                <div class="mt-4">
-                    <span class="mr-1 font-bold text-blue-600/70 text-sm">Zoom</span>
-                    <div class="join">
+                <div class="mt-2">
+                    <span class="mt-2 mr-1 font-bold text-blue-600/70 text-sm">Zoom</span>
+                    <div class="join mt-2 ">
                         <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(10)">City</button>
                         <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(14)">Street</button>
                         <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(18)">Building</button>
                     </div>
                     <button type="button" x-cloak x-show="coordinates != lastInputCoordinates"
-                        class="btn btn-sm btn-error btn-outline"
+                        class="mt-2 btn btn-sm btn-error btn-outline"
                         @click="
                             updateCoordinates(lastInputCoordinates)
                         ">
