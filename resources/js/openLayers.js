@@ -464,6 +464,17 @@ export default class OpenLayersMap {
         );
     }
 
+    zoom(zoom) {
+        saveLastZoom(zoom);
+
+        this.view.animate(
+            {
+                zoom: zoom,
+                duration: 100
+            }
+        );
+    }
+
     locateWorld() {
         this.view.fit(this.springsFinalLayer.getSource().getExtent());
         this.view.setZoom(Math.floor(this.view.getZoom() - 1));

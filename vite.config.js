@@ -26,6 +26,7 @@ export default defineConfig({
             manualChunks: {
               'ol': ['ol'],
               'turf': ['@turf/helpers', '@turf/turf'],
+              'exifr': ['exifr'],
             }
           }
         }

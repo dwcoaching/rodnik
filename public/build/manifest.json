@@ -1,9 +1,10 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.419753db.js",
+    "file": "assets/app.3a3ed2dc.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
+      "_exifr.d961b4d0.js",
       "_ol.9f758eff.js",
       "_turf.54dd2dce.js"
     ],
@@ -20,13 +21,16 @@
   "_turf.54dd2dce.js": {
     "file": "assets/turf.54dd2dce.js"
   },
+  "_exifr.d961b4d0.js": {
+    "file": "assets/exifr.d961b4d0.js"
+  },
   "node_modules/photoswipe/dist/photoswipe.esm.js": {
     "file": "assets/photoswipe.esm.382b1873.js",
     "src": "node_modules/photoswipe/dist/photoswipe.esm.js",
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app.85bc617b.css",
+    "file": "assets/app.aff074ad.css",
     "src": "resources/css/app.css",
     "isEntry": true
   }

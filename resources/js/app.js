@@ -9,11 +9,13 @@ import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
 import Coordinates from 'coordinate-parser';
 import { getInitialSourceName } from '@/initial';
+import { parse as exifrParse } from 'exifr';
 
 Alpine.plugin(Clipboard);
 
 window.Alpine = Alpine;
 window.ImageBlobReduce = new ImageBlobReduce();
+window.exifrParse = exifrParse;
 window.uuidv1 = uuidv1;
 
 window.getInitialSourceName = getInitialSourceName;
