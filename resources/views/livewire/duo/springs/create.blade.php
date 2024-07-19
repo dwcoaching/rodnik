@@ -174,7 +174,7 @@
 
                                     const result = await window.exifrGPS(photo)
                                     if (result && result.latitude !== undefined && result.longitude !== undefined) {
-                                        this.coordinates = result.latitude + ', ' + result.longitude
+                                        this.updateCoordinates(result.latitude + ', ' + result.longitude)
                                     } else {
                                         alert('This photo doesn\'t have coordinates');
                                     }
