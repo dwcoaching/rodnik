@@ -91,6 +91,9 @@ class SpringTile extends Model
         } else {
             $springsQuery
                 ->where($this->getCoordinatesFunction())
+                ->with('reports', function ($query) {
+                    $query->visible();
+                })
                 ->withCount(
                     [
                         'reports' => function(Builder $query) {

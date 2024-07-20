@@ -165,7 +165,7 @@ class Spring extends Model
         $presenceOfGoodWaterCount = 0;
         $absenceOfGoodWaterCount = 0;
 
-        foreach ($this->reports()->visible()->get() as $report) {
+        foreach ($this->reports as $report) {
             if ($report->quality == 'good' && $report->state == 'running') {
                 $presenceOfGoodWaterCount++;
             }
