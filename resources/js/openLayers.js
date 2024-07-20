@@ -157,9 +157,9 @@ export default class OpenLayersMap {
         });
 
         this.map.on('click', (e) => {
-            if (this.locationMode.value) {
-                return
-            }
+            // if (this.locationMode.value) {
+            //     return
+            // }
 
             let features = this.map.getFeaturesAtPixel(e.pixel, {
                 hitTolerance: 2,

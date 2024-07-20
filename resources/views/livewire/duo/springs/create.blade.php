@@ -125,13 +125,13 @@
                                     <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                                 </svg>
                             </label>
-                            <div class="mt-1 flex items-center">
+                            <div class="mt-1 relative">
                                 <input
                                     x-ref="coordinates"
                                     x-model="coordinates"
                                     @change="updateCoordinates($event.target.value)"
                                     @blur="updateCoordinates($event.target.value)"
-                                    type="text" name="coordinates" id="coordintates" class="focus:ring-inset focus:ring-2 ring-inset font-medium block w-full rounded-l-lg border-0 py-2.5 text-gray-900 h-12 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 sm:leading-6"
+                                    type="text" name="coordinates" id="coordintates" class="focus:ring-inset focus:ring-2 ring-inset font-medium block w-full rounded-lg border-0 py-2.5 text-gray-900 h-12 ring-1 ring-inset ring-gray-300  placeholder:text-gray-400 sm:leading-6"
                                     x-bind:class="{
                                         'focus:ring-blue-600': ! coordinatesError,
                                         'focus:ring-red-600': coordinatesError,
@@ -140,8 +140,8 @@
                                         'ring-red-600': coordinatesError,
                                         'ring-2': coordinatesError,
                                     }">
-                                <button type="button" class="-ml-[1px] h-12 rounded-r-lg bg-blue-600 w-[49px] flex items-center justify-center text-white
-                                    hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
+                                <button type="button" class="absolute top-0 right-0 h-12 w-12 rounded-lg flex items-center justify-center text-blue-600
+                                    hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 -ml-1">
                                         <path fill-rule="evenodd" d="M13.25 2a.75.75 0 0 0-.75.75v6.5H4.56l.97-.97a.75.75 0 0 0-1.06-1.06L2.22 9.47a.75.75 0 0 0 0 1.06l2.25 2.25a.75.75 0 0 0 1.06-1.06l-.97-.97h8.69A.75.75 0 0 0 14 10V2.75a.75.75 0 0 0-.75-.75Z" clip-rule="evenodd" />
                                     </svg>
