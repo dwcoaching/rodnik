@@ -88,6 +88,7 @@
       </div>
     </div>
 --}}
+
     <div class="mt-4">
         <div>
             <div class="mb-2">
@@ -103,6 +104,24 @@
             </div>
         </div>
     </div>
+
+    {{--
+    <div class="mt-4">
+        <div>
+            <div class="mb-2">
+                <div class="text-sm font-bold text-gray-500 mt-4 mb-2">Condition</div>
+                <x-chip-radio name="💧 There is water" key="state" value="running" />
+                <x-chip-radio name="🌵 Little water" key="state" value="dry" />
+                <x-chip-radio name="🚫 No water" key="state" value="dry" />
+            </div>
+            <div x-show="state !== 'dry' && state !== 'notfound'">
+                <div class="text-sm font-bold text-gray-500 mt-2 mb-2">Water quality</div>
+                <x-chip-radio name="🚰 Good Water" key="quality" value="good" />
+                <x-chip-radio name="🚱 Poor Water" key="quality" value="bad" />
+            </div>
+        </div>
+    </div>
+    --}}
 
     <div class="mt-2">
         <div class="relative">
@@ -282,8 +301,7 @@
                     <div class="text-sm text-gray-600">
                         <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
                             <span class="font-bold">Choose a photo</span>
-                            <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/*">
-                            {{-- accept="image/png, image/jpeg, image/gif" --}}
+                            <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">
                         </label>
                         <p class="inline pl-1">or drag and drop here</p>
                     </div>
@@ -296,6 +314,22 @@
     <div class="collapse mt-4 p-4 bg-gray-200 rounded-xl max-w-3xl">
         <div>
             <div class="font-black text-lg">Extra parameters</div>
+            <div class="mt-4">
+                <x-chip-checkbox name="Very little water" key="not_found" value="notfound" />
+                <x-chip-checkbox name="No access" key="no_access" value="notfound" />
+                <x-chip-checkbox name="Difficult access" key="difficult_access" value="notfound" />
+                <x-chip-checkbox name="Broken" key="difficult_access" value="notfound" />
+                <x-chip-checkbox name="Duplicate" key="difficult_access" value="notfound" />
+                <x-chip-checkbox name="Decorative fountain" key="difficult_access" value="notfound" />
+            </div>
+
+
+            <div class="mt-2">
+                <div class="text-sm font-bold text-gray-500 mb-2">Coordinates</div>
+                <x-chip-radio name="Accurate" key="not_found" value="notfound" />
+                <x-chip-radio name="Inaccurate" key="no_access" value="notfound" />
+                <x-chip-radio name="Water source not found" key="difficult_access" value="notfound" />
+            </div>
             <div class="mt-2">
                 <div class="text-sm font-bold text-gray-500 mb-2">Access to the object</div>
                 <x-chip-radio name="Free" key="not_found" value="notfound" />
