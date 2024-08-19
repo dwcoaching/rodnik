@@ -13,10 +13,6 @@ class UserSpringsJsonController extends Controller
     {
         $springs = $user->springs()
             ->with('osm_tags')
-            ->whereNull('springs.hidden_at')
-            ->whereHas('reports', function(Builder $query) {
-                $query->whereNull('reports.hidden_at');
-            })
             ->withCount(
                 [
                     'reports' => function(Builder $query) {
