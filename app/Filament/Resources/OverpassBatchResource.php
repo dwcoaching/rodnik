@@ -45,6 +45,7 @@ class OverpassBatchResource extends Resource
                 TextColumn::make('parsed_percentage'),
                 TextColumn::make('cleanup_status'),
                 TextColumn::make('created_at'),
+                TextColumn::make('updated_at'),
             ])
             ->filters([
                 //
