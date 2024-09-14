@@ -36,3 +36,7 @@ html {
 }
 
 #nprogress .spinner { visibility: hidden; }
+
+body.dragover .drag-indicator {
+    @apply outline-dashed outline-2 outline-offset-0 outline-indigo-600
+}

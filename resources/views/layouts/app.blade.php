@@ -43,7 +43,13 @@
             <noscript><div><img src="https://mc.yandex.ru/watch/90143259" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
         <!-- /Yandex.Metrika counter -->
     </head>
-    <body class="w-full min-h-screen bg-stone-100 flex flex-col">
+    <body class="w-full min-h-screen bg-stone-100 flex flex-col"
+        x-data="{ dragover: false, dragoverTimeout: null }"
+        @dragover.window="dragover = true; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
+        @dragleave.window="dragoverTimeout = setTimeout(() => { dragover = false; console.log(1) }, 10)"
+        @drop.window="dragover = false"
+        x-bind:class="{ 'dragover': dragover }"
+        >
         @if ($navbar)
             <div class="grow-0">
                 <nav class="">
