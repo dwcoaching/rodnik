@@ -47,7 +47,7 @@
         x-data="{ dragover: false, dragoverTimeout: null }"
         @dragover.window="dragover = true; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
         @dragleave.window="dragoverTimeout = setTimeout(() => { dragover = false; console.log(1) }, 10)"
-        @drop.window="dragover = false"
+        @drop="dragover = false; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
         x-bind:class="{ 'dragover': dragover }"
         >
         @if ($navbar)
