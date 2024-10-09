@@ -30,8 +30,23 @@ class SpringTile extends Model
 
     protected $geoJSONString = null;
 
+    static public function checkXYZ($x, $y, $z)
+    {
+        if (! in_array($z, array_keys(static::LIMITS))) {
+            abort(404);
+        }
+
+        $tileCount = pow(2, $z);
+
+        if ($x < 0 || $y < 0 || $x >= $tileCount || $y >= $tileCount) {
+            abort(404);
+        }
+    }
+
     static public function fromXYZ($x, $y, $z)
     {
+        static::checkXYZ($x, $y, $z);
+
         return static::firstOrCreate([
             'x' => $x,
             'y' => $y,
