@@ -38,5 +38,21 @@ html {
 #nprogress .spinner { visibility: hidden; }
 
 body.dragover .drag-indicator {
-    @apply outline-dashed outline-2 outline-offset-0 outline-indigo-600
+    @apply outline-dashed outline-2 outline-offset-0 outline-indigo-600;
+}
+
+.sortable-chosen a {
+    transform: rotate(5deg) !important;
+}
+
+.sortable-chosen .removePhotoHandle {
+    display: none;
+}
+
+.sortable-ghost a {
+    transform: rotate(0) scale(1) !important;
+}
+
+.sortable-drag a {
+    transform:  rotate(5deg) !important;
 }

@@ -182,7 +182,7 @@
                         class="photoswipeImage relative block w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
                         <img style="" src="{{ $photo->url }}" alt="" class="cursor-move object-cover absolute h-full w-full z-10">
                     </a>
-                    <div wire:click.stop="removePhoto({{ $photo->id }}); event.preventDefault();" class="opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
+                    <div wire:click.stop="removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
                         style="text-shadow: 0px 0px 2px #000;">×</div>
                 </li>
             @endforeach
@@ -427,12 +427,12 @@
             >
             <div wire:loading.remove class="w-full">
                 <template x-if="! uploading">
-                    <button wire:click="store" x-if="! uploading" type="button" class="no-animation btn font-bold btn-primary btn-block max-w-3xl">
+                    <button wire:click="store" type="button" class="no-animation btn font-bold btn-primary btn-block max-w-3xl">
                         {{ $reportId ? 'Save Changes' : 'Add Report' }}
                     </button>
                 </template>
                 <template x-if="uploading">
-                    <button x-if="uploading" type="button" class="no-animation  justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
+                    <button type="button" class="no-animation  justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
                         <div class="animate-spin w-5 h-5 mx-auto flex border border-4 rounded-full border-stone-400 border-t-transparent"></div>
                     </button>
                 </template>
