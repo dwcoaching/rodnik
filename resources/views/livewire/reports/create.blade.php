@@ -160,7 +160,7 @@
         <ul
             wire:sortable="updateImageSort"
             wire:sortable.options="{
-                delay: 50,
+                delay: 10,
                 delayOnTouchOnly: true,
                 fallbackTolerance: 5,
                 touchStartThreshold: 5,
