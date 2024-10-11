@@ -162,6 +162,8 @@
             wire:sortable.options="{
                 delay: 50,
                 delayOnTouchOnly: true,
+                fallbackTolerance: 5,
+                touchStartThreshold: 5,
             }"
             x-data
             x-init="window.initPhotoSwipe('#photos');"
