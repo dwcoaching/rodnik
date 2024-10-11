@@ -27,6 +27,7 @@ class Show extends Component
 
             $lastReports = $user->reports()
                 ->select('reports.*')
+                ->with('photos')
                 ->whereNull('reports.hidden_at')
                 ->join('springs', 'springs.id', '=', 'reports.spring_id')
                 ->whereNull('springs.hidden_at')
