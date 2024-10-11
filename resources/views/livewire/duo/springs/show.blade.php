@@ -80,7 +80,7 @@
                                                         'text-gray-600': ! $menuItem.isActive,
                                                         'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                     }"
-                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
                                                     {{--<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
                                                         <path fill-rule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clip-rule="evenodd" />
                                                     </svg>--}}
@@ -93,7 +93,7 @@
                                                         'text-gray-600': ! $menuItem.isActive,
                                                         'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                     }"
-                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
                                                         <path fill-rule="evenodd" d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z" clip-rule="evenodd" />
                                                     </svg>
@@ -105,7 +105,7 @@
                                                         'text-gray-600': ! $menuItem.isActive,
                                                         'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                     }"
-                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
                                                         <path d="M3 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3Z" />
                                                         <path fill-rule="evenodd" d="M3 6h10v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Zm3 2.75A.75.75 0 0 1 6.75 8h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 6 8.75Z" clip-rule="evenodd" />
@@ -130,7 +130,7 @@
                                                                 'text-gray-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 16 16">
                                                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
                                                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
@@ -148,7 +148,7 @@
                                                                 'text-amber-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
                                                                 <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l10.5 10.5a.75.75 0 1 0 1.06-1.06l-1.322-1.323a7.012 7.012 0 0 0 2.16-3.11.87.87 0 0 0 0-.567A7.003 7.003 0 0 0 4.82 3.76l-1.54-1.54Zm3.196 3.195 1.135 1.136A1.502 1.502 0 0 1 9.45 8.389l1.136 1.135a3 3 0 0 0-4.109-4.109Z" clip-rule="evenodd" />
                                                                 <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
@@ -168,7 +168,7 @@
                                                                 'text-red-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
                                                                 <path fill-rule="evenodd" d="M8.074.945A4.993 4.993 0 0 0 6 5v.032c.004.6.114 1.176.311 1.709.16.428-.204.91-.61.7a5.023 5.023 0 0 1-1.868-1.677c-.202-.304-.648-.363-.848-.058a6 6 0 1 0 8.017-1.901l-.004-.007a4.98 4.98 0 0 1-2.18-2.574c-.116-.31-.477-.472-.744-.28Zm.78 6.178a3.001 3.001 0 1 1-3.473 4.341c-.205-.365.215-.694.62-.59a4.008 4.008 0 0 0 1.873.03c.288-.065.413-.386.321-.666A3.997 3.997 0 0 1 8 8.999c0-.585.126-1.14.351-1.641a.42.42 0 0 1 .503-.235Z" clip-rule="evenodd" />
                                                             </svg>
