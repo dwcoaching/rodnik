@@ -160,9 +160,9 @@
         <ul
             wire:sortable="updateImageSort"
             wire:sortable.options="{
-                delay: 25,
+                delay: 20,
                 delayOnTouchOnly: true,
-                touchStartThreshold: 5,
+                touchStartThreshold: 3,
             }"
             x-data
             x-init="window.initPhotoSwipe('#photos');"
