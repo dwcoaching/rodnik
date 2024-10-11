@@ -159,11 +159,13 @@
     @if ($photos->count())
         <ul
             wire:sortable="updateImageSort"
+            {{--
             wire:sortable.options="{
-                delay: 10,
+                delay: 20,
                 delayOnTouchOnly: true,
-                touchStartThreshold: 20,
+                touchStartThreshold: 5,
             }"
+            --}}
             x-data
             x-init="window.initPhotoSwipe('#photos');"
             id="photos"
