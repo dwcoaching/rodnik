@@ -10,6 +10,7 @@ import 'photoswipe/style.css';
 import Coordinates from 'coordinate-parser';
 import { getInitialSourceName } from '@/initial';
 import { gps as exifrGPS } from 'exifr';
+import '@wotz/livewire-sortablejs';
 
 Alpine.plugin(Clipboard);
 

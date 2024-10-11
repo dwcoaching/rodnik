@@ -158,20 +158,23 @@
 
     @if ($photos->count())
         <ul
+            wire:sortable="updateImageSort"
             x-data
             x-init="window.initPhotoSwipe('#photos');"
             id="photos"
             role="list" class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($photos as $photo)
-                <li class="relative group">
+                <li class="relative group"
+                    wire:sortable.item="{{ $photo->id }}"
+                    wire:key="photo-{{ $photo->id }}"
+                    wire:sortable.handle>
                     <a href="{{ $photo->url }}"
                         data-pswp-width="{{ $photo->width }}"
                         data-pswp-height="{{ $photo->height }}"
                         data-cropped="true"
                         target="blank"
-                        style="padding-bottom: 100%;"
-                        class="photoswipeImage block w-full h-0 rounded-lg bg-gray-100 overflow-hidden">
-                        <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
+                        class="photoswipeImage relative block w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
+                        <img style="" src="{{ $photo->url }}" alt="" class="cursor-move object-cover absolute h-full w-full z-10">
                     </a>
                     <div wire:click.stop="removePhoto({{ $photo->id }}); event.preventDefault();" class="opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
                         style="text-shadow: 0px 0px 2px #000;">×</div>
@@ -185,22 +188,33 @@
             dragover: false,
             filesInProgress: [],
             filesInResize: [],
+            dispatchUploadEvent: function() {
+                if (this.filesInProgress.length + this.filesInResize.length) {
+                    $dispatch('uploading');
+                } else {
+                    $dispatch('uploading-completed')
+                }
+            },
             addFileInProgress: function(data) {
                 this.filesInProgress.push(data)
+                this.dispatchUploadEvent()
             },
             addFileInResize: function(data) {
                 this.filesInResize.push(data)
+                this.dispatchUploadEvent()
             },
             removeFileInProgress: function(id) {
                 $nextTick(() => {
                     const key = this.filesInProgress.findIndex(item => item.id !== id)
                     this.filesInProgress.splice(key, 1)
+                    this.dispatchUploadEvent()
                 })
             },
             removeFileInResize: function(id) {
                 $nextTick(() => {
                     const key = this.filesInResize.findIndex(item => item.id !== id)
                     this.filesInResize.splice(key, 1)
+                    this.dispatchUploadEvent()
                 })
             },
             updateFileInProgress: function(id, event) {
@@ -287,12 +301,14 @@
                             </div>
                         </template>
                     </div>
-                    <div class="h-12 mb-1 flex items-center" x-cloak x-show="filesInProgress.length > 0 || filesInResize.length > 0">
-                        <svg class="mx-auto flex animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                    </div>
+                    {{--
+                        <div class="h-12 mb-1 flex items-center" x-cloak x-show="filesInProgress.length > 0 || filesInResize.length > 0">
+                            <svg class="mx-auto flex animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    --}}
                     <div x-show="filesInProgress.length == 0 && filesInResize.length == 0" class="h-12 mb-1">
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -397,35 +413,26 @@
     --}}
 
     <div class="mt-0 pt-4 pb-6">
-        <div class="flex justify-start">
-            <button type="button" class="btn btn-lg font-bold btn-primary btn-block max-w-3xl"
-                x-data="{
-                    storing: false,
-                    buttonText: '{{ $reportId ? 'Save Changes' : 'Add Report' }}',
-                    storingText: '{{ $reportId ? 'Saving...' : 'Adding...' }}',
-                    text: function() {
-                        return this.storing ? this.storingText : this.buttonText;
-                    },
-                    store: async function() {
-                        if (this.storing) {
-                            return;
-                        }
-
-                        this.storing = true;
-                        const result = await $wire.store();
-                        // this.storing = false;
-                    }
-                }"
-                x-bind:attr="{
-                    'disabled': storing
-                }"
-                x-bind:class="{
-                    'btn-disabled': storing,
-                }"
-                @click="store"
-                x-text="text()"
-                >
-
+        <div x-cloak class="flex justify-start" x-data="{
+            uploading: false,
+        }"
+            x-on:uploading.window="uploading = true;"
+            x-on:uploading-completed.window="uploading = false"
+            >
+            <div wire:loading.remove class="w-full">
+                <template x-if="! uploading">
+                    <button wire:click="store" x-if="! uploading" type="button" class="no-animation btn font-bold btn-primary btn-block max-w-3xl">
+                        {{ $reportId ? 'Save Changes' : 'Add Report' }}
+                    </button>
+                </template>
+                <template x-if="uploading">
+                    <button x-if="uploading" type="button" class="no-animation  justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
+                        <div class="animate-spin w-5 h-5 mx-auto flex border border-4 rounded-full border-stone-400 border-t-transparent"></div>
+                    </button>
+                </template>
+            </div>
+            <button wire:loading type="button" class="no-animation flex justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
+                <div class="animate-spin w-5 h-5 mx-auto flex border border-4 rounded-full border-stone-400 border-t-transparent"></div>
             </button>
         </div>
     </div>

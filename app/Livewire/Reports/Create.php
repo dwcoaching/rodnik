@@ -11,6 +11,8 @@ use App\Rules\SpringTypeRule;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
 use App\Library\StatisticsService;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
 use Intervention\Image\Facades\Image;
@@ -27,7 +29,8 @@ class Create extends Component
     #[Locked]
     public $reportId;
 
-    public $photosIds = [];
+    public $sortablePhotos;
+    protected $sortedPhotos;
 
     #[Rule('image|max:10240')]
     public $file;
@@ -69,6 +72,8 @@ class Create extends Component
 
         if (! $this->reportId) {
             $this->visited_at = now()->format('Y-m-d');
+            $this->sortedPhotos = collect();
+            $this->sortablePhotos = collect();
         } else {
             $this->report = Report::findOrFail($this->reportId);
             $this->authorize('update', $this->report);
@@ -77,7 +82,13 @@ class Create extends Component
             $this->quality = $this->report->quality;
             $this->comment = $this->report->comment;
             $this->visited_at = $this->report->visited_at?->format('Y-m-d');
-            $this->photosIds = $this->report->photos->pluck('id')->all();
+            $this->sortedPhotos = $this->report->photos()->orderBy('order')->get();
+            $this->sortablePhotos = $this->sortedPhotos->map(function($item) {
+                return [
+                    'order' => $item->order,
+                    'value' => $item->id
+                ];
+            });
 
             $this->not_found = false;
             $this->no_access = false;
@@ -89,10 +100,8 @@ class Create extends Component
     {
         $this->spring = Spring::findOrFail($this->springId);
 
-        $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
-
         return view('livewire.reports.create', [
-            'photos' => $photos,
+            'photos' => $this->sortedPhotos,
             'spring' => $this->spring,
             'report' => $this->report,
         ]);
@@ -140,12 +149,7 @@ class Create extends Component
             $this->report->user->updateRating();
         }
 
-        $photos = Photo::whereIn('id', $this->photosIds)->orderByDesc('id')->get();
-
-        foreach ($photos as $photo) {
-            $photo->report_id = $this->report->id;
-            $photo->save();
-        }
+        $this->savePhotos();
 
         SendReportNotification::dispatch($this->report);
 
@@ -180,11 +184,21 @@ class Create extends Component
 
         $photo->latitude = $exif->latitude();
         $photo->longitude = $exif->longitude();
-
+        $photo->order = $this->getMaxPhotoOrder() + 1;
         $photo->save();
         Storage::disk('photos')->put($photo->filename, $image->stream('jpg', 80));
 
-        $this->photosIds[] = $photo->id;
+        $this->sortablePhotos->push([
+            'value' => $photo->id,
+            'order' => $photo->order,
+        ]);
+
+        $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
+    }
+
+    public function getMaxPhotoOrder()
+    {
+        return $this->sortablePhotos->max('order');
     }
 
     public function removePhoto($photoId)
@@ -201,14 +215,67 @@ class Create extends Component
             }
         }
 
-        if (! in_array($photoId, $this->photosIds)) {
+        $photoIndex = $this->sortablePhotos->search(function ($item) use ($photoId) {
+            return $item['value'] == $photoId;
+        });
+
+        if ($photoIndex === false) {
             abort(403);
+        } else {
+            $this->sortablePhotos->splice($photoIndex, 1);
         }
 
-        array_splice($this->photosIds, array_search($photoId, $this->photosIds), 1);
+        $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
+    }
 
-        $photo = Photo::find($photoId);
-        $photo->report_id = null;
-        $photo->save();
+    public function updateImageSort($sortedPhotosInBrowser)
+    {
+        $this->sortablePhotos = collect($sortedPhotosInBrowser);
+        $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
+    }
+
+    public function getSortedPhotosFromSortablePhotos()
+    {
+        return Photo::whereIn('id', $this->sortablePhotos->pluck('value')->all())->get()
+            ->sortBy(function(Photo &$photo) {
+                return $this->sortablePhotos->search(function ($item) use (&$photo) {
+                    if ($item['value'] == $photo->id) {
+                        $photo->order = $item['order'];
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+            });
+    }
+
+    public function savePhotos()
+    {
+        $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
+
+        $storedPhotos = $this->report->photos;
+
+        $photosToDetach = $storedPhotos->diff($this->sortedPhotos);
+        if ($photosToDetach->count()) {
+            $photosToDetach->toQuery()->update(['report_id' => null]);
+        }
+
+        $photosToAttach = $this->sortedPhotos->diff($storedPhotos);
+        if ($photosToAttach->count()) {
+            $photosToAttach->toQuery()
+                ->whereNull('report_id')
+                ->update(['report_id' => $this->report->id]);
+        }
+
+        Photo::upsert(
+            $this->sortedPhotos->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'original_filename' => $item->original_filename,
+                    'original_extension' => $item->original_extension,
+                    'extension' => $item->extension,
+                    'order' => $item->order,
+                ];
+            })->all(), uniqueBy: ['id'], update: ['order']);
     }
 }
