@@ -181,7 +181,7 @@
                         class="photoswipeImage relative block w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
                         <img style="" src="{{ $photo->url }}" alt="" class="cursor-move object-cover absolute h-full w-full z-10">
                     </a>
-                    <div wire:click="removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
+                    <div wire:mousedown="removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
                         style="text-shadow: 0px 0px 2px #000;">×</div>
                 </li>
             @endforeach
