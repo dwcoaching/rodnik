@@ -84,7 +84,7 @@
     <div class="mt-4">
       <label for="visited_at" class="block text-sm font-bold text-gray-500">Visit date</label>
       <div class="mt-1">
-        <input wire:model.live="visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
+        <input wire:model="visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
       </div>
     </div>
 --}}
@@ -125,7 +125,7 @@
 
     <div class="mt-2">
         <div class="relative">
-            <textarea wire:model.live="comment" rows="4" name="comment" id="comment"
+            <textarea wire:model="comment" rows="4" name="comment" id="comment"
                 placeholder="Comment"
                 @class([
                     'w-full' => true,

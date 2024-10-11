@@ -251,6 +251,8 @@ class Create extends Component
 
     public function savePhotos()
     {
+        $this->authorize('update', $this->report);
+
         $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
 
         $storedPhotos = $this->report->photos;
