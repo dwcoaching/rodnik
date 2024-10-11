@@ -42,9 +42,9 @@ body.dragover .drag-indicator {
 }
 
 .sortable-chosen a, .sortable-ghost a, .sortable-drag a {
-    transform: rotate(-5deg) !important;
+    transform: rotate(-2deg) !important;
 }
 
-.sortable-chosen .removePhotoHandle {
-    display: none;
+.sortable-drag .removePhotoHandle, .sortable-ghost .removePhotoHandle {
+    opacity: 0 !important;
 }
