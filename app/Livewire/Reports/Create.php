@@ -201,39 +201,6 @@ class Create extends Component
         return $this->sortablePhotos->max('order');
     }
 
-    public function removePhoto($photoId)
-    {
-        if (! Auth::check()) {
-            abort(401);
-        }
-
-        $this->report = Report::find($this->reportId);
-
-        if ($this->report) {
-            if (! Auth::check() || Auth::user()->cannot('update', $this->report)) {
-                abort(403);
-            }
-        }
-
-        $photoIndex = $this->sortablePhotos->search(function ($item) use ($photoId) {
-            return $item['value'] == $photoId;
-        });
-
-        if ($photoIndex === false) {
-            abort(403);
-        } else {
-            $this->sortablePhotos->splice($photoIndex, 1);
-        }
-
-        $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
-    }
-
-    public function updateImageSort($sortedPhotosInBrowser)
-    {
-        $this->sortablePhotos = collect($sortedPhotosInBrowser);
-        $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
-    }
-
     public function getSortedPhotosFromSortablePhotos()
     {
         return Photo::whereIn('id', $this->sortablePhotos->pluck('value')->all())->get()

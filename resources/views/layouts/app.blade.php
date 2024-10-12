@@ -46,7 +46,7 @@
     <body class="w-full min-h-screen bg-stone-100 flex flex-col"
         x-data="{ dragover: false, dragoverTimeout: null }"
         @dragover.window="dragover = true; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
-        @dragleave.window="dragoverTimeout = setTimeout(() => { dragover = false; console.log(1) }, 10)"
+        @dragleave.window="dragoverTimeout = setTimeout(() => { dragover = false; }, 10)"
         @drop="dragover = false; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
         x-bind:class="{ 'dragover': dragover }"
         >

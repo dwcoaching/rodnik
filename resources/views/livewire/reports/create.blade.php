@@ -8,6 +8,27 @@
         no_access: $wire.$entangle('no_access'),
         difficult_access: $wire.$entangle('difficult_access'),
 
+        sortablePhotos: $wire.$entangle('sortablePhotos'),
+
+        sortPhotos: function(item, position) {
+            let index = this.sortablePhotos.findIndex((photo) => item === photo.value)
+            if (index >= 0) {
+                this.sortablePhotos.splice(index, 1);
+            }
+            this.sortablePhotos.splice(position, 0, {
+                value: item,
+                order: position
+            })
+
+            this.sortablePhotos.forEach((photo, index) => {
+                photo.order = index + 1;
+            })
+        },
+
+        removePhoto: function(id) {
+            this.sortablePhotos = this.sortablePhotos.filter(photo => photo.value !== id)
+        },
+
         withDate: true,
         previousDate: null,
         toggleDate: function() {
@@ -158,15 +179,15 @@
 
     @if ($photos->count())
         <ul
-            wire:sortable="updateImageSort"
+            x-sort="sortPhotos($item, $position)"
             x-data
             x-init="window.initPhotoSwipe('#photos');"
             id="photos"
             role="list" class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($photos as $photo)
-                <li class="relative group"
-                    wire:sortable.item="{{ $photo->id }}"
+                <li class="relative group" x-ref="photo_{{ $photo->id }}"
                     wire:key="photo-{{ $photo->id }}"
+                    x-sort:item="{{ $photo->id }}"
                     >
                     <a href="{{ $photo->url }}"
                         data-pswp-width="{{ $photo->width }}"
@@ -176,12 +197,12 @@
                         class="photoswipeImage relative block w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
                         <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
                     </a>
-                    <div wire:sortable.handle class="cursor-move opacity-100 absolute left-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
+                    <div x-sort:handle class="rounded-md bg-black/10 cursor-move opacity-100 absolute left-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M87.51,64.49a12,12,0,0,1,0-17l32-32a12,12,0,0,1,17,0l32,32a12,12,0,0,1-17,17L140,53V96a12,12,0,0,1-24,0V53L104.49,64.49A12,12,0,0,1,87.51,64.49Zm64,127L140,203V160a12,12,0,0,0-24,0v43l-11.51-11.52a12,12,0,0,0-17,17l32,32a12,12,0,0,0,17,0l32-32a12,12,0,0,0-17-17Zm89-72-32-32a12,12,0,0,0-17,17L203,116H160a12,12,0,0,0,0,24h43l-11.52,11.51a12,12,0,0,0,17,17l32-32A12,12,0,0,0,240.49,119.51ZM53,140H96a12,12,0,0,0,0-24H53l11.52-11.51a12,12,0,1,0-17-17l-32,32a12,12,0,0,0,0,17l32,32a12,12,0,1,0,17-17Z"></path></svg>
                     </div>
-                    <div wire:click="removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle opacity-100 cursor-pointer absolute right-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M216,48H180V36A28,28,0,0,0,152,8H104A28,28,0,0,0,76,36V48H40a12,12,0,0,0,0,24h4V208a20,20,0,0,0,20,20H192a20,20,0,0,0,20-20V72h4a12,12,0,0,0,0-24ZM100,36a4,4,0,0,1,4-4h48a4,4,0,0,1,4,4V48H100Zm88,168H68V72H188ZM116,104v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Zm48,0v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Z"></path></svg>
-                        </div>
+                    <div x-on:click="$refs.photo_{{ $photo->id }}.remove(); removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle rounded-md bg-black/10 opacity-100 cursor-pointer absolute right-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M216,48H180V36A28,28,0,0,0,152,8H104A28,28,0,0,0,76,36V48H40a12,12,0,0,0,0,24h4V208a20,20,0,0,0,20,20H192a20,20,0,0,0,20-20V72h4a12,12,0,0,0,0-24ZM100,36a4,4,0,0,1,4-4h48a4,4,0,0,1,4,4V48H100Zm88,168H68V72H188ZM116,104v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Zm48,0v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Z"></path></svg>
+                    </div>
                 </li>
             @endforeach
         </ul>

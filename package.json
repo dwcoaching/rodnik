@@ -9,13 +9,11 @@
         "@tailwindcss/forms": "^0.5.2",
         "@tailwindcss/line-clamp": "^0.4.0",
         "@tailwindcss/typography": "^0.5.4",
-        "@wotz/livewire-sortablejs": "^1.0.0",
         "alpinejs": "^3.0.6",
         "autoprefixer": "^10.4.7",
         "axios": "^1.6.2",
         "daisyui": "^4.0",
         "laravel-vite-plugin": "^0.3.0",
-        "livewire-sortable": "^1.0.0",
         "lodash": "^4.17.19",
         "postcss": "^8.4.14",
         "postcss-import": "^14.0.1",
@@ -23,6 +21,7 @@
         "vite": "^2.9.14"
     },
     "dependencies": {
+        "@alpinejs/sort": "^3.14.1",
         "@mapbox/sphericalmercator": "^1.2.0",
         "@ryangjchandler/alpine-clipboard": "^2.2.0",
         "@turf/helpers": "^6.5.0",
