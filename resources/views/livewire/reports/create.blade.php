@@ -159,13 +159,6 @@
     @if ($photos->count())
         <ul
             wire:sortable="updateImageSort"
-            {{--
-            wire:sortable.options="{
-                delay: 20,
-                delayOnTouchOnly: true,
-                touchStartThreshold: 5,
-            }"
-            --}}
             x-data
             x-init="window.initPhotoSwipe('#photos');"
             id="photos"
@@ -174,17 +167,21 @@
                 <li class="relative group"
                     wire:sortable.item="{{ $photo->id }}"
                     wire:key="photo-{{ $photo->id }}"
-                    wire:sortable.handle>
+                    >
                     <a href="{{ $photo->url }}"
                         data-pswp-width="{{ $photo->width }}"
                         data-pswp-height="{{ $photo->height }}"
                         data-cropped="true"
                         target="blank"
                         class="photoswipeImage relative block w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
-                        <img style="" src="{{ $photo->url }}" alt="" class="cursor-move object-cover absolute h-full w-full z-10">
+                        <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
                     </a>
-                    <div wire:mousedown="removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle opacity-70 hover:opacity-100 cursor-pointer absolute right-0 top-0 py-1 px-2 z-20 text-white font-semibold text-2xl"
-                        style="text-shadow: 0px 0px 2px #000;">×</div>
+                    <div wire:sortable.handle class="cursor-move opacity-100 absolute left-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M87.51,64.49a12,12,0,0,1,0-17l32-32a12,12,0,0,1,17,0l32,32a12,12,0,0,1-17,17L140,53V96a12,12,0,0,1-24,0V53L104.49,64.49A12,12,0,0,1,87.51,64.49Zm64,127L140,203V160a12,12,0,0,0-24,0v43l-11.51-11.52a12,12,0,0,0-17,17l32,32a12,12,0,0,0,17,0l32-32a12,12,0,0,0-17-17Zm89-72-32-32a12,12,0,0,0-17,17L203,116H160a12,12,0,0,0,0,24h43l-11.52,11.51a12,12,0,0,0,17,17l32-32A12,12,0,0,0,240.49,119.51ZM53,140H96a12,12,0,0,0,0-24H53l11.52-11.51a12,12,0,1,0-17-17l-32,32a12,12,0,0,0,0,17l32,32a12,12,0,1,0,17-17Z"></path></svg>
+                    </div>
+                    <div wire:click="removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle opacity-100 cursor-pointer absolute right-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M216,48H180V36A28,28,0,0,0,152,8H104A28,28,0,0,0,76,36V48H40a12,12,0,0,0,0,24h4V208a20,20,0,0,0,20,20H192a20,20,0,0,0,20-20V72h4a12,12,0,0,0,0-24ZM100,36a4,4,0,0,1,4-4h48a4,4,0,0,1,4,4V48H100Zm88,168H68V72H188ZM116,104v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Zm48,0v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Z"></path></svg>
+                        </div>
                 </li>
             @endforeach
         </ul>

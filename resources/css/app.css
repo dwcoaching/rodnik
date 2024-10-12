@@ -45,6 +45,6 @@ body.dragover .drag-indicator {
     transform: rotate(-2deg) !important;
 }
 
-.sortable-drag .removePhotoHandle, .sortable-ghost .removePhotoHandle {
-    opacity: 0.01 !important;
+.sortable-chosen .removePhotoHandle, .sortable-drag .removePhotoHandle, .sortable-ghost .removePhotoHandle {
+    opacity: 0 !important;
 }
