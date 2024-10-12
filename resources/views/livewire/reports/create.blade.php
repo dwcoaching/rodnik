@@ -162,7 +162,7 @@
             x-data
             x-init="window.initPhotoSwipe('#photos');"
             id="photos"
-            role="list" class="max-w-3xl mt-4 mb-4 mr-8 lg:mr-0 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+            role="list" class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
             @foreach ($photos as $photo)
                 <li class="relative group"
                     wire:sortable.item="{{ $photo->id }}"
