@@ -83,7 +83,7 @@ class Create extends Component
             $this->comment = $this->report->comment;
             $this->visited_at = $this->report->visited_at?->format('Y-m-d');
             $this->sortedPhotos = $this->report->photos()->orderBy('order')->get();
-            $this->sortablePhotos = $this->sortedPhotos->map(function($item) {
+            $this->sortablePhotos = $this->sortedPhotos->toBase()->map(function($item) {
                 return [
                     'order' => $item->order,
                     'value' => $item->id
