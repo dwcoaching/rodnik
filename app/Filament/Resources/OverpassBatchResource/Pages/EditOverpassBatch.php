@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources\OverpassBatchResource\Pages;
 
-use App\Filament\Resources\OverpassBatchResource;
 use Filament\Pages\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\OverpassBatchResource;
 
 class EditOverpassBatch extends EditRecord
 {
@@ -13,7 +14,9 @@ class EditOverpassBatch extends EditRecord
     protected function getActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()->before(function(DeleteAction $action) {
+                $this->record->deleteArtifacts();
+            }),
         ];
     }
 }

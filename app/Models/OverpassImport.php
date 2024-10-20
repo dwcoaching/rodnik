@@ -312,4 +312,15 @@ class OverpassImport extends Model
         $this->ground_up = true;
         $this->save();
     }
+
+    public function deleteWithArtifacts()
+    {
+        $this->deleteArtifacts();
+        $this->delete();
+    }
+
+    public function deleteArtifacts()
+    {
+        Storage::disk('local')->delete($this->responsePath);
+    }
 }

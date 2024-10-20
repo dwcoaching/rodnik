@@ -7,6 +7,7 @@ use App\Models\OverpassImport;
 use App\Jobs\CleanupOSMSprings;
 use App\Jobs\ParseOverpassBatchImports;
 use Illuminate\Database\Eloquent\Model;
+use App\Jobs\RemoveOlderOverpassArtifacts;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -118,6 +119,7 @@ class OverpassBatch extends Model
         if ($percentage === 1.0) {
             $this->parse_status = "parsed";
             CleanupOSMSprings::dispatch($this);
+            RemoveOlderOverpassArtifacts::dispatch($this);
         } else {
             $this->parse_status = "parsing";
         }
@@ -199,5 +201,29 @@ class OverpassBatch extends Model
         }
 
         $this->updateParsedPercentage();
+    }
+
+    public function deleteWithArtifacts()
+    {
+        $this->deleteArtifacts();
+        $this->delete();
+    }
+
+    public function deleteArtifacts()
+    {
+        $this->deleteOverpassChecksWithArtifacts();
+        $this->deleteOverpassImportsWithArticats();
+    }
+
+    public function deleteOverpassChecksWithArtifacts()
+    {
+        OverpassCheck::where('overpass_batch_id', $this->id)->delete();
+    }
+
+    public function deleteOverpassImportsWithArticats()
+    {
+        foreach ($this->overpassImports as $overpassImport) {
+            $overpassImport->deleteWithArtifacts();
+        }
     }
 }
