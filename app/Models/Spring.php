@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Faker\Factory;
+use App\Models\Photo;
 use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\SpringTile;
@@ -39,6 +40,11 @@ class Spring extends Model
     public function osm_tags()
     {
         return $this->hasMany(OSMTag::class);
+    }
+
+    public function photos()
+    {
+        return $this->hasManyThrough(Photo::class, Report::class);
     }
 
     public function getCoordinatesAttribute()
