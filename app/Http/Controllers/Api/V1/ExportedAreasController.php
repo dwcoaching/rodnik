@@ -22,6 +22,9 @@ class ExportedAreasController extends Controller
             ['longitude', '<=', 46.7],
         ])->with(['reports.photos'])->get();
 
-        return ExportedSpringResource::collection($springs);
+        return ExportedSpringResource::collection($springs)->toJson(
+            JSON_UNESCAPED_UNICODE
+            | JSON_UNESCAPED_SLASHES
+        );
     }
 }
