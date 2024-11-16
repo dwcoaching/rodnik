@@ -11,7 +11,7 @@ class ExportedAreasController extends Controller
 {
     public function show(string $area)
     {
-        if (! in_array($area, ['armenia'])) {
+        if (! in_array($area, ['armenia', 'yerevan'])) {
             abort(404);
         }
 
@@ -23,7 +23,11 @@ class ExportedAreasController extends Controller
         ])->with(['reports.photos'])->get();
 
         if (extension_loaded('geos')) {
-            $area = \geoPHP::load(file_get_contents(resource_path('geojson/armenia.geojson')), 'json');
+            $areafile = match($area) {
+                'armenia' => 'geojson/armenia.geojson',
+                'yerevan' => 'geojson/yerevan.geojson',
+            };
+            $area = \geoPHP::load(file_get_contents(resource_path($areafile)), 'json');
 
             $springs = $springs->filter(function ($spring) use ($area) {
                 $point = \geoPHP::load('POINT('.$spring->longitude.' '.$spring->latitude.')', 'wkt');
