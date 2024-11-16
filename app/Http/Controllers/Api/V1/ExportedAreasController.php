@@ -29,8 +29,6 @@ class ExportedAreasController extends Controller
                 $point = \geoPHP::load('POINT('.$spring->longitude.' '.$spring->latitude.')', 'wkt');
                 return $area->contains($point);
             });
-
-            echo 'GEOS INSTALLED. ';
         }
 
         return ExportedSpringResource::collection($springs)->toJson(
