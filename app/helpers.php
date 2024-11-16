@@ -30,11 +30,13 @@ function decline_number($value, $strings, $withNumber = true)
     return $result;
 }
 
-function mb_ucfirst($string, $encoding = 'UTF-8')
-{
-    $firstChar = mb_substr($string, 0, 1, $encoding);
-    $then = mb_substr($string, 1, null, $encoding);
-    return mb_strtoupper($firstChar, $encoding) . $then;
+if (! function_exists('mb_ucfirst')) {
+    function mb_ucfirst($string, $encoding = 'UTF-8')
+    {
+        $firstChar = mb_substr($string, 0, 1, $encoding);
+        $then = mb_substr($string, 1, null, $encoding);
+        return mb_strtoupper($firstChar, $encoding) . $then;
+    }
 }
 
 function without_http($string)

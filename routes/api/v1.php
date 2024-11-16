@@ -17,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::resource('springs.photos', App\Http\Controllers\Api\V1\PhotosController::class)
     ->shallow()
     ->only('index');
+
+Route::resource('areas', App\Http\Controllers\Api\V1\ExportedAreasController::class)
+    ->only('show');
