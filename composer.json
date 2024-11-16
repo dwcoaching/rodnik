@@ -19,6 +19,7 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.7",
         "livewire/livewire": "^3.0",
+        "phayes/geophp": "^1.2",
         "symfony/http-client": "^7.1",
         "symfony/mailgun-mailer": "^7.1"
     },

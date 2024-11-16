@@ -22,6 +22,17 @@ class ExportedAreasController extends Controller
             ['longitude', '<=', 46.7],
         ])->with(['reports.photos'])->get();
 
+        if (extension_loaded('geos')) {
+            $area = \geoPHP::load(file_get_contents(resource_path('geojson/armenia.geojson')), 'json');
+
+            $springs = $springs->filter(function ($spring) use ($area) {
+                $point = \geoPHP::load('POINT('.$spring->longitude.' '.$spring->latitude.')', 'wkt');
+                return $area->contains($point);
+            });
+
+            echo 'GEOS INSTALLED. ';
+        }
+
         return ExportedSpringResource::collection($springs)->toJson(
             JSON_UNESCAPED_UNICODE
             | JSON_UNESCAPED_SLASHES
