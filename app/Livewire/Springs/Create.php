@@ -15,6 +15,7 @@ use App\Models\WateredSpringTile;
 use App\Library\StatisticsService;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
+use App\Actions\Springs\UpdateSpring;
 use App\Jobs\SendSpringRevisionNotification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -30,20 +31,10 @@ class Create extends Component
 
     public $saving = false;
 
-    protected function rules()
-    {
-        return [
-            'name' => 'nullable',
-            'type' => [new SpringTypeRule],
-        ];
-    }
-
     public function mount($springId)
     {
         $this->springId = $springId;
-
         $this->spring = Spring::find($this->springId);
-
         $this->authorize('update', $this->spring);
 
         $this->type = $this->spring->type;
@@ -59,56 +50,12 @@ class Create extends Component
         ]);
     }
 
-    public function store()
+    public function store(UpdateSpring $updateSpringAction)
     {
-        $this->validate();
-
-        if ($this->springId) {
-            $this->spring = Spring::find($this->springId);
-        } else {
-            $this->spring = new Spring();
-        }
-
-        $springChangeCount = 0;
-        $revision = new SpringRevision();
-
-        if ($this->spring->name != $this->name) {
-            $revision->old_name = $this->spring->name;
-            $revision->new_name = $this->name;
-            $this->spring->name = $this->name;
-            $springChangeCount++;
-        }
-
-        if ($this->spring->type != $this->type) {
-            $revision->old_type = $this->spring->type;
-            $revision->new_type = $this->type;
-            $this->spring->type = $this->type;
-            $springChangeCount++;
-        }
-
-        if ($springChangeCount) {
-            if ($this->spring->id) {
-                $this->authorize('update', $this->spring);
-            } else {
-                $this->authorize('create', Spring::class);
-            }
-
-            $this->spring->save();
-            $revision->user_id = Auth::check() ? Auth::user()->id : null;
-            $revision->spring_id = $this->spring->id;
-            $revision->revision_type = 'user';
-            $revision->save();
-            StatisticsService::invalidateReportsCount();
-
-            if ($revision->user_id) {
-                Auth::user()->updateRating();
-            }
-
-            $this->spring->invalidateTiles();
-            StatisticsService::invalidateSpringsCount();
-
-            SendSpringRevisionNotification::dispatch($revision);
-        }
+        $updateSpringAction->handle($this->spring, [
+            'type' => $this->type,
+            'name' => $this->name,
+        ]);
 
         return $this->redirect(route('springs.show', $this->spring));
     }

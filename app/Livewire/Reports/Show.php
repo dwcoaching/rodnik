@@ -6,6 +6,8 @@ use App\Models\Report;
 use Livewire\Component;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
+use App\Actions\Reports\HideReportByModerator;
+use App\Actions\Reports\UnhideReportByModerator;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
@@ -32,7 +34,7 @@ class Show extends Component
         $this->report->spring->invalidateTiles();
         Auth::user()->updateRating();
         StatisticsService::invalidateReportsCount();
-        $this->report->fresh();
+        $this->report->refresh();
     }
 
     public function unhideByAuthor()
@@ -50,36 +52,20 @@ class Show extends Component
         $this->report->refresh();
     }
 
-    public function hideByModerator()
+    public function hideByModerator(HideReportByModerator $hideReportByModeratorAction)
     {
-        if (Auth::user()->is_admin) {
-            $this->report->hidden_at = now();
-            $this->report->hidden_by_moderator_id = Auth::user()->id;
-            $this->report->save();
-            $this->justHidden = true;
+        $hideReportByModeratorAction->handle($this->report);
 
-            $this->report->spring->invalidateTiles();
-            if ($this->report->user_id) {
-                $this->report->user->updateRating();
-            }
-            StatisticsService::invalidateReportsCount();
-        }
+        $this->report->refresh();
+        $this->justHidden = true;
     }
 
-    public function unhideByModerator()
+    public function unhideByModerator(UnhideReportByModerator $unhideReportByModeratorAction)
     {
-        if (Auth::user()->is_admin) {
-            $this->report->hidden_at = null;
-            $this->report->hidden_by_moderator_id = null;
-            $this->report->save();
-            $this->justHidden = false;
+        $unhideReportByModeratorAction->handle($this->report);
 
-            $this->report->spring->invalidateTiles();
-            if ($this->report->user_id) {
-                $this->report->user->updateRating();
-            }
-            StatisticsService::invalidateReportsCount();
-        }
+        $this->report->refresh();
+        $this->justHidden = false;
     }
 
     public function render()

@@ -82,6 +82,9 @@
                             @endif
                         </option>
                     @endforeach
+                    <option value="fake">
+                        Fake
+                    </option>
                 </select>
                 @error('type')
                     <div class="text-red-600 text-sm mt-2">
