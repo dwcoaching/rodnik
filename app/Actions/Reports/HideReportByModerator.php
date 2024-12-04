@@ -2,17 +2,22 @@
 
 namespace App\Actions\Reports;
 
+use App\Models\Report;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class HideReportByModerator
 {
-    public function handle($report)
+    public function __invoke(Report $report, $attributes = [])
     {
-        $this->authorize();
-        $this->validate();
+        $this->authorize($report);
+        $this->validate($attributes);
+        $this->execute($report, $attributes);
+    }
 
+    public function execute($report, $attributes)
+    {
         $report->hidden_at = now();
         $report->hidden_by_moderator_id = Auth::user()->id;
         $report->save();

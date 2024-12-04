@@ -52,7 +52,7 @@ class Create extends Component
 
     public function store(UpdateSpring $updateSpringAction)
     {
-        $updateSpringAction->handle($this->spring, [
+        $updateSpringAction($this->spring, [
             'type' => $this->type,
             'name' => $this->name,
         ]);

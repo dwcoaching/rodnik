@@ -54,7 +54,7 @@ class Show extends Component
 
     public function hideByModerator(HideReportByModerator $hideReportByModeratorAction)
     {
-        $hideReportByModeratorAction->handle($this->report);
+        $hideReportByModeratorAction($this->report);
 
         $this->report->refresh();
         $this->justHidden = true;
@@ -62,7 +62,7 @@ class Show extends Component
 
     public function unhideByModerator(UnhideReportByModerator $unhideReportByModeratorAction)
     {
-        $unhideReportByModeratorAction->handle($this->report);
+        $unhideReportByModeratorAction($this->report);
 
         $this->report->refresh();
         $this->justHidden = false;

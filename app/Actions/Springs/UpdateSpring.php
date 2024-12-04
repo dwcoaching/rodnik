@@ -13,11 +13,15 @@ use App\Jobs\SendSpringRevisionNotification;
 
 class UpdateSpring
 {
-    public function handle(Spring $spring, $attributes)
+    public function __invoke(Spring $spring, $attributes)
     {
         $this->authorize($spring);
         $this->validate($attributes);
+        $this->execute($spring, $attributes);
+    }
 
+    public function execute(Spring $spring, $attributes)
+    {
         $springChangeCount = 0;
         $revision = new SpringRevision();
 
