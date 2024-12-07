@@ -6,9 +6,11 @@ use App\Models\Spring;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Reactive;
 
 class Show extends Component
 {
+    #[Reactive]
     public $springId;
 
     public function setSpring($springId)

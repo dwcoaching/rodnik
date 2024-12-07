@@ -67,15 +67,27 @@
             this.registerVisit({springId: this.springId}, location)
         },
     }"
+
     x-on:spring-selected-on-map.window="
-        //setSpringId()
         $wire.$set('springId', $event.detail.id, true)
+        //setSpringId()
         //registerSpringVisit($event.detail.id)
     "
     x-on:spring-deselected-on-map.window="
-        unsetSpringId()
-        registerHomeVisit()
+        $wire.$set('springId', null, true)
+        //unsetSpringId()
+        //registerHomeVisit()
     "
+
+    // spring requested
+    // spring cleared
+    // user requested
+    // user cleared
+    // location requested
+    // location cleared
+    // tags requested
+    // tags cleared
+
 
     x-on:spring-turbo-visit.window="
         setSpringId($event.detail.id)
@@ -90,74 +102,84 @@
         registerHomeVisit()
     "
     x-on:spring-turbo-visit-index.window="
-        window.rodnikMap.dehighlightFeature();
-        unsetSpringId()
-        unsetUserId()
-        registerHomeVisit()
+        $wire.$set('userId', null, false)
+        $wire.$set('springId', null, true)
+        window.rodnikMap.dehighlightFeature()
+        window.rodnikMap.springsSource(0)
+        {{--
+            unsetSpringId()
+            unsetUserId()
+            registerHomeVisit()
+        --}}
     "
+    x-init="window.rodnikMap.springsSource({{ $this->userId }});"
     x-on:turbo-visit-user.window="
-        if ($event.detail.userId == myId) {
-            personal = true
-        }
+        $wire.$set('userId', $event.detail.userId, true)
+        window.rodnikMap.springsSource($event.detail.userId)
+        {{--
+            if ($event.detail.userId == myId) {
+                personal = true
+            }
 
-        setUserId($event.detail.userId)
-        unsetSpringId()
-        registerHomeVisit()
+            setUserId($event.detail.userId)
+            unsetSpringId()
+            registerHomeVisit()
+        --}}
     "
+
+
+
     x-on:popstate.window="
         if (window.openedPhotoswipe) {
             window.openedPhotoswipe.destroy()
         }
 
-        if ($event.state && $event.state.springId) {
-            setSpringId($event.state.springId)
-            unsetUserId();
-            window.rodnikMap.highlightFeatureById($event.state.springId);
-        } else if ($event.state) {
-            if ($event.state.userId == myId) {
-                personal = true
-            } else {
-                personal = false
+        {{--
+            if ($event.state && $event.state.springId) {
+                setSpringId($event.state.springId)
+                unsetUserId();
+                window.rodnikMap.highlightFeatureById($event.state.springId);
+            } else if ($event.state) {
+                if ($event.state.userId == myId) {
+                    personal = true
+                } else {
+                    personal = false
+                }
+
+                setUserId($event.state.userId);
+                unsetSpringId()
+                window.rodnikMap.dehighlightPreviousFeature();
             }
 
-            setUserId($event.state.userId);
-            unsetSpringId()
-            window.rodnikMap.dehighlightPreviousFeature();
-        }
-
-        if (window.location.pathname == '/create') {
-            window.dispatchEvent(
-                new CustomEvent('turbo-location-create')
-            )
-        } else if (window.location.pathname.includes('/location/edit')) {
-            window.dispatchEvent(
-                new CustomEvent('turbo-location-edit',
-                    {
-                        detail: {
-                            springId: $event.state.springId,
-                        }
-                    }
+            if (window.location.pathname == '/create') {
+                window.dispatchEvent(
+                    new CustomEvent('turbo-location-create')
                 )
-            )
-        } else {
-            window.rodnikMap.exitLocationMode()
-        }"
+            } else if (window.location.pathname.includes('/location/edit')) {
+                window.dispatchEvent(
+                    new CustomEvent('turbo-location-edit',
+                        {
+                            detail: {
+                                springId: $event.state.springId,
+                            }
+                        }
+                    )
+                )
+            } else {
+                window.rodnikMap.exitLocationMode()
+            }
+        --}}"
     class="flex grow justify-center"
 >
     <div class="grow">
-        <div x-show="! springId && ! locationMode.value" class="h-full">
-            <div x-show="! userId" class="h-full">
-                <livewire:duo.reports.index loaded="{{ ! $userId && ! $springId }}" />
-            </div>
-            <div x-show="userId" class="h-full">
-                <livewire:duo.users.show :userId="$userId" />
-            </div>
-        </div>
-        <div x-show="springId && ! locationMode.value" class="h-full">
-            <livewire:duo.springs.show :springId="$springId" />
-        </div>
-        <div x-show="locationMode.value" class="h-full">
-            <livewire:duo.springs.create :springId="$springId" :locationMode="$locationMode" />
+        <div class="h-full">
+            @if (! $springId)
+                <livewire:duo.reports.index :userId="$userId" />
+            @elseif ($springId)
+                <livewire:duo.springs.show :springId="$springId" />
+            @elseif ($locationMode)
+                <livewire:duo.springs.create :springId="$springId" :locationMode="$locationMode" />
+            @endif
         </div>
     </div>
 </div>

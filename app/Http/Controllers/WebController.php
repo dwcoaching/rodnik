@@ -9,13 +9,9 @@ use App\Http\Resources\SpringResource;
 
 class WebController extends Controller
 {
-    public function index(Request $request, User $user = null)
+    public function index(Request $request)
     {
-        $springId = null;
-        $userId = null;
-        $locationMode = false;
-
-        return view('welcome', compact('springId', 'userId', 'locationMode'));
+        return view('duo');
     }
 
     public function user($userId)

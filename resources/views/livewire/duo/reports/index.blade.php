@@ -1,18 +1,18 @@
 <div class="h-full" x-data="{
-    loaded: {{ intval($loaded) }},
-    loadAllReports: function() {
-        if (! this.loaded) {
-            this.loaded = true;
-            $wire.setLoaded()
-        }
-    }
-    }"
-    x-on:duo-load-all-reports.window="loadAllReports()">
+    }">
     <div wire:loading.delay.long.flex class="grow hidden w-full h-full flex justify-center items-center">
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-stone-400 border-t-transparent"></div>
     </div>
     <div wire:loading.remove>
-        @if ($loaded)
+        @if ($userId)
+            <div class="px-4 flex items-stretch">
+                <div
+                class="rounded-lg flex items-center">
+                    <div class="mr-2 text-xl font-medium">{{ $user?->name }}</div>
+                    <span class="ml-0 text-sm font-medium px-1.5 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ $user?->rating }}</span>
+                </div>
+            </div>
+        @else
             <div class="px-4">
                 <div class="flex items-center">
                     <div class="mr-4">

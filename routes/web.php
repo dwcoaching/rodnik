@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Duo\Index;
 use App\Livewire\Pages\About;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
@@ -26,6 +27,9 @@ use App\Http\Controllers\WateredSpringTileJsonController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+ //Route::get('/', Index::class);
 
 Route::get('/', [WebController::class, 'index'])->name('index');
 

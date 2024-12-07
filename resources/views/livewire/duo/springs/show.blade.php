@@ -1,25 +1,18 @@
-<div class="px-0 md:px-4 md:pb-4 h-full bg-stone-100" x-data="{
-        previousSpringId: {{ intval($springId) }},
-        loadSpring: function() {
-            if (this.springId != this.previousSpringId) {
-                $wire.setSpring(this.springId)
-                this.previousSpringId = this.springId
-            }
-        }
-    }"
-    x-on:duo-load-spring.window="loadSpring()"
+<div class="px-0 md:px-4 md:pb-4 h-full bg-stone-100" x-data="{}"
     x-init="
-        if ({{ intval($springId)}} && locateMap) {
-            window.rodnikMap.locate({{ json_encode($coordinates) }});
-            window.rodnikMap.highlightFeatureById({{ $springId }});
-        }
+        {{--
+            if ({{ intval($springId)}} && locateMap) {
+                window.rodnikMap.locate({{ json_encode($coordinates) }});
+                window.rodnikMap.highlightFeatureById({{ $springId }});
+            }
 
-        locateMap = false;
+            locateMap = false;
+        --}}
     ">
-    <div x-show="springId" wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
+    <div wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
-    <div x-cloak wire:loading.remove x-show="springId == $wire.springId" class="w-full">
+    <div x-cloak wire:loading.remove class="w-full">
         @if ($spring)
             @if ($spring->hidden_at)
                 <div class="alert alert-warning mb-2">
