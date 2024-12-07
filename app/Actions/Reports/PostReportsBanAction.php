@@ -7,7 +7,7 @@ use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
-class UnhideReportByModerator
+class PostReportsBanAction
 {
     public function __invoke(Report $report, $attributes = [])
     {
@@ -18,8 +18,8 @@ class UnhideReportByModerator
 
     public function execute($report, $attributes)
     {
-        $report->hidden_at = null;
-        $report->hidden_by_moderator_id = null;
+        $report->hidden_at = now();
+        $report->hidden_by_moderator_id = Auth::user()->id;
         $report->save();
 
         $report->spring->invalidateTiles();

@@ -15,7 +15,7 @@ use App\Models\WateredSpringTile;
 use App\Library\StatisticsService;
 use App\Jobs\SendReportNotification;
 use Illuminate\Support\Facades\Auth;
-use App\Actions\Springs\UpdateSpring;
+use App\Actions\Springs\PatchSpringsAction;
 use App\Jobs\SendSpringRevisionNotification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -50,9 +50,9 @@ class Create extends Component
         ]);
     }
 
-    public function store(UpdateSpring $updateSpringAction)
+    public function store(PatchSpringsAction $patchSprings)
     {
-        $updateSpringAction($this->spring, [
+        $patchSprings($this->spring, [
             'type' => $this->type,
             'name' => $this->name,
         ]);

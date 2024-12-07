@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendSpringRevisionNotification;
 
-class UpdateSpring
+class PatchSpringsAction
 {
     public function __invoke(Spring $spring, $attributes)
     {

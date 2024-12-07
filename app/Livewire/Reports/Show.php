@@ -6,8 +6,8 @@ use App\Models\Report;
 use Livewire\Component;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
-use App\Actions\Reports\HideReportByModerator;
-use App\Actions\Reports\UnhideReportByModerator;
+use App\Actions\Reports\PostReportsBanAction;
+use App\Actions\Reports\DeleteReportsBanAction;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
@@ -52,17 +52,17 @@ class Show extends Component
         $this->report->refresh();
     }
 
-    public function hideByModerator(HideReportByModerator $hideReportByModeratorAction)
+    public function hideByModerator(PostReportsBanAction $postReportsBan)
     {
-        $hideReportByModeratorAction($this->report);
+        $postReportsBan($this->report);
 
         $this->report->refresh();
         $this->justHidden = true;
     }
 
-    public function unhideByModerator(UnhideReportByModerator $unhideReportByModeratorAction)
+    public function unhideByModerator(DeleteReportsBanAction $deleteReportsBan)
     {
-        $unhideReportByModeratorAction($this->report);
+        $deleteReportsBan($this->report);
 
         $this->report->refresh();
         $this->justHidden = false;
