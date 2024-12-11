@@ -7,7 +7,13 @@
             @if ($map)
                 <span x-data
                     @click.prevent="
-                        window.dispatchEvent(new CustomEvent('spring-turbo-visit-index'))"
+                        window.dispatchEvent(
+                            new CustomEvent('duo-visit',
+                                {
+                                    detail: {}
+                                }
+                            )
+                        )"
                     class="pt-4 pb-2 mr-4 cursor-pointer">
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </span>
@@ -47,8 +53,15 @@
                             <a x-menu:item href="{{ route('springs.create') }}"
                                 @click.prevent="
                                     window.dispatchEvent(
-                                        new CustomEvent('turbo-location-create')
+                                        new CustomEvent('duo-visit',
+                                            {
+                                                detail: {
+                                                    location: true
+                                                }
+                                            }
+                                        )
                                     )
+
                                     navbarDropdownMenuOpen = false
                                     "
                                 :class="{

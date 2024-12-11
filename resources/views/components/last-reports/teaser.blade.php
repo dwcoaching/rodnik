@@ -7,10 +7,11 @@
                 <div class="px-3 pt-3 flex justify-between">
                     <a @click.prevent="
                         window.dispatchEvent(
-                            new CustomEvent('spring-turbo-visit',
+                            new CustomEvent('duo-visit',
                                 {
                                     detail: {
-                                        id: {{ intval($report->spring->id )}},
+                                        userId: new URLSearchParams(window.location.search).get('u'),
+                                        springId: {{ intval($report->spring->id )}},
                                         coordinates: {{ json_encode([
                                             floatval($report->spring->longitude),
                                             floatval($report->spring->latitude)
@@ -38,10 +39,12 @@
                                         <a class="block flex flex-wrap text-sm hover:underline text-blue-600 cursor-pointer hover:text-blue-700"
                                             @click.prevent="
                                                 window.dispatchEvent(
-                                                    new CustomEvent('turbo-visit-user',
+                                                    new CustomEvent('duo-visit',
                                                         {
                                                             detail: {
+                                                                springId: null,
                                                                 userId: {{ intval($report->user_id )}},
+                                                                location: false,
                                                             }
                                                         }
                                                     )

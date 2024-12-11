@@ -3,6 +3,7 @@
 namespace App\Livewire\Duo\Springs;
 
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\Reactive;
 use App\Models\Spring;
 use Livewire\Component;
 use App\Models\SpringTile;
@@ -16,10 +17,9 @@ use App\Jobs\SendSpringRevisionNotification;
 
 class Create extends Component
 {
-    #[Locked]
+    #[Reactive]
     public $springId;
 
-    #[Locked]
     public $mode;
 
     public $saving;
@@ -27,7 +27,9 @@ class Create extends Component
     public $coordinates;
     public $latitude = null;
     public $longitude = null;
-    public $locationMode = false;
+
+    #[Reactive]
+    public $location = false;
 
     protected function rules()
     {
@@ -37,9 +39,9 @@ class Create extends Component
         ];
     }
 
-    public function mount($springId, $locationMode)
+    public function mount($springId, $location)
     {
-        if ($locationMode) {
+        if ($location) {
             if ($springId) {
                 $this->initializeEditing($springId);
             } else {
@@ -53,10 +55,6 @@ class Create extends Component
         $this->authorize('create', Spring::class);
 
         $this->mode = 'creating';
-        $this->locationMode = true;
-
-        $this->springId = 0;
-        $this->spring = null;
     }
 
     public function initializeEditing($springId)
@@ -66,7 +64,6 @@ class Create extends Component
         $this->authorize('update', $this->spring);
 
         $this->mode = 'editing';
-        $this->locationMode = true;
 
         $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
         $this->latitude = $this->spring->latitude;
@@ -139,7 +136,7 @@ class Create extends Component
         }
 
         if ($this->mode == 'editing') {
-            return $this->redirect(route('springs.show', $this->springId));
+            return $this->redirect(route('duo', ['s' => $this->springId]));
         }
 
         return $this->redirect(route('springs.edit', $this->spring));

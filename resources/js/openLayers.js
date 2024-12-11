@@ -148,7 +148,7 @@ export default class OpenLayersMap {
         this.source(getInitialSourceName())
 
         this.map.on('moveend', (e) => {
-            if (this.locationMode.value) {
+            if (this.queryParameters.location) {
                 this.mapMoved(this.getCoordinates());
             }
 
@@ -157,7 +157,7 @@ export default class OpenLayersMap {
         });
 
         this.map.on('click', (e) => {
-            // if (this.locationMode.value) {
+            // if (this.queryParameters.location) {
             //     return
             // }
 
@@ -176,10 +176,36 @@ export default class OpenLayersMap {
         });
 
         this.map.on('pointerdrag', (e) => {
-            if (this.locationMode.value) {
+            if (this.queryParameters.location) {
                 this.mapMoved(this.getCoordinates());
             }
         });
+
+        this.queryParameters = Alpine.reactive({
+            springId: null,
+            userId: null,
+            location: false,
+            coordinates: null,
+        })
+
+        this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
+
+        Alpine.effect(() => {
+            this.queryParameters
+
+            this.springsSource(this.queryParameters.userId)
+
+            if (this.queryParameters.springId > 0 && ! this.queryParameters.location) {
+                this.highlightFeatureById(this.queryParameters.springId)
+            } else {
+                this.dehighlightFeature()
+            }
+
+            if (this.queryParameters.coordinates) {
+                this.locate(this.queryParameters.coordinates);
+                this.queryParameters.coordinates = null
+            }
+        })
     }
 
     getCoordinates() {
@@ -206,6 +232,10 @@ export default class OpenLayersMap {
         if (id) {
             this.featureIdToBeSelected = null;
             this.highlightFeatureById(id);
+        }
+
+        if (this.queryParameters.userId && this.queryParameters.userId != this.previousQueryParameters.userId) {
+            this.locateWorld()
         }
     }
 
@@ -548,7 +578,9 @@ export default class OpenLayersMap {
 
             if (this.springsUserSource.getUser() == userId) {
                 this.springsFinalLayer.setSource(this.springsUserSource)
-                this.locateWorld()
+                if (! this.queryParameters.springId) {
+                    this.locateWorld()
+                }
             } else {
                 this.springsUserSource.setUser(userId);
                 this.springsFinalLayer.setSource(this.springsUserSource);
@@ -573,5 +605,10 @@ export default class OpenLayersMap {
     mapMoved(coordinates) {
         const event = new CustomEvent('map-moved', {detail: {coordinates: coordinates}});
         window.dispatchEvent(event);
+    }
+
+    duoVisit(queryParameters) {
+        this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
+        Object.assign(this.queryParameters, queryParameters);
     }
 }

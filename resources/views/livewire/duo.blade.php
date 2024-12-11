@@ -1,5 +1,11 @@
 <div id="spring"
     x-data="{
+        defaultServerQueryParameters: {
+            springId: null,
+            userId: null,
+            location: false
+        },
+        initialRender: true,
         locateMap: true,
         myId: {{ intval(Auth::check() ? Auth::user()->id : 0) }},
         userId: {{ intval($userId) }},
@@ -46,7 +52,7 @@
         },
         springId: {{ intval($springId) }},
         previousSpringId: null,
-        locationMode: window.rodnikMap.locationMode,
+        locationMode: window.rodnikMap.queryParameters.location,
         registerVisit: function(details, location) {
             window.history.pushState(details, 'Rodnik.today', location);
             ym(90143259, 'hit', location)
@@ -79,15 +85,24 @@
         //registerHomeVisit()
     "
 
-    // spring requested
-    // spring cleared
-    // user requested
-    // user cleared
-    // location requested
-    // location cleared
-    // tags requested
-    // tags cleared
+    x-on:duo-visit.window="
+        Object.entries(defaultServerQueryParameters).forEach(([key, value]) => {
+            const newValue = $event.detail.hasOwnProperty(key) ? $event.detail[key] : value;
+            $wire.$set(key, newValue, false);
+        });
+        $wire.$refresh();
 
+        window.rodnikMap.duoVisit({...defaultServerQueryParameters, ...$event.detail})
+    "
+
+    x-on:spring-selected.window=""
+    x-on:spring-deselected.window=""
+    x-on:spring-requested.window=""
+    x-on:spring-cleared.window=""
+    x-on:user-requested.window=""
+    x-on:user-cleared.window=""
+    x-on:location-requested.window=""
+    x-on:location-cleared.window=""
 
     x-on:spring-turbo-visit.window="
         setSpringId($event.detail.id)
@@ -112,7 +127,17 @@
             registerHomeVisit()
         --}}
     "
-    x-init="window.rodnikMap.springsSource({{ $this->userId }});"
+    x-init="
+        if ($wire.firstRender) {
+            window.rodnikMap.duoVisit({
+                springId: {{ intval($springId) }},
+                userId: {{ intval($userId) }},
+                location: {{ intval($location) }},
+            })
+
+            $wire.firstRender = false
+        }
+    "
     x-on:turbo-visit-user.window="
         $wire.$set('userId', $event.detail.userId, true)
         window.rodnikMap.springsSource($event.detail.userId)
@@ -133,6 +158,14 @@
         if (window.openedPhotoswipe) {
             window.openedPhotoswipe.destroy()
         }
+
+        const parameters = new URLSearchParams(window.location.search);
+
+        window.rodnikMap.duoVisit({
+            springId: parameters.get('s'),
+            userId: parameters.get('u'),
+            location: parameters.get('location')
+        })
 
         {{--
             if ($event.state && $event.state.springId) {
@@ -173,12 +206,14 @@
 >
     <div class="grow">
         <div class="h-full">
-            @if (! $springId)
+            @if (! $springId && ! $location)
                 <livewire:duo.reports.index :userId="$userId" />
-            @elseif ($springId)
-                <livewire:duo.springs.show :springId="$springId" />
-            @elseif ($locationMode)
-                <livewire:duo.springs.create :springId="$springId" :locationMode="$locationMode" />
+            @endif
+            @if ($springId && ! $location)
+                <livewire:duo.springs.show :springId="$springId" :userId="$userId" />
+            @endif
+            @if ($location)
+                <livewire:duo.springs.create :springId="$springId" :location="$location" />
             @endif
         </div>
     </div>

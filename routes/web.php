@@ -31,7 +31,9 @@ use App\Http\Controllers\WateredSpringTileJsonController;
 
  //Route::get('/', Index::class);
 
-Route::get('/', [WebController::class, 'index'])->name('index');
+// spring editing doesn't invalidate the map... or something like this
+
+Route::get('/', [WebController::class, 'index'])->name('duo');
 
 Route::get('/{springId}', [SpringController::class, 'show'])->name('springs.show')->where('springId', '[0-9]+');
 Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');

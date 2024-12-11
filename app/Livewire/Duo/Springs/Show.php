@@ -13,6 +13,9 @@ class Show extends Component
     #[Reactive]
     public $springId;
 
+    #[Reactive]
+    public $userId;
+
     public function setSpring($springId)
     {
         $this->springId = $springId;
@@ -51,7 +54,7 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->annihilate();
 
-            $this->redirectRoute('index');
+            $this->redirectRoute('duo');
         } else {
             abort(403);
         }
@@ -63,7 +66,7 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->hide();
 
-            return $this->redirectRoute('index');
+            return $this->redirectRoute('duo');
         } else {
             abort(403);
         }

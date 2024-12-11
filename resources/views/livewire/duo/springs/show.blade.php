@@ -59,12 +59,14 @@
                                                 <a x-menu:item href="{{ route('springs.location.edit', $spring) }}"
                                                     @click.prevent="
                                                         window.dispatchEvent(
-                                                            new CustomEvent('turbo-location-edit',
+                                                            new CustomEvent('duo-visit',
                                                                 {
                                                                     detail: {
                                                                         springId: {{ intval($springId) }},
+                                                                        location: true,
                                                                     }
-                                                                })
+                                                                }
+                                                            )
                                                         )
                                                         springDropdownOpen = false
                                                         "

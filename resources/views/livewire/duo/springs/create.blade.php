@@ -3,6 +3,9 @@
         saving: $wire.$entangle('saving'),
         locationModeJustExited: false,
     }"
+    x-init="if ($wire.springId) {
+        window.rodnikMap.highlightFeatureById($wire.springId)
+    }"
     x-on:turbo-location-create.window="
         $wire.$call('initializeCreating')
         window.rodnikMap.enterLocationMode()
@@ -26,7 +29,7 @@
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
     <div wire:loading.remove>
-        @if ($locationMode)
+        @if ($location)
             <div
                 x-show="! saving && ! locationModeJustExited"
                 x-cloak
@@ -93,15 +96,22 @@
                                                     outline-blue-700 outline-2 outline-offset-[3px] gap-x-1 flex items-center"
                                         @if ($springId)
                                             x-on:click="
-                                            window.dispatchEvent(
-                                                new CustomEvent('spring-selected-on-map', {detail: {
-                                                    id: {{ intval($springId) }},
-                                                }}))
+                                                window.dispatchEvent(
+                                                    new CustomEvent('duo-visit', {
+                                                        detail: {
+                                                            springId: {{ intval($springId) }},
+                                                            location: false,
+                                                        }
+                                                    }
+                                                ))
                                             "
                                         @else
                                             x-on:click="
                                                 window.dispatchEvent(
-                                                    new CustomEvent('spring-deselected-on-map'))
+                                                    new CustomEvent('duo-visit', {detail: {
+                                                        location: false,
+                                                    }})
+                                                )
                                                 "
                                         @endif
                                     >

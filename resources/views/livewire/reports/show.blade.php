@@ -15,10 +15,12 @@
                                     <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700"
                                         @click.prevent="
                                             window.dispatchEvent(
-                                                new CustomEvent('turbo-visit-user',
+                                                new CustomEvent('duo-visit',
                                                     {
                                                         detail: {
+                                                            springId: 0,
                                                             userId: {{ intval($report->user_id )}},
+                                                            location: false,
                                                         }
                                                     }
                                                 )

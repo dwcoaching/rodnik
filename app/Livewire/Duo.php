@@ -13,8 +13,15 @@ class Duo extends Component
     #[Url(as: 'u', history: true)]
     public $userId = null;
 
-    #[Url(as: 'locating', history: true)]
-    public $locationMode = false;
+    #[Url(as: 'location', history: true)]
+    public $location = false;
+
+    public $firstRender;
+
+    public function mount()
+    {
+        $this->firstRender = true;
+    }
 
     public function render()
     {
