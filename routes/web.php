@@ -13,6 +13,8 @@ use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\SpringAggregatesJsonController;
 use App\Http\Controllers\WateredSpringTileJsonController;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use \RuntimeException;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,3 +50,7 @@ Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::cla
 
 // Keep only as an example
 // Route::get('/about', About::class);
+
+Route::get('bugsnag-test', function() {
+    Bugsnag::notifyException(new RuntimeException("Test error"));
+});
