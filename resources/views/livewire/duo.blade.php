@@ -5,13 +5,6 @@
             userId: null,
             location: false
         },
-        initialRender: true,
-        locateMap: true,
-        myId: {{ intval(Auth::check() ? Auth::user()->id : 0) }},
-        userId: {{ intval($userId) }},
-        springId: {{ intval($springId) }},
-        previousSpringId: null,
-        locationMode: window.rodnikMap.queryParameters.location,
         registerVisit: function() {
             ym(90143259, 'hit', window.location.href)
         },
@@ -26,7 +19,6 @@
 
         window.rodnikMap.duoVisit({...defaultServerQueryParameters, ...$event.detail})
     "
-
     x-init="
         if ($wire.firstRender) {
             @if ($coordinates)

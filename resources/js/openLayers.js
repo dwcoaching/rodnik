@@ -454,15 +454,6 @@ export default class OpenLayersMap {
         );
     }
 
-    // centerFeature(feature) {
-    //     this.view.animate(
-    //         {
-    //             center: feature.getGeometry().flatCoordinates,
-    //             duration: 50
-    //         }
-    //     );
-    // }
-
     locate(coordinates) {
         // const zoom = this.view.getZoom() < this.finalZoom ? 14 : this.view.getZoom()
         const zoom = 14
