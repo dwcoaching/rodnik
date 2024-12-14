@@ -69,6 +69,7 @@
         </ul>
         @if (count($lastReports) == $limit)
             <livewire:duo.components.show-more-reports
+                user-id="{{ $userId }}"
                 skip="{{ $limit }}"
                 take="{{ $limit }}"
                 key="show-more-reports-skip-{{ $limit }}-take-{{ $limit }}"
