@@ -103,10 +103,6 @@ export default class OpenLayersMap {
 
         this.buffer = new Buffer();
 
-        this.locationMode = Alpine.reactive({
-            value: false
-        });
-
         this.view = new View({
             center: getInitialCenter(),
             zoom: getInitialZoom(),
@@ -213,16 +209,6 @@ export default class OpenLayersMap {
         coordinates[0] = coordinates[0].toFixed(6);
         coordinates[1] = coordinates[1].toFixed(6);
         return coordinates.reverse().join(', ');
-    }
-
-    enterLocationMode() {
-        this.locationMode.value = true
-        this.dehighlightFeature()
-    }
-
-    exitLocationMode() {
-        this.locationMode.value = false
-        window.dispatchEvent(new CustomEvent('location-mode-exited'));
     }
 
     featuresLoadEnd() {
