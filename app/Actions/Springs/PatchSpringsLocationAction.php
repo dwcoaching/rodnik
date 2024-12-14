@@ -3,23 +3,23 @@
 namespace App\Actions\Springs;
 
 use App\Models\Spring;
-use App\Models\SpringTile;
+use App\Rules\LatitudeRule;
+use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
 use App\Models\SpringRevision;
-use App\Models\WateredSpringTile;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendSpringRevisionNotification;
 
-class PatchSpringsAction
+class PatchSpringsLocationAction
 {
     public function __invoke(Spring $spring, $attributes)
     {
         $this->authorize($spring);
         $this->validate($attributes);
-        return $this->execute($spring, $attributes);
+        $this->execute($spring, $attributes);
     }
 
     public function execute(Spring $spring, $attributes)
@@ -58,8 +58,6 @@ class PatchSpringsAction
 
             SendSpringRevisionNotification::dispatch($revision);
         }
-
-        return $spring;
     }
 
     public function authorize($spring): void
@@ -67,11 +65,11 @@ class PatchSpringsAction
         Gate::authorize('update', $spring);
     }
 
-    public function validate($attributes): void
+    public function validate($attributues): void
     {
-        Validator::make($attributes, [
-            'name' => 'nullable',
-            'type' => [new SpringTypeRule],
+        Validator::make($attributues, [
+            'latitude' => [new LatitudeRule],
+            'longitude' => [new LongitudeRule],
         ])->validate();
     }
 }

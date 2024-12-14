@@ -2,23 +2,28 @@
 
 namespace App\Livewire\Duo\Springs;
 
-use Livewire\Attributes\Locked;
-use Livewire\Attributes\Reactive;
 use App\Models\Spring;
 use Livewire\Component;
 use App\Models\SpringTile;
 use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
 use App\Models\SpringRevision;
+use Livewire\Attributes\Locked;
 use App\Models\WateredSpringTile;
+use Livewire\Attributes\Reactive;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
+use App\Actions\Springs\PostSpringsAction;
 use App\Jobs\SendSpringRevisionNotification;
+use App\Actions\Springs\PatchSpringsLocationAction;
 
 class Create extends Component
 {
     #[Reactive]
     public $springId;
+
+    #[Reactive]
+    public $location = false;
 
     public $mode;
 
@@ -28,8 +33,6 @@ class Create extends Component
     public $latitude = null;
     public $longitude = null;
 
-    #[Reactive]
-    public $location = false;
 
     protected function rules()
     {
@@ -41,33 +44,16 @@ class Create extends Component
 
     public function mount($springId, $location)
     {
-        if ($location) {
-            if ($springId) {
-                $this->initializeEditing($springId);
-            } else {
-                $this->initializeCreating();
-            }
+        if ($this->springId) {
+            $this->spring = Spring::find($this->springId);
+            $this->authorize('update', $this->spring);
+
+            $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
+            $this->latitude = $this->spring->latitude;
+            $this->longitude = $this->spring->longitude;
+        } else {
+            $this->authorize('create', Spring::class);
         }
-    }
-
-    public function initializeCreating()
-    {
-        $this->authorize('create', Spring::class);
-
-        $this->mode = 'creating';
-    }
-
-    public function initializeEditing($springId)
-    {
-        $this->springId = $springId;
-        $this->spring = Spring::find($this->springId);
-        $this->authorize('update', $this->spring);
-
-        $this->mode = 'editing';
-
-        $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
-        $this->latitude = $this->spring->latitude;
-        $this->longitude = $this->spring->longitude;
     }
 
     public function render()
@@ -77,68 +63,23 @@ class Create extends Component
         return view('livewire.duo.springs.create');
     }
 
-    public function store()
+    public function create(PostSpringsAction $postSprings)
     {
-        $this->validate();
+        $spring = $postSprings([
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
+        ]);
 
-        if ($this->springId) {
-            $this->spring = Spring::find($this->springId);
-        } else {
-            $this->spring = new Spring();
-        }
+        return redirect()->route('springs.edit', $spring);
+    }
 
-        $oldLatitude = $this->spring->latitude;
-        $oldLongitude = $this->spring->longitude;
+    public function update(PatchSpringsLocationAction $patchSpringLocation)
+    {
+        $patchSpringsLocation($this->spring, [
+            'latitude' => $this->latitude,
+            'longitude' => $this->longitude,
+        ]);
 
-        $springChangeCount = 0;
-        $revision = new SpringRevision();
-
-        if ($this->spring->latitude !== $this->latitude) {
-            $revision->old_latitude = $this->spring->latitude;
-            $revision->new_latitude = $this->latitude;
-            $this->spring->latitude = $this->latitude;
-            $springChangeCount++;
-        }
-
-        if ($this->spring->longitude !== $this->longitude) {
-            $revision->old_longitude = $this->spring->longitude;
-            $revision->new_longitude = $this->longitude;
-            $this->spring->longitude = $this->longitude;
-            $springChangeCount++;
-        }
-
-        if ($springChangeCount) {
-            if ($this->spring->id) {
-                $this->authorize('update', $this->spring);
-            } else {
-                $this->authorize('create', Spring::class);
-            }
-
-            $this->spring->save();
-            $revision->user_id = Auth::check() ? Auth::user()->id : null;
-            $revision->spring_id = $this->spring->id;
-            $revision->revision_type = 'user';
-            $revision->save();
-            StatisticsService::invalidateReportsCount();
-
-            if ($revision->user_id) {
-                Auth::user()->updateRating();
-            }
-
-            SpringTile::invalidate($this->spring->longitude, $this->spring->latitude);
-            WateredSpringTile::invalidate($this->spring->longitude, $this->spring->latitude);
-            SpringTile::invalidate($oldLongitude, $oldLatitude);
-            WateredSpringTile::invalidate($oldLongitude, $oldLatitude);
-
-            StatisticsService::invalidateSpringsCount();
-
-            SendSpringRevisionNotification::dispatch($revision);
-        }
-
-        if ($this->mode == 'editing') {
-            return $this->redirect(route('duo', ['s' => $this->springId]));
-        }
-
-        return $this->redirect(route('springs.edit', $this->spring));
+        return redirect()->route('duo', ['s' => $spring->id]);
     }
 }

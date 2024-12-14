@@ -70,11 +70,14 @@ class SpringTile extends Model
 
     static public function invalidate($longitude, $latitude)
     {
+        $a = collect();
         $springTiles = static::fromCoordinates($longitude, $latitude);
-        $springTiles->each(function($item) {
+        $springTiles->each(function($item) use ($a) {
+$a->push($item->path());
             $item->deleteFile();
         });
 
+//dd($a);
         return $springTiles;
     }
 

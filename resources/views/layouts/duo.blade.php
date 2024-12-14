@@ -74,20 +74,7 @@
                         $nextTick(() => window.rodnikMap.map.updateSize());
                     },
                 }"
-                x-init="
-                    initOpenLayers($refs.rodnikMap.id);
-
-
-                    {{--
-                        if ({{ intval($locationMode) }}) {
-                            window.rodnikMap.springsSource(false)
-                            window.rodnikMap.enterLocationMode()
-                        } else {
-                            window.rodnikMap.springsSource({{ intval($userId) }})
-                        }
-                    --}}
-                    window.rodnikMap.springsSource()
-                "
+                x-init="initOpenLayers($refs.rodnikMap.id);"
                 class="h-full flex flex-col grow"
             >
                 <div class="top-0 w-full h-full sm:pl-[50%] sm:pb-0 flex flex-col grow"
@@ -122,7 +109,7 @@
                         'ol-minimized': minimized,
                     }"
                     id="map"
-                    x-on:spring-selected-on-map.window="exitFullscreen"
+                    x-on:duo-visit.window="exitFullscreen"
                     x-ref="rodnikMap">
                     <div x-cloak x-show="window.rodnikMap.queryParameters.location" class="absolute w-full h-full flex items-center justify-center" style="pointer-events: none; z-index: 10001">
                         <div class="text-black/50">

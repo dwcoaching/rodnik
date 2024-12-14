@@ -439,7 +439,6 @@ export default class OpenLayersMap {
 
     highlightFeatureById(id) {
         let feature = window.rodnikMap.springsFinalLayer.getSource().getFeatureById(id);
-
         if (feature) {
             this.locateFeature(feature);
             this.highlightFeature(feature);
@@ -531,15 +530,13 @@ export default class OpenLayersMap {
     }
 
     selectFeature(feature) {
-        this.highlightFeature(feature)
-
-        let springId = feature.get('id');
-
-        const event = new CustomEvent('spring-selected-on-map', {detail: {
-            id: springId,
-            feature: feature,
-        }});
-        window.dispatchEvent(event);
+        window.dispatchEvent(new CustomEvent('duo-visit', {
+            detail: {
+                springId: feature.get('id'),
+                userId: this.queryParameters.userId,
+                location: false,
+            }
+        }));
     }
 
     dehighlightFeature() {
@@ -550,12 +547,12 @@ export default class OpenLayersMap {
     }
 
     deselectFeature() {
-        if (this.previouslyHighlightedFeature) {
-            this.dehighlightFeature()
-
-            const event = new CustomEvent('spring-deselected-on-map')
-            window.dispatchEvent(event)
-        }
+        window.dispatchEvent(new CustomEvent('duo-visit', {
+            detail: {
+                springId: 0,
+                userId: this.queryParameters.userId,
+            }
+        }));
     }
 
     dehighlightPreviousFeature() {

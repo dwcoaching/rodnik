@@ -229,17 +229,31 @@
 
                 <div class="mt-4 pb-4">
                     <div class="flex justify-start">
-                        <button type="button"
-                            @click="if (! error() && ! saving) {
-                                saving = true
-                                $wire.$call('store')
-                            }" class="btn btn-primary btn-block"
-                            x-bind:class="{
-                                'btn-disabled': error() || saving,
-                            }"
-                        >
-                            {{ $springId ? 'Save Location' : 'Add Water Source' }}
-                        </button>
+                        @if ($springId)
+                            <button type="button"
+                                @click="if (! error() && ! saving) {
+                                    saving = true
+                                    $wire.$call('update')
+                                }" class="btn btn-primary btn-block"
+                                x-bind:class="{
+                                    'btn-disabled': error() || saving,
+                                }"
+                            >
+                                Save Location
+                            </button>
+                        @else
+                            <button type="button"
+                                @click="if (! error() && ! saving) {
+                                    saving = true
+                                    $wire.$call('create')
+                                }" class="btn btn-primary btn-block"
+                                x-bind:class="{
+                                    'btn-disabled': error() || saving,
+                                }"
+                            >
+                                Add Water Source
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -61,8 +61,6 @@
                             </h3>
                         </div>
 
-
-
                         <div class="mt-1 text-sm text-black break-normal [overflow-wrap:anywhere]">
                             {!! nl2br(e($report->shortComment)) !!}
                         </div>
