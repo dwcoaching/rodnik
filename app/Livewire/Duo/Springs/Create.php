@@ -73,9 +73,11 @@ class Create extends Component
         return redirect()->route('springs.edit', $spring);
     }
 
-    public function update(PatchSpringsLocationAction $patchSpringLocation)
+    public function update(PatchSpringsLocationAction $patchSpringsLocation)
     {
-        $patchSpringsLocation($this->spring, [
+        $spring = Spring::find($this->springId);
+
+        $patchSpringsLocation($spring, [
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
         ]);

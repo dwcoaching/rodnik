@@ -27,17 +27,17 @@ class PatchSpringsLocationAction
         $springChangeCount = 0;
         $revision = new SpringRevision();
 
-        if ($spring->name != $attributes['name']) {
-            $revision->old_name = $spring->name;
-            $revision->new_name = $attributes['name'];
-            $spring->name = $attributes['name'];
+        if ($spring->latitude != $attributes['latitude']) {
+            $revision->old_latitude = $spring->latitude;
+            $revision->new_latitude = $attributes['latitude'];
+            $spring->latitude = $attributes['latitude'];
             $springChangeCount++;
         }
 
-        if ($spring->type != $attributes['type']) {
-            $revision->old_type = $spring->type;
-            $revision->new_type = $attributes['type'];
-            $spring->type = $attributes['type'];
+        if ($spring->longitude != $attributes['longitude']) {
+            $revision->old_longitude = $spring->longitude;
+            $revision->new_longitude = $attributes['longitude'];
+            $spring->longitude = $attributes['longitude'];
             $springChangeCount++;
         }
 

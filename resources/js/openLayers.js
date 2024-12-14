@@ -195,7 +195,7 @@ export default class OpenLayersMap {
 
             this.springsSource(this.queryParameters.userId)
 
-            if (this.queryParameters.springId > 0 && ! this.queryParameters.location) {
+            if (this.queryParameters.springId > 0) {
                 this.highlightFeatureById(this.queryParameters.springId)
             } else {
                 this.dehighlightFeature()

@@ -16,9 +16,6 @@ class WebController extends Controller
 
     public function user($userId)
     {
-        $springId = null;
-        $locationMode = false;
-
-        return view('welcome', compact('userId', 'springId', 'locationMode'));
+        return redirect(route('duo', ['u' => $userId]), 301);
     }
 }

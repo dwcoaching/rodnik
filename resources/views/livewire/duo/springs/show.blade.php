@@ -54,6 +54,10 @@
                                                                     detail: {
                                                                         springId: {{ intval($springId) }},
                                                                         location: true,
+                                                                        coordinates: {{ json_encode([
+                                                                            floatval($spring->longitude),
+                                                                            floatval($spring->latitude)
+                                                                        ]) }},
                                                                     }
                                                                 }
                                                             )

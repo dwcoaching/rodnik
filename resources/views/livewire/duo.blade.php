@@ -34,7 +34,7 @@
 
             $wire.firstRender = false
         } else {
-            this.registerVisit()
+            registerVisit()
         }
     "
 

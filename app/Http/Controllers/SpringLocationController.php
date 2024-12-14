@@ -10,12 +10,6 @@ class SpringLocationController extends Controller
 {
     public function edit(Spring $spring)
     {
-        $this->authorize('update', $spring);
-
-        $springId = $spring->id;
-        $userId = Auth::user()->id;
-        $locationMode = true;
-
-        return view('welcome', compact('springId', 'userId', 'locationMode'));
+        return redirect(route('duo', ['s' => $spring, 'location' => true]), 301);
     }
 }
