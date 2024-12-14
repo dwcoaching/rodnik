@@ -75,7 +75,7 @@
                             <a x-menu:item href="{{ route('users.show', Auth::user()->id) }}"
                                 @click.prevent="
                                     window.dispatchEvent(
-                                        new CustomEvent('turbo-visit-user',
+                                        new CustomEvent('duo-visit',
                                             {
                                                 detail: {
                                                     userId: {{ intval(Auth::user()->id) }},

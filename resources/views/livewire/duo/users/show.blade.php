@@ -1,14 +1,4 @@
-<div class="h-full" x-data="{
-        loadedUserId: $wire.$entangle('userId').live,
-        previousUserId: {{ intval($userId) }},
-        loadUser: function() {
-            if (this.userId != this.previousUserId) {
-                this.previousUserId = this.userId
-                $wire.setUser(this.userId)
-            }
-        }
-    }"
-    x-on:duo-load-user.window="loadUser()">
+<div class="h-full" x-data="{}">
     <div wire:loading.delay.long.flex class="grow hidden w-full h-full flex justify-center items-center">
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>

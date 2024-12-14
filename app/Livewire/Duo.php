@@ -2,8 +2,9 @@
 
 namespace App\Livewire;
 
-use Livewire\Attributes\Url;
+use App\Models\Spring;
 use Livewire\Component;
+use Livewire\Attributes\Url;
 
 class Duo extends Component
 {
@@ -25,6 +26,16 @@ class Duo extends Component
 
     public function render()
     {
-        return view('livewire.duo');
+        $coordinates = [];
+
+        if ($this->firstRender && $this->springId > 0) {
+            $spring = Spring::find($this->springId);
+            $coordinates = [
+                floatval($spring->longitude),
+                floatval($spring->latitude)
+            ];
+        }
+
+        return view('livewire.duo', compact('coordinates'));
     }
 }

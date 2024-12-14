@@ -29,6 +29,11 @@
 
     x-init="
         if ($wire.firstRender) {
+            @if ($coordinates)
+                window.rodnikMap.locate({{ json_encode($coordinates) }})
+                window.rodnikMap.highlightFeatureById({{ intval($springId) }})
+            @endif
+
             window.rodnikMap.duoVisit({
                 springId: {{ intval($springId) }},
                 userId: {{ intval($userId) }},

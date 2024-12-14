@@ -222,7 +222,6 @@ export default class OpenLayersMap {
 
     exitLocationMode() {
         this.locationMode.value = false
-
         window.dispatchEvent(new CustomEvent('location-mode-exited'));
     }
 
@@ -440,7 +439,6 @@ export default class OpenLayersMap {
     highlightFeatureById(id) {
         let feature = window.rodnikMap.springsFinalLayer.getSource().getFeatureById(id);
         if (feature) {
-            this.locateFeature(feature);
             this.highlightFeature(feature);
         } else {
             this.featureIdToBeSelected = id;

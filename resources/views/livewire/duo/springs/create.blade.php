@@ -1,27 +1,7 @@
 <div class="w-full px-4 h-full"
     x-data="{
         saving: $wire.$entangle('saving'),
-        locationModeJustExited: false,
-    }"
-    x-init="if ($wire.springId) {
-        window.rodnikMap.highlightFeatureById($wire.springId)
-    }"
-    x-on:turbo-location-create.window="
-        $wire.$call('initializeCreating')
-        window.rodnikMap.enterLocationMode()
-        registerLocationCreateVisit()
-    "
-
-    x-on:turbo-location-edit.window="
-        $wire.$call('initializeEditing', $event.detail.springId)
-        window.rodnikMap.enterLocationMode()
-        window.rodnikMap.highlightFeatureById($event.detail.springId)
-        registerLocationEditVisit()
-    "
-
-    x-on:location-mode-exited.window="
-        locationModeJustExited = true
-    ">
+    }">
     <div wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
@@ -31,7 +11,7 @@
     <div wire:loading.remove>
         @if ($location)
             <div
-                x-show="! saving && ! locationModeJustExited"
+                x-show="! saving &&"
                 x-cloak
                 x-data="{
                         latitude: $wire.$entangle('latitude'),
@@ -77,7 +57,6 @@
                     x-data
                     x-init="
                         updateCoordinates(window.rodnikMap.getCoordinates())
-                        locationModeJustExited = false
                     "
                 ></div>
                 <div class="flex items-center justify-between">
