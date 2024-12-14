@@ -179,6 +179,7 @@ return [
         App\Providers\FolioServiceProvider::class,
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
+        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class
 
     ],
 

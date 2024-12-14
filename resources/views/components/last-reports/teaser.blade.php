@@ -7,10 +7,11 @@
                 <div class="px-3 pt-3 flex justify-between">
                     <a @click.prevent="
                         window.dispatchEvent(
-                            new CustomEvent('spring-turbo-visit',
+                            new CustomEvent('duo-visit',
                                 {
                                     detail: {
-                                        id: {{ intval($report->spring->id )}},
+                                        userId: new URLSearchParams(window.location.search).get('u'),
+                                        springId: {{ intval($report->spring->id )}},
                                         coordinates: {{ json_encode([
                                             floatval($report->spring->longitude),
                                             floatval($report->spring->latitude)
@@ -20,7 +21,7 @@
                             )
                         )
                     "
-                    href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
+                    href="{{ route('duo', ['s' => $report->spring->id]) }}" class="group cursor-pointer mr-2">
                         <div
                             class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</div>
                     </a>
@@ -38,16 +39,18 @@
                                         <a class="block flex flex-wrap text-sm hover:underline text-blue-600 cursor-pointer hover:text-blue-700"
                                             @click.prevent="
                                                 window.dispatchEvent(
-                                                    new CustomEvent('turbo-visit-user',
+                                                    new CustomEvent('duo-visit',
                                                         {
                                                             detail: {
+                                                                springId: null,
                                                                 userId: {{ intval($report->user_id )}},
+                                                                location: false,
                                                             }
                                                         }
                                                     )
                                                 )
                                             "
-                                            href="{{ route('users.show', $report->user) }}">
+                                            href="{{ route('duo', ['u' => $report->user]) }}">
                                             <div class="mr-1">{{ $report->user->name }}</div>
                                             <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                         </a>
@@ -57,8 +60,6 @@
                                 </div>
                             </h3>
                         </div>
-
-
 
                         <div class="mt-1 text-sm text-black break-normal [overflow-wrap:anywhere]">
                             {!! nl2br(e($report->shortComment)) !!}

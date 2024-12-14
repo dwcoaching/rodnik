@@ -44,7 +44,7 @@ class SpringResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->url(function ($record) {
-                    return route('springs.show', $record->id);
+                    return route('duo', ['s' => $record->id]);
                 }, shouldOpenInNewTab: true)->color('primary'),
                 TextColumn::make('name'),
                 TextColumn::make('type'),

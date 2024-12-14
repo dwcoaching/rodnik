@@ -3,7 +3,7 @@
 @else
 <b>Anonymous, {{ Date::parse($report->visited_at)->format('j F Y') }}</b>
 @endif
-{{ $report->spring->name ? $report->spring->name : $report->spring->type }} {{--<a href="{{ route('springs.show', $report->spring) }}">rodnik.today/{{ $report->spring->id }}</a>--}}
+{{ $report->spring->name ? $report->spring->name : $report->spring->type }}
 @if ($report->new_name)
 Name changed: {{ $report->old_name }} â†’ {{ $report->new_name }}
 @endif
@@ -23,7 +23,7 @@ Coordinates changed: {{ $report->old_latitude }}, {{ $report->old_longitude }} â
 @endif
 
 @if ($photoCount < 2)
-{{ route('springs.show', $report->spring->id) }}
+{{ route('duo', ['s' => $report->spring->id]) }}
 @else
-{{ decline_number($photoCount - 1, ['more photo', 'more photos', 'more photos']) }} at {{ route('springs.show', $report->spring->id) }}
+{{ decline_number($photoCount - 1, ['more photo', 'more photos', 'more photos']) }} at {{ route('duo', ['s' => $report->spring->id]) }}
 @endif

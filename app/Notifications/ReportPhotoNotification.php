@@ -69,9 +69,9 @@ class ReportPhotoNotification extends Notification
     public function toTelegram()
     {
         if ($this->photoCount < 2) {
-            $content = route('springs.show', $this->photo->report->spring->id);
+            $content = route('duo', ['s' => $this->photo->report->spring->id]);
         } else {
-            $content = decline_number($this->photoCount - 1, [' more photo', 'more photos', 'more photos']) . ' at ' . route('springs.show', $this->photo->report->spring->id);
+            $content = decline_number($this->photoCount - 1, [' more photo', 'more photos', 'more photos']) . ' at ' . route('duo', ['s' => $this->photo->report->spring->id]);
         }
 
         return TelegramFile::create()

@@ -103,10 +103,6 @@ export default class OpenLayersMap {
 
         this.buffer = new Buffer();
 
-        this.locationMode = Alpine.reactive({
-            value: false
-        });
-
         this.view = new View({
             center: getInitialCenter(),
             zoom: getInitialZoom(),
@@ -148,7 +144,7 @@ export default class OpenLayersMap {
         this.source(getInitialSourceName())
 
         this.map.on('moveend', (e) => {
-            if (this.locationMode.value) {
+            if (this.queryParameters.location) {
                 this.mapMoved(this.getCoordinates());
             }
 
@@ -157,7 +153,7 @@ export default class OpenLayersMap {
         });
 
         this.map.on('click', (e) => {
-            // if (this.locationMode.value) {
+            // if (this.queryParameters.location) {
             //     return
             // }
 
@@ -176,10 +172,36 @@ export default class OpenLayersMap {
         });
 
         this.map.on('pointerdrag', (e) => {
-            if (this.locationMode.value) {
+            if (this.queryParameters.location) {
                 this.mapMoved(this.getCoordinates());
             }
         });
+
+        this.queryParameters = Alpine.reactive({
+            springId: null,
+            userId: null,
+            location: false,
+            coordinates: null,
+        })
+
+        this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
+
+        Alpine.effect(() => {
+            this.queryParameters
+
+            this.springsSource(this.queryParameters.userId)
+
+            if (this.queryParameters.springId > 0) {
+                this.highlightFeatureById(this.queryParameters.springId)
+            } else {
+                this.dehighlightFeature()
+            }
+
+            if (this.queryParameters.coordinates) {
+                this.locate(this.queryParameters.coordinates);
+                this.queryParameters.coordinates = null
+            }
+        })
     }
 
     getCoordinates() {
@@ -189,23 +211,16 @@ export default class OpenLayersMap {
         return coordinates.reverse().join(', ');
     }
 
-    enterLocationMode() {
-        this.locationMode.value = true
-        this.dehighlightFeature()
-    }
-
-    exitLocationMode() {
-        this.locationMode.value = false
-
-        window.dispatchEvent(new CustomEvent('location-mode-exited'));
-    }
-
     featuresLoadEnd() {
         let id = this.featureIdToBeSelected;
 
         if (id) {
             this.featureIdToBeSelected = null;
             this.highlightFeatureById(id);
+        }
+
+        if (this.queryParameters.userId && this.queryParameters.userId != this.previousQueryParameters.userId) {
+            this.locateWorld()
         }
     }
 
@@ -409,9 +424,7 @@ export default class OpenLayersMap {
 
     highlightFeatureById(id) {
         let feature = window.rodnikMap.springsFinalLayer.getSource().getFeatureById(id);
-
         if (feature) {
-            this.locateFeature(feature);
             this.highlightFeature(feature);
         } else {
             this.featureIdToBeSelected = id;
@@ -426,15 +439,6 @@ export default class OpenLayersMap {
             }
         );
     }
-
-    // centerFeature(feature) {
-    //     this.view.animate(
-    //         {
-    //             center: feature.getGeometry().flatCoordinates,
-    //             duration: 50
-    //         }
-    //     );
-    // }
 
     locate(coordinates) {
         // const zoom = this.view.getZoom() < this.finalZoom ? 14 : this.view.getZoom()
@@ -501,15 +505,13 @@ export default class OpenLayersMap {
     }
 
     selectFeature(feature) {
-        this.highlightFeature(feature)
-
-        let springId = feature.get('id');
-
-        const event = new CustomEvent('spring-selected-on-map', {detail: {
-            id: springId,
-            feature: feature,
-        }});
-        window.dispatchEvent(event);
+        window.dispatchEvent(new CustomEvent('duo-visit', {
+            detail: {
+                springId: feature.get('id'),
+                userId: this.queryParameters.userId,
+                location: false,
+            }
+        }));
     }
 
     dehighlightFeature() {
@@ -520,12 +522,12 @@ export default class OpenLayersMap {
     }
 
     deselectFeature() {
-        if (this.previouslyHighlightedFeature) {
-            this.dehighlightFeature()
-
-            const event = new CustomEvent('spring-deselected-on-map')
-            window.dispatchEvent(event)
-        }
+        window.dispatchEvent(new CustomEvent('duo-visit', {
+            detail: {
+                springId: 0,
+                userId: this.queryParameters.userId,
+            }
+        }));
     }
 
     dehighlightPreviousFeature() {
@@ -548,7 +550,9 @@ export default class OpenLayersMap {
 
             if (this.springsUserSource.getUser() == userId) {
                 this.springsFinalLayer.setSource(this.springsUserSource)
-                this.locateWorld()
+                if (! this.queryParameters.springId) {
+                    this.locateWorld()
+                }
             } else {
                 this.springsUserSource.setUser(userId);
                 this.springsFinalLayer.setSource(this.springsUserSource);
@@ -573,5 +577,10 @@ export default class OpenLayersMap {
     mapMoved(coordinates) {
         const event = new CustomEvent('map-moved', {detail: {coordinates: coordinates}});
         window.dispatchEvent(event);
+    }
+
+    duoVisit(queryParameters) {
+        this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
+        Object.assign(this.queryParameters, queryParameters);
     }
 }

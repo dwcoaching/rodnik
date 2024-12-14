@@ -31,13 +31,7 @@ class SpringController extends Controller
      */
     public function create()
     {
-        $this->authorize('create', Spring::class);
-
-        $springId = null;
-        $userId = Auth::user()->id;
-        $locationMode = true;
-
-        return view('welcome', compact('springId', 'userId', 'locationMode'));
+        return redirect(route('duo', ['location' => true]), 301);
     }
 
     /**
@@ -59,10 +53,7 @@ class SpringController extends Controller
      */
     public function show($springId)
     {
-        $userId = null;
-        $locationMode = false;
-
-        return view('welcome', compact('springId', 'userId', 'locationMode'));
+        return redirect(route('duo', ['s' => $springId]), 301);
     }
 
     /**

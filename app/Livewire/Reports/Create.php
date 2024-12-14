@@ -153,7 +153,7 @@ class Create extends Component
 
         SendReportNotification::dispatch($this->report);
 
-        return $this->redirect(route('springs.show', $this->springId));
+        return $this->redirect(route('duo', ['s' => $this->springId]));
     }
 
     public function updatedFile()

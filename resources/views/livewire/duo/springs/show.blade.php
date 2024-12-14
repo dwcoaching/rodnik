@@ -1,25 +1,8 @@
-<div class="px-0 md:px-4 md:pb-4 h-full bg-stone-100" x-data="{
-        previousSpringId: {{ intval($springId) }},
-        loadSpring: function() {
-            if (this.springId != this.previousSpringId) {
-                $wire.setSpring(this.springId)
-                this.previousSpringId = this.springId
-            }
-        }
-    }"
-    x-on:duo-load-spring.window="loadSpring()"
-    x-init="
-        if ({{ intval($springId)}} && locateMap) {
-            window.rodnikMap.locate({{ json_encode($coordinates) }});
-            window.rodnikMap.highlightFeatureById({{ $springId }});
-        }
-
-        locateMap = false;
-    ">
-    <div x-show="springId" wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
+<div class="px-0 md:px-4 md:pb-4 h-full bg-stone-100" x-data="{}">
+    <div wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
-    <div x-cloak wire:loading.remove x-show="springId == $wire.springId" class="w-full">
+    <div x-cloak wire:loading.remove class="w-full">
         @if ($spring)
             @if ($spring->hidden_at)
                 <div class="alert alert-warning mb-2">
@@ -63,15 +46,21 @@
                                                 class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
                                                 focus:outline-none
                                                 ">
-                                                <a x-menu:item href="{{ route('springs.location.edit', $spring) }}"
+                                                <a x-menu:item href="{{ route('duo', ['s' => $spring->id, 'location' => true]) }}"
                                                     @click.prevent="
                                                         window.dispatchEvent(
-                                                            new CustomEvent('turbo-location-edit',
+                                                            new CustomEvent('duo-visit',
                                                                 {
                                                                     detail: {
                                                                         springId: {{ intval($springId) }},
+                                                                        location: true,
+                                                                        coordinates: {{ json_encode([
+                                                                            floatval($spring->longitude),
+                                                                            floatval($spring->latitude)
+                                                                        ]) }},
                                                                     }
-                                                                })
+                                                                }
+                                                            )
                                                         )
                                                         springDropdownOpen = false
                                                         "

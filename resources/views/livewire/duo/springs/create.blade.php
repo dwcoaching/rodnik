@@ -1,24 +1,7 @@
 <div class="w-full px-4 h-full"
     x-data="{
         saving: $wire.$entangle('saving'),
-        locationModeJustExited: false,
-    }"
-    x-on:turbo-location-create.window="
-        $wire.$call('initializeCreating')
-        window.rodnikMap.enterLocationMode()
-        registerLocationCreateVisit()
-    "
-
-    x-on:turbo-location-edit.window="
-        $wire.$call('initializeEditing', $event.detail.springId)
-        window.rodnikMap.enterLocationMode()
-        window.rodnikMap.highlightFeatureById($event.detail.springId)
-        registerLocationEditVisit()
-    "
-
-    x-on:location-mode-exited.window="
-        locationModeJustExited = true
-    ">
+    }">
     <div wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
@@ -26,9 +9,9 @@
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
     <div wire:loading.remove>
-        @if ($locationMode)
+        @if ($location)
             <div
-                x-show="! saving && ! locationModeJustExited"
+                x-show="! saving"
                 x-cloak
                 x-data="{
                         latitude: $wire.$entangle('latitude'),
@@ -74,7 +57,6 @@
                     x-data
                     x-init="
                         updateCoordinates(window.rodnikMap.getCoordinates())
-                        locationModeJustExited = false
                     "
                 ></div>
                 <div class="flex items-center justify-between">
@@ -93,15 +75,22 @@
                                                     outline-blue-700 outline-2 outline-offset-[3px] gap-x-1 flex items-center"
                                         @if ($springId)
                                             x-on:click="
-                                            window.dispatchEvent(
-                                                new CustomEvent('spring-selected-on-map', {detail: {
-                                                    id: {{ intval($springId) }},
-                                                }}))
+                                                window.dispatchEvent(
+                                                    new CustomEvent('duo-visit', {
+                                                        detail: {
+                                                            springId: {{ intval($springId) }},
+                                                            location: false,
+                                                        }
+                                                    }
+                                                ))
                                             "
                                         @else
                                             x-on:click="
                                                 window.dispatchEvent(
-                                                    new CustomEvent('spring-deselected-on-map'))
+                                                    new CustomEvent('duo-visit', {detail: {
+                                                        location: false,
+                                                    }})
+                                                )
                                                 "
                                         @endif
                                     >
@@ -219,17 +208,31 @@
 
                 <div class="mt-4 pb-4">
                     <div class="flex justify-start">
-                        <button type="button"
-                            @click="if (! error() && ! saving) {
-                                saving = true
-                                $wire.$call('store')
-                            }" class="btn btn-primary btn-block"
-                            x-bind:class="{
-                                'btn-disabled': error() || saving,
-                            }"
-                        >
-                            {{ $springId ? 'Save Location' : 'Add Water Source' }}
-                        </button>
+                        @if ($springId)
+                            <button type="button"
+                                @click="if (! error() && ! saving) {
+                                    saving = true
+                                    $wire.$call('update')
+                                }" class="btn btn-primary btn-block"
+                                x-bind:class="{
+                                    'btn-disabled': error() || saving,
+                                }"
+                            >
+                                Save Location
+                            </button>
+                        @else
+                            <button type="button"
+                                @click="if (! error() && ! saving) {
+                                    saving = true
+                                    $wire.$call('create')
+                                }" class="btn btn-primary btn-block"
+                                x-bind:class="{
+                                    'btn-disabled': error() || saving,
+                                }"
+                            >
+                                Add Water Source
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>

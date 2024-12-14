@@ -3,6 +3,8 @@
 namespace App\Actions\Springs;
 
 use App\Models\Spring;
+use App\Rules\LatitudeRule;
+use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
 use App\Models\SpringRevision;
 use App\Library\StatisticsService;
@@ -11,13 +13,13 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendSpringRevisionNotification;
 
-class PatchSpringsAction
+class PatchSpringsLocationAction
 {
     public function __invoke(Spring $spring, $attributes)
     {
         $this->authorize($spring);
         $this->validate($attributes);
-        return $this->execute($spring, $attributes);
+        $this->execute($spring, $attributes);
     }
 
     public function execute(Spring $spring, $attributes)
@@ -25,17 +27,17 @@ class PatchSpringsAction
         $springChangeCount = 0;
         $revision = new SpringRevision();
 
-        if ($spring->name != $attributes['name']) {
-            $revision->old_name = $spring->name;
-            $revision->new_name = $attributes['name'];
-            $spring->name = $attributes['name'];
+        if ($spring->latitude != $attributes['latitude']) {
+            $revision->old_latitude = $spring->latitude;
+            $revision->new_latitude = $attributes['latitude'];
+            $spring->latitude = $attributes['latitude'];
             $springChangeCount++;
         }
 
-        if ($spring->type != $attributes['type']) {
-            $revision->old_type = $spring->type;
-            $revision->new_type = $attributes['type'];
-            $spring->type = $attributes['type'];
+        if ($spring->longitude != $attributes['longitude']) {
+            $revision->old_longitude = $spring->longitude;
+            $revision->new_longitude = $attributes['longitude'];
+            $spring->longitude = $attributes['longitude'];
             $springChangeCount++;
         }
 
@@ -56,8 +58,6 @@ class PatchSpringsAction
 
             SendSpringRevisionNotification::dispatch($revision);
         }
-
-        return $spring;
     }
 
     public function authorize($spring): void
@@ -65,11 +65,11 @@ class PatchSpringsAction
         Gate::authorize('update', $spring);
     }
 
-    public function validate($attributes): void
+    public function validate($attributues): void
     {
-        Validator::make($attributes, [
-            'name' => 'nullable',
-            'type' => [new SpringTypeRule],
+        Validator::make($attributues, [
+            'latitude' => [new LatitudeRule],
+            'longitude' => [new LongitudeRule],
         ])->validate();
     }
 }

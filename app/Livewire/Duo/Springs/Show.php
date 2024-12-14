@@ -6,39 +6,31 @@ use App\Models\Spring;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Reactive;
 
 class Show extends Component
 {
+    #[Reactive]
     public $springId;
 
-    public function setSpring($springId)
-    {
-        $this->springId = $springId;
-    }
+    #[Reactive]
+    public $userId;
 
     public function render()
     {
-        if (! $this->springId) {
-            $spring = null;
-            $reports = [];
-            $coordinates = [];
-        } else {
-            if (! $spring = Spring::find($this->springId)) {
-                abort(404);
-            }
+        $spring = Spring::findOrFail($this->springId);
 
-            $reports = $spring
-                ->reports()
-                ->whereNull('from_osm')
-                ->latest()
-                ->with(['user', 'photos'])
-                ->get();
+        $reports = $spring
+            ->reports()
+            ->whereNull('from_osm')
+            ->latest()
+            ->with(['user', 'photos'])
+            ->get();
 
-            $coordinates = [
-                    floatval($spring->longitude),
-                    floatval($spring->latitude)
-            ];
-        }
+        $coordinates = [
+            floatval($spring->longitude),
+            floatval($spring->latitude)
+        ];
 
         return view('livewire.duo.springs.show', compact('reports', 'spring', 'coordinates'));
     }
@@ -49,7 +41,7 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->annihilate();
 
-            $this->redirectRoute('index');
+            $this->redirectRoute('duo');
         } else {
             abort(403);
         }
@@ -61,7 +53,7 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->hide();
 
-            return $this->redirectRoute('index');
+            return $this->redirectRoute('duo');
         } else {
             abort(403);
         }
@@ -77,6 +69,6 @@ class Show extends Component
 
         $spring->invalidateTiles();
 
-        return $this->redirectRoute('springs.show', $this->springId);
+        return $this->redirectRoute('duo', ['s' => $this->springId]);
     }
 }

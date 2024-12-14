@@ -15,16 +15,18 @@
                                     <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700"
                                         @click.prevent="
                                             window.dispatchEvent(
-                                                new CustomEvent('turbo-visit-user',
+                                                new CustomEvent('duo-visit',
                                                     {
                                                         detail: {
+                                                            springId: 0,
                                                             userId: {{ intval($report->user_id )}},
+                                                            location: false,
                                                         }
                                                     }
                                                 )
                                             )
                                         "
-                                        href="{{ route('users.show', $report->user) }}">
+                                        href="{{ route('duo', ['u' => $report->user]) }}">
                                         <div class="mr-1">{{ $report->user->name }}</div>
                                         <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                     </a>

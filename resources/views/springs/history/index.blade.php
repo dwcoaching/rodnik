@@ -7,11 +7,11 @@
 
         <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0 flex">
-                <a href="{{ route('springs.show', $spring) }}" class="block btn btn-sm text-base font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+                <a href="{{ route('duo', ['s' => $spring->id]) }}" class="block btn btn-sm text-base font-semibold text-blue-600 hover:text-blue-700 flex items-center">
                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                         <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
                     </svg>
-                    {{ without_http(route('springs.show', $spring)) }}
+                    {{ without_http(route('duo', ['s' => $spring->id])) }}
                 </a>
             </div>
         </div>
@@ -29,7 +29,7 @@
                                         <div class="text-sm font-semibold text-gray-600">
                                             @if ($event->user)
                                                 <a class="block flex flex-wrap items-center text-sm text-blue-600 cursor-pointer hover:text-blue-700"
-                                                    href="{{ route('users.show', $event->user) }}">
+                                                    href="{{ route('duo', ['u' => $event->user]) }}">
                                                     <div class="mr-1">{{ $event->user->name }}</div>
                                                     <div class="text-xs font-semibold text-gray-600">{{ $event->user->rating }}</div>
                                                 </a>
@@ -94,7 +94,7 @@
                                             @else
                                                 @if ($event->user)
                                                     <a class="block flex flex-wrap items-center text-sm text-blue-600 cursor-pointer hover:text-blue-700"
-                                                        href="{{ route('users.show', $event->user) }}">
+                                                        href="{{ route('duo', ['u' => $event->user]) }}">
                                                         <div class="mr-1">{{ $event->user->name }}</div>
                                                         <div class="text-xs font-semibold text-gray-600">{{ $event->user->rating }}</div>
                                                     </a>

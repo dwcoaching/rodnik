@@ -10,7 +10,6 @@ export default class SpringsUserSource extends VectorSource {
         this.userId = null;
         this.on('featuresloadend', (event) => {
             window.rodnikMap.featuresLoadEnd()
-            window.rodnikMap.locateWorld()
         });
     }
 
