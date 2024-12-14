@@ -21,7 +21,7 @@
                             )
                         )
                     "
-                    href="{{ route('springs.show', $report->spring) }}" class="group cursor-pointer mr-2">
+                    href="{{ route('duo', ['s' => $report->spring->id]) }}" class="group cursor-pointer mr-2">
                         <div
                             class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</div>
                     </a>
@@ -50,7 +50,7 @@
                                                     )
                                                 )
                                             "
-                                            href="{{ route('users.show', $report->user) }}">
+                                            href="{{ route('duo', ['u' => $report->user]) }}">
                                             <div class="mr-1">{{ $report->user->name }}</div>
                                             <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                         </a>

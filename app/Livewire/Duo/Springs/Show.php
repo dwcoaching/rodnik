@@ -82,6 +82,6 @@ class Show extends Component
 
         $spring->invalidateTiles();
 
-        return $this->redirectRoute('springs.show', $this->springId);
+        return $this->redirectRoute('duo', ['s' => $this->springId]);
     }
 }

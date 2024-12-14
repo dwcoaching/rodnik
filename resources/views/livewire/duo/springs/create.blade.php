@@ -11,7 +11,7 @@
     <div wire:loading.remove>
         @if ($location)
             <div
-                x-show="! saving &&"
+                x-show="! saving"
                 x-cloak
                 x-data="{
                         latitude: $wire.$entangle('latitude'),

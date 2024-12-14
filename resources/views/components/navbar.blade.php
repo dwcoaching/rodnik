@@ -50,7 +50,7 @@
                             class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg shadow-lg border border-stone-300
                             focus:outline-none
                             ">
-                            <a x-menu:item href="{{ route('springs.create') }}"
+                            <a x-menu:item href="{{ route('duo', ['location' => true]) }}"
                                 @click.prevent="
                                     window.dispatchEvent(
                                         new CustomEvent('duo-visit',
@@ -72,7 +72,7 @@
                                 class="rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
                                 New Water Source
                             </a>
-                            <a x-menu:item href="{{ route('users.show', Auth::user()->id) }}"
+                            <a x-menu:item href="{{ route('duo', ['u' => Auth::user()->id]) }}"
                                 @click.prevent="
                                     window.dispatchEvent(
                                         new CustomEvent('duo-visit',

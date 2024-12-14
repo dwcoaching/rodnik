@@ -46,7 +46,7 @@
                                                 class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
                                                 focus:outline-none
                                                 ">
-                                                <a x-menu:item href="{{ route('springs.location.edit', $spring) }}"
+                                                <a x-menu:item href="{{ route('duo', ['s' => $spring->id, 'location' => true]) }}"
                                                     @click.prevent="
                                                         window.dispatchEvent(
                                                             new CustomEvent('duo-visit',

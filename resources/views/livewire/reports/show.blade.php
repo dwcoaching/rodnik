@@ -26,7 +26,7 @@
                                                 )
                                             )
                                         "
-                                        href="{{ route('users.show', $report->user) }}">
+                                        href="{{ route('duo', ['u' => $report->user]) }}">
                                         <div class="mr-1">{{ $report->user->name }}</div>
                                         <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                     </a>
