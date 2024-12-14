@@ -16,34 +16,21 @@ class Show extends Component
     #[Reactive]
     public $userId;
 
-    public function setSpring($springId)
-    {
-        $this->springId = $springId;
-    }
-
     public function render()
     {
-        if (! $this->springId) {
-            $spring = null;
-            $reports = [];
-            $coordinates = [];
-        } else {
-            if (! $spring = Spring::find($this->springId)) {
-                abort(404);
-            }
+        $spring = Spring::findOrFail($this->springId);
 
-            $reports = $spring
-                ->reports()
-                ->whereNull('from_osm')
-                ->latest()
-                ->with(['user', 'photos'])
-                ->get();
+        $reports = $spring
+            ->reports()
+            ->whereNull('from_osm')
+            ->latest()
+            ->with(['user', 'photos'])
+            ->get();
 
-            $coordinates = [
-                    floatval($spring->longitude),
-                    floatval($spring->latitude)
-            ];
-        }
+        $coordinates = [
+            floatval($spring->longitude),
+            floatval($spring->latitude)
+        ];
 
         return view('livewire.duo.springs.show', compact('reports', 'spring', 'coordinates'));
     }

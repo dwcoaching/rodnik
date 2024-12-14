@@ -3,10 +3,8 @@
 namespace App\Actions\Springs;
 
 use App\Models\Spring;
-use App\Models\SpringTile;
 use App\Rules\SpringTypeRule;
 use App\Models\SpringRevision;
-use App\Models\WateredSpringTile;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;

@@ -25,14 +25,11 @@ class Create extends Component
     #[Reactive]
     public $location = false;
 
-    public $mode;
-
     public $saving;
 
     public $coordinates;
     public $latitude = null;
     public $longitude = null;
-
 
     protected function rules()
     {
