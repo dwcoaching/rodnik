@@ -539,7 +539,7 @@ export default class OpenLayersMap {
     }
 
     springsSource(userId) {
-        if (userId) {
+        if (userId > 0) {
             this.mode = 'user';
 
             this.springsFinalLayer.setMinZoom(0);
