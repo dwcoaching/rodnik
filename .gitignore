@@ -20,3 +20,4 @@ yarn-error.log
 latest.sh
 backup.sh
 .DS_Store
+auth.json
