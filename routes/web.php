@@ -50,6 +50,6 @@ Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::cla
 // Keep only as an example
 // Route::get('/about', About::class);
 
-Route::get('bugsnag-test', function() {
-    Bugsnag::notifyException(new \RuntimeException("New Test Error"));
-});
+// Route::get('bugsnag-test', function() {
+//     Bugsnag::notifyException(new \RuntimeException("New Test Error"));
+// });
