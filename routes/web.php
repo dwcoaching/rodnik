@@ -53,3 +53,20 @@ Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::cla
 // Route::get('bugsnag-test', function() {
 //     Bugsnag::notifyException(new \RuntimeException("New Test Error"));
 // });
+
+// TODO
+
+/*
+
+1.  Теги, карты по ссылкой
+
+2.  Репорты из видимой области карты
+
+3.  Бюро
+
+4.  Формирование файлов OSM для JOSM из бюро
+
+5.  «Всё — репорт», переход на этот принцип, где информация
+    Родника четко отличается от информации из внешних источников.
+
+*/

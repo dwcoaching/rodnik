@@ -219,7 +219,7 @@ export default class OpenLayersMap {
             this.highlightFeatureById(id);
         }
 
-        if (this.queryParameters.userId && this.queryParameters.userId != this.previousQueryParameters.userId) {
+        if (! this.queryParameters.springId && this.queryParameters.userId && this.queryParameters.userId != this.previousQueryParameters.userId) {
             this.locateWorld()
         }
     }
