@@ -29,7 +29,9 @@ class Duo extends Component
         $coordinates = [];
 
         if ($this->firstRender && $this->springId > 0) {
-            $spring = Spring::findOrFail($this->springId);
+            $spring = Spring::find($this->springId);
+
+            if (! $spring) abort(404);
 
             $coordinates = [
                 floatval($spring->longitude),
