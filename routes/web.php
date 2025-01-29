@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringController;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\PhotosBatchController;
@@ -11,9 +12,9 @@ use App\Http\Controllers\SpringHistoryController;
 use App\Http\Controllers\SpringLocationController;
 use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\UserSpringsJsonController;
+use App\Http\Controllers\Stats\MoscowStatsController;
 use App\Http\Controllers\SpringAggregatesJsonController;
 use App\Http\Controllers\WateredSpringTileJsonController;
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +47,8 @@ Route::get('watered-tiles/{z}/{x}/{y}.json', [WateredSpringTileJsonController::c
 Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'index']);
 
 Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::class, 'index'])->name('coverage');
+
+Route::get('moscow-stats', MoscowStatsController::class)->name('moscow-stats');
 
 // Keep only as an example
 // Route::get('/about', About::class);

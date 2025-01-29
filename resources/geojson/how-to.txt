@@ -1,0 +1,4 @@
+1. https://polygons.openstreetmap.fr/index.py
+2. find relation id on openstreetmap
+3. download geojson
+
