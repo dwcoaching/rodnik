@@ -28,7 +28,7 @@ class MoscowStatsController extends Controller
     {
         $areas = collect([
             'МКАД' => 'geojson/mkad.geojson',
-            // 'Москва' => 'geojson/moscow.geojson',
+            'Москва' => 'geojson/moscow.geojson',
             // 'Московская область' => 'geojson/mo.geojson',
         ]);
 
