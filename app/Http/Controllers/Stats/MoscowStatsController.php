@@ -17,10 +17,10 @@ class MoscowStatsController extends Controller
         }
 
         $this->springs = Spring::where([
-            ['latitude', '>=', 54],
-            ['latitude', '<=', 57],
-            ['longitude', '>=', 35],
-            ['longitude', '<=', 40.5],
+            ['latitude', '>=', 53.9],
+            ['latitude', '<=', 57.6],
+            ['longitude', '>=', 34.4],
+            ['longitude', '<=', 40.9],
         ])->with(['reports.photos'])->get();
     }
 
@@ -29,7 +29,8 @@ class MoscowStatsController extends Controller
         $areas = collect([
             'МКАД' => 'geojson/mkad.geojson',
             'Москва' => 'geojson/moscow.geojson',
-            // 'Московская область' => 'geojson/mo.geojson',
+            'Московская область' => 'geojson/mo.geojson',
+            'Москва 200 км' => 'geojson/moscow-200-km.geojson',
         ]);
 
         $resultSet = $areas->map(function ($areafile) {
