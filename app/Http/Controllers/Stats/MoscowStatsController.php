@@ -26,12 +26,41 @@ class MoscowStatsController extends Controller
 
     public function __invoke(Request $request)
     {
-        $areas = collect([
-            'МКАД' => 'geojson/mkad.geojson',
-            'Москва' => 'geojson/moscow.geojson',
-            'Московская область' => 'geojson/mo.geojson',
-            'Москва 200 км' => 'geojson/moscow-200-km.geojson',
-        ]);
+        $area = $request->query('area', null);
+
+        switch ($area) {
+            case 'mkad':
+                $areas = collect([
+                    'МКАД' => 'geojson/mkad.geojson',
+                ]);
+                break;
+            case 'moscow':
+                $areas = collect([
+                    'Москва' => 'geojson/moscow.geojson',
+                ]);
+                break;
+            case 'mo':
+                $areas = collect([
+                    'Московская область' => 'geojson/mo.geojson',
+                ]);
+                break;
+            case 'moscow-200-km':
+                $areas = collect([
+                    'Москва 200 км' => 'geojson/moscow-200-km.geojson',
+                ]);
+                break;
+            case 'all':
+                $areas = collect([
+                    'МКАД' => 'geojson/mkad.geojson',
+                    'Москва' => 'geojson/moscow.geojson',
+                    'Московская область' => 'geojson/mo.geojson',
+                    'Москва 200 км' => 'geojson/moscow-200-km.geojson',
+                ]);
+                break;
+            default:
+                return view('stats.moscow.index');
+                break;
+        }
 
         $resultSet = $areas->map(function ($areafile) {
             return $this->getStatsForArea($areafile);
