@@ -550,7 +550,7 @@ export default class OpenLayersMap {
 
             if (this.springsUserSource.getUser() == userId) {
                 this.springsFinalLayer.setSource(this.springsUserSource)
-                if (! this.queryParameters.springId) {
+                if (! this.queryParameters.springId && this.previousQueryParameters.userId != userId) {
                     this.locateWorld()
                 }
             } else {
