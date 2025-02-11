@@ -353,7 +353,7 @@ export default class OpenLayersMap {
                     this.view.fit(this.trackLayer.getSource().getExtent())
                     this.view.setZoom(this.view.getZoom() - 0.5);
 
-                    window.rodnikMap.filters.along = true
+                    // window.rodnikMap.filters.along = true
                 }
             }
         }
