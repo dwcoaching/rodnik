@@ -189,13 +189,13 @@ class Spring extends Model
                 ) {
                 $absenceOfGoodWaterCount++;
             }
-
-            if ($presenceOfGoodWaterCount > $absenceOfGoodWaterCount) {
-                return true;
-            }
-
-            return false;
         }
+
+        if ($presenceOfGoodWaterCount > $absenceOfGoodWaterCount) {
+            return true;
+        }
+
+        return false;
     }
 
     public function annihilate()
