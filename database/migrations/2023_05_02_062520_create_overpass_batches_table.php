@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('imports_status')->nullable();
             $table->string('checks_status')->nullable();
             $table->string('fetch_status')->nullable();
-            $table->double('coverage', 8, 5)->nullable();
+            $table->double('coverage')->nullable();
             $table->string('parse_status')->nullable();
-            $table->double('parsed_percentage', 8, 5)->nullable();
+            $table->double('parsed_percentage')->nullable();
             $table->timestamps();
         });
 
