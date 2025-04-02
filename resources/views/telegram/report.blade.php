@@ -1,7 +1,7 @@
 @if ($report->user_id)
-<b>{{ $report->user->name }}, {{ Date::parse($report->visited_at)->format('j F Y') }}</b>
+<b>{{ $report->user->name }}, {{ \Carbon\Carbon::parse($report->visited_at)->format('j F Y') }}</b>
 @else
-<b>Anonymous, {{ Date::parse($report->visited_at)->format('j F Y') }}</b>
+<b>Anonymous, {{ \Carbon\Carbon::parse($report->visited_at)->format('j F Y') }}</b>
 @endif
 {{ $report->spring->name ? $report->spring->name : $report->spring->type }}
 @if ($report->new_name)
