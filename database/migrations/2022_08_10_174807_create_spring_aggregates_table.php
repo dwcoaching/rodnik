@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('longitude', 9, 6)->nullable(); // center point
 
             $table->integer('count')->nullable();
-            $table->float('step', 5, 2)->nullable();
+            $table->float('step')->nullable();
 
             $table->timestamps();
         });

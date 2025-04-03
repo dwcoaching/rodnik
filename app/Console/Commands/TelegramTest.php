@@ -5,8 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Report;
 use Illuminate\Console\Command;
 use App\Jobs\SendReportNotification;
-use App\Notifications\ReportNotification;
-use Illuminate\Support\Facades\Notification;
 
 class TelegramTest extends Command
 {
