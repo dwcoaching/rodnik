@@ -4,6 +4,7 @@ use App\Models\OverpassCheck;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -24,18 +25,22 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        $latitudeStart = -90;
-        $longitude = -180;
-
+        $data = [];
         for ($latitude = -90; $latitude <= 89; $latitude = $latitude + 1) {
             for ($longitude = -180; $longitude <= 179; $longitude = $longitude + 1) {
-                $overpassCheck = new OverpassCheck();
-                $overpassCheck->latitude_from = $latitude;
-                $overpassCheck->latitude_to = $latitude + 1;
-                $overpassCheck->longitude_from = $longitude;
-                $overpassCheck->longitude_to = $longitude + 1;
-                $overpassCheck->save();
+                $data[] = [
+                    'latitude_from' => $latitude,
+                    'latitude_to' => $latitude + 1,
+                    'longitude_from' => $longitude,
+                    'longitude_to' => $longitude + 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
+        }
+        
+        foreach (array_chunk($data, 1000) as $chunk) {
+            DB::table('overpass_checks')->insert($chunk);
         }
     }
 
