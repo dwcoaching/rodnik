@@ -1,39 +1,32 @@
 <?php
 
-namespace Tests\Feature\Jetstream;
-
 use Faker\Factory;
-use Tests\TestCase;
 use App\Models\User;
 use Livewire\Livewire;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm;
 
-class ProfileInformationTest extends TestCase
-{
-    public function test_current_profile_information_is_available()
-    {
-        $this->actingAs($user = User::factory()->create());
 
-        $component = Livewire::test(UpdateProfileInformationForm::class);
+test('current profile information is available', function () {
+    $this->actingAs($user = User::factory()->create());
 
-        $this->assertEquals($user->name, $component->state['name']);
-        $this->assertEquals($user->email, $component->state['email']);
-    }
+    $component = Livewire::test(UpdateProfileInformationForm::class);
 
-    public function test_profile_information_can_be_updated()
-    {
-        $this->actingAs($user = User::factory()->create());
+    expect($component->state['name'])->toEqual($user->name);
+    expect($component->state['email'])->toEqual($user->email);
+});
 
-        $faker = Factory::create();
-        $newName = $faker->name();
-        $newEmail = $faker->unique()->safeEmail();
+test('profile information can be updated', function () {
+    $this->actingAs($user = User::factory()->create());
 
-        Livewire::test(UpdateProfileInformationForm::class)
-                ->set('state', ['name' => $newName, 'email' => $newEmail])
-                ->call('updateProfileInformation');
+    $faker = Factory::create();
+    $newName = $faker->name();
+    $newEmail = $faker->unique()->safeEmail();
 
-        $this->assertEquals($newName, $user->fresh()->name);
-        $this->assertEquals($newEmail, $user->fresh()->email);
-    }
-}
+    Livewire::test(UpdateProfileInformationForm::class)
+            ->set('state', ['name' => $newName, 'email' => $newEmail])
+            ->call('updateProfileInformation');
+
+    expect($user->fresh()->name)->toEqual($newName);
+    expect($user->fresh()->email)->toEqual($newEmail);
+});

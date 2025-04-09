@@ -1,55 +1,47 @@
 <?php
 
-namespace Tests\Feature\Jetstream;
-
 use Faker\Factory;
-use Tests\TestCase;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Jetstream;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class RegistrationTest extends TestCase
-{
-    public function test_registration_screen_can_be_rendered()
-    {
-        if (! Features::enabled(Features::registration())) {
-            return $this->markTestSkipped('Registration support is not enabled.');
-        }
 
-        $response = $this->get('/register');
-
-        $response->assertStatus(200);
+test('registration screen can be rendered', function () {
+    if (! Features::enabled(Features::registration())) {
+        return $this->markTestSkipped('Registration support is not enabled.');
     }
 
-    public function test_registration_screen_cannot_be_rendered_if_support_is_disabled()
-    {
-        if (Features::enabled(Features::registration())) {
-            return $this->markTestSkipped('Registration support is enabled.');
-        }
+    $response = $this->get('/register');
 
-        $response = $this->get('/register');
+    $response->assertStatus(200);
+});
 
-        $response->assertStatus(404);
+test('registration screen cannot be rendered if support is disabled', function () {
+    if (Features::enabled(Features::registration())) {
+        return $this->markTestSkipped('Registration support is enabled.');
     }
 
-    public function test_new_users_can_register()
-    {
-        $faker = Factory::create();
+    $response = $this->get('/register');
 
-        if (! Features::enabled(Features::registration())) {
-            return $this->markTestSkipped('Registration support is not enabled.');
-        }
+    $response->assertStatus(404);
+});
 
-        $response = $this->post('/register', [
-            'name' => 'Test User',
-            'email' => $faker->email(),
-            'password' => 'password',
-            'password_confirmation' => 'password',
-            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
-        ]);
+test('new users can register', function () {
+    $faker = Factory::create();
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+    if (! Features::enabled(Features::registration())) {
+        return $this->markTestSkipped('Registration support is not enabled.');
     }
-}
+
+    $response = $this->post('/register', [
+        'name' => 'Test User',
+        'email' => $faker->email(),
+        'password' => 'password',
+        'password_confirmation' => 'password',
+        'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
+    ]);
+
+    $this->assertAuthenticated();
+    $response->assertRedirect(RouteServiceProvider::HOME);
+});
