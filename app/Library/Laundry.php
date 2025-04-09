@@ -62,6 +62,14 @@ class Laundry
                 tourism=wilderness_hut
                 drinking_water=no
             ',
+            '
+                amenity=shelter
+                drinking_water=no
+            ',
+            '
+                amenity=alpine_hut
+                drinking_water=no
+            ',
         ];
     }
 }
