@@ -7,6 +7,7 @@
     "require": {
         "php": "^8.1",
         "barryvdh/laravel-debugbar": "^3.8",
+        "binarytorch/larecipe": "^2.8",
         "bugsnag/bugsnag-laravel": "^2.0",
         "doctrine/dbal": "^3.4",
         "filament/filament": "^3.0",
