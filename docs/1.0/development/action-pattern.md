@@ -18,8 +18,9 @@ of `HideReportByModeratorAction` and `UnhideReportByModeratorAction`.
 
 All Actions should be in the app/Actions folder without further subfolders.
 
-<a name="structure">
-### All Actions should be invokable classes with this structure
+<a name="structure"></a>
+## Structure
+All Actions should be invokable classes with this structure:
 ```
     public function __invoke(array $data)
     {
