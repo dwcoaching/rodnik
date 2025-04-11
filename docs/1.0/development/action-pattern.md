@@ -1,13 +1,12 @@
 - [Action Pattern](#action-pattern)
 - [Naming](#naming)
-- [File Structure](#file-structure)
+- [Structure](#file-structure)
 - [Testing Actions](#testing-actions)
 - [Full Example](#full-example)
 
 <a name="action-pattern"></a>
 ## Action Pattern
-
-### All Livewire component writes should be done through Actions
+All Livewire component writes should be done through Actions
 
 <a name="naming"></a>
 ## Naming
@@ -17,9 +16,26 @@ There was an idea of strictly following REST principles and having
 names like `PostReportsBanAction`, `DeleteReportsBanAction` instead
 of `HideReportByModeratorAction` and `UnhideReportByModeratorAction`.
 
-<a name="file-structure"></a>
-## File Structure
-### All Actions should be in the app/Actions folder without further subfolders.
+All Actions should be in the app/Actions folder without further subfolders.
+
+<a name="structure">
+### All Actions should be invokable classes with this structure
+```
+    public function __invoke(array $data)
+    {
+        $this->data = $data;
+        
+        $this->authorize();
+        $this->validate();
+        return $this->execute();
+    }
+```
+
+Validate and authorize methods should use classic Laravel approach,
+it will be caught by Livewire to get the end user the proper feedback.
+
+### Authorization rules
+- Use Policies or Gates where appropriate
 
 <a name="testing-actions"></a>
 ## Testing Actions
