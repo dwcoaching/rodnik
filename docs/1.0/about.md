@@ -1,5 +1,8 @@
 # About
 
+Welcome to Rodnik.today - your global community platform for discovering and sharing information about public water sources.
+
+Table of contents:
 - [Concept](#concept) 
 - [Project Overview](#project-overview)
 - [Functionality](#functionality)
