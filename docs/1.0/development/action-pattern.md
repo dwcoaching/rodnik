@@ -4,12 +4,12 @@
 - [Testing Actions](#testing-actions)
 - [Full Example](#full-example)
 
-<a name="action-pattern">
+<a name="action-pattern"></a>
 ## Action Pattern
 
 ### All Livewire component writes should be done through Actions
 
-<a name="naming">
+<a name="naming"></a>
 ## Naming
 Actions should be descriptive and have `Action.php` at the end.
 
@@ -17,20 +17,20 @@ There was an idea of strictly following REST principles and having
 names like `PostReportsBanAction`, `DeleteReportsBanAction` instead
 of `HideReportByModeratorAction` and `UnhideReportByModeratorAction`.
 
-<a name="file-structure">
+<a name="file-structure"></a>
 ## File Structure
 ### All Actions should be in the app/Actions folder without further subfolders.
 
-<a name="testing-actions">
+<a name="testing-actions"></a>
 ## Testing Actions
 - Generate a test for each Action
 - Test validation (both pass and fail)
 - Test authorization (both pass and fail)
 - Test that database changes actually happen
 
-<a name="full-example">
+<a name="full-example"></a>
 ## Full Example
-**Livewire component usage:**
+Livewire component usage:
 ```
     public function update(PatchSpringsLocationAction $patchSpringsLocation)
     {
@@ -45,7 +45,7 @@ of `HideReportByModeratorAction` and `UnhideReportByModeratorAction`.
     }
 ```
 
-**Action class:**
+Action class:
 ```
 <?php
 
