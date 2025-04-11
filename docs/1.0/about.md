@@ -1,6 +1,6 @@
 # About
 
-- [Concept](#concept)
+- [Concept](#concept) 
 - [Project Overview](#project-overview)
 - [Functionality](#functionality)
 - [Core Functionality Guide](#core-functionality-guide)
@@ -175,6 +175,7 @@ Rodnik.today is created by a community of outdoor enthusiasts. The project is no
 [Learn more about Rodnik.today](https://docs.google.com/document/d/173TpVT7EQCEVaLyL3uB9dsjSwYiSzZP-jeKSuRPVwfM/edit) *(Google document, work in progress)*.
 
 - [Telegram Chat](https://t.me/rodnik_today)
+
 - [Notifications Channel](https://t.me/rodniktoday) 
 
 
