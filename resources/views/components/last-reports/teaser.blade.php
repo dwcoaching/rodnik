@@ -23,7 +23,7 @@
                     "
                     href="{{ route('duo', ['s' => $report->spring->id]) }}" class="group cursor-pointer mr-2">
                         <div
-                            class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ $report->spring->name ? $report->spring->name : $report->spring->type }}</div>
+                            class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ ( $report->spring->name ? $report->spring->name : $report->spring->type ) ?: 'No name' }}</div>
                     </a>
                 </div>
 

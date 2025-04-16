@@ -17,7 +17,7 @@
                     <div class="flex items-start justify-between flex-nowrap">
                         <div class="text-xl font-extrabold mr-3">
                             <div class="mr-1">
-                                {{ $spring->name ? $spring->name : $spring->type }}
+                                {{ ( $spring->name ? $spring->name : $spring->type ) ?: 'No name' }}
                             </div>
                             <div class="font-light text-gray-900 text-sm">
                                 @if ($spring->name)
