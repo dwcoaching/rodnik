@@ -481,7 +481,11 @@ export default class OpenLayersMap {
 
     locateWorld() {
         this.view.fit(this.springsFinalLayer.getSource().getExtent());
-        this.view.setZoom(Math.floor(this.view.getZoom() - 1));
+        
+        let naturalZoom = Math.floor(this.view.getZoom() - 1)
+        let sensibleZoom = 8
+        
+        this.view.setZoom(naturalZoom > sensibleZoom ? sensibleZoom : naturalZoom);
     }
 
     highlightFeature(feature) {
