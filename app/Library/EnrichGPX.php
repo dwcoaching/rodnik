@@ -22,7 +22,7 @@ class EnrichGPX
                $href = (string)$link['href'];
                // Match the id from the URL
                if (preg_match('#https://rodnik\.today/(\d+)#', $href, $matches)) {
-                   $id = $matches[1];
+                   $id = intval($matches[1]);
                    // Add <desc> tag
                    $wpt->addChild('desc', self::getEnrichedDescriptionForId($id));
                }
@@ -34,9 +34,13 @@ class EnrichGPX
        return $gpxString;
     }
 
-    static public function getEnrichedDescriptionForId($springId)
+    static public function getEnrichedDescriptionForId(int $springId)
     {
         $spring = Spring::find($springId);
+
+        if (! $spring) {
+            return '';
+        }
 
         $osm = '';
         $reports = '';
