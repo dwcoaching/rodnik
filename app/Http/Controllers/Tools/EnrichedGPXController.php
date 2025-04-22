@@ -27,13 +27,21 @@ class EnrichedGPXController extends Controller
 
         $gpx = $request->file('gpx');
         $gpxString = $gpx->get();
-
+        $originalFilename = $gpx->getClientOriginalName();
+        
+        // Extract the filename without extension and sanitize it
+        $filenameWithoutExt = pathinfo($originalFilename, PATHINFO_FILENAME);
+        $sanitizedFilename = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $filenameWithoutExt);
+        
+        // Create the new enriched filename
+        $enrichedFilename = $sanitizedFilename . '-enriched.gpx';
+        
         $enrichedGPX = EnrichGPX::enrich($gpxString);
 
         return response($enrichedGPX)
             ->withHeaders([
                 'Content-Type' => 'application/xml',
-                'Content-Disposition' => 'attachment; filename="enriched.gpx"',
+                'Content-Disposition' => 'attachment; filename="' . $enrichedFilename . '"',
             ]);
     }
 }
