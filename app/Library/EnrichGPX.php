@@ -52,7 +52,15 @@ class EnrichGPX
         }
 
         if ($spring->reports()->visible()->count()) {
-            $reports .= 'Reports: ' . $spring->reports()->visible()->get()->map(function ($report) {
+            // Sort reports by visited_at in descending order
+            // Reports with null visited_at are sorted by created_at and placed at the end
+            // The sorting uses an array of criteria:
+            // 1. Reports with null visited_at get priority 1, others get 0 (to push nulls to the end)
+            // 2. For date comparison, use visited_at if available, otherwise fall back to created_at
+            // 3. Use negative ID as final tiebreaker to ensure consistent ordering
+            $reports .= 'Reports: ' . $spring->reports()->visible()->get()->sortByDesc(function ($report) {
+                return [$report->visited_at === null ? 0 : 1, $report->visited_at ?: $report->created_at, -$report->id];
+            })->map(function ($report) {
                 $author = $report->user ? $report->user->name : 'Unknown';
                 // Map quality
                 $qualityMap = [
@@ -86,7 +94,7 @@ class EnrichGPX
 
                 return sprintf(
                     '%s (%s) %s %s',
-                    $report->visited_at->format('Y-m-d'),
+                    $report->visited_at ? $report->visited_at->format('Y-m-d') : '[No Date]',
                     $author,
                     $condition,
                     $comment
