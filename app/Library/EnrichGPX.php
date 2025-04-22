@@ -94,6 +94,14 @@ class EnrichGPX
             })->join("\n");
         }
 
-        return join("\n", [$osm, $reports]);
+        $result = join("\n", [$osm, $reports]);
+
+        // Escape special XML characters to ensure the result is safe for XML
+        $result = htmlspecialchars($result, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        
+        // Remove any null bytes or other invalid XML characters
+        $result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $result);
+
+        return $result;
     }
 }
