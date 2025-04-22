@@ -316,6 +316,11 @@ export default class OpenLayersMap {
                     name: feature.getProperties().type
                 })
             }
+            
+            feature.setProperties({
+                link: `https://rodnik.today/${feature.getProperties().id}`
+            })
+            
             return feature
         })
 
