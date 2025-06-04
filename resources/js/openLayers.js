@@ -589,8 +589,6 @@ export default class OpenLayersMap {
     }
 
     duoVisit(queryParameters) {
-        console.log(queryParameters);
-        
         this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
         Object.assign(this.queryParameters, queryParameters);
     }
