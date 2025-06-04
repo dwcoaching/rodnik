@@ -62,9 +62,9 @@ class PostSpringsAction
         Gate::authorize('create', Spring::class);
     }
 
-    public function validate($attributues): void
+    public function validate($attributes): void
     {
-        Validator::make($attributues, [
+        Validator::make($attributes, [
             'latitude' => [new LatitudeRule],
             'longitude' => [new LongitudeRule],
         ])->validate();
