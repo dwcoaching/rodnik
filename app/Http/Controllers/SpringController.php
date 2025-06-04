@@ -31,7 +31,7 @@ class SpringController extends Controller
      */
     public function create()
     {
-        return redirect(route('duo', ['location' => true]), 301);
+        return redirect(duo_route(['location' => true]), 301);
     }
 
     /**
@@ -53,7 +53,7 @@ class SpringController extends Controller
      */
     public function show($springId)
     {
-        return redirect(route('duo', ['s' => $springId]), 301);
+        return redirect(duo_route(['spring' => $springId]), 301);
     }
 
     /**

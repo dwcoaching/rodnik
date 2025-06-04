@@ -22,4 +22,4 @@ Type: {{ $revision->old_type }} → {{ $revision->new_type }}
 Intermittent: {{ $revision->old_intermittent }} → {{ $revision->new_intermittent }}
 @endif
 
-{{ route('duo', ['s' => $revision->spring_id]) }}
+{{ duo_route(['spring' => $revision->spring_id]) }}

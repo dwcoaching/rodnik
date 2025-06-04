@@ -23,7 +23,7 @@ Coordinates changed: {{ $report->old_latitude }}, {{ $report->old_longitude }} â
 @endif
 
 @if ($photoCount < 2)
-{{ route('duo', ['s' => $report->spring->id]) }}
+{{ duo_route(['spring' => $report->spring->id]) }}
 @else
-{{ decline_number($photoCount - 1, ['more photo', 'more photos', 'more photos']) }} at {{ route('duo', ['s' => $report->spring->id]) }}
+{{ decline_number($photoCount - 1, ['more photo', 'more photos', 'more photos']) }} at {{ duo_route(['spring' => $report->spring->id]) }}
 @endif

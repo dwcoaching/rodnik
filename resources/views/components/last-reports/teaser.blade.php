@@ -10,7 +10,7 @@
                             new CustomEvent('duo-visit',
                                 {
                                     detail: {
-                                        user: new URLSearchParams(window.location.search).get('u'),
+                                        user: new URLSearchParams(window.location.search).get('page[user]'),
                                         spring: {{ intval($report->spring->id )}},
                                         coordinates: {{ json_encode([
                                             floatval($report->spring->longitude),
@@ -21,7 +21,7 @@
                             )
                         )
                     "
-                    href="{{ route('duo', ['s' => $report->spring->id]) }}" class="group cursor-pointer mr-2">
+                    href="{{ duo_route(['spring' => $report->spring->id]) }}" class="group cursor-pointer mr-2">
                         <div
                             class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ ( $report->spring->name ? $report->spring->name : $report->spring->type ) ?: 'No name' }}</div>
                     </a>
@@ -42,15 +42,15 @@
                                                     new CustomEvent('duo-visit',
                                                         {
                                                             detail: {
-                                                                springId: null,
-                                                                userId: {{ intval($report->user_id )}},
-                                                                location: false,
+                                                                'spring': null,
+                                                                'user': {{ intval($report->user_id )}},
+                                                                'location': false,
                                                             }
                                                         }
                                                     )
                                                 )
                                             "
-                                            href="{{ route('duo', ['u' => $report->user]) }}">
+                                            href="{{ duo_route(['user' => $report->user_id]) }}">
                                             <div class="mr-1">{{ $report->user->name }}</div>
                                             <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                         </a>

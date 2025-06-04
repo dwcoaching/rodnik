@@ -516,8 +516,8 @@ export default class OpenLayersMap {
     selectFeature(feature) {
         window.dispatchEvent(new CustomEvent('duo-visit', {
             detail: {
-                springId: feature.get('id'),
-                userId: this.queryParameters.userId,
+                spring: feature.get('id'),
+                user: this.queryParameters.user,
                 location: false,
             }
         }));
@@ -533,8 +533,8 @@ export default class OpenLayersMap {
     deselectFeature() {
         window.dispatchEvent(new CustomEvent('duo-visit', {
             detail: {
-                springId: 0,
-                userId: this.queryParameters.userId,
+                spring: 0,
+                user: this.queryParameters.user,
             }
         }));
     }
@@ -559,7 +559,7 @@ export default class OpenLayersMap {
 
             if (this.springsUserSource.getUser() == userId) {
                 this.springsFinalLayer.setSource(this.springsUserSource)
-                if (! this.queryParameters.springId && this.previousQueryParameters.userId != userId) {
+                if (! this.queryParameters.spring && this.previousQueryParameters.user != userId) {
                     this.locateWorld()
                 }
             } else {
@@ -589,6 +589,8 @@ export default class OpenLayersMap {
     }
 
     duoVisit(queryParameters) {
+        console.log(queryParameters);
+        
         this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
         Object.assign(this.queryParameters, queryParameters);
     }

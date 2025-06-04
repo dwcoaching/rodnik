@@ -1,9 +1,9 @@
 <div id="spring"
     x-data="{
         defaultServerQueryParameters: {
-            spring: null,
-            user: null,
-            location: false
+            'spring': null,
+            'user': null,
+            'location': false
         },
         registerVisit: function() {
             ym(90143259, 'hit', window.location.href)
@@ -12,19 +12,10 @@
 
     x-on:duo-visit.window="
         Object.entries(defaultServerQueryParameters).forEach(([key, value]) => {
-
             const newValue = $event.detail.hasOwnProperty(key) ? $event.detail[key] : value;
-            
-            if (key === 'spring') {
-                $wire.$set('view.spring', newValue, false);
-            } else if (key === 'user') {
-                $wire.$set('view.user', newValue, false);
-            } else if (key === 'location') {
-                $wire.$set('view.location', newValue, false);
-            } else {
-                $wire.$set(key, newValue, false);
-            }
+            $wire.$set('page.' + key, newValue, false);
         });
+
         $wire.$refresh();
 
         window.rodnikMap.duoVisit({...defaultServerQueryParameters, ...$event.detail})
@@ -33,13 +24,13 @@
         if ($wire.firstRender) {
             @if ($coordinates)
                 window.rodnikMap.locate({{ json_encode($coordinates) }})
-                window.rodnikMap.highlightFeatureById({{ intval($view['spring']) }})
+                window.rodnikMap.highlightFeatureById({{ intval($page['spring']) }})
             @endif
 
             window.rodnikMap.duoVisit({
-                spring: {{ intval($view['spring']) }},
-                user: {{ intval($view['user']) }},
-                location: {{ intval($view['location']) }},
+                spring: {{ intval($page['spring']) }},
+                user: {{ intval($page['user']) }},
+                location: {{ intval($page['location']) }},
             })
 
             $wire.firstRender = false
@@ -56,22 +47,22 @@
         const parameters = new URLSearchParams(window.location.search);
 
         window.rodnikMap.duoVisit({
-            spring: parameters.get('spring'),
-            user: parameters.get('user'),
-            location: parameters.get('location')
+            spring: parseInt(parameters.get('page[spring]')) || null,
+            user: parseInt(parameters.get('page[user]')) || null,
+            location: parameters.get('page[location]') === 'true' || false
         })"
     class="flex grow justify-center"
 >
     <div class="grow">
         <div class="h-full">
-            @if (! $view['spring'] && ! $view['location'])
-                <livewire:duo.reports.index :userId="$view['user']" />
+            @if (! $page['spring'] && ! $page['location'])
+                <livewire:duo.reports.index :userId="$page['user']" />
             @endif
-            @if ($view['spring'] && ! $view['location'])
-                <livewire:duo.springs.show :springId="$view['spring']" :userId="$view['user']" />
+            @if ($page['spring'] && ! $page['location'])
+                <livewire:duo.springs.show :springId="$page['spring']" :userId="$page['user']" />
             @endif
-            @if ($view['location'])
-                <livewire:duo.springs.create :springId="$view['spring']" :location="$view['location']" />
+            @if ($page['location'])
+                <livewire:duo.springs.create :springId="$page['spring']" :location="$page['location']" />
             @endif
         </div>
     </div>

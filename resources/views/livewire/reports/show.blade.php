@@ -18,15 +18,15 @@
                                                 new CustomEvent('duo-visit',
                                                     {
                                                         detail: {
-                                                            springId: 0,
-                                                            userId: {{ intval($report->user_id )}},
-                                                            location: false,
+                                                            'spring': null,
+                                                            'user': {{ intval($report->user_id )}},
+                                                            'location': false,
                                                         }
                                                     }
                                                 )
                                             )
                                         "
-                                        href="{{ route('duo', ['u' => $report->user]) }}">
+                                        href="{{ duo_route(['user' => $report->user_id]) }}">
                                         <div class="mr-1">{{ $report->user->name }}</div>
                                         <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                     </a>

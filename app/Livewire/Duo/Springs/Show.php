@@ -41,7 +41,7 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->annihilate();
 
-            $this->redirectRoute('duo');
+            return $this->redirect(duo_route());
         } else {
             abort(403);
         }
@@ -53,7 +53,7 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->hide();
 
-            return $this->redirectRoute('duo');
+            return $this->redirect(duo_route());
         } else {
             abort(403);
         }
@@ -69,6 +69,6 @@ class Show extends Component
 
         $spring->invalidateTiles();
 
-        return $this->redirectRoute('duo', ['s' => $this->springId]);
+        return $this->redirect(duo_route(['spring' => $this->springId]));
     }
 }

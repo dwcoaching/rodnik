@@ -79,6 +79,6 @@ class Create extends Component
             'longitude' => $this->longitude,
         ]);
 
-        return redirect()->route('duo', ['s' => $spring->id]);
+        return redirect(duo_route(['spring' => $spring->id]));
     }
 }

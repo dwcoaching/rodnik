@@ -57,6 +57,6 @@ class Create extends Component
             'name' => $this->name,
         ]);
 
-        return $this->redirect(route('duo', ['s' => $this->springId]));
+        return $this->redirect(duo_route(['spring' => $this->springId]));
     }
 }

@@ -43,3 +43,22 @@ function without_http($string)
 {
     return preg_replace('/https?:\/\/(www\.)?/', '', $string);
 }
+
+function duo_route($parameters = [])
+{
+    $baseUrl = route('duo');
+    
+    if (empty($parameters)) {
+        return $baseUrl;
+    }
+    
+    // Only include parameters that differ from defaults
+    $defaults = config('duo.url_defaults');
+    $pageParams = array_filter($parameters, function($value, $key) use ($defaults) {
+        return !isset($defaults[$key]) || $defaults[$key] !== $value;
+    }, ARRAY_FILTER_USE_BOTH);
+    
+    $queryString = http_build_query(['page' => $pageParams], '', '&', PHP_QUERY_RFC1738);
+    $queryString = urldecode($queryString);
+    return $baseUrl . '?' . $queryString;
+}
