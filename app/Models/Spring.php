@@ -95,7 +95,7 @@ class Spring extends Model
         if (count(
             $this->osm_tags->filter(function($item) {
                 return $item->key == 'natural' &&
-                    ($item->value == 'spring' | $item->value == 'spring_box');
+                    ($item->value == 'spring' || $item->value == 'spring_box');
             }))) {
             return 'Spring';
         }
