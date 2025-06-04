@@ -178,8 +178,8 @@ export default class OpenLayersMap {
         });
 
         this.queryParameters = Alpine.reactive({
-            springId: null,
-            userId: null,
+            spring: null,
+            user: null,
             location: false,
             coordinates: null,
         })
@@ -189,10 +189,10 @@ export default class OpenLayersMap {
         Alpine.effect(() => {
             this.queryParameters
 
-            this.springsSource(this.queryParameters.userId)
+            this.springsSource(this.queryParameters.user)
 
-            if (this.queryParameters.springId > 0) {
-                this.highlightFeatureById(this.queryParameters.springId)
+            if (this.queryParameters.spring > 0) {
+                this.highlightFeatureById(this.queryParameters.spring)
             } else {
                 this.dehighlightFeature()
             }
@@ -219,7 +219,7 @@ export default class OpenLayersMap {
             this.highlightFeatureById(id);
         }
 
-        if (! this.queryParameters.springId && this.queryParameters.userId && this.queryParameters.userId != this.previousQueryParameters.userId) {
+        if (! this.queryParameters.spring && this.queryParameters.user && this.queryParameters.user != this.previousQueryParameters.user) {
             this.locateWorld()
         }
     }

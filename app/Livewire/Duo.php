@@ -8,14 +8,21 @@ use Livewire\Attributes\Url;
 
 class Duo extends Component
 {
-    #[Url(as: 's', history: true)]
-    public $springId = null;
+    // #[Url(as: 's', history: true)]
+    // public $springId = null;
 
-    #[Url(as: 'u', history: true)]
-    public $userId = null;
+    // #[Url(as: 'u', history: true)]
+    // public $userId = null;
 
-    #[Url(as: 'location', history: true)]
-    public $location = false;
+    // #[Url(as: 'location', history: true)]
+    // public $location = false;
+
+    #[Url(history: true)]
+    public $view = [
+        'spring' => null,
+        'user' => null,
+        'location' => false,
+    ];
 
     public $firstRender;
 
@@ -28,8 +35,8 @@ class Duo extends Component
     {
         $coordinates = [];
 
-        if ($this->firstRender && $this->springId > 0) {
-            $spring = Spring::find($this->springId);
+        if ($this->firstRender && $this->view['spring'] > 0) {
+            $spring = Spring::find($this->view['spring']);
 
             if (! $spring) abort(404);
 

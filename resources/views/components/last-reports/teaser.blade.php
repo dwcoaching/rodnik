@@ -10,8 +10,8 @@
                             new CustomEvent('duo-visit',
                                 {
                                     detail: {
-                                        userId: new URLSearchParams(window.location.search).get('u'),
-                                        springId: {{ intval($report->spring->id )}},
+                                        user: new URLSearchParams(window.location.search).get('u'),
+                                        spring: {{ intval($report->spring->id )}},
                                         coordinates: {{ json_encode([
                                             floatval($report->spring->longitude),
                                             floatval($report->spring->latitude)
