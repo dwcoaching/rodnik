@@ -50,13 +50,13 @@
                             class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg shadow-lg border border-stone-300
                             focus:outline-none
                             ">
-                            <a x-menu:item href="{{ duo_route(['location' => true]) }}"
+                            <a x-menu:item href="{{ duo_route(['location' => 1]) }}"
                                 @click.prevent="
                                     window.dispatchEvent(
                                         new CustomEvent('duo-visit',
                                             {
                                                 detail: {
-                                                    location: true
+                                                    location: 1
                                                 }
                                             }
                                         )

@@ -20,7 +20,7 @@
                                                         detail: {
                                                             'spring': null,
                                                             'user': {{ intval($report->user_id )}},
-                                                            'location': false,
+                                                            'location': null,
                                                         }
                                                     }
                                                 )

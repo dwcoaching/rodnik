@@ -31,7 +31,7 @@ class SpringController extends Controller
      */
     public function create()
     {
-        return redirect(duo_route(['location' => true]), 301);
+        return redirect(duo_route(['location' => 1]), 301);
     }
 
     /**

@@ -15,7 +15,7 @@ class Duo extends Component
 
     public function mount()
     {
-        $this->page = config('duo.url_defaults');
+        $this->page = array_merge(config('duo.url_defaults'), $this->page);
         $this->firstRender = true;
     }
 

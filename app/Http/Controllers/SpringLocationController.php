@@ -10,6 +10,6 @@ class SpringLocationController extends Controller
 {
     public function edit(Spring $spring)
     {
-        return redirect(duo_route(['spring' => $spring, 'location' => true]), 301);
+        return redirect(duo_route(['spring' => $spring, 'location' => 1]), 301);
     }
 }

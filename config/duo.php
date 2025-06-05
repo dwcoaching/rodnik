@@ -4,6 +4,6 @@ return [
     'url_defaults' => [
         'spring' => null,
         'user' => null,
-        'location' => false,
+        'location' => null,
     ],
 ]; 

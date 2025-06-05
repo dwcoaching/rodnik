@@ -46,14 +46,14 @@
                                                 class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
                                                 focus:outline-none
                                                 ">
-                                                <a x-menu:item href="{{ duo_route(['spring' => $spring->id, 'location' => true]) }}"
+                                                <a x-menu:item href="{{ duo_route(['spring' => $spring->id, 'location' => 1]) }}"
                                                     @click.prevent="
                                                         window.dispatchEvent(
                                                             new CustomEvent('duo-visit',
                                                                 {
                                                                     detail: {
-                                                                        springId: {{ intval($springId) }},
-                                                                        location: true,
+                                                                        spring: {{ intval($spring->id) }},
+                                                                        location: 1,
                                                                         coordinates: {{ json_encode([
                                                                             floatval($spring->longitude),
                                                                             floatval($spring->latitude)

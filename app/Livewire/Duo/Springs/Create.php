@@ -23,7 +23,7 @@ class Create extends Component
     public $springId;
 
     #[Reactive]
-    public $location = false;
+    public $location = null;
 
     public $saving;
 

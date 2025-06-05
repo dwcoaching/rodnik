@@ -34,7 +34,7 @@ class WebController extends Controller
         }
         
         if ($request->has('location')) {
-            $routeParams['location'] = $request->get('location');
+            $routeParams['location'] = $request->get('location') ? 1 : null;
         }
         
         if (!empty($routeParams)) {

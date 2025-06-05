@@ -3,7 +3,7 @@
         defaultServerQueryParameters: {
             'spring': null,
             'user': null,
-            'location': false
+            'location': null
         },
         registerVisit: function() {
             ym(90143259, 'hit', window.location.href)
@@ -49,7 +49,7 @@
         window.rodnikMap.duoVisit({
             spring: parseInt(parameters.get('page[spring]')) || null,
             user: parseInt(parameters.get('page[user]')) || null,
-            location: parameters.get('page[location]') === 'true' || false
+            location: parseInt(parameters.get('page[location]')) || null
         })"
     class="flex grow justify-center"
 >
