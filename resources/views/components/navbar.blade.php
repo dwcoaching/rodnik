@@ -78,7 +78,7 @@
                                         new CustomEvent('duo-visit',
                                             {
                                                 detail: {
-                                                    userId: {{ intval(Auth::user()->id) }},
+                                                    user: {{ intval(Auth::user()->id) }},
                                                 }
                                             }
                                         )
