@@ -180,7 +180,7 @@ export default class OpenLayersMap {
         this.queryParameters = Alpine.reactive({
             spring: null,
             user: null,
-            location: false,
+            location: null,
             coordinates: null,
         })
 
@@ -517,8 +517,8 @@ export default class OpenLayersMap {
         window.dispatchEvent(new CustomEvent('duo-visit', {
             detail: {
                 spring: feature.get('id'),
-                user: this.queryParameters.user,
-                location: false,
+                user: this.queryParameters.user > 0 ? this.queryParameters.user : null,
+                location: null,
             }
         }));
     }
@@ -533,8 +533,8 @@ export default class OpenLayersMap {
     deselectFeature() {
         window.dispatchEvent(new CustomEvent('duo-visit', {
             detail: {
-                spring: 0,
-                user: this.queryParameters.user,
+                spring: null,
+                user: this.queryParameters.user > 0 ? this.queryParameters.user : null,
             }
         }));
     }
