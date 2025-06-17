@@ -18,6 +18,11 @@ class Duo extends Component
         $this->page = array_merge(config('duo.url_defaults'), $this->page);
         $this->firstRender = true;
     }
+    public function updatedPage()
+    {
+        // prevents unexisting array keys when the back button is used
+        $this->page = array_merge(config('duo.url_defaults'), $this->page);
+    }
 
     public function render()
     {
