@@ -20,6 +20,23 @@ window.ImageBlobReduce = new ImageBlobReduce();
 window.exifrGPS = exifrGPS;
 window.uuidv1 = uuidv1;
 
+// Dynamic HEIC converter that loads the library only when needed
+window.convertHeicToJpeg = function(file) {
+    return import('heic2any').then(heic2any => {
+        return heic2any.default({
+            blob: file,
+            toType: 'image/jpeg',
+            quality: 0.8
+        });
+    }).then(convertedBlob => {
+        // heic2any returns an array if multiple outputs, single blob otherwise
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+        // Create a new file with .jpg extension
+        const newName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+        return new File([blob], newName, { type: 'image/jpeg' });
+    });
+};
+
 window.getInitialSourceName = getInitialSourceName;
 
 window.rodnikConfig = {

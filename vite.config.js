@@ -27,6 +27,7 @@ export default defineConfig({
               'ol': ['ol'],
               'turf': ['@turf/helpers', '@turf/turf'],
               'exifr': ['exifr'],
+              'heic': ['heic2any'],
             }
           }
         }

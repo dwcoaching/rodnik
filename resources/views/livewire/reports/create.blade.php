@@ -256,7 +256,20 @@
                     oldSize: file.size,
                 })
 
-                window.ImageBlobReduce.toBlob(file, {max: 1280})
+                // Check if file is HEIC/HEIF and convert it first
+                const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
+                              file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
+
+                let processFile = Promise.resolve(file);
+
+                if (isHeic) {
+                    processFile = window.convertHeicToJpeg(file);
+                }
+
+                processFile
+                    .then(processedFile => {
+                        return window.ImageBlobReduce.toBlob(processedFile, {max: 1280});
+                    })
                     .then(newFile => {
                         this.removeFileInResize(id)
 
@@ -273,6 +286,11 @@
                             (event) => {this.updateFileInProgress(id, event)} {{-- progress callback --}}
                         )
                     })
+                    .catch(error => {
+                        console.error('Error processing file:', error);
+                        this.removeFileInResize(id);
+                        // Optionally show error message to user
+                    });
             },
             handleFileDrop: function (event) {
                 if (event.dataTransfer.files.length > 0) {
@@ -344,7 +362,7 @@
                         </label>
                         <p class="inline pl-1">or drag and drop here</p>
                     </div>
-                    <p class="text-xs text-gray-500">PNG, JPG, GIF (10 MB max)</p>
+                    <p class="text-xs text-gray-500">PNG, JPG, GIF, HEIC (10 MB max)</p>
                 </div>
             </div>
         </label>

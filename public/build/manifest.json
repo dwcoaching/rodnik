@@ -1,14 +1,15 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.ac2c764d.js",
+    "file": "assets/app.46a6720b.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
       "_exifr.667da73e.js",
       "_ol.9f758eff.js",
-      "_turf.54dd2dce.js"
+      "_turf.5721ece8.js"
     ],
     "dynamicImports": [
+      "_heic.b839b0a7.js",
       "node_modules/photoswipe/dist/photoswipe.esm.js"
     ],
     "css": [
@@ -18,11 +19,18 @@
   "_ol.9f758eff.js": {
     "file": "assets/ol.9f758eff.js"
   },
-  "_turf.54dd2dce.js": {
-    "file": "assets/turf.54dd2dce.js"
+  "_turf.5721ece8.js": {
+    "file": "assets/turf.5721ece8.js"
   },
   "_exifr.667da73e.js": {
     "file": "assets/exifr.667da73e.js"
+  },
+  "_heic.b839b0a7.js": {
+    "file": "assets/heic.b839b0a7.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_turf.5721ece8.js"
+    ]
   },
   "node_modules/photoswipe/dist/photoswipe.esm.js": {
     "file": "assets/photoswipe.esm.382b1873.js",
