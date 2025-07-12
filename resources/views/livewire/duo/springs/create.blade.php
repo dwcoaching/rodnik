@@ -78,8 +78,8 @@
                                                 window.dispatchEvent(
                                                     new CustomEvent('duo-visit', {
                                                         detail: {
-                                                            springId: {{ intval($springId) }},
-                                                            location: false,
+                                                            spring: {{ intval($springId) }},
+                                                            location: null,
                                                         }
                                                     }
                                                 ))
@@ -87,9 +87,12 @@
                                         @else
                                             x-on:click="
                                                 window.dispatchEvent(
-                                                    new CustomEvent('duo-visit', {detail: {
-                                                        location: false,
-                                                    }})
+                                                    new CustomEvent('duo-visit', {
+                                                        detail: {
+                                                            spring: null,
+                                                            location: null,
+                                                        }
+                                                    })
                                                 )
                                                 "
                                         @endif

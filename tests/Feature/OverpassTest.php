@@ -1,33 +1,28 @@
 <?php
 
-namespace Tests\Feature;
-
-use Tests\TestCase;
 use App\Library\Overpass;
+use App\Models\Spring;
 use App\Models\SpringRevision;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class OverpassTest extends TestCase
-{
-    /**
-     * A basic test example.
-     *
-     * @return void
-     */
-    public function test_spring_revision_is_created()
-    {
-        $json = file_get_contents(base_path('tests/stubs/overpass.json'));
+uses(RefreshDatabase::class);
 
-        Overpass::parse(json_decode($json));
+test('spring revision is created', function () {
+    $json = file_get_contents(base_path('tests/stubs/overpass.json'));
 
-        $springRevision = SpringRevision::where('spring_id', 1)
-            ->orderBy('id', 'desc')->first();
+    $result = Overpass::parse(json_decode($json));
 
-        $this->assertNotNull($springRevision);
-        $this->assertEquals($springRevision->old_latitude, 55.655136);
-        $this->assertEquals($springRevision->old_longitude, 36.709845);
-        $this->assertEquals($springRevision->new_latitude, 55.655135);
-        $this->assertEquals($springRevision->new_longitude, 36.709844);
-        $this->assertEquals($springRevision->new_name, 'Родник святого Дионисия');
-    }
-}
+    // Find the spring with the OSM node ID from our test data
+    $spring = Spring::where('osm_node_id', 7600556407)->first();
+    
+    // Get the revision for that spring
+    $springRevision = SpringRevision::where('spring_id', $spring->id)
+        ->orderBy('id', 'desc')->first();
+
+    expect($springRevision)->not->toBeNull();
+    expect(55.655136)->toEqual($springRevision->old_latitude);
+    expect(36.709845)->toEqual($springRevision->old_longitude);
+    expect(55.655135)->toEqual($springRevision->new_latitude);
+    expect(36.709844)->toEqual($springRevision->new_longitude);
+    expect('Родник святого Дионисия')->toEqual($springRevision->new_name);
+});

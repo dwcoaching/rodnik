@@ -13,6 +13,7 @@ use App\Http\Controllers\SpringLocationController;
 use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\Stats\MoscowStatsController;
+use App\Http\Controllers\Tools\EnrichedGPXController;
 use App\Http\Controllers\SpringAggregatesJsonController;
 use App\Http\Controllers\WateredSpringTileJsonController;
 
@@ -49,6 +50,9 @@ Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'inde
 Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::class, 'index'])->name('coverage');
 
 Route::get('moscow-stats', MoscowStatsController::class)->name('moscow-stats');
+
+Route::get('tools/enrich', [EnrichedGPXController::class, 'create'])->name('tools.enriched-gpx');
+Route::post('tools/enrich', [EnrichedGPXController::class, 'store'])->name('tools.enriched-gpx.store');
 
 // Keep only as an example
 // Route::get('/about', About::class);

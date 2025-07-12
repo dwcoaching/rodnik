@@ -72,7 +72,7 @@
                 user-id="{{ $userId }}"
                 skip="{{ $limit }}"
                 take="{{ $limit }}"
-                key="show-more-reports-skip-{{ $limit }}-take-{{ $limit }}"
+                key="show-more-reports-user-{{ $userId }}-skip-{{ $limit }}-take-{{ $limit }}"
                 />
         @endif
     </div>

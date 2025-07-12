@@ -8,28 +8,28 @@ use Livewire\Attributes\Url;
 
 class Duo extends Component
 {
-    #[Url(as: 's', history: true)]
-    public $springId = null;
-
-    #[Url(as: 'u', history: true)]
-    public $userId = null;
-
-    #[Url(as: 'location', history: true)]
-    public $location = false;
+    #[Url(history: true)]
+    public $page = [];
 
     public $firstRender;
 
     public function mount()
     {
+        $this->page = array_merge(config('duo.url_defaults'), $this->page);
         $this->firstRender = true;
+    }
+    public function updatedPage()
+    {
+        // prevents unexisting array keys when the back button is used
+        $this->page = array_merge(config('duo.url_defaults'), $this->page);
     }
 
     public function render()
     {
         $coordinates = [];
 
-        if ($this->firstRender && $this->springId > 0) {
-            $spring = Spring::find($this->springId);
+        if ($this->firstRender && $this->page['spring'] > 0) {
+            $spring = Spring::find($this->page['spring']);
 
             if (! $spring) abort(404);
 

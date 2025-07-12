@@ -1,9 +1,9 @@
 <div id="spring"
     x-data="{
         defaultServerQueryParameters: {
-            springId: null,
-            userId: null,
-            location: false
+            'spring': null,
+            'user': null,
+            'location': null
         },
         registerVisit: function() {
             ym(90143259, 'hit', window.location.href)
@@ -13,8 +13,9 @@
     x-on:duo-visit.window="
         Object.entries(defaultServerQueryParameters).forEach(([key, value]) => {
             const newValue = $event.detail.hasOwnProperty(key) ? $event.detail[key] : value;
-            $wire.$set(key, newValue, false);
+            $wire.$set('page.' + key, newValue, false);
         });
+
         $wire.$refresh();
 
         window.rodnikMap.duoVisit({...defaultServerQueryParameters, ...$event.detail})
@@ -23,13 +24,13 @@
         if ($wire.firstRender) {
             @if ($coordinates)
                 window.rodnikMap.locate({{ json_encode($coordinates) }})
-                window.rodnikMap.highlightFeatureById({{ intval($springId) }})
+                window.rodnikMap.highlightFeatureById({{ intval($page['spring']) }})
             @endif
 
             window.rodnikMap.duoVisit({
-                springId: {{ intval($springId) }},
-                userId: {{ intval($userId) }},
-                location: {{ intval($location) }},
+                spring: {{ intval($page['spring']) }},
+                user: {{ intval($page['user']) }},
+                location: {{ intval($page['location']) }},
             })
 
             $wire.firstRender = false
@@ -46,22 +47,22 @@
         const parameters = new URLSearchParams(window.location.search);
 
         window.rodnikMap.duoVisit({
-            springId: parameters.get('s'),
-            userId: parameters.get('u'),
-            location: parameters.get('location')
+            spring: parseInt(parameters.get('page[spring]')) || null,
+            user: parseInt(parameters.get('page[user]')) || null,
+            location: parseInt(parameters.get('page[location]')) || null
         })"
     class="flex grow justify-center"
 >
     <div class="grow">
         <div class="h-full">
-            @if (! $springId && ! $location)
-                <livewire:duo.reports.index :userId="$userId" />
+            @if (! $page['spring'] && ! $page['location'])
+                <livewire:duo.reports.index :userId="$page['user']" />
             @endif
-            @if ($springId && ! $location)
-                <livewire:duo.springs.show :springId="$springId" :userId="$userId" />
+            @if ($page['spring'] && ! $page['location'])
+                <livewire:duo.springs.show :springId="$page['spring']" :userId="$page['user']" />
             @endif
-            @if ($location)
-                <livewire:duo.springs.create :springId="$springId" :location="$location" />
+            @if ($page['location'])
+                <livewire:duo.springs.create :springId="$page['spring']" :location="$page['location']" />
             @endif
         </div>
     </div>

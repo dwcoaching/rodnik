@@ -178,9 +178,9 @@ export default class OpenLayersMap {
         });
 
         this.queryParameters = Alpine.reactive({
-            springId: null,
-            userId: null,
-            location: false,
+            spring: null,
+            user: null,
+            location: null,
             coordinates: null,
         })
 
@@ -189,10 +189,10 @@ export default class OpenLayersMap {
         Alpine.effect(() => {
             this.queryParameters
 
-            this.springsSource(this.queryParameters.userId)
+            this.springsSource(this.queryParameters.user)
 
-            if (this.queryParameters.springId > 0) {
-                this.highlightFeatureById(this.queryParameters.springId)
+            if (this.queryParameters.spring > 0) {
+                this.highlightFeatureById(this.queryParameters.spring)
             } else {
                 this.dehighlightFeature()
             }
@@ -219,7 +219,7 @@ export default class OpenLayersMap {
             this.highlightFeatureById(id);
         }
 
-        if (! this.queryParameters.springId && this.queryParameters.userId && this.queryParameters.userId != this.previousQueryParameters.userId) {
+        if (! this.queryParameters.spring && this.queryParameters.user && this.queryParameters.user != this.previousQueryParameters.user) {
             this.locateWorld()
         }
     }
@@ -316,6 +316,11 @@ export default class OpenLayersMap {
                     name: feature.getProperties().type
                 })
             }
+            
+            feature.setProperties({
+                link: `https://rodnik.today/${feature.getProperties().id}`
+            })
+            
             return feature
         })
 
@@ -481,7 +486,11 @@ export default class OpenLayersMap {
 
     locateWorld() {
         this.view.fit(this.springsFinalLayer.getSource().getExtent());
-        this.view.setZoom(Math.floor(this.view.getZoom() - 1));
+        
+        let naturalZoom = Math.floor(this.view.getZoom() - 1)
+        let sensibleZoom = 8
+        
+        this.view.setZoom(naturalZoom > sensibleZoom ? sensibleZoom : naturalZoom);
     }
 
     highlightFeature(feature) {
@@ -507,9 +516,9 @@ export default class OpenLayersMap {
     selectFeature(feature) {
         window.dispatchEvent(new CustomEvent('duo-visit', {
             detail: {
-                springId: feature.get('id'),
-                userId: this.queryParameters.userId,
-                location: false,
+                spring: feature.get('id'),
+                user: this.queryParameters.user > 0 ? this.queryParameters.user : null,
+                location: null,
             }
         }));
     }
@@ -524,8 +533,8 @@ export default class OpenLayersMap {
     deselectFeature() {
         window.dispatchEvent(new CustomEvent('duo-visit', {
             detail: {
-                springId: 0,
-                userId: this.queryParameters.userId,
+                spring: null,
+                user: this.queryParameters.user > 0 ? this.queryParameters.user : null,
             }
         }));
     }
@@ -550,7 +559,7 @@ export default class OpenLayersMap {
 
             if (this.springsUserSource.getUser() == userId) {
                 this.springsFinalLayer.setSource(this.springsUserSource)
-                if (! this.queryParameters.springId && this.previousQueryParameters.userId != userId) {
+                if (! this.queryParameters.spring && this.previousQueryParameters.user != userId) {
                     this.locateWorld()
                 }
             } else {
