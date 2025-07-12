@@ -31,8 +31,8 @@
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.0",
-        "pestphp/pest": "^2.36",
-        "pestphp/pest-plugin-drift": "^2.5",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-drift": "^3.0",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
