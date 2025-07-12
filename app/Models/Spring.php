@@ -144,14 +144,6 @@ class Spring extends Model
     {
         if ($this->{'osm_' . $key} != $newValue) {
             if ($this->{$key} == $this->{'osm_' . $key}) {
-
-                echo $newValue;
-                echo "\n";
-                echo $this->{'osm_' . $key};
-                echo "\n";
-                echo $this->{$key};
-                echo "----------------\n";
-
                 $revision->{'old_' . $key} = $this->{'osm_' . $key};
                 $revision->{'new_' . $key} = $newValue;
 
