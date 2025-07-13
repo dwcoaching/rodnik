@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Jenssegers\Date\Date;
 use Illuminate\Support\ServiceProvider;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,7 +25,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Date::setlocale(config('app.locale'));
+
+        Carbon::setLocale(config('app.locale'));
         
         URL::macro('routeWithBrackets', function ($name, $parameters = []) {
             $baseUrl = route($name);

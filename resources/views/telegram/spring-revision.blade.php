@@ -1,6 +1,6 @@
 <b>New Water Source Edit:</b>
 @if ($revision->user_id)
-{{ Date::parse($revision->created_at) }}, {{ $revision->user->name }}
+{{ \Carbon\Carbon::parse($revision->created_at) }}, {{ $revision->user->name }}
 @endif
 
 <b>Changes:</b>
