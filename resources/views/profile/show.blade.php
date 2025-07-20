@@ -33,6 +33,12 @@
                 @livewire('profile.logout-other-browser-sessions-form')
             </div>
 
+            <x-section-border />
+
+            <div class="mt-10 sm:mt-0">
+                @livewire('profile.o-s-m-authorization-form')
+            </div>
+
             @if (Laravel\Jetstream\Jetstream::hasAccountDeletionFeatures())
                 <x-section-border />
 
