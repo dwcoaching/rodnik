@@ -4,6 +4,11 @@
         "tests/TestCase.php"
     ],
     "rules": {
+        "binary_operator_spaces": false,
+        "single_line_empty_body": false,
+        "not_operator_with_successor_space": false,
+        "php_unit_method_casing": false,
+        "no_superfluous_phpdoc_tags": false,
         "array_push": true,
         "backtick_to_shell_exec": true,
         "date_time_immutable": true,

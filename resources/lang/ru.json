@@ -758,5 +758,17 @@
     "Zambia": "Замбия",
     "Zimbabwe": "Зимбабве",
     "Zip / Postal Code": "Индекс",
-    "Åland Islands": "Аландские острова"
+    "Åland Islands": "Аландские острова",
+    "OSM Authorization": "Авторизация OSM",
+    "Authorize your account to connect with OpenStreetMap for uploading springs data.": "Авторизуйте свой аккаунт для подключения к OpenStreetMap для загрузки данных о родниках.",
+    "Connected to OpenStreetMap": "Подключено к OpenStreetMap",
+    "Your account is authorized to upload data to OSM.": "Ваш аккаунт авторизован для загрузки данных в OSM.",
+    "Revoke Access": "Отозвать доступ",
+    "Not Connected to OpenStreetMap": "Не подключено к OpenStreetMap",
+    "Authorize your account to upload springs data to OSM.": "Авторизуйте свой аккаунт для загрузки данных о родниках в OSM.",
+    "You have connected to OpenStreetMap.": "Вы подключились к OpenStreetMap.",
+    "You have not connected to OpenStreetMap.": "Вы не подключились к OpenStreetMap.",
+    "When OpenStreetMap authorization is enabled, you will be able to upload springs data directly to OSM. You may connect your account using the button below.": "Когда авторизация OSM включена, Вы сможете загружать данные о родниках напрямую в OSM. Вы можете подключить свой аккаунт, используя кнопку ниже.",
+    "Authorize OSM": "Авторизовать OSM",
+    "Your account is authorized to upload springs data to OSM. You can now submit springs directly to OpenStreetMap.": "Ваш аккаунт авторизован для загрузки данных о родниках в OSM. Вы можете теперь отправлять данные о родниках напрямую в OpenStreetMap."
 }

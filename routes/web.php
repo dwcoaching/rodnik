@@ -1,21 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WebController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\SpringController;
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+declare(strict_types=1);
+
 use App\Http\Controllers\CoverageController;
-use App\Http\Controllers\SpringJsonController;
+use App\Http\Controllers\OSMController;
 use App\Http\Controllers\PhotosBatchController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SpringAggregatesJsonController;
+use App\Http\Controllers\SpringController;
 use App\Http\Controllers\SpringHistoryController;
+use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\SpringLocationController;
 use App\Http\Controllers\SpringTileJsonController;
-use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\Stats\MoscowStatsController;
 use App\Http\Controllers\Tools\EnrichedGPXController;
-use App\Http\Controllers\SpringAggregatesJsonController;
+use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\WateredSpringTileJsonController;
+use App\Http\Controllers\WebController;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,11 +57,14 @@ Route::get('moscow-stats', MoscowStatsController::class)->name('moscow-stats');
 Route::get('tools/enrich', [EnrichedGPXController::class, 'create'])->name('tools.enriched-gpx');
 Route::post('tools/enrich', [EnrichedGPXController::class, 'store'])->name('tools.enriched-gpx.store');
 
+Route::get('osm/authorize', [OSMController::class, 'authorizeOSM'])->name('osm.authorize');
+Route::get('osm/callback', [OSMController::class, 'callback'])->name('osm.callback');
+
 // Keep only as an example
 // Route::get('/about', About::class);
 
-Route::get('bugsnag-test', function() {
-    Bugsnag::notifyException(new \RuntimeException("New Test Error"));
+Route::get('bugsnag-test', function () {
+    Bugsnag::notifyException(new RuntimeException('New Test Error'));
 });
 
 // TODO
