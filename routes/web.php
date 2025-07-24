@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringController;
-use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\PhotosBatchController;
@@ -57,9 +56,6 @@ Route::post('tools/enrich', [EnrichedGPXController::class, 'store'])->name('tool
 // Keep only as an example
 // Route::get('/about', About::class);
 
-Route::get('bugsnag-test', function() {
-    Bugsnag::notifyException(new \RuntimeException("New Test Error"));
-});
 
 // TODO
 
