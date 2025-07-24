@@ -102,7 +102,16 @@ class SpringTile extends Model
 
             $springsQuery->joinSub($randomQuery, 'randomSprings', function($join) {
                 $join->on('springs.id', '=', 'randomSprings.id');
-            });
+            })
+            ->withCount(
+                [
+                    'reports' => function(Builder $query) {
+                        $query
+                            ->whereNull('reports.hidden_at')
+                            ->whereNull('reports.from_osm');
+                    }
+                ]
+            );
         } else {
             $springsQuery
                 ->where($this->getCoordinatesFunction())
