@@ -21,3 +21,4 @@ latest.sh
 backup.sh
 .DS_Store
 auth.json
+/dumps
