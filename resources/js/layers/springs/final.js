@@ -15,7 +15,7 @@ var merc = new SphericalMercator({
 export default class SpringsFinalLayer extends VectorLayer {
     constructor() {
         super({
-            minZoom: 9,
+            minZoom: 8,
             //source: new SpringsFinalSource(),
             style: style,
             zIndex: 500,

@@ -165,7 +165,7 @@
                                     overlays: window.rodnikMap.overlays,
                                     updateFilters: function() {
                                         this.checkAllFilters();
-                                        window.rodnikMap.springsFinalLayer.updateStyle();
+                                        window.rodnikMap.updateStyleAndCount();
                                     },
                                     checkAllFilters: function() {
                                         if (this.filters.spring == true
