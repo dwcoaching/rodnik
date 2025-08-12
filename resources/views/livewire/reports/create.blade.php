@@ -48,10 +48,14 @@
     @guest
         <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">
             <div class="font-bold max-w-prose">
-                Please log in or register
+                <span class="text-2xl">💧</span> You can publish reports anonymously
             </div>
             <div class="mt-2 max-w-prose">
-                The main reason we ask you to register is to establish a reputation
+                However, we encourage you to register and log in.
+            </div>
+            <div class="mt-2 max-w-prose">
+                The main reason we ask 
+                you to register is to establish a reputation
                 for each piece of knowledge. Nobody knows whether to trust an anonymous
                 reporter on the web.
             </div>
@@ -62,10 +66,10 @@
             </div>
             <div class="mt-2 max-w-prose">
                 Besides, you will have your personal page and a collection
-                of reports, and you'll be able to edit everything!
+                of reports, and you'll be able to update or delete your reports!
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('login') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login</a>
+                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login</a>
                 <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Register</a>
             </div>
         </div>
