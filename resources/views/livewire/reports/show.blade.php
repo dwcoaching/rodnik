@@ -5,9 +5,9 @@
                 <div class="flex-1">
                     <div class="flex justify-between">
                         <h3 class="flex flex-wrap items-baseline text-base">
-                            @if ($report->created_at)
-                                <span class="mr-1 text-sm">
-                                    {{ $report->created_at->format('d.m.Y') }}<span class="text-sm font-regular">,</span>
+                            @if ($report->visited_at || $report->created_at)
+                                <span class="mr-1 text-sm text-gray-500 font-bold">
+                                    {{ $report->visited_at ? $report->visited_at->format('d.m.Y') : $report->created_at->format('d.m.Y') }}<span class="text-sm font-regular">,</span>
                                 </span>
                             @endif
                             <div class="flex">
@@ -31,7 +31,9 @@
                                         <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
                                     </a>
                                 @else
-                                    Anonymous
+                                    <span class="text-sm">
+                                        Anonymous
+                                    </span>
                                 @endif
                             </div>
                         </h3>
@@ -113,6 +115,15 @@
                             </div>
                         @endif
                     </div>
+                    @if ($report->visited_at && $report->visited_at->format('Y-m-d') !== $report->created_at->format('Y-m-d'))
+                        <div class="text-sm mt-1 mb-3 text-gray-500">
+                            Report was created on {{ $report->created_at->format('d.m.Y') }}
+                        </div>
+                    @elseif (!$report->visited_at)
+                        <div class="text-sm mt-1 mb-3 text-gray-500">
+                            Date of the actual visit was not specified.
+                        </div>
+                    @endif
 
 
                     <div class="mt-1 text-base text-black break-normal [overflow-wrap:anywhere]">
@@ -205,12 +216,6 @@
                     @endif
                 </div>
             </div>
-            @if ($report->visited_at)
-                <div class="text-sm mt-3 text-gray-500">
-                    Date of visit:
-                    <span>{{ $report->visited_at->format('d.m.Y') }}</span>
-                </div>
-            @endif
         </div>
     @elseif ($justHidden)
         <div class="border-t border-slade-200 p-4 pb-8 flex items-center">
