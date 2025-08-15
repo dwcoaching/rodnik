@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringController;
+use App\Http\Controllers\HeatmapController;
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\PhotosBatchController;
@@ -52,6 +53,8 @@ Route::get('moscow-stats', MoscowStatsController::class)->name('moscow-stats');
 
 Route::get('tools/enrich', [EnrichedGPXController::class, 'create'])->name('tools.enriched-gpx');
 Route::post('tools/enrich', [EnrichedGPXController::class, 'store'])->name('tools.enriched-gpx.store');
+
+Route::get('heatmap', [HeatmapController::class, 'index'])->name('heatmap');
 
 // Keep only as an example
 // Route::get('/about', About::class);
