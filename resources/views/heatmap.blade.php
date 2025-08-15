@@ -137,14 +137,17 @@
     <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     
     <script>
-        // Initialize the map
-        const map = L.map('map').setView([55.7558, 37.6173], 4); // Centered on Moscow with zoom level 4
+        // Initialize the map - view covering Europe from Canarias to Ural and including Turkey
+        const map = L.map('map').setView([48, 25], 4); // Centered on Europe with appropriate zoom
         
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '� OpenStreetMap contributors',
+            attribution: '',
             maxZoom: 19
         }).addTo(map);
+        
+        // Remove Leaflet attribution
+        map.attributionControl.setPrefix('');
         
         let heatLayer = null;
         let heatData = [];
@@ -200,11 +203,13 @@
                 // Hide loading message
                 document.getElementById('loading').style.display = 'none';
                 
-                // Fit map to data bounds if we have data
-                if (heatData.length > 0) {
-                    const bounds = L.latLngBounds(heatData.map(p => [p[0], p[1]]));
-                    map.fitBounds(bounds, { padding: [50, 50] });
-                }
+                // Set bounds to cover Europe from Canarias to Ural, including Turkey
+                // Southwest: Canarias, Northeast: Ural Mountains
+                const europeBounds = L.latLngBounds(
+                    [27.6, -18.2],  // Southwest: Canarias
+                    [61.5, 65]      // Northeast: Ural Mountains
+                );
+                map.fitBounds(europeBounds);
             })
             .catch(error => {
                 console.error('Error loading heatmap data:', error);
