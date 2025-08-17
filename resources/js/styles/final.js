@@ -2,7 +2,6 @@ import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style';
 import visible from '@/filters/visible.js'
 
 let radius = 12;
-
 let hiddenStyle = new Style({});
 
 let style = new Style({
@@ -16,12 +15,6 @@ let style = new Style({
     }),
     zIndex: 5,
 });
-
-// window.color = [210, 51, 255, 1]; // pink
-// window.color = [0, 153, 0, 1]; // green
-window.color = [255, 102, 51, 1]; // orange
- // window.color = [51, 169, 255]; // default
- // window.color = [51, 169, 255]; // default
 
 // Pre-create static parts of styles
 const reportedOuterStyle = new Style({
@@ -38,7 +31,7 @@ const reportedOuterStyle = new Style({
 const reportedInnerStyle = new Style({
     image: new CircleStyle({
         radius: radius,
-        fill: new Fill({color: [255, 180, 0, 0.95]}),
+        fill: new Fill({color: [255, 180, 0, 0.8]}),
     }),
     zIndex: 60,
 });
@@ -46,7 +39,6 @@ const reportedInnerStyle = new Style({
 const goodWaterOuterStyle = new Style({
     image: new CircleStyle({
         radius: radius,
-        fill: new Fill({color: [0, 102, 0, 0.1]}),
         stroke: new Stroke({
             color: 'rgba(0, 102, 0, 0.66)',
             width: 1,
@@ -66,7 +58,6 @@ const goodWaterInnerStyle = new Style({
 const badWaterOuterStyle = new Style({
     image: new CircleStyle({
         radius: radius,
-        fill: new Fill({color: [255, 0, 0, 0.1]}),
         stroke: new Stroke({
             color: '#FF0000',
             width: 1,
@@ -97,7 +88,7 @@ const notFoundStyle = [
     new Style({
         text: new Text({
             text: '✕',
-            font: 'bold 16px Arial',
+            font: 'bold 13px Arial',
             fill: new Fill({
                 color: [255, 0, 0, 1]
             }),
@@ -126,36 +117,19 @@ function getTextStyle(reportCount) {
     return textStyleCache.get(reportCount);
 }
 
-// Pre-create style arrays for zero reports to avoid allocation
-const reportedStyleZero = [reportedOuterStyle, reportedInnerStyle];
-const goodWaterStyleZero = [goodWaterOuterStyle, goodWaterInnerStyle];
-const badWaterStyleZero = [badWaterOuterStyle];
-
 function reportedStyle(feature) {
-    const hasReports = feature.get('hasReports') || 0;
-    if (hasReports === 0) {
-        return reportedStyleZero;
-    }
-    return [reportedOuterStyle, reportedInnerStyle, getTextStyle(hasReports)];
+    return [reportedOuterStyle, reportedInnerStyle, getTextStyle(feature.get('hasReports'))];
 }
 
 function goodWaterStyle(feature) {
-    const hasReports = feature.get('hasReports') || 0;
-    if (hasReports === 0) {
-        return goodWaterStyleZero;
-    }
-    return [goodWaterOuterStyle, goodWaterInnerStyle, getTextStyle(hasReports)];
+    return [goodWaterOuterStyle, goodWaterInnerStyle, getTextStyle(feature.get('hasReports'))];
 }
 
 function badWaterStyle(feature) {
-    const hasReports = feature.get('hasReports') || 0;
-    if (hasReports === 0) {
-        return badWaterStyleZero;
-    }
-    return [badWaterOuterStyle, getTextStyle(hasReports), badWaterInnerStyle];
+    return [badWaterOuterStyle, getTextStyle(feature.get('hasReports')), badWaterInnerStyle];
 }
 
-export default (feature, resolution) => {
+export default (feature) => {
     if (! visible(feature)) {
         return hiddenStyle
     }
