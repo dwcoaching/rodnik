@@ -244,53 +244,6 @@ class Spring extends Model
         return ! $this->hidden_at;
     }
 
-    //     public function apply()
-    // {
-    //     $this->spring->latitude = $this->latitude;
-    //     $this->spring->longitude = $this->longitude;
-    //     $this->spring->name = $this->name;
-    //     $this->spring->type = $this->type;
-    //     $this->spring->seasonal = $this->seasonal;
-
-    //     $this->current = true;
-    //     $this->save();
-
-    //     $this->spring->save();
-    //     $this->spring->invalidateTiles();
-    // }
-
-    public function isGoodWater()
-    {
-        $presenceOfGoodWaterCount = 0;
-        $absenceOfGoodWaterCount = 0;
-
-        foreach ($this->reports as $report) {
-            if ($report->quality == 'good' && $report->state == 'running') {
-                $presenceOfGoodWaterCount++;
-            }
-
-            if (
-                    (
-                        ! is_null($report->quality)
-                        && $report->quality != 'good'
-                    )
-                    ||
-                    (
-                        ! is_null($report->state)
-                        && $report->state != 'running'
-                    )
-                ) {
-                $absenceOfGoodWaterCount++;
-            }
-        }
-
-        if ($presenceOfGoodWaterCount > $absenceOfGoodWaterCount) {
-            return true;
-        }
-
-        return false;
-    }
-
     // zero means no reports or equal number of good and bad reports
     // positive means more good reports than bad reports
     // negative means more bad reports than good reports

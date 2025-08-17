@@ -592,27 +592,4 @@ export default class OpenLayersMap {
         this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
         Object.assign(this.queryParameters, queryParameters);
     }
-
-    countVisibleFeatures() {
-        const source = this.springsFinalLayer.getSource();
-        if (!source) {
-            console.log('No source available for counting features');
-            return 0;
-        }
-
-        const allFeatures = source.getFeatures();
-        const visibleFeatures = allFeatures.filter(feature => visible(feature));
-        const visibleCount = visibleFeatures.length;
-        
-        console.log(`Total features: ${allFeatures.length}, Visible features: ${visibleCount}`);
-        return visibleCount;
-    }
-
-    updateStyleAndCount() {
-        this.springsFinalLayer.updateStyle();
-        // Add a small delay to ensure style is updated before counting
-        setTimeout(() => {
-            this.countVisibleFeatures();
-        }, 100);
-    }
 }
