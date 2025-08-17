@@ -33,7 +33,9 @@
                                                     <div class="text-xs font-semibold text-gray-600">{{ $event->user->rating }}</div>
                                                 </a>
                                             @else
-                                                Anonymous
+                                                <span class="text-sm">
+                                                    Anonymous
+                                                </span>
                                             @endif
                                         </div>
                                     </div>
@@ -98,7 +100,9 @@
                                                         <div class="text-xs font-semibold text-gray-600">{{ $event->user->rating }}</div>
                                                     </a>
                                                 @else
-                                                    Anonymous
+                                                    <span class="text-sm">
+                                                        Anonymous
+                                                    </span>
                                                 @endif
                                             @endif
                                         </div>

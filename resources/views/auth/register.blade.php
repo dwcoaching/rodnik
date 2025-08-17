@@ -14,6 +14,18 @@
                 <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             </div>
 
+            {{--  Honeypot trap against bots: should be empty --}}
+            <div class="hidden">
+                <x-label for="nickname" value="{{ __('Nickname') }}" />
+                <x-input id="nickname" class="block mt-1 w-full" type="text" name="nickname" value="" />
+            </div>
+
+            {{--  Honeypot trap against bots: should not be submitted --}}
+            <div class="hidden" x-data x-ref="country" x-init="$refs.country.remove()">
+                <x-label for="country" value="{{ __('Country') }}" />
+                <x-input id="country" class="block mt-1 w-full" type="text" name="country" value="" />
+            </div>
+
             <div class="mt-4">
                 <x-label for="email" value="{{ __('Email') }}" />
                 <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />

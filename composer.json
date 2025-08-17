@@ -29,6 +29,7 @@
         "larastan/larastan": "^3.0",
         "laravel-lang/lang": "^15.0",
         "laravel-lang/publisher": "^16.0",
+        "laravel/boost": "^1.0",
         "laravel/pint": "^1.24",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.4.4",

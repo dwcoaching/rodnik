@@ -109,26 +109,20 @@ class Create extends Component
 
     public function store()
     {
-        if (! Auth::check()) {
-            abort(401);
+        if ($this->reportId) {
+            $this->report = Report::findOrFail($this->reportId);
+            $this->authorize('update', $this->report);
+        } else {
+            $this->authorize('create', Report::class);
+            $this->report = new Report();
         }
 
         $this->validate();
-
-        if ($this->reportId) {
-            $this->report = Report::findOrFail($this->reportId);
-        } else {
-            $this->report = new Report();
-        }
 
         $this->report->spring_id = $this->springId;
 
         if (in_array($this->state, ['dry', 'notfound'])) {
             $this->quality = null;
-        }
-
-        if ($this->reportId) {
-            $this->authorize('update', $this->report);
         }
 
         if (Auth::check()) {
@@ -158,8 +152,10 @@ class Create extends Component
 
     public function updatedFile()
     {
-        if (! Auth::check()) {
-            abort(401);
+        if ($this->reportId) {
+            $this->authorize('update', $this->report);
+        } else {
+            $this->authorize('create', Report::class);
         }
 
         $this->validate([
@@ -218,7 +214,11 @@ class Create extends Component
 
     public function savePhotos()
     {
-        $this->authorize('update', $this->report);
+        if ($this->reportId) {
+            $this->authorize('update', $this->report);
+        } else {
+            $this->authorize('create', Report::class);
+        }
 
         $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
 

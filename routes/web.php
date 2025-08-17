@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WebController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringController;
+use App\Http\Controllers\HeatmapController;
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\PhotosBatchController;
@@ -53,6 +54,8 @@ Route::get('moscow-stats', MoscowStatsController::class)->name('moscow-stats');
 Route::get('tools/enrich', [EnrichedGPXController::class, 'create'])->name('tools.enriched-gpx');
 Route::post('tools/enrich', [EnrichedGPXController::class, 'store'])->name('tools.enriched-gpx.store');
 
+Route::get('heatmap', [HeatmapController::class, 'index'])->name('heatmap');
+
 // Keep only as an example
 // Route::get('/about', About::class);
 
@@ -101,6 +104,18 @@ Gregory M, [20 Feb 2025 at 09:37:38]:
 тоже можно объединить, пожалуйста:
 https://rodnik.today/?s=164079&u=0
 https://rodnik.today/?s=983711&u=0
+
+
+Андрей Лазарев:
+Что-то не понял как я это так сделал, неужели это я криво ткнул в миллиметре от родника, или оно как-то само клонировалось
+объедините их пожалуйста
+
+https://rodnik.today/920063
+https://rodnik.today/927198
+
+https://rodnik.today/920065
+https://rodnik.today/927199
+
 
 
 

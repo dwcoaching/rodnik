@@ -20,6 +20,8 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input)
     {
+        $this->honeypotCheck($input);
+
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -32,5 +34,14 @@ class CreateNewUser implements CreatesNewUsers
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+    }
+
+    public function honeypotCheck(array $input): void
+    {
+        if (! array_key_exists('nickname', $input)
+            || ! is_null($input['nickname'])
+            || array_key_exists('country', $input)) {
+            abort(422);
+        }
     }
 }

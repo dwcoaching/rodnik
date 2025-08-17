@@ -39,9 +39,9 @@ class ReportPolicy
      * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(?User $user = null): bool
     {
-        //
+        return true;
     }
 
     /**
