@@ -134,7 +134,7 @@ export default (feature) => {
         return hiddenStyle
     }
 
-    if (feature.get('notFound') ) {
+    if (feature.get('notFound') > 0) {
         return notFoundStyle;
     }
 

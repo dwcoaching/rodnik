@@ -24,7 +24,7 @@ class SpringsGeoJSON
                     'hasReports' => $spring->reports_count,
                     'waterConfirmed' => $spring->waterConfirmed(),
                     'score' => $spring->getWaterScore(),
-                    'notFound' => $spring->hasNotFoundReports(),
+                    'notFound' => $spring->notFoundReportsCount(),
                     'type' => $spring->type,
                 ]
             ];

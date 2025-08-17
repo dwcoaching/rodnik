@@ -275,8 +275,8 @@ class Spring extends Model
         return $presenceOfGoodWaterCount - $absenceOfGoodWaterCount;
     }
 
-    public function hasNotFoundReports()
+    public function notFoundReportsCount()
     {
-        return $this->reports->where('state', 'notfound')->count() > 0;
+        return $this->reports->where('state', 'notfound')->count();
     }
 }
