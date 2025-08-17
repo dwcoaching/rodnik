@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-final class OSMService
+final class OSMTokenService
 {
     public function getAuthUrl(User $user): string
     {
@@ -87,6 +87,34 @@ final class OSMService
 
             return null;
         }
+    }
+
+    public function revokeToken(User $user): bool
+    {
+        $token = $this->getToken($user);
+
+        if (!$token) {
+            return false;
+        }
+
+        try {
+            $response = Http::withBasicAuth(
+                config('osm.oauth.client_id'),
+                config('osm.oauth.client_secret')
+            )->asForm()->post(config('osm.oauth.revoke_url'), [
+                'token' => $token,
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('Error revoking OSM token: HTTP '.$response->status());
+            }
+        } catch (Exception $e) {
+            Log::error('Error revoking OSM token: '.$e->getMessage());
+        }
+
+        $user->osmToken()->delete();
+
+        return true;
     }
 
     private function generateState(User $user): string

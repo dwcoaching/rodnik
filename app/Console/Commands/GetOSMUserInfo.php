@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Models\User;
-use App\Services\OSMService;
+use App\Services\OSMTokenService;
 use Illuminate\Console\Command;
 
 final class GetOSMUserInfo extends Command
@@ -13,6 +13,11 @@ final class GetOSMUserInfo extends Command
     protected $signature = 'osm:user-info {user_id : ID пользователя}';
 
     protected $description = 'Получить информацию о пользователе OSM по user_id';
+
+    public function __construct(private OSMTokenService $osmTokenService)
+    {
+        parent::__construct();
+    }
 
     public function handle()
     {
@@ -26,15 +31,13 @@ final class GetOSMUserInfo extends Command
             return 1;
         }
 
-        $osmService = new OSMService();
-
-        if (!$osmService->hasToken($user)) {
+        if (!$this->osmTokenService->hasToken($user)) {
             $this->error("У пользователя {$user->name} (ID: {$userId}) нет токена OSM");
 
             return 1;
         }
 
-        $token = $osmService->getToken($user);
+        $token = $this->osmTokenService->getToken($user);
 
         if (!$token) {
             $this->error("Не удалось получить токен OSM для пользователя {$user->name}");
@@ -44,7 +47,7 @@ final class GetOSMUserInfo extends Command
 
         $this->info("Получение информации о пользователе OSM для {$user->name}...");
 
-        $osmUser = $osmService->getUserInfo($user);
+        $osmUser = $this->osmTokenService->getUserInfo($user);
 
         if (!$osmUser) {
             $this->error('Не удалось получить информацию о пользователе OSM');

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Services\OSMService;
+use App\Services\OSMTokenService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 final class OSMController extends Controller
 {
     public function __construct(
-        private OSMService $osmService
+        private OSMTokenService $osmTokenService
     ) {
     }
 
@@ -23,7 +23,7 @@ final class OSMController extends Controller
             return redirect()->route('login');
         }
 
-        $authUrl = $this->osmService->getAuthUrl($user);
+        $authUrl = $this->osmTokenService->getAuthUrl($user);
 
         return redirect($authUrl);
     }
@@ -42,7 +42,7 @@ final class OSMController extends Controller
             return redirect()->route('profile.show')->with('error', 'Неверные параметры авторизации');
         }
 
-        $token = $this->osmService->handleCallback($code, $state);
+        $token = $this->osmTokenService->handleCallback($code, $state);
 
         if (!$token) {
             return redirect()->route('profile.show')->with('error', 'Не удалось получить токен OSM');

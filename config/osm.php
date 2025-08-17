@@ -9,6 +9,7 @@ return [
         'redirect_uri' => env('OSM_REDIRECT_URI', 'http://localhost/osm/callback'),
         'auth_url' => env('OSM_AUTH_URL', 'https://www.openstreetmap.org/oauth2/authorize'),
         'token_url' => env('OSM_TOKEN_URL', 'https://www.openstreetmap.org/oauth2/token'),
+        'revoke_url' => env('OSM_REVOKE_URL', 'https://www.openstreetmap.org/oauth2/revoke'),
         'scope' => env('OSM_SCOPE', 'read_prefs write_api write_notes'),
     ],
     'api' => [

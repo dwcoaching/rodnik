@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 namespace App\Livewire\Profile;
 
-use App\Services\OSMService;
+use App\Services\OSMTokenService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 final class OSMAuthorizationForm extends Component
 {
-    private ?OSMService $osmService = null;
+    private OSMTokenService $osmTokenService;
 
-    public function mount()
+    public function mount(OSMTokenService $osmTokenService)
     {
-        $this->osmService = new OSMService();
+        $this->osmTokenService = $osmTokenService;
+    }
+
+    public function hydrate(OSMTokenService $osmTokenService)
+    {
+        $this->osmTokenService = $osmTokenService;
     }
 
     public function authorizeOSM()
@@ -25,7 +30,7 @@ final class OSMAuthorizationForm extends Component
             return;
         }
 
-        $authUrl = $this->getOsmService()->getAuthUrl($user);
+        $authUrl = $this->osmTokenService->getAuthUrl($user);
 
         return redirect($authUrl);
     }
@@ -38,10 +43,9 @@ final class OSMAuthorizationForm extends Component
             return;
         }
 
-        $user->osmToken()->delete();
+        $this->osmTokenService->revokeToken($user);
 
-        // TODO: make event for revoke osm token
-        $this->dispatch('osm-token-revoked');
+        // TODO: make event for API request to revoke OSM token?
     }
 
     public function hasOSMToken(): bool
@@ -52,20 +56,11 @@ final class OSMAuthorizationForm extends Component
             return false;
         }
 
-        return $this->getOsmService()->hasToken($user);
+        return $this->osmTokenService->hasToken($user);
     }
 
     public function render()
     {
         return view('livewire.profile.o-s-m-authorization-form');
-    }
-
-    private function getOsmService(): OSMService
-    {
-        if ($this->osmService === null) {
-            $this->osmService = new OSMService();
-        }
-
-        return $this->osmService;
     }
 }
