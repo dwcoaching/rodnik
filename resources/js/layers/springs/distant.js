@@ -24,7 +24,7 @@ export default class SpringsDistantLayer extends VectorLayer {
             }),
             style: style,
             zIndex: 100,
-            opacity: 0.6
+            opacity: 0.4
         });
     }
 }

@@ -1,30 +1,26 @@
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { Circle as CircleStyle, Stroke, Style } from 'ol/style';
+import finalStyleFunction from './final.js';
 
-let radius = 12;
-let width = 1;
-
-let intermittentStyle = new Style({
+// Create a red stroke style that will be applied to all variants
+const selectedStyle = new Style({
     image: new CircleStyle({
-        radius: radius,
-        fill: new Fill({color: [67, 191, 225, 0.125]}),
+        radius: 12,
         stroke: new Stroke({
-            color: '#67BFFF',
-            width: width,
-            lineDash: [6],
+            color: '#8A2BE2',
+            width: 4,
         }),
     }),
+    zIndex: 1000, // High z-index to appear on top
 });
 
-let style = new Style({
-    image: new CircleStyle({
-        radius: radius,
-        fill: new Fill({color: [255, 255, 255, 0]}),
-        stroke: new Stroke({
-            color: '#cc0000',
-            width: 2,
-            //lineDash: [6],
-        }),
-    })
-});
-
-export { style as default }
+export default (feature) => {
+    const baseStyles = finalStyleFunction(feature);
+    
+    // If baseStyles is an array, add the red stroke to it
+    if (Array.isArray(baseStyles)) {
+        return [...baseStyles, selectedStyle];
+    }
+    
+    // If baseStyles is a single style, return both
+    return [baseStyles, selectedStyle];
+}
