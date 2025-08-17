@@ -1,4 +1,5 @@
 <div class="h-full" x-data="{
+        showLegendModal: false
     }">
     <div wire:loading.delay.long.flex class="grow hidden w-full h-full flex justify-center items-center">
         <div class="animate-spin w-6 h-6 border border-4 rounded-full border-stone-400 border-t-transparent"></div>
@@ -14,9 +15,9 @@
             </div>
         @else
             <div class="px-4">
-                <a href="https://t.me/rodnik_today" target="_blank" class="font-normal text-sm text-blue-600 hover:text-blue-700">
+                <span class="font-normal text-sm text-blue-600 hover:text-blue-700">
                     <span class="text-gray-900 mr-1">Any ideas or questions? Please join our </span>
-                    <span class="whitespace-nowrap">
+                    <a href="https://t.me/rodnik_today" target="_blank" class="whitespace-nowrap">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="relative -mt-0.5 inline" viewBox="0 0 16 16">
                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.287 5.906c-.778.324-2.334.994-4.666 2.01-.378.15-.577.298-.595.442-.03.243.275.339.69.47l.175.055c.408.133.958.288 1.243.294.26.006.549-.1.868-.32 2.179-1.471 3.304-2.214 3.374-2.23.05-.012.12-.026.166.016.047.041.042.12.037.141-.03.129-1.227 1.241-1.846 1.817-.193.18-.33.307-.358.336a8.154 8.154 0 0 1-.188.186c-.38.366-.664.64.015 1.088.327.216.589.393.85.571.284.194.568.387.936.629.093.06.183.125.27.187.331.236.63.448.997.414.214-.02.435-.22.547-.82.265-1.417.786-4.486.906-5.751a1.426 1.426 0 0 0-.013-.315.337.337 0 0 0-.114-.217.526.526 0 0 0-.31-.093c-.3.005-.763.166-2.984 1.09z"/>
                         </svg>
@@ -24,7 +25,7 @@
                             Telegram Chat
                         </span>
                     </span>
-                </a>
+                </span>
                 <span class="text-gray-900 font-normal text-sm "> or read more</span>
                 <a href="/docs/about" class="text-blue-600 text-sm font-normal text-sm text-blue-600 hover:text-blue-700 whitespace-nowrap">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="relative -mt-0.5 inline" viewBox="0 0 16 16">
@@ -51,7 +52,10 @@
                 <span class="px-1.5 py-0 rounded-full bg-[#33A9FF]/[0.1] border border-[#33A9FF]">{{ number_format($springsCount, 0, ',', ' ') }}</span>
                 {{ \Str::plural('water source', $springsCount) }} with
                 <span class="ml-0 px-1.5 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ number_format($reportsCount, 0, ',', ' ') }}</span>
-                {{ \Str::plural('report', $reportsCount) }}
+                {{ \Str::plural('report', $reportsCount) }}. 
+                <button @click="showLegendModal = true" class="text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
+                    Show map legend
+                </button>.
             </div>
         @endif
         <ul x-cloak role="list" class="grid grid-cols-2 lg:grid-cols-3 mt-2 md:px-4
@@ -75,5 +79,103 @@
                 key="show-more-reports-user-{{ $userId }}-skip-{{ $limit }}-take-{{ $limit }}"
                 />
         @endif
+    </div>
+
+    <!-- Map Legend Modal -->
+    <div x-show="showLegendModal" 
+        role="dialog"
+        aria-modal="true"
+         x-cloak
+         @click="showLegendModal = false"
+         @keydown.escape.window="showLegendModal = false"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+             role="dialog"
+             x-trap.noscroll.inert="showLegendModal"
+             @click.stop
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Map Legend</h3>
+                <button @click="showLegendModal = false" 
+                        class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6">
+                <div class="space-y-4">
+                    <!-- Default/Unreported Sources -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-6 h-6 rounded-full border border-[#33A9FF] bg-[#33A9FF]/10 flex-shrink-0"></div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900">No user reports</div>
+                            <div class="text-sm text-gray-600">Nobody has visited the source yet</div>
+                        </div>
+                    </div>
+
+                    <!-- Good Water Quality -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-6 h-6 rounded-full border border-[#006600] bg-[#009900]/50 flex-shrink-0"></div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900">Good water</div>
+                            <div class="text-sm text-gray-600">People mostly report good water</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bad Water Quality -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-6 h-6 rounded-full border border-[#FF0000] bg-[#FF0000]/50 flex-shrink-0"></div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900">Poor water</div>
+                            <div class="text-sm text-gray-600">People mostly report poor water</div>
+                        </div>
+                    </div>
+
+                    <!-- Sources with Reports -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-6 h-6 rounded-full border border-[#ff9900] bg-[#FFB400]/80 flex-shrink-0"></div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900">Unsure</div>
+                            <div class="text-sm text-gray-600">People are unsure or had different observations</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Not Found Sources -->
+                    <div class="flex items-center space-x-3">
+                        <div class="w-6 h-6 rounded-full border border-red-500 flex-shrink-0 flex items-center justify-center">
+                            <span class="text-red-500 font-bold text-sm">✕</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-gray-900">Not Found</div>
+                            <div class="text-sm text-gray-600">Some people haven't found the source</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Info -->
+                    <div class="mt-6 p-4 bg-gray-100 rounded-lg">
+                        <div class="text-sm text-gray-800">
+                            <strong>Numbers on markers</strong> indicate the count of reports for that water source.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
