@@ -106,7 +106,7 @@ function getTextStyle(reportCount) {
     if (!textStyleCache.has(reportCount)) {
         textStyleCache.set(reportCount, new Style({
             text: new Text({
-                text: String(reportCount),
+                text: reportCount > 1 ? String(reportCount) : '',
                 font: 'bold 12px Arial',
                 fill: whiteTextFill,
                 offsetY: 0,

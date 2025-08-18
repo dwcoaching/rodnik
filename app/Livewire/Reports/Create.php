@@ -153,6 +153,7 @@ class Create extends Component
     public function updatedFile()
     {
         if ($this->reportId) {
+            $this->report = Report::findOrFail($this->reportId);
             $this->authorize('update', $this->report);
         } else {
             $this->authorize('create', Report::class);
