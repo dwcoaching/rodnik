@@ -279,4 +279,14 @@ class Spring extends Model
     {
         return $this->reports->where('state', 'notfound')->count();
     }
+
+    public function getRodnikType()
+    {
+        return $this->springRevisions->whereNotNull('new_type')->sortByDesc('updated_at')->first()?->new_type ?? null;
+    }
+
+    public function getRodnikName()
+    {
+        return $this->springRevisions->whereNotNull('new_name')->sortByDesc('updated_at')->first()?->new_name ?? null;
+    }
 }

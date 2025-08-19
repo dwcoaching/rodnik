@@ -14,6 +14,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements FilamentUser
 {
@@ -64,7 +65,7 @@ class User extends Authenticatable implements FilamentUser
         'profile_photo_url',
     ];
 
-    public function springs()
+    public function springs(): BelongsToMany
     {
         return $this->belongsToMany(Spring::class, 'reports', 'user_id', 'spring_id')
             ->whereNull('springs.hidden_at')
