@@ -33,6 +33,7 @@ class XlsxWriter extends CsvWriter
         // Create bold style for headers
         $headerStyle = new Style();
         $headerStyle->setFontBold();
+        $headerStyle->setShouldWrapText(false);
 
         // Create default style without text wrapping
         $defaultStyle = new Style();
@@ -109,13 +110,14 @@ class XlsxWriter extends CsvWriter
         }
 
         // Add header row with bold style (but no text wrapping)
-        $headerStyleNoWrap = clone $headerStyle;
-        $headerStyleNoWrap->setShouldWrapText(false);
-        $headerRow = Row::fromValues($data[0], $headerStyleNoWrap);
+        $headerRow = Row::fromValues($data[0], $headerStyle);
         $writer->addRow($headerRow);
 
         // Add data rows with no text wrapping (skip first row as it's the header)
         $dataRows = array_slice($data, 1);
-        $writer->addRows(array_map(fn ($row) => Row::fromValues($row, $defaultStyle), $dataRows));
+
+        foreach ($dataRows as $row) {
+            $writer->addRow(Row::fromValues($row, $defaultStyle));
+        }
     }
 }
