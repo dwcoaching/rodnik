@@ -40,6 +40,7 @@ test('new users can register', function () {
         'password' => 'password',
         'password_confirmation' => 'password',
         'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
+        'nickname' => null, // honeypot check
     ]);
 
     $this->assertAuthenticated();

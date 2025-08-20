@@ -333,6 +333,7 @@ CREATE TABLE `users` (
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `two_factor_secret` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `two_factor_recovery_codes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `two_factor_confirmed_at` timestamp NULL DEFAULT NULL,
   `remember_token` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `current_team_id` bigint unsigned DEFAULT NULL,
   `profile_photo_path` varchar(2048) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -403,4 +404,5 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (36,'2024_06_01_133
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (37,'2024_06_04_170500_update_overpass_batches_add_cleanup_status',20);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (38,'2024_07_20_153651_update_springs_add_lon_lat_indexes',21);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (39,'2024_10_11_113853_update_photos_add_order',22);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (41,'2024_12_15_102255_add_indexes',23);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (40,'2024_12_15_102255_add_indexes',23);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (41,'2025_08_20_160321_update_users_add_fortify_column_confirmed_at',24);
