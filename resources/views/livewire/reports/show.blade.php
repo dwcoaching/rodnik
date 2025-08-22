@@ -4,36 +4,49 @@
             <div class="flex space-x-3">
                 <div class="flex-1">
                     <div class="flex justify-between">
-                        <h3 class="flex flex-wrap items-baseline text-base">
-                            @if ($report->visited_at || $report->created_at)
-                                <span class="mr-1 text-sm text-gray-500 font-bold">
-                                    {{ $report->visited_at ? $report->visited_at->format('d.m.Y') : $report->created_at->format('d.m.Y') }}<span class="text-sm font-regular">,</span>
-                                </span>
-                            @endif
-                            <div class="flex">
-                                @if ($report->user_id)
-                                    <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700"
-                                        @click.prevent="
-                                            window.dispatchEvent(
-                                                new CustomEvent('duo-visit',
-                                                    {
-                                                        detail: {
-                                                            'spring': null,
-                                                            'user': {{ intval($report->user_id )}},
-                                                            'location': null,
-                                                        }
-                                                    }
-                                                )
-                                            )
-                                        "
-                                        href="{{ duo_route(['user' => $report->user_id]) }}">
-                                        <div class="mr-1">{{ $report->user->name }}</div>
-                                        <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
-                                    </a>
-                                @else
-                                    <span class="text-sm">
-                                        Anonymous
+                        <h3 class="">
+                            <div class="flex flex-wrap items-baseline text-base">
+                                @if ($report->visited_at || $report->created_at)
+                                    <span class="mr-1 text-sm text-gray-500 font-bold">
+                                        {{ $report->visited_at ? $report->visited_at->format('d.m.Y') : $report->created_at->format('d.m.Y') }}<span class="text-sm font-regular">,</span>
                                     </span>
+                                @endif
+                                <div class="flex">
+                                    @if ($report->user_id)
+                                        <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700"
+                                            @click.prevent="
+                                                window.dispatchEvent(
+                                                    new CustomEvent('duo-visit',
+                                                        {
+                                                            detail: {
+                                                                'spring': null,
+                                                                'user': {{ intval($report->user_id )}},
+                                                                'location': null,
+                                                            }
+                                                        }
+                                                    )
+                                                )
+                                            "
+                                            href="{{ duo_route(['user' => $report->user_id]) }}">
+                                            <div class="mr-1">{{ $report->user->name }}</div>
+                                            <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
+                                        </a>
+                                    @else
+                                        <span class="text-sm">
+                                            Anonymous
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div>
+                                @if ($report->visited_at && $report->visited_at->format('Y-m-d') !== $report->created_at->format('Y-m-d'))
+                                    <div class="text-sm mt-0.5 text-gray-500">
+                                        Report was created on {{ $report->created_at->format('d.m.Y') }}
+                                    </div>
+                                @elseif (!$report->visited_at)
+                                    <div class="text-sm mt-0.5 text-gray-500">
+                                        Date of the actual visit was not specified.
+                                    </div>
                                 @endif
                             </div>
                         </h3>
@@ -115,18 +128,8 @@
                             </div>
                         @endif
                     </div>
-                    @if ($report->visited_at && $report->visited_at->format('Y-m-d') !== $report->created_at->format('Y-m-d'))
-                        <div class="text-sm mt-1 mb-3 text-gray-500">
-                            Report was created on {{ $report->created_at->format('d.m.Y') }}
-                        </div>
-                    @elseif (!$report->visited_at)
-                        <div class="text-sm mt-1 mb-3 text-gray-500">
-                            Date of the actual visit was not specified.
-                        </div>
-                    @endif
 
-
-                    <div class="mt-1 text-base text-black break-normal [overflow-wrap:anywhere]">
+                    <div class="mt-2 text-base text-black break-normal [overflow-wrap:anywhere]">
                         {!! nl2br(e($report->comment)) !!}
                     </div>
 

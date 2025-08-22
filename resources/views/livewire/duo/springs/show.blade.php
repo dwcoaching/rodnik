@@ -313,9 +313,10 @@
             </div>
             <div class="mt-1 md:mt-2 bg-white md:rounded-lg shadow">
                 <div class="p-4 flex mt-0 items-center justify-between">
-                    <div class="text-xl font-extrabold">
+                    <div class="text-xl font-extrabold flex items-center gap-x-2">
                         @if ($reports->count())
-                            Reports
+                            <span>Reports</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold bg-stone-200 text-stone-600">{{ $reports->count() }}</span>
                         @else
                             No reports yet
                         @endif
