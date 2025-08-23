@@ -46,11 +46,16 @@
                       class="active"
                     @endif
                   >😀&nbsp; About</a></li>
-                  {{--<li><a href="/docs/data-model"
-                    @if (Request::is('docs/data-model'))
+                  <li><a href="/docs/exports"
+                    @if (Request::is('docs/exports'))
                       class="active"
                     @endif
-                  >🗄&nbsp; Data Model</a></li>--}}
+                  >🦜&nbsp; Exports</a></li>
+                  <li><a href="/docs/contact-us"
+                    @if (Request::is('docs/contact-us'))
+                      class="active"
+                    @endif
+                  >💬&nbsp; Contact Us</a></li>
                 </ul>
               </div>
             </div>

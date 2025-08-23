@@ -28,7 +28,7 @@ class Transformer
 
     public function load(Collection $springs): Collection
     {
-        $springs = Spring::select('id', 'type', 'name', 'latitude', 'longitude')
+        $springs = Spring::select('id', 'type', 'name', 'latitude', 'longitude', 'osm_latitude', 'osm_longitude', 'osm_type', 'osm_name')
             ->whereIn('id', $springs->pluck('id'))
             ->with([
                 'reports' => function ($query) {

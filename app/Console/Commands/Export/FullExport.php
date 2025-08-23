@@ -11,17 +11,18 @@ use App\Library\Export\JsonExport;
 use App\Library\Export\JsonWriter;
 use App\Library\Export\XlsxWriter;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
-class SpringsExport extends Command
+class FullExport extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'export:springs {--userId=} {--format=json}';
+    protected $signature = 'export:full';
 
     /**
      * The console command description.
@@ -35,17 +36,10 @@ class SpringsExport extends Command
      */
     public function handle(Selector $selector)
     {
-        $userId = $this->option('userId');
-        $format = $this->option('format');
 
-        $user = User::find($userId);
-
-        $query = $selector->forUser($user)->getQuery();
-
-        match ($format) {
-            'json' => (new JsonWriter($query))->forUser($user)->save(),
-            'csv' => (new CsvWriter($query))->forUser($user)->save(),
-            'xlsx' => (new XlsxWriter($query))->forUser($user)->save(),
-        };
+        Artisan::call('export:clear');        
+        Artisan::call('export:springs', ['--format' => 'json']);
+        Artisan::call('export:springs', ['--format' => 'csv']);
+        Artisan::call('export:springs', ['--format' => 'xlsx']);
     }
 }

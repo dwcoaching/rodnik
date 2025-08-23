@@ -16,12 +16,14 @@ class CsvTransformer extends Transformer
         return $this->springs->map(function (Spring $spring) {
             return [
                 'id' => $spring->id,
-                'latitude' => $spring->latitude,
-                'longitude' => $spring->longitude,
-                ...($this->user ? [] : [
-                    'type' => $spring->getRodnikType(),
-                    'name' => $spring->getRodnikName(),
-                ]),
+                'latitude' => $spring->getRodnikLatitude(),
+                'longitude' => $spring->getRodnikLongitude(),
+                'type' => $spring->getRodnikType(),
+                'name' => $spring->getRodnikName(),
+                'osm_latitude' => $spring->osm_latitude,
+                'osm_longitude' => $spring->osm_longitude,
+                'osm_type' => $spring->osm_type,
+                'osm_name' => $spring->osm_name,
             ];
         })->toArray();
     }
@@ -97,7 +99,7 @@ class CsvTransformer extends Transformer
 
     public function getHeadersForSprings(): array
     {
-        return ['id', 'latitude', 'longitude', ...($this->user ? [] : ['type', 'name'])];
+        return ['id', 'latitude', 'longitude', 'type', 'name', 'osm_latitude', 'osm_longitude', 'osm_type', 'osm_name'];
     }
 
     public function getHeadersForReports(): array

@@ -14,14 +14,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 
-class SpringsExport extends Command
+class ClearFullExports extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'export:springs {--userId=} {--format=json}';
+    protected $signature = 'export:clear';
 
     /**
      * The console command description.
@@ -33,19 +33,11 @@ class SpringsExport extends Command
     /**
      * Execute the console command.
      */
-    public function handle(Selector $selector)
+    public function handle()
     {
-        $userId = $this->option('userId');
-        $format = $this->option('format');
-
-        $user = User::find($userId);
-
-        $query = $selector->forUser($user)->getQuery();
-
-        match ($format) {
-            'json' => (new JsonWriter($query))->forUser($user)->save(),
-            'csv' => (new CsvWriter($query))->forUser($user)->save(),
-            'xlsx' => (new XlsxWriter($query))->forUser($user)->save(),
-        };
+        $files = Storage::disk('public')->files('exports');
+        foreach ($files as $file) {
+            Storage::disk('public')->delete($file);
+        }
     }
 }

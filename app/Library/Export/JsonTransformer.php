@@ -17,12 +17,14 @@ class JsonTransformer extends Transformer
         $collection = $this->springs->map(function (Spring $spring): array {
             return [
                 'id' => $spring->id,
-                'latitude' => $spring->latitude,
-                'longitude' => $spring->longitude,
-                ...($this->user ? [] : [
-                    'type' => $spring->getRodnikType(),
-                    'name' => $spring->getRodnikName(),
-                ]),
+                'latitude' => $spring->getRodnikLatitude(),
+                'longitude' => $spring->getRodnikLongitude(),
+                'type' => $spring->getRodnikType(),
+                'name' => $spring->getRodnikName(),
+                'osm_latitude' => $spring->osm_latitude,
+                'osm_longitude' => $spring->osm_longitude,
+                'osm_type' => $spring->osm_type,
+                'osm_name' => $spring->osm_name,
                 'reports' => $spring->reports->filter(function (Report $report) {
                     return $report->user_id === $this->user?->id || !$this->user;
                 })

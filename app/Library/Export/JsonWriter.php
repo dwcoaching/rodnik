@@ -32,12 +32,14 @@ class JsonWriter
 
         $finalJson = json_encode($allSprings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
+        $timestamp = now()->format('Y-m-d_H-i-s');
+
         if ($this->user) {
-            $filename = 'rodnik-user-' . $this->user->id . '.json';
+            $filename = 'users/rodnik-user-' . $this->user->id . '-from-' . $timestamp . '.json';
         } else {
-            $filename = 'rodnik.json';
+            $filename = 'rodnik-from-' . $timestamp . '.json';
         }
         
-        Storage::disk('public')->put($filename, $finalJson);   
+        Storage::disk('public')->put('exports/' . $filename, $finalJson);   
     }
 }

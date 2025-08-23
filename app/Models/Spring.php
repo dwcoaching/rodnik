@@ -282,11 +282,37 @@ class Spring extends Model
 
     public function getRodnikType()
     {
+        if ($this->type != $this->osm_type) {
+            return $this->type;
+        } // this condition is here for legacy reasons when we didn't have spring_revisions table
+
         return $this->springRevisions->whereNotNull('new_type')->sortByDesc('updated_at')->first()?->new_type ?? null;
     }
 
     public function getRodnikName()
     {
+        if ($this->name != $this->osm_name) {
+            return $this->name;
+        } // this condition is here for legacy reasons when we didn't have spring_revisions table
+
         return $this->springRevisions->whereNotNull('new_name')->sortByDesc('updated_at')->first()?->new_name ?? null;
+    }
+
+    public function getRodnikLatitude()
+    {
+        if ($this->latitude != $this->osm_latitude) {
+            return $this->latitude;
+        } // this condition is here for legacy reasons when we didn't have spring_revisions table
+
+        return $this->springRevisions->whereNotNull('new_latitude')->sortByDesc('updated_at')->first()?->new_latitude ?? null;
+    }
+
+    public function getRodnikLongitude()
+    {
+        if ($this->longitude != $this->osm_longitude) {
+            return $this->longitude;
+        } // this condition is here for legacy reasons when we didn't have spring_revisions table
+
+        return $this->springRevisions->whereNotNull('new_longitude')->sortByDesc('updated_at')->first()?->new_longitude ?? null;
     }
 }

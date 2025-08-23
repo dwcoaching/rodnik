@@ -26,9 +26,14 @@ class XlsxWriter extends CsvWriter
     public function writeXlsx(array $allSprings, array $allReports, array $allEdits, array $allPhotos): void
     {
         $writer = $this->getOpenSpoutWriter();
-        $writer->openToFile(Storage::disk('public')->path('rodnik' 
+
+        $timestamp = now()->format('Y-m-d_H-i-s');
+
+        $writer->openToFile(Storage::disk('public')->path('exports/'
+        . ($this->user ? 'users/' : '') 
+        . 'rodnik' 
         . ($this->user ? '-user-' . $this->user->id : '') 
-        . '.xlsx'));
+        . '-from-' . $timestamp . '.xlsx'));
 
         // Create bold style for headers
         $headerStyle = new Style();
@@ -46,12 +51,13 @@ class XlsxWriter extends CsvWriter
             1 => 10,  // id
             2 => 15,  // latitude
             3 => 15,  // longitude
+            4 => 20,  // type
+            5 => 35,  // name
+            6 => 15,  // osm_latitude
+            7 => 15,  // osm_longitude
+            8 => 20,  // osm_type
+            9 => 35,  // osm_name
         ];
-        
-        if ($this->user) {
-            $columnWidths[4] = 20;  // type
-            $columnWidths[5] = 35;  // name
-        }
         
         $this->styleSheet($writer, $springsSheet, $allSprings, $headerStyle, $defaultStyle, $columnWidths);
 
