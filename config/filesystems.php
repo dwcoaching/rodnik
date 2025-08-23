@@ -92,6 +92,7 @@ return [
         public_path('photos') => storage_path('app/photos'),
         public_path('tiles') => storage_path('app/public/tiles'),
         public_path('watered-tiles') => storage_path('app/public/watered-tiles'),
+        public_path('exports') => storage_path('app/public/exports'),
     ],
 
 ];
