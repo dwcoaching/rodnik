@@ -106,11 +106,12 @@ name('docs.exports');
         <div class="mt-9 font-black text-xl">
             Personal user exports
         </div>
-        <div class="mt-3">
+            Personal exports will be available soon from your user profile.
+        {{--<div class="mt-3">
             You can export your own data from Rodnik.today.
             <a href="/exports/user/{{ auth()->user()->id }}" class="text-blue-600">
                 Go to your exports
             </a>
-        </div>
+        </div>--}}
     </div>
 @endsection

@@ -36,7 +36,6 @@ class FullExport extends Command
      */
     public function handle(Selector $selector)
     {
-
         Artisan::call('export:clear');        
         Artisan::call('export:springs', ['--format' => 'json']);
         Artisan::call('export:springs', ['--format' => 'csv']);
