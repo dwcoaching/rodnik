@@ -9,11 +9,10 @@ export default class TrackSource extends VectorSource {
     }
 
     setFromGPXString(string) {
-        this.clear()
-
         const features = this.createFeatures(string)
 
         if (features.length) {
+            this.clear()
             this.addFeatures(features)
             window.rodnikMap.buffer.setTrack(features)
         } else {

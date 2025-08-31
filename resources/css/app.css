@@ -49,13 +49,17 @@ body.dragover .drag-indicator {
     opacity: 0 !important;
 }
 
-.ol-viewport.drop-active::after {
-    content: 'Drop GPX Here...';
+#map .drop-overlay {
     position: absolute; 
     inset: 0px;
     background-color: rgba(255, 255, 255, 0.5);
-    display: grid; place-items: center;
-    pointer-events: none; /* ensures buttons/controls remain clickable */
-    font: 600 24px/1.2 system-ui, sans-serif;
+    display: none;
+    place-items: center;
+    pointer-events: none;
+    font-family: system-ui, sans-serif;
     color: #000;
+}
+
+#map.drop-active .drop-overlay {
+    display: grid;
 }

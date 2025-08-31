@@ -31,6 +31,7 @@ import WateredSpringsDistantLayer from '@/layers/springs/wateredDistant';
 import TrackLayer from '@/layers/tracks/track';
 import BufferLayer from '@/layers/tracks/buffer';
 import TrackSimplifiedLayer from '@/layers/tracks/trackSimplified';
+import locateByPhoto from '@/utils/locateByPhoto';
 
 import StravaPublicLayer from '@/layers/stravaPublic';
 import OSMTracesLayer from '@/layers/osmTraces';
@@ -243,16 +244,33 @@ export default class OpenLayersMap {
                 this.showDropHint()
             })
             
-            viewport.addEventListener('drop', (e) => {
+            viewport.addEventListener('drop', async (e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 this.hideDropHint()
+
+                if (e.dataTransfer.files.length > 0) {
+                    let photo = e.dataTransfer.files.item(0)
+
+                    locateByPhoto(photo, (result) => {
+                        this.locate([result.longitude, result.latitude])
+                        window.dispatchEvent(
+                            new CustomEvent('duo-visit',
+                                {
+                                    detail: {
+                                        location: 1
+                                    }
+                                }
+                            )
+                        )
+                    })
+                }
             })  
         })
     }
 
-    showDropHint() { this.map.getViewport().classList.add('drop-active'); }
-    hideDropHint() { this.map.getViewport().classList.remove('drop-active'); }
+    showDropHint() { this.map.getTargetElement().classList.add('drop-active'); }
+    hideDropHint() { this.map.getTargetElement().classList.remove('drop-active'); }
 
     getCoordinates() {
         let coordinates = toLonLat(this.view.getCenter());
@@ -398,12 +416,20 @@ export default class OpenLayersMap {
 
     upload(file) {
         if (file) {
-            const reader = new FileReader()
-            reader.readAsText(file);
-            reader.onload = (e) => {
-                const content = e.target.result
-                this.trackLayer.load(content)
+            if (file.type.startsWith('image/')) {
+                locateByPhoto(file, (result) => {
+                    this.locate([result.longitude, result.latitude])
+                })
+            } else {
+                const reader = new FileReader()
+                reader.readAsText(file);
+                reader.onload = (e) => {
+                    const content = e.target.result
+                    this.trackLayer.load(content)
+                }
             }
+            
+            
         }
     }
 

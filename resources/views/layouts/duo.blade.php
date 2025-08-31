@@ -444,47 +444,37 @@
                         <div x-data="{
                             gpxTrackUploaded: window.rodnikMap.trackLayer.isUploaded,
                             gpxTrackMenuOpen: false,
+                            forceUpload: false
                         }" class="relative">
                             <label 
-                                @click="if (gpxTrackUploaded.value) {
-                                    window.rodnikMap.trackLayer.clear();
+                                x-ref="gpxTrackUploadLabel"
+                                @click="if (gpxTrackUploaded.value && ! forceUpload) {
                                     event.preventDefault();
-                                    gpxTrackMenuOpen = true;
-                                    setTimeout(() => {
-                                        gpxTrackMenuOpen = false;
-                                    }, 5000);
-                                } else {
-                                    gpxTrackMenuOpen = false;
-                                }"
+                                    gpxTrackMenuOpen = ! gpxTrackMenuOpen;
+                                }
+                                "
                                 @click.outside="gpxTrackMenuOpen = false;"
                                 for="gpx-track-upload" title="Upload GPX Track" class="mt-2 h-9 w-9 bg-white border-2 shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700" :class="{
-                                'border-blue-600': gpxTrackUploaded.value,
-                                'border-white': ! gpxTrackUploaded.value,
-                                'text-blue-700': gpxTrackUploaded.value,
-                                'hover:text-blue-600': ! gpxTrackUploaded.value,
-                                'text-black': ! gpxTrackUploaded.value,                                
+                                'border-blue-600': gpxTrackMenuOpen,
+                                'border-white': ! gpxTrackMenuOpen,
+                                'text-blue-700': gpxTrackMenuOpen,
+                                'hover:text-blue-600': ! gpxTrackMenuOpen,
+                                'text-black': ! gpxTrackMenuOpen,                                
                             }">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
                                     <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z" />
                                     <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                                 </svg>
                                 <input id="gpx-track-upload" type="file" 
-                                    x-on:change="window.rodnikMap.upload($event.target.files[0]); $event.target.value = null;" class="hidden">
+                                    x-on:change="forceUpload = false; window.rodnikMap.upload($event.target.files[0]); $event.target.value = null;" class="hidden">
                             </label>
                             <div
                                 x-cloak
                                 x-show="gpxTrackMenuOpen"
-                                @click="gpxTrackMenuOpen = false"
-                                class="px-4 py-2 cursor-default absolute top-0 right-11 w-64 rounded-md pb-2 bg-black/60 text-white text-sm"
-                                x-transition:enter="transition ease-out duration-300"
-                                x-transition:enter-start="opacity-0 transform scale-95"
-                                x-transition:enter-end="opacity-100 transform scale-100"
-                                x-transition:leave="transition ease-in duration-200"
-                                x-transition:leave-start="opacity-100 transform scale-100"
-                                x-transition:leave-end="opacity-0 transform scale-95"
+                                class="absolute shadow top-0 right-11 w-64 rounded-md shadow bg-white px-4 py-4 flex flex-col gap-y-2"
                                 >
-                                Uploaded GPX Track Removed. Click again to upload a new one.
-                                <button @click="gpxTrackMenuOpen = false" class="mt-2 px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-white text-xs font-medium transition-colors">Close</button>
+                                <button @click="window.rodnikMap.trackLayer.clear()" class="px-3 py-1 border border-red-500 hover:bg-red-50 rounded text-red-500 hover:text-red-600 text-sm font-medium transition-colors">Remove Track</button>
+                                <button @click="forceUpload = true; $refs.gpxTrackUploadLabel.click()" class="px-3 py-1 border border-blue-500 hover:bg-blue-50 rounded text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors">Upload New Track or Photo</button>
                             </div>
                         </div>
                         <div @click="window.rodnikMap.download()" title="Download Water Sources as GPX Waypoints" class="mt-2 h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
@@ -507,6 +497,15 @@
                             <svg x-cloak x-show="minimized" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16" class="h-3 w-3" fill="currentColor">
                                  <path d="m7.247 4.86-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
                             </svg>
+                        </div>
+                    </div>
+                    <div class="drop-overlay" style="z-index: 10002;">
+                        <div class="text-center">
+                            <div class="font-extrabold text-2xl lg:text-4xl">Drop a GPX Track</div>
+                            <div class="mt-1 font-medium text-lg">to display the route on the map</div>
+                            <div class="my-4 font-extrabold text-3xl">or</div>
+                            <div class="font-extrabold text-2xl lg:text-4xl">Drop a Photo</div>
+                            <div class="mt-1 font-medium text-lg">to locate the map using its coordinates</div>
                         </div>
                     </div>
                 </div>

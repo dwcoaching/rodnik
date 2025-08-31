@@ -47,7 +47,7 @@ export default class TrackLayer extends VectorLayer {
             localStorage.setItem('uploadedGPXTrack', content)
             this.isUploaded.value = true
         } else {
-            this.clear();
+            // this.clear();
         }
     }
 }

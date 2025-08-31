@@ -164,20 +164,9 @@
                                 if (event.target.files.length > 0) {
                                     let photo = event.target.files.item(0)
 
-                                    const result = await window.exifrGPS(photo)
-                                    if (result
-                                        && result.latitude !== undefined
-                                        && ! isNaN(result.latitude)
-                                        && result.latitude >= -90
-                                        && result.latitude <= 90
-                                        && result.longitude !== undefined
-                                        && ! isNaN(result.longitude)
-                                        && result.latitude >= -180
-                                        && result.latitude <= 180) {
+                                    window.locateByPhoto(photo, (result) => {
                                         this.updateCoordinates(result.latitude + ', ' + result.longitude)
-                                    } else {
-                                        alert('This photo doesn\'t have coordinates');
-                                    }
+                                    })
                                 }
 
                                 event.target.value = ''

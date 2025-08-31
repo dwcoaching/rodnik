@@ -9,7 +9,7 @@ import PhotoSwipeLightbox from 'photoswipe/lightbox';
 import 'photoswipe/style.css';
 import Coordinates from 'coordinate-parser';
 import { getInitialSourceName } from '@/initial';
-import { gps as exifrGPS } from 'exifr';
+import locateByPhoto from '@/utils/locateByPhoto';
 import sort from '@alpinejs/sort'
 
 Alpine.plugin(Clipboard);
@@ -17,7 +17,7 @@ Alpine.plugin(sort);
 
 window.Alpine = Alpine;
 window.ImageBlobReduce = new ImageBlobReduce();
-window.exifrGPS = exifrGPS;
+window.locateByPhoto = locateByPhoto;
 window.uuidv1 = uuidv1;
 
 // Dynamic HEIC converter that loads the library only when needed
