@@ -32,7 +32,10 @@ name('docs.exports');
             </p>
         </div>
         <div class="mt-9 font-black text-xl">
-            Exports <span class="text-gray-400">{{ 'as of ' . $files->min('timestamp')?->format('Y-m-d H:i:00') . ' UTC' ?? '' }}</span>
+            Exports 
+            @if ($files->count() > 0)
+                <span class="text-gray-400">{{ 'as of ' . $files->min('timestamp')?->format('Y-m-d H:i:00') . ' UTC' ?? '' }}</span>
+            @endif
         </div>
         <div class="mt-3">
             @if ($files->count() > 0)

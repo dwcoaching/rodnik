@@ -42,10 +42,12 @@ class SpringsExport extends Command
 
         $query = $selector->forUser($user)->getQuery();
 
-        match ($format) {
+        $filePath = match ($format) {
             'json' => (new JsonWriter($query))->forUser($user)->save(),
             'csv' => (new CsvWriter($query))->forUser($user)->save(),
             'xlsx' => (new XlsxWriter($query))->forUser($user)->save(),
         };
+
+        $this->info('File saved to ' . $filePath);
     }
 }

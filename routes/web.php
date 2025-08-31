@@ -6,6 +6,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringController;
 use App\Http\Controllers\HeatmapController;
 use App\Http\Controllers\CoverageController;
+use App\Http\Controllers\UserPhotoController;
 use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\PhotosBatchController;
 use App\Http\Controllers\SpringHistoryController;
@@ -33,6 +34,9 @@ Route::get('/', [WebController::class, 'index'])->name('duo');
 /* redirect */ Route::get('/{springId}', [SpringController::class, 'show'])->name('springs.show')->where('springId', '[0-9]+');
 /* redirect */ Route::get('/{spring}/location/edit', [SpringLocationController::class, 'edit'])->name('springs.location.edit')->where('spring', '[0-9]+');
 /* redirect */ Route::get('/users/{userId}', [WebController::class, 'user'])->name('users.show')->where('userId', '[0-9]+');
+
+
+Route::resource('users.photos', UserPhotoController::class)->only('index');
 
 Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
 Route::get('/{spring}/history', [SpringHistoryController::class, 'index'])->name('springs.history')->where('spring', '[0-9]+');

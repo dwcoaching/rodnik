@@ -14,8 +14,10 @@ use OpenSpout\Writer\XLSX\Writer as OpenSpoutXlsxWriter;
 
 class XlsxWriter extends CsvWriter
 {
-    public function write(array $allSprings, array $allReports, array $allEdits, array $allPhotos): void{
-        $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
+    public function write(array $allSprings, array $allReports, array $allEdits, array $allPhotos): string {
+        $filename = $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
+
+        return $filename;
     }
 
     public function getOpenSpoutWriter(): OpenSpoutXlsxWriter
@@ -23,17 +25,19 @@ class XlsxWriter extends CsvWriter
         return new OpenSpoutXlsxWriter();
     }
 
-    public function writeXlsx(array $allSprings, array $allReports, array $allEdits, array $allPhotos): void
+    public function writeXlsx(array $allSprings, array $allReports, array $allEdits, array $allPhotos): string
     {
         $writer = $this->getOpenSpoutWriter();
 
         $timestamp = now()->format('Y-m-d_H-i-s');
 
+        $filename = 'rodnik' 
+            . ($this->user ? '-user-' . $this->user->id : '') 
+            . '-from-' . $timestamp . '.xlsx';
+
         $writer->openToFile(Storage::disk('public')->path('exports/'
         . ($this->user ? 'users/' : '') 
-        . 'rodnik' 
-        . ($this->user ? '-user-' . $this->user->id : '') 
-        . '-from-' . $timestamp . '.xlsx'));
+        . $filename));
 
         // Create bold style for headers
         $headerStyle = new Style();
@@ -102,6 +106,8 @@ class XlsxWriter extends CsvWriter
         ]);
         
         $writer->close();
+
+        return $filename;
     }
 
     private function styleSheet($writer, $sheet, array $data, Style $headerStyle, Style $defaultStyle, array $columnWidths): void

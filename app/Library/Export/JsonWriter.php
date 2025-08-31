@@ -20,26 +20,29 @@ class JsonWriter
         return $this;
     }
 
-    public function save(): void
+    public function save(): string
     {
         $allSprings = [];
         
         $this->query->chunk(500, function ($springs) use (&$allSprings) {
             $processedSprings = (new JsonTransformer($springs))->forUser($this->user)->transform();
             $allSprings = array_merge($allSprings, $processedSprings);
-            echo "Processed " . count($allSprings) . " springs\n";
         });
 
         $finalJson = json_encode($allSprings, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         $timestamp = now()->format('Y-m-d_H-i-s');
 
+        $directory = $this->user ? 'users/' : '';
+
         if ($this->user) {
-            $filename = 'users/rodnik-user-' . $this->user->id . '-from-' . $timestamp . '.json';
+            $filename = 'rodnik-user-' . $this->user->id . '-from-' . $timestamp . '.json';
         } else {
             $filename = 'rodnik-from-' . $timestamp . '.json';
         }
         
-        Storage::disk('public')->put('exports/' . $filename, $finalJson);   
+        Storage::disk('public')->put('exports/' . $directory . $filename, $finalJson);   
+
+        return $filename;
     }
 }

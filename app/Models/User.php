@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Filament\Panel;
+use App\Models\Photo;
 use App\Models\Report;
 use App\Models\Spring;
+use App\Models\SpringRevision;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
 use Illuminate\Notifications\Notifiable;
@@ -77,6 +79,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Report::class);
     }
 
+    public function springRevisions()
+    {
+        return $this->hasMany(SpringRevision::class);
+    }
+
+    public function photos()
+    {
+        return $this->hasManyThrough(Photo::class, Report::class);
+    }
+
     public function getRatingAttribute()
     {
         if (is_null($this->cached_rating)) {
@@ -95,7 +107,6 @@ class User extends Authenticatable implements FilamentUser
             ->join('springs', 'springs.id', '=', 'reports.spring_id')
             ->whereNull('reports.hidden_at')
             ->whereNull('reports.from_osm')
-            ->whereNull('springs.hidden_at')
             ->count();
     }
 

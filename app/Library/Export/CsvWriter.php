@@ -33,7 +33,7 @@ class CsvWriter
         return $this;
     }
 
-    public function save(): void
+    public function save(): string
     {
         $allSprings = [];
         $allReports = [];
@@ -62,22 +62,25 @@ class CsvWriter
             $allReports = array_merge($allReports, $processedReports);
             $allEdits = array_merge($allEdits, $processedEdits);
             $allPhotos = array_merge($allPhotos, $processedPhotos);
-            echo "Processed " . count($allSprings) - 1 . " springs\n";
         });
 
-        $this->write($allSprings, $allReports, $allEdits, $allPhotos);
+        $filename = $this->write($allSprings, $allReports, $allEdits, $allPhotos);
+
+        return $filename;
     }
 
-    public function write(array $allSprings, array $allReports, array $allEdits, array $allPhotos): void
+    public function write(array $allSprings, array $allReports, array $allEdits, array $allPhotos): string
     {
         $springsFilePath = $this->writeSprings($allSprings);
         $reportsFilePath = $this->writeReports($allReports);
         $editsFilePath = $this->writeEdits($allEdits);
         $photosFilePath = $this->writePhotos($allPhotos);
 
-        $this->zip($springsFilePath, $reportsFilePath, $editsFilePath, $photosFilePath);
+        $filename = $this->zip($springsFilePath, $reportsFilePath, $editsFilePath, $photosFilePath);
 
         $this->deleteFiles($springsFilePath, $reportsFilePath, $editsFilePath, $photosFilePath);
+
+        return $filename;
     }
 
     public function getOpenSpoutWriter(): AbstractWriter
@@ -177,9 +180,11 @@ class CsvWriter
         $exportDir = Storage::disk('public')->path('exports/'
         . ($this->user ? 'users/' : ''));
         
-        $filePath = $exportDir . 'rodnik' 
-        . ($this->user ? '-user-' . $this->user->id : '') 
-        . '-from-' . $timestamp . '.zip';
+        $filename = 'rodnik' 
+            . ($this->user ? '-user-' . $this->user->id : '') 
+            . '-from-' . $timestamp . '.zip';
+
+        $filePath = $exportDir . $filename;
         
         Process::path($exportDir)
             ->run([
@@ -193,7 +198,7 @@ class CsvWriter
                 $photosFilePath
             ]);
 
-        return $filePath;
+        return $filename;
     }
 
     public function deleteFiles(string $springsFilePath, string $reportsFilePath, string $editsFilePath, string $photosFilePath): void
