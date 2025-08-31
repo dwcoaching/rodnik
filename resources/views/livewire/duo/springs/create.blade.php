@@ -201,29 +201,41 @@
                 <div class="mt-4 pb-4">
                     <div class="flex justify-start">
                         @if ($springId)
-                            <button type="button"
-                                @click="if (! error() && ! saving) {
-                                    saving = true
-                                    $wire.$call('update')
-                                }" class="btn btn-primary btn-block"
-                                x-bind:class="{
-                                    'btn-disabled': error() || saving,
-                                }"
-                            >
-                                Save Location
-                            </button>
+                            @can('update', \App\Models\Spring::find($springId))
+                                <button type="button"
+                                    @click="if (! error() && ! saving) {
+                                        saving = true
+                                        $wire.$call('update')
+                                    }" class="btn btn-primary btn-block"
+                                    x-bind:class="{
+                                        'btn-disabled': error() || saving,
+                                    }"
+                                >
+                                    Save Location
+                                </button>
+                            @else
+                                <div class="bg-yellow-100 text-center text-base px-4 py-3 rounded-lg border border-yellow-400 w-full">
+                                    Please <a href="{{ route('login') }}" class="font-bold underline text-blue-600 hover:text-blue-700">log in</a> to edit the location.
+                                </div>
+                            @endcan
                         @else
-                            <button type="button"
-                                @click="if (! error() && ! saving) {
-                                    saving = true
-                                    $wire.$call('create')
-                                }" class="btn btn-primary btn-block"
-                                x-bind:class="{
-                                    'btn-disabled': error() || saving,
-                                }"
-                            >
-                                Add Water Source
-                            </button>
+                            @can('create', \App\Models\Spring::class)
+                                <button type="button"
+                                    @click="if (! error() && ! saving) {
+                                        saving = true
+                                        $wire.$call('create')
+                                    }" class="btn btn-primary btn-block"
+                                    x-bind:class="{
+                                        'btn-disabled': error() || saving,
+                                    }"
+                                >
+                                        Add Water Source
+                                </button>
+                            @else
+                                <div class="bg-yellow-100 text-center text-base px-4 py-3 rounded-lg border border-yellow-400 w-full">
+                                    Please <a href="{{ route('login') }}" class="font-bold underline text-blue-600 hover:text-blue-700">log in</a> to add a water source.
+                                </div>
+                            @endcan
                         @endif
                     </div>
                 </div>

@@ -43,13 +43,13 @@ class Create extends Component
     {
         if ($this->springId) {
             $this->spring = Spring::find($this->springId);
-            $this->authorize('update', $this->spring);
+            // $this->authorize('update', $this->spring); // the page should be displayed with a warning, but updating is forbidden
 
             $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
             $this->latitude = $this->spring->latitude;
             $this->longitude = $this->spring->longitude;
         } else {
-            $this->authorize('create', Spring::class);
+            // $this->authorize('create', Spring::class); // the page should be displayed with a warning, but creating is forbidden
         }
     }
 
