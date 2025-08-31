@@ -10,6 +10,7 @@ import { ScaleLine, defaults as defaultControls } from 'ol/control';
 import GPX from 'ol/format/GPX';
 import visible from '@/filters/visible.js'
 import Buffer from '@/buffer.js'
+import DragAndDrop from 'ol/interaction/DragAndDrop.js';
 
 import { createXYZ } from 'ol/tilegrid';
 import { tile } from 'ol/loadingstrategy';
@@ -177,6 +178,22 @@ export default class OpenLayersMap {
             }
         });
 
+        this.dragAndDrop = new DragAndDrop({
+            formatConstructors: [GPX],
+            target: this.map.getViewport()
+        });
+
+        this.dragAndDrop.on('addfeatures', (evt) => {
+            const reader = new FileReader()
+            reader.readAsText(evt.file);
+            reader.onload = (e) => {
+                const content = e.target.result
+                this.trackLayer.load(content)
+            }
+        });
+          
+        this.map.addInteraction(this.dragAndDrop);
+
         this.queryParameters = Alpine.reactive({
             spring: null,
             user: null,
@@ -202,7 +219,40 @@ export default class OpenLayersMap {
                 this.queryParameters.coordinates = null
             }
         })
+
+        this.map.once('postrender', () => {
+            this.trackLayer.restoreFromLocalStorage()
+
+            const viewport = this.map.getViewport()
+
+            viewport.addEventListener('dragenter', (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                this.showDropHint()
+            })
+
+            viewport.addEventListener('dragleave', (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                this.hideDropHint()
+            })
+            
+            viewport.addEventListener('dragover', (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                this.showDropHint()
+            })
+            
+            viewport.addEventListener('drop', (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                this.hideDropHint()
+            })  
+        })
     }
+
+    showDropHint() { this.map.getViewport().classList.add('drop-active'); }
+    hideDropHint() { this.map.getViewport().classList.remove('drop-active'); }
 
     getCoordinates() {
         let coordinates = toLonLat(this.view.getCenter());
@@ -352,14 +402,7 @@ export default class OpenLayersMap {
             reader.readAsText(file);
             reader.onload = (e) => {
                 const content = e.target.result
-                this.trackLayer.getSource().setFromGPXString(content)
-
-                if (this.trackLayer.getSource().getFeatures().length) {
-                    this.view.fit(this.trackLayer.getSource().getExtent())
-                    this.view.setZoom(this.view.getZoom() - 0.5);
-
-                    // window.rodnikMap.filters.along = true
-                }
+                this.trackLayer.load(content)
             }
         }
     }

@@ -441,13 +441,52 @@
                                 <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/><
                             </svg>
                         </div>
-                        <label for="gpx-track-upload" title="Upload GPX Track" class="mt-2 h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
-                                <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z" />
-                                <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
-                            </svg>
-                            <input id="gpx-track-upload" type="file" x-on:change="window.rodnikMap.upload($event.target.files[0]); $event.target.value = null;" class="hidden">
-                        </label>
+                        <div x-data="{
+                            gpxTrackUploaded: window.rodnikMap.trackLayer.isUploaded,
+                            gpxTrackMenuOpen: false,
+                        }" class="relative">
+                            <label 
+                                @click="if (gpxTrackUploaded.value) {
+                                    window.rodnikMap.trackLayer.clear();
+                                    event.preventDefault();
+                                    gpxTrackMenuOpen = true;
+                                    setTimeout(() => {
+                                        gpxTrackMenuOpen = false;
+                                    }, 5000);
+                                } else {
+                                    gpxTrackMenuOpen = false;
+                                }"
+                                @click.outside="gpxTrackMenuOpen = false;"
+                                for="gpx-track-upload" title="Upload GPX Track" class="mt-2 h-9 w-9 bg-white border-2 shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700" :class="{
+                                'border-blue-600': gpxTrackUploaded.value,
+                                'border-white': ! gpxTrackUploaded.value,
+                                'text-blue-700': gpxTrackUploaded.value,
+                                'hover:text-blue-600': ! gpxTrackUploaded.value,
+                                'text-black': ! gpxTrackUploaded.value,                                
+                            }">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
+                                    <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z" />
+                                    <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
+                                </svg>
+                                <input id="gpx-track-upload" type="file" 
+                                    x-on:change="window.rodnikMap.upload($event.target.files[0]); $event.target.value = null;" class="hidden">
+                            </label>
+                            <div
+                                x-cloak
+                                x-show="gpxTrackMenuOpen"
+                                @click="gpxTrackMenuOpen = false"
+                                class="px-4 py-2 cursor-default absolute top-0 right-11 w-64 rounded-md pb-2 bg-black/60 text-white text-sm"
+                                x-transition:enter="transition ease-out duration-300"
+                                x-transition:enter-start="opacity-0 transform scale-95"
+                                x-transition:enter-end="opacity-100 transform scale-100"
+                                x-transition:leave="transition ease-in duration-200"
+                                x-transition:leave-start="opacity-100 transform scale-100"
+                                x-transition:leave-end="opacity-0 transform scale-95"
+                                >
+                                Uploaded GPX Track Removed. Click again to upload a new one.
+                                <button @click="gpxTrackMenuOpen = false" class="mt-2 px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-white text-xs font-medium transition-colors">Close</button>
+                            </div>
+                        </div>
                         <div @click="window.rodnikMap.download()" title="Download Water Sources as GPX Waypoints" class="mt-2 h-9 w-9 bg-white shadow-sm rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
                                 <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />

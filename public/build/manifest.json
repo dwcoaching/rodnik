@@ -1,11 +1,11 @@
 {
   "resources/js/app.js": {
-    "file": "assets/app.aa9615aa.js",
+    "file": "assets/app.681d9d64.js",
     "src": "resources/js/app.js",
     "isEntry": true,
     "imports": [
       "_exifr.667da73e.js",
-      "_ol.d0929161.js",
+      "_ol.37af1d78.js",
       "_turf.5721ece8.js"
     ],
     "dynamicImports": [
@@ -16,8 +16,8 @@
       "assets/app.d8af8148.css"
     ]
   },
-  "_ol.d0929161.js": {
-    "file": "assets/ol.d0929161.js"
+  "_ol.37af1d78.js": {
+    "file": "assets/ol.37af1d78.js"
   },
   "_turf.5721ece8.js": {
     "file": "assets/turf.5721ece8.js"
@@ -38,7 +38,7 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app.e6461299.css",
+    "file": "assets/app.e422e7b9.css",
     "src": "resources/css/app.css",
     "isEntry": true
   }

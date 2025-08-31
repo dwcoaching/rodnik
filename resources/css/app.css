@@ -48,3 +48,14 @@ body.dragover .drag-indicator {
 .sortable-chosen .removePhotoHandle, .sortable-drag .removePhotoHandle, .sortable-ghost .removePhotoHandle {
     opacity: 0 !important;
 }
+
+.ol-viewport.drop-active::after {
+    content: 'Drop GPX Here...';
+    position: absolute; 
+    inset: 0px;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: grid; place-items: center;
+    pointer-events: none; /* ensures buttons/controls remain clickable */
+    font: 600 24px/1.2 system-ui, sans-serif;
+    color: #000;
+}
