@@ -254,15 +254,17 @@ export default class OpenLayersMap {
 
                     locateByPhoto(photo, (result) => {
                         this.locate([result.longitude, result.latitude])
-                        window.dispatchEvent(
-                            new CustomEvent('duo-visit',
-                                {
-                                    detail: {
-                                        location: 1
+                        if (! this.queryParameters.location) {
+                            window.dispatchEvent(
+                                new CustomEvent('duo-visit',
+                                    {
+                                        detail: {
+                                            location: 1
+                                        }
                                     }
-                                }
+                                )
                             )
-                        )
+                        }
                     })
                 }
             })  
@@ -419,6 +421,17 @@ export default class OpenLayersMap {
             if (file.type.startsWith('image/')) {
                 locateByPhoto(file, (result) => {
                     this.locate([result.longitude, result.latitude])
+                    if (! this.queryParameters.location) {
+                        window.dispatchEvent(
+                            new CustomEvent('duo-visit',
+                                {
+                                    detail: {
+                                        location: 1
+                                    }
+                                }
+                            )
+                        )
+                    }
                 })
             } else {
                 const reader = new FileReader()
