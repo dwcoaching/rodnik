@@ -67,7 +67,11 @@ class Laundry
                 drinking_water=no
             ',
             '
-                amenity=alpine_hut
+                tourism=alpine_hut
+                drinking_water=no
+            ',
+            '
+                highway=rest_area
                 drinking_water=no
             ',
         ];
