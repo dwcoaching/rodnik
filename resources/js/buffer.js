@@ -29,14 +29,20 @@ export default class Buffer {
         }
     }
 
+    filterOutPoints(track) {
+        let result = structuredClone(track);
+        result.features = result.features.filter((feature) => feature.geometry.type !== 'Point')
+        return result;
+    }
+    
+
     makeSimplifiedTrack() {
-        this.trackSimplified = simplify(this.track, {
+        this.trackSimplified = simplify(this.filterOutPoints(this.track), {
             tolerance: 0.002,
             highQuality: false,
             mutate: true,
         })
     }
-
 
     makeBuffer() {
         this.buffer = buffer(this.trackSimplified, 500, {
@@ -52,8 +58,11 @@ export default class Buffer {
 
         // Union is slow when there are 1000s of individual points,
         // But it is required later to check whether the point is inside the polygon
-        this.buffer = this.buffer.features.reduce((joined, feature) => {
-            return union(joined, feature)
-        })
+
+        if (this.buffer.features.length > 1) {
+            this.buffer = this.buffer.features.reduce((joined, feature) => {
+                return union(joined, feature)
+            })
+        }
     }
 }
