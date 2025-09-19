@@ -25,6 +25,7 @@ class Show extends Component
             ->whereNull('from_osm')
             ->orderByRaw('COALESCE(visited_at, created_at) DESC')
             ->with(['user', 'photos'])
+            ->visible()
             ->get();
 
         $coordinates = [

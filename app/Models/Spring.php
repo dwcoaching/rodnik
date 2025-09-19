@@ -228,7 +228,7 @@ class Spring extends Model
 
     public function canBeAnnihilated()
     {
-        if ($this->reports->count() > 0) {
+        if ($this->reports()->visible()->count() > 0) {
             return false;
         }
 
