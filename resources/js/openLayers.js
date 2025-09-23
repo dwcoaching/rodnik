@@ -253,7 +253,7 @@ export default class OpenLayersMap {
                     let photo = e.dataTransfer.files.item(0)
 
                     locateByPhoto(photo, (result) => {
-                        this.locate([result.longitude, result.latitude])
+                        this.locateWithIntelligentZoom([result.longitude, result.latitude])
                         if (! this.queryParameters.location) {
                             window.dispatchEvent(
                                 new CustomEvent('duo-visit',
@@ -528,7 +528,6 @@ export default class OpenLayersMap {
     }
 
     locate(coordinates) {
-        // const zoom = this.view.getZoom() < this.finalZoom ? 14 : this.view.getZoom()
         const zoom = 14
 
         this.view.animate(
@@ -551,6 +550,18 @@ export default class OpenLayersMap {
                 center: fromLonLat(coordinates),
                 zoom: zoom,
                 duration: 100
+            }
+        );
+    }
+
+    locateWithIntelligentZoom(coordinates) {
+        const zoom = this.view.getZoom() < this.finalZoom ? 14 : this.view.getZoom()
+
+        this.view.animate(
+            {
+                center: fromLonLat(coordinates),
+                zoom: zoom,
+                duration: 250
             }
         );
     }

@@ -33,7 +33,7 @@
                                 this.longitude = parsedCoordinates.getLongitude();
                                 this.coordinates = this.latitude.toFixed(6) + ', ' + this.longitude.toFixed(6);
                                 this.lastInputCoordinates = this.coordinates;
-                                window.rodnikMap.locateWithZoom([this.longitude, this.latitude]);
+                                window.rodnikMap.locateWithIntelligentZoom([this.longitude, this.latitude]);
                                 this.coordinatesError = false;
                             } catch (error) {
                                 this.coordinatesError = true;
