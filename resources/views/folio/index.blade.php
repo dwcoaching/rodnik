@@ -51,6 +51,15 @@
                       class="active"
                     @endif
                   >🦜&nbsp; Exports</a></li>
+                  {{--@auth
+                    @can('admin')--}}
+                      <li><a href="/docs/admin"
+                        @if (Request::is('docs/admin'))
+                          class="active"
+                        @endif
+                      >🦸&nbsp; Admin</a></li>
+                  {{--  @endcan
+                  @endauth--}}
                   <li><a href="/docs/contact-us"
                     @if (Request::is('docs/contact-us'))
                       class="active"
