@@ -2,13 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\OSMTag;
-use App\Models\Spring;
 use GuzzleHttp\Client;
 use App\Library\Overpass;
-use App\Models\OverpassImport;
-use App\Library\Overpass\Parser;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -238,11 +233,7 @@ class OverpassImport extends Model
 
         $stats = Overpass::parse($json);
 
-        if ($this->responseHasRemarks()) {
-            $this->has_remarks = false;
-        } else {
-            $this->has_remarks = true;
-        }
+        $this->has_remarks = $this->responseHasRemarks();
 
         $this->parsed_at = now();
         $this->save();
@@ -253,13 +244,29 @@ class OverpassImport extends Model
 
     public function grindUp()
     {
-        if ($this->longitude_to - $this->longitude_from  > 1) {
+        if ($this->longitude_to - $this->longitude_from > 1) {
             $this->grindUpLongitudinally();
         } elseif ($this->latitude_to - $this->latitude_from > 1) {
             $this->grindUpLatitudinally();
         } else {
-            throw new \Exception('Trying to grind up below 1x1 degree');
+            $this->retry1x1();
+            // throw new \Exception('Trying to grind up below 1x1 degree');
         }
+    }
+
+    public function retry1x1()
+    {
+        $overpassImport = new OverpassImport();
+        $overpassImport->latitude_from = $this->latitude_from;
+        $overpassImport->latitude_to = $this->latitude_to;
+        $overpassImport->longitude_from = $this->longitude_from;
+        $overpassImport->longitude_to = $this->longitude_to;
+        $overpassImport->parent_id = $this->id;
+        $overpassImport->overpass_batch_id = $this->overpass_batch_id;
+        $overpassImport->save();
+
+        $this->ground_up = true;
+        $this->save();
     }
 
     public function grindUpLongitudinally()
