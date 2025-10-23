@@ -165,6 +165,14 @@ class OverpassImport extends Model
               [\"drinking_water:legal\"]
               {$this->area}
             out;
+            node
+              [natural=hot_spring]
+              {$this->area}
+            out;
+            node
+              [natural=geyser]
+              {$this->area}
+            out;
 
             way
               [natural=spring]
@@ -222,6 +230,14 @@ class OverpassImport extends Model
               [\"drinking_water:legal\"]
               {$this->area}
             out center;
+            way
+              [natural=hot_spring]
+              {$this->area}
+            out;
+            way
+              [natural=geyser]
+              {$this->area}
+            out;
         ";
 
         return $query;
