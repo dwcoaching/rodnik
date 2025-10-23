@@ -23,12 +23,12 @@ class OverpassImport extends Model
         if (false && config('app.env') !== 'production') {
             $this->fake();
         } else {
-            $result = $guzzle->request('GET', 'https://overpass-api.de/api/interpreter', [
-                'query' => [
-                    'data' => $this->query
-                ],
-                'http_errors' => false
-            ]);
+            $result = $guzzle->request('POST', 'https://overpass-api.de/api/interpreter', [
+              'form_params' => [
+                  'data' => $this->query, // your Overpass QL query
+              ],
+              'http_errors' => false,
+          ]);
 
             $this->response_code = $result->getStatusCode();
             $this->response_phrase = $result->getReasonPhrase();
