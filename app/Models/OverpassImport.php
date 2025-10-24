@@ -233,11 +233,11 @@ class OverpassImport extends Model
             way
               [natural=hot_spring]
               {$this->area}
-            out;
+            out center;
             way
               [natural=geyser]
               {$this->area}
-            out;
+            out center;
         ";
 
         return $query;
