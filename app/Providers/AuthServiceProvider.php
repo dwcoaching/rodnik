@@ -36,5 +36,9 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('superadmin', function (User $user) {
             return $user->is_superadmin;
         });
+
+        Gate::define('viewLogViewer', function (?User $user) {
+            return Gate::allows('superadmin');
+        });
     }
 }

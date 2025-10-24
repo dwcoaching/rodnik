@@ -8,6 +8,7 @@ use Filament\Widgets;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
@@ -59,6 +60,14 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->assets([
                 Css::make('custom-stylesheet', Vite::asset('resources/css/app.css'))
+            ])
+            ->navigationItems([
+                \Filament\Navigation\NavigationItem::make('Log Viewer')
+                    ->url('/' . config('log-viewer.route_path'))
+                    ->icon('heroicon-o-document-text')
+                    ->group('System')
+                    ->sort(999)
+                    ->visible(fn () => Gate::allows('viewLogViewer')),
             ]);
     }
 }

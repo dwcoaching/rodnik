@@ -19,6 +19,7 @@
         "laravel/tinker": "^2.7",
         "livewire/livewire": "^3.4",
         "nunomaduro/essentials": "^0.1",
+        "opcodesio/log-viewer": "^3.21",
         "openspout/openspout": "^4.30",
         "phayes/geophp": "^1.2",
         "symfony/http-client": "^7.1",
