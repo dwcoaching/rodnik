@@ -54,7 +54,7 @@
                 However, we encourage you to register and log in.
             </div>
             <div class="mt-2 max-w-prose">
-                The main reason we ask 
+                The main reason we ask
                 you to register is to establish a reputation
                 for each piece of knowledge. Nobody knows whether to trust an anonymous
                 reporter on the web.
@@ -261,7 +261,7 @@
                 })
 
                 // Check if file is HEIC/HEIF and convert it first
-                const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
+                const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
                               file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
 
                 let processFile = Promise.resolve(file);
@@ -367,6 +367,9 @@
                         <p class="inline pl-1">or drag and drop here</p>
                     </div>
                     <p class="text-xs text-gray-500">PNG, JPG, GIF, HEIC (10 MB max)</p>
+                    @error('file')
+                        <p class="mt-2 text-base text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
         </label>

@@ -10,6 +10,7 @@ use Livewire\Component;
 use App\Rules\SpringTypeRule;
 use Livewire\WithFileUploads;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Locked;
 use App\Library\StatisticsService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,9 @@ class Create extends Component
     public $reportId;
 
     public $sortablePhotos;
-    protected $sortedPhotos;
+
+    #[Locked]
+    public $sortedPhotos;
 
     #[Rule('image|max:10240')]
     public $file;
@@ -101,7 +104,7 @@ class Create extends Component
         $this->spring = Spring::findOrFail($this->springId);
 
         return view('livewire.reports.create', [
-            'photos' => $this->sortedPhotos,
+            'photos' => $this->sortedPhotos ?? collect(),
             'spring' => $this->spring,
             'report' => $this->report,
         ]);
@@ -152,45 +155,49 @@ class Create extends Component
 
     public function updatedFile()
     {
-        if ($this->reportId) {
-            $this->report = Report::findOrFail($this->reportId);
-            $this->authorize('update', $this->report);
-        } else {
-            $this->authorize('create', Report::class);
+        try {
+            if ($this->reportId) {
+                $this->report = Report::findOrFail($this->reportId);
+                $this->authorize('update', $this->report);
+            } else {
+                $this->authorize('create', Report::class);
+            }
+
+            $this->validate([
+                'file' => 'image|max:10240', // 10MB Max
+            ]);
+
+            $photo = new Photo();
+            $photo->original_extension = $this->file->getClientOriginalExtension();
+            $photo->original_filename = $this->file->getClientOriginalName();
+            $photo->extension = $this->file->extension();
+
+            $image = Image::make($this->file)->orientate();
+            $photo->width = $image->width();
+            $photo->height = $image->height();
+
+            $image->resize(1280, 1280, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+
+            $exif = new Exif($this->file);
+
+            $photo->latitude = $exif->latitude();
+            $photo->longitude = $exif->longitude();
+            $photo->order = $this->getMaxPhotoOrder() + 1;
+            $photo->save();
+            Storage::disk('photos')->put($photo->filename, $image->stream('jpg', 80));
+
+            $this->sortablePhotos->push([
+                'value' => $photo->id,
+                'order' => $photo->order,
+            ]);
+
+            $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
+        } catch (\Exception $e) {
+            $this->addError('file', 'Failed to upload a photo. ' . $e->getMessage());
         }
-
-        $this->validate([
-            'file' => 'image|max:10240', // 10MB Max
-        ]);
-
-        $photo = new Photo();
-        $photo->original_extension = $this->file->getClientOriginalExtension();
-        $photo->original_filename = $this->file->getClientOriginalName();
-        $photo->extension = $this->file->extension();
-
-        $image = Image::make($this->file)->orientate();
-        $photo->width = $image->width();
-        $photo->height = $image->height();
-
-        $image->resize(1280, 1280, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
-
-        $exif = new Exif($this->file);
-
-        $photo->latitude = $exif->latitude();
-        $photo->longitude = $exif->longitude();
-        $photo->order = $this->getMaxPhotoOrder() + 1;
-        $photo->save();
-        Storage::disk('photos')->put($photo->filename, $image->stream('jpg', 80));
-
-        $this->sortablePhotos->push([
-            'value' => $photo->id,
-            'order' => $photo->order,
-        ]);
-
-        $this->sortedPhotos = $this->getSortedPhotosFromSortablePhotos();
     }
 
     public function getMaxPhotoOrder()
