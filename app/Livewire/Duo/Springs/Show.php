@@ -24,6 +24,7 @@ class Show extends Component
             ->reports()
             ->whereNull('from_osm')
             ->orderByRaw('COALESCE(visited_at, created_at) DESC')
+            ->orderByDesc('created_at')
             ->with(['user', 'photos'])
             ->visible()
             ->get();
