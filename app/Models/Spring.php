@@ -260,12 +260,12 @@ class Spring extends Model
             if (
                     (
                         ! is_null($report->quality)
-                        && $report->quality != 'good'
+                        && $report->quality == 'bad'
                     )
                     ||
                     (
                         ! is_null($report->state)
-                        && $report->state != 'running'
+                        && in_array($report->state, ['dry'])
                     )
                 ) {
                 $absenceOfGoodWaterCount++;

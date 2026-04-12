@@ -134,16 +134,16 @@ export default (feature) => {
         return hiddenStyle
     }
 
-    if (feature.get('notFound') > 0) {
-        return notFoundStyle;
-    }
-
     if (feature.get('score') > 0) {
         return goodWaterStyle(feature);
     }
 
     if (feature.get('score') < 0) {
         return badWaterStyle(feature);
+    }
+
+    if (feature.get('notFound') > 0) {
+        return notFoundStyle;
     }
 
     if (feature.get('hasReports') > 0) {
