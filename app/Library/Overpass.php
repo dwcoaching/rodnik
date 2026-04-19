@@ -6,15 +6,18 @@ use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\Spring;
 use App\Models\SpringRevision;
+use App\Models\SpringTile;
+use App\Models\WateredSpringTile;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\DB;
 
 class Overpass
 {
-    static public function parse($json)
+    static public function parse($json, $batchId = null)
     {
         $existing = 0;
         $new = 0;
+        $unchanged = 0;
 
         foreach ($json->elements as $element) {
             switch ($element->type) {
@@ -26,15 +29,31 @@ class Overpass
                     break;
             }
 
+            $elementVersion = isset($element->version) ? (int) $element->version : null;
+
+            if ($spring && $elementVersion !== null && $spring->osm_version !== null
+                && (int) $spring->osm_version === $elementVersion) {
+                $unchanged = $unchanged + 1;
+                if ($batchId !== null) {
+                    $spring->last_seen_overpass_batch_id = $batchId;
+                    $spring->save();
+                }
+                continue;
+            }
+
             $revision = new SpringRevision();
 
             if (! $spring) {
                 $new = $new + 1;
                 $spring = new Spring();
                 $springExists = false;
+                $oldLat = null;
+                $oldLon = null;
             } else {
                 $existing = $existing + 1;
                 $springExists = true;
+                $oldLat = $spring->latitude;
+                $oldLon = $spring->longitude;
             }
 
             switch ($element->type) {
@@ -52,6 +71,14 @@ class Overpass
 
             $revision = $spring->updateFromOSM('latitude', round(floatval($osm_lat), 6), $revision);
             $revision = $spring->updateFromOSM('longitude', round(floatval($osm_lon), 6), $revision);
+
+            if ($elementVersion !== null) {
+                $spring->osm_version = $elementVersion;
+            }
+
+            if ($batchId !== null) {
+                $spring->last_seen_overpass_batch_id = $batchId;
+            }
 
             $spring->save();
 
@@ -82,6 +109,12 @@ class Overpass
                 $revision->spring_id = $spring->id;
                 $revision->save();
                 $spring->invalidateTiles();
+
+                if ($oldLat !== null && $oldLon !== null
+                    && ($oldLat != $spring->latitude || $oldLon != $spring->longitude)) {
+                    SpringTile::invalidate($oldLon, $oldLat);
+                    WateredSpringTile::invalidate($oldLon, $oldLat);
+                }
             } elseif (! $springExists) {
                 $spring->invalidateTiles();
                 StatisticsService::invalidateSpringsCount();
@@ -90,7 +123,8 @@ class Overpass
 
         return (object) [
             'new' => $new,
-            'existing' => $existing
+            'existing' => $existing,
+            'unchanged' => $unchanged,
         ];
     }
 }

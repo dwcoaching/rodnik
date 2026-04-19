@@ -72,7 +72,7 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "test": "pest --colors=always --parallel"
+        "test": "pest --colors=always"
     },
     "extra": {
         "laravel": {

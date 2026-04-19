@@ -70,7 +70,6 @@ class User extends Authenticatable implements FilamentUser
     public function springs(): BelongsToMany
     {
         return $this->belongsToMany(Spring::class, 'reports', 'user_id', 'spring_id')
-            ->whereNull('springs.hidden_at')
             ->whereNull('reports.hidden_at');
     }
 

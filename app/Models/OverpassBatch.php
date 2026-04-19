@@ -6,6 +6,7 @@ use App\Models\OverpassCheck;
 use App\Models\OverpassImport;
 use App\Jobs\CleanupOSMSprings;
 use App\Jobs\ParseOverpassBatchImports;
+use App\Jobs\PruneMissingOSMSprings;
 use Illuminate\Database\Eloquent\Model;
 use App\Jobs\RemoveOlderOverpassArtifacts;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -119,6 +120,7 @@ class OverpassBatch extends Model
         if ($percentage === 1.0) {
             $this->parse_status = "parsed";
             CleanupOSMSprings::dispatch($this);
+            PruneMissingOSMSprings::dispatch($this);
             RemoveOlderOverpassArtifacts::dispatch($this);
         } else {
             $this->parse_status = "parsing";

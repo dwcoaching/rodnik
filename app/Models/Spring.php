@@ -239,6 +239,55 @@ class Spring extends Model
         return true;
     }
 
+    public function hasLocalOverride()
+    {
+        foreach (['name', 'type', 'latitude', 'longitude', 'intermittent'] as $key) {
+            if ($this->{$key} != $this->{'osm_' . $key}) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function canBePrunedAsMissing()
+    {
+        if ($this->reports()->count() > 0) {
+            return false;
+        }
+
+        if ($this->springRevisions()->where('revision_type', '!=', 'from_osm')->count() > 0) {
+            return false;
+        }
+
+        if ($this->hasLocalOverride()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function pruneAsMissing()
+    {
+        if (! $this->canBePrunedAsMissing()) {
+            throw new \Exception("Spring can not be pruned as missing");
+        }
+
+        $longitude = $this->longitude;
+        $latitude = $this->latitude;
+        $id = $this->id;
+
+        \DB::transaction(function () use ($id) {
+            OSMTag::where('spring_id', $id)->delete();
+            SpringRevision::where('spring_id', $id)->delete();
+            Spring::where('id', $id)->delete();
+        });
+
+        SpringTile::invalidate($longitude, $latitude);
+        WateredSpringTile::invalidate($longitude, $latitude);
+        StatisticsService::invalidateSpringsCount();
+    }
+
     public function visible()
     {
         return ! $this->hidden_at;

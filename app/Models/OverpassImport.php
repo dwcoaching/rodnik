@@ -112,132 +112,132 @@ class OverpassImport extends Model
             node
               [natural=spring]
               {$this->area}
-            out;
+            out meta;
             node
               [man_made=spring_box]
               {$this->area}
-            out;
+            out meta;
             node
               [man_made=water_well]
               {$this->area}
-            out;
+            out meta;
             node
               [man_made=water_tap]
               {$this->area}
-            out;
+            out meta;
             node
               [amenity=drinking_water]
               {$this->area}
-            out;
+            out meta;
             node
               [amenity=fountain]
               {$this->area}
-            out;
+            out meta;
             node
               [amenity=watering_place]
               {$this->area}
-            out;
+            out meta;
             node
               [man_made=drinking_fountain]
               {$this->area}
-            out;
+            out meta;
             node
               [amenity=water_point]
               {$this->area}
-            out;
+            out meta;
             node
               [waterway=water_point]
               {$this->area}
-            out;
+            out meta;
             node
               [water_point=yes]
               {$this->area}
-            out;
+            out meta;
             node
               [drinking_water]
               {$this->area}
-            out;
+            out meta;
             node
               [\"drinking_water:seasonal\"]
               {$this->area}
-            out;
+            out meta;
             node
               [\"drinking_water:legal\"]
               {$this->area}
-            out;
+            out meta;
             node
               [natural=hot_spring]
               {$this->area}
-            out;
+            out meta;
             node
               [natural=geyser]
               {$this->area}
-            out;
+            out meta;
 
             way
               [natural=spring]
               {$this->area}
-            out center;
+            out meta center;
             way
               [man_made=spring_box]
               {$this->area}
-            out center;
+            out meta center;
             way
               [man_made=water_well]
               {$this->area}
-            out center;
+            out meta center;
             way
               [man_made=water_tap]
               {$this->area}
-            out center;
+            out meta center;
             way
               [amenity=drinking_water]
               {$this->area}
-            out center;
+            out meta center;
             way
               [amenity=fountain]
               {$this->area}
-            out center;
+            out meta center;
             way
             [amenity=watering_place]
               {$this->area}
-            out center;
+            out meta center;
             way
               [man_made=drinking_fountain]
               {$this->area}
-            out center;
+            out meta center;
             way
               [amenity=water_point]
               {$this->area}
-            out center;
+            out meta center;
             way
               [waterway=water_point]
               {$this->area}
-            out center;
+            out meta center;
             way
               [water_point=yes]
               {$this->area}
-            out center;
+            out meta center;
             way
               [drinking_water]
               {$this->area}
-            out center;
+            out meta center;
             way
               [\"drinking_water:seasonal\"]
               {$this->area}
-            out center;
+            out meta center;
             way
               [\"drinking_water:legal\"]
               {$this->area}
-            out center;
+            out meta center;
             way
               [natural=hot_spring]
               {$this->area}
-            out center;
+            out meta center;
             way
               [natural=geyser]
               {$this->area}
-            out center;
+            out meta center;
         ";
 
         return $query;
@@ -247,7 +247,7 @@ class OverpassImport extends Model
     {
         $json = json_decode($this->response);
 
-        $stats = Overpass::parse($json);
+        $stats = Overpass::parse($json, $this->overpass_batch_id);
 
         $this->has_remarks = $this->responseHasRemarks();
 
@@ -256,6 +256,11 @@ class OverpassImport extends Model
 
         echo 'new: ' . $stats->new . "\n";
         echo 'existing: ' . $stats->existing . "\n";
+    }
+
+    public function overpassBatch()
+    {
+        return $this->belongsTo(OverpassBatch::class);
     }
 
     public function grindUp()
