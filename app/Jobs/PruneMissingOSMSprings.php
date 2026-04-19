@@ -51,8 +51,6 @@ class PruneMissingOSMSprings implements ShouldQueue
         foreach ($candidates as $spring) {
             if ($spring->canBePrunedAsMissing()) {
                 $spring->pruneAsMissing();
-            } else {
-                $spring->hide();
             }
         }
     }

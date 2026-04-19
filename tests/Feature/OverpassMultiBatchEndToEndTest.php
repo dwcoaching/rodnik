@@ -57,7 +57,7 @@ test('two-batch end-to-end: B disappears and is pruned, A remains via fast path'
     expect(Spring::find($springB->id))->toBeNull();
 });
 
-test('two-batch: disappearing spring with user report is hidden, not pruned', function () {
+test('two-batch: disappearing spring with user report is flagged via missingFromOsm, not hidden, not pruned', function () {
     $batch1 = OverpassBatch::create([]);
     $batch1->coverage = 100;
     $batch1->parse_status = 'parsed';
@@ -86,5 +86,44 @@ test('two-batch: disappearing spring with user report is hidden, not pruned', fu
 
     $springB->refresh();
     expect(Spring::find($springB->id))->not->toBeNull();
-    expect($springB->hidden_at)->not->toBeNull();
+    expect($springB->hidden_at)->toBeNull();
+    expect(Spring::missingFromOsm()->pluck('id')->all())->toContain($springB->id);
+});
+
+test('missingFromOsm: spring that comes back in a later batch drops out of the list', function () {
+    $batch1 = OverpassBatch::create([]);
+    $batch1->coverage = 100;
+    $batch1->parse_status = 'parsed';
+    $batch1->save();
+
+    $json1 = json_decode(file_get_contents(base_path('tests/stubs/overpass-batch-1.json')));
+    Overpass::parse($json1, $batch1->id);
+
+    $springB = Spring::where('osm_node_id', 1002)->first();
+    \DB::table('reports')->insert([
+        'spring_id' => $springB->id,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Batch 2: B disappears
+    $batch2 = OverpassBatch::create([]);
+    $batch2->coverage = 100;
+    $batch2->parse_status = 'parsed';
+    $batch2->save();
+    $json2 = json_decode(file_get_contents(base_path('tests/stubs/overpass-batch-2-a-only.json')));
+    Overpass::parse($json2, $batch2->id);
+    (new PruneMissingOSMSprings($batch2))->handle();
+
+    expect(Spring::missingFromOsm()->pluck('id')->all())->toContain($springB->id);
+
+    // Batch 3: B is back (re-use batch-1 stub which has both A and B)
+    $batch3 = OverpassBatch::create([]);
+    $batch3->coverage = 100;
+    $batch3->parse_status = 'parsed';
+    $batch3->save();
+    $json3 = json_decode(file_get_contents(base_path('tests/stubs/overpass-batch-1.json')));
+    Overpass::parse($json3, $batch3->id);
+
+    expect(Spring::missingFromOsm()->pluck('id')->all())->not->toContain($springB->id);
 });

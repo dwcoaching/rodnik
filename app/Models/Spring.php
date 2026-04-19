@@ -8,6 +8,7 @@ use App\Models\OSMTag;
 use App\Models\Report;
 use App\Models\SpringTile;
 use App\Models\SpringRevision;
+use App\Models\OverpassBatch;
 use App\Library\StatisticsService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -237,6 +238,27 @@ class Spring extends Model
         }
 
         return true;
+    }
+
+    public function scopeMissingFromOsm($query)
+    {
+        $latest = OverpassBatch::where('parse_status', 'parsed')
+            ->where('coverage', 100)
+            ->max('id');
+
+        if ($latest === null) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query
+            ->whereNull('hidden_at')
+            ->where(function ($q) {
+                $q->whereNotNull('osm_node_id')->orWhereNotNull('osm_way_id');
+            })
+            ->where(function ($q) use ($latest) {
+                $q->whereNull('last_seen_overpass_batch_id')
+                  ->orWhere('last_seen_overpass_batch_id', '<', $latest);
+            });
     }
 
     public function hasLocalOverride()

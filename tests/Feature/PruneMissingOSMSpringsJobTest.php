@@ -69,7 +69,7 @@ test('prunes OSM-linked safe spring not seen this batch', function () {
     expect(Spring::find($spring->id))->toBeNull();
 });
 
-test('hides unsafe (has report) missing spring instead of deleting', function () {
+test('leaves unsafe (has report) missing spring in place — surfaced via Spring::missingFromOsm', function () {
     $batchOld = makeReadyBatch();
     $batchNew = makeReadyBatch();
 
@@ -83,7 +83,9 @@ test('hides unsafe (has report) missing spring instead of deleting', function ()
     (new PruneMissingOSMSprings($batchNew))->handle();
 
     $spring->refresh();
-    expect($spring->hidden_at)->not->toBeNull();
+    expect(Spring::find($spring->id))->not->toBeNull();
+    expect($spring->hidden_at)->toBeNull();
+    expect(Spring::missingFromOsm()->pluck('id')->all())->toContain($spring->id);
 });
 
 test('leaves non-OSM springs alone regardless of last_seen_overpass_batch_id', function () {
