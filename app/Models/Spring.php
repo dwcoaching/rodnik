@@ -261,17 +261,6 @@ class Spring extends Model
             });
     }
 
-    public function hasLocalOverride()
-    {
-        foreach (['name', 'type', 'latitude', 'longitude', 'intermittent'] as $key) {
-            if ($this->{$key} != $this->{'osm_' . $key}) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public function canBePrunedAsMissing()
     {
         if ($this->reports()->count() > 0) {
@@ -279,10 +268,6 @@ class Spring extends Model
         }
 
         if ($this->springRevisions()->where('revision_type', '!=', 'from_osm')->count() > 0) {
-            return false;
-        }
-
-        if ($this->hasLocalOverride()) {
             return false;
         }
 
