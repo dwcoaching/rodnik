@@ -249,6 +249,8 @@ class OverpassImport extends Model
 
         $stats = Overpass::parse($json, $this->overpass_batch_id);
 
+        unset($json);
+
         $this->has_remarks = $this->responseHasRemarks();
 
         $this->parsed_at = now();
@@ -256,6 +258,8 @@ class OverpassImport extends Model
 
         echo 'new: ' . $stats->new . "\n";
         echo 'existing: ' . $stats->existing . "\n";
+
+        unset($stats);
     }
 
     public function overpassBatch()

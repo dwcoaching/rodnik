@@ -199,8 +199,12 @@ class OverpassBatch extends Model
             echo "Parsing import id = {$dueImport->id}\n";
             $dueImport->parse();
 
+            unset($dueImport);
+
             $this->updateParsedPercentage();
         }
+
+        unset($dueImports);
 
         $this->updateParsedPercentage();
     }

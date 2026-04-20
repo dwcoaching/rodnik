@@ -38,6 +38,8 @@ class Overpass
                     $spring->last_seen_overpass_batch_id = $batchId;
                     $spring->save();
                 }
+
+                $spring = null;
                 continue;
             }
 
@@ -119,6 +121,9 @@ class Overpass
                 $spring->invalidateTiles();
                 StatisticsService::invalidateSpringsCount();
             }
+
+            $spring = null;
+            $revision = null;
         }
 
         return (object) [
