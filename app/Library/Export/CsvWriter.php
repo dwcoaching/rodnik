@@ -2,17 +2,14 @@
 
 namespace App\Library\Export;
 
-use ZipArchive;
 use App\Models\User;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\AbstractWriter;
 use App\Library\Export\CsvTransformer;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
-use OpenSpout\Common\Entity\Style\Style;
 use Illuminate\Database\Eloquent\Builder;
 use OpenSpout\Writer\CSV\Writer as OpenSpoutCsvWriter;
-use OpenSpout\Writer\XLSX\Writer as OpenSpoutXlsxWriter;
 
 class CsvWriter
 {
@@ -27,54 +24,50 @@ class CsvWriter
         return $this;
     }
 
-    public function format(?string $format = 'csv'): static
-    {
-        $this->format = $format;
-        return $this;
-    }
-
     public function save(): string
     {
-        $allSprings = [];
-        $allReports = [];
-        $allEdits = [];
-        $allPhotos = [];
+        $timestamp = now()->format('Y-m-d_H-i-s');
 
-        $firstRun = true;
-        
-        $this->query->chunk(500, function ($springs) use (&$allSprings, &$allReports, &$allEdits, &$allPhotos, &$firstRun) {
-            $csvTransformer = new CsvTransformer($springs)->forUser($this->user);
+        $springsFilePath = $this->buildFilePath('rodnik-springs', $timestamp);
+        $reportsFilePath = $this->buildFilePath('rodnik-reports', $timestamp);
+        $editsFilePath = $this->buildFilePath('rodnik-edits', $timestamp);
+        $photosFilePath = $this->buildFilePath('rodnik-photos', $timestamp);
 
-            if ($firstRun) {
-                $allSprings[] = $csvTransformer->getHeadersForSprings();
-                $allReports[] = $csvTransformer->getHeadersForReports();
-                $allEdits[] = $csvTransformer->getHeadersForEdits();
-                $allPhotos[] = $csvTransformer->getHeadersForPhotos();
-                $firstRun = false;
-            }
-            
-            $processedSprings = $csvTransformer->transformSprings(); 
-            $processedReports = $csvTransformer->transformReports();
-            $processedEdits = $csvTransformer->transformEdits();
-            $processedPhotos = $csvTransformer->transformPhotos();
+        $springsWriter = $this->getOpenSpoutWriter();
+        $reportsWriter = $this->getOpenSpoutWriter();
+        $editsWriter = $this->getOpenSpoutWriter();
+        $photosWriter = $this->getOpenSpoutWriter();
 
-            $allSprings = array_merge($allSprings, $processedSprings);
-            $allReports = array_merge($allReports, $processedReports);
-            $allEdits = array_merge($allEdits, $processedEdits);
-            $allPhotos = array_merge($allPhotos, $processedPhotos);
-        });
+        $springsWriter->openToFile($springsFilePath);
+        $reportsWriter->openToFile($reportsFilePath);
+        $editsWriter->openToFile($editsFilePath);
+        $photosWriter->openToFile($photosFilePath);
 
-        $filename = $this->write($allSprings, $allReports, $allEdits, $allPhotos);
+        try {
+            $firstRun = true;
 
-        return $filename;
-    }
+            $this->query->chunk(500, function ($springs) use (&$firstRun, $springsWriter, $reportsWriter, $editsWriter, $photosWriter) {
+                $csvTransformer = (new CsvTransformer($springs))->forUser($this->user);
 
-    public function write(array $allSprings, array $allReports, array $allEdits, array $allPhotos): string
-    {
-        $springsFilePath = $this->writeSprings($allSprings);
-        $reportsFilePath = $this->writeReports($allReports);
-        $editsFilePath = $this->writeEdits($allEdits);
-        $photosFilePath = $this->writePhotos($allPhotos);
+                if ($firstRun) {
+                    $springsWriter->addRow(Row::fromValues($csvTransformer->getHeadersForSprings()));
+                    $reportsWriter->addRow(Row::fromValues($csvTransformer->getHeadersForReports()));
+                    $editsWriter->addRow(Row::fromValues($csvTransformer->getHeadersForEdits()));
+                    $photosWriter->addRow(Row::fromValues($csvTransformer->getHeadersForPhotos()));
+                    $firstRun = false;
+                }
+
+                $this->appendRows($springsWriter, $csvTransformer->transformSprings());
+                $this->appendRows($reportsWriter, $csvTransformer->transformReports());
+                $this->appendRows($editsWriter, $csvTransformer->transformEdits());
+                $this->appendRows($photosWriter, $csvTransformer->transformPhotos());
+            });
+        } finally {
+            $springsWriter->close();
+            $reportsWriter->close();
+            $editsWriter->close();
+            $photosWriter->close();
+        }
 
         $filename = $this->zip($springsFilePath, $reportsFilePath, $editsFilePath, $photosFilePath);
 
@@ -84,116 +77,49 @@ class CsvWriter
     }
 
     public function getOpenSpoutWriter(): AbstractWriter
-    {       
+    {
         return new OpenSpoutCsvWriter();
     }
 
-    public function writeSprings(array $allSprings): string
+    protected function appendRows(AbstractWriter $writer, array $rows): void
     {
-        $writer = $this->getOpenSpoutWriter();
+        if (empty($rows)) {
+            return;
+        }
 
-        $timestamp = now()->format('Y-m-d_H-i-s');
-
-        $filePath = Storage::disk('public')->path('exports/'
-        . ($this->user ? 'users/' : '') 
-        . 'rodnik-springs' 
-        . ($this->user ? '-user-' . $this->user->id : '') 
-        . '-from-' . $timestamp . '.csv');
-
-        $writer->openToFile($filePath);
-        
-        $writer->addRows(array_map(fn ($spring) => Row::fromValues($spring), $allSprings));
-        
-        $writer->close();
-
-        return $filePath;
+        $writer->addRows(array_map(fn ($row) => Row::fromValues($row), $rows));
     }
 
-    public function writeReports(array $allReports): string
+    protected function buildFilePath(string $prefix, string $timestamp): string
     {
-        $writer = $this->getOpenSpoutWriter();
-
-        $timestamp = now()->format('Y-m-d_H-i-s');
-
-        $filePath = Storage::disk('public')->path('exports/'
-        . ($this->user ? 'users/' : '') 
-        . 'rodnik-reports' 
-        . ($this->user ? '-user-' . $this->user->id : '') 
-        . '-from-' . $timestamp . '.csv');
-
-        $writer->openToFile($filePath);
-
-        $writer->addRows(array_map(fn ($spring) => Row::fromValues($spring), $allReports));
-        
-        $writer->close();
-
-        return $filePath;
-    }
-
-    public function writeEdits(array $allEdits): string
-    {
-        $writer = $this->getOpenSpoutWriter();
-
-        $timestamp = now()->format('Y-m-d_H-i-s');
-
-        $filePath = Storage::disk('public')->path('exports/'
-        . ($this->user ? 'users/' : '') 
-        . 'rodnik-edits' 
-        . ($this->user ? '-user-' . $this->user->id : '') 
-        . '-from-' . $timestamp . '.csv');
-
-        $writer->openToFile($filePath);
-
-        $writer->addRows(array_map(fn ($spring) => Row::fromValues($spring), $allEdits));
-        
-        $writer->close();
-
-        return $filePath;
-    }
-
-
-    public function writePhotos(array $allPhotos): string
-    {
-        $writer = $this->getOpenSpoutWriter();
-
-        $timestamp = now()->format('Y-m-d_H-i-s');
-
-        $filePath = Storage::disk('public')->path('exports/'
-        . ($this->user ? 'users/' : '') 
-        . 'rodnik-photos' 
-        . ($this->user ? '-user-' . $this->user->id : '') 
-        . '-from-' . $timestamp . '.csv');
-
-        $writer->openToFile($filePath);
-
-        $writer->addRows(array_map(fn ($spring) => Row::fromValues($spring), $allPhotos));
-        
-        $writer->close();
-
-        return $filePath;
+        return Storage::disk('public')->path('exports/'
+            . ($this->user ? 'users/' : '')
+            . $prefix
+            . ($this->user ? '-user-' . $this->user->id : '')
+            . '-from-' . $timestamp . '.csv');
     }
 
     public function zip(string $springsFilePath, string $reportsFilePath, string $editsFilePath, string $photosFilePath): string
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
-        
+
         $exportDir = Storage::disk('public')->path('exports/'
         . ($this->user ? 'users/' : ''));
-        
-        $filename = 'rodnik' 
-            . ($this->user ? '-user-' . $this->user->id : '') 
+
+        $filename = 'rodnik'
+            . ($this->user ? '-user-' . $this->user->id : '')
             . '-from-' . $timestamp . '.zip';
 
         $filePath = $exportDir . $filename;
-        
+
         Process::path($exportDir)
             ->run([
-                'zip', 
+                'zip',
                 '-j',  // junk paths (don't store directory structure)
                 '-6',  // compression level (1=fastest, 9=best compression, 6=default)
                 $filePath,
                 $springsFilePath,
-                $reportsFilePath, 
+                $reportsFilePath,
                 $editsFilePath,
                 $photosFilePath
             ]);

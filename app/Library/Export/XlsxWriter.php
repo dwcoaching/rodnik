@@ -14,10 +14,33 @@ use OpenSpout\Writer\XLSX\Writer as OpenSpoutXlsxWriter;
 
 class XlsxWriter extends CsvWriter
 {
-    public function write(array $allSprings, array $allReports, array $allEdits, array $allPhotos): string {
-        $filename = $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
+    public function save(): string
+    {
+        $allSprings = [];
+        $allReports = [];
+        $allEdits = [];
+        $allPhotos = [];
 
-        return $filename;
+        $firstRun = true;
+
+        $this->query->chunk(500, function ($springs) use (&$allSprings, &$allReports, &$allEdits, &$allPhotos, &$firstRun) {
+            $csvTransformer = (new CsvTransformer($springs))->forUser($this->user);
+
+            if ($firstRun) {
+                $allSprings[] = $csvTransformer->getHeadersForSprings();
+                $allReports[] = $csvTransformer->getHeadersForReports();
+                $allEdits[] = $csvTransformer->getHeadersForEdits();
+                $allPhotos[] = $csvTransformer->getHeadersForPhotos();
+                $firstRun = false;
+            }
+
+            $allSprings = array_merge($allSprings, $csvTransformer->transformSprings());
+            $allReports = array_merge($allReports, $csvTransformer->transformReports());
+            $allEdits = array_merge($allEdits, $csvTransformer->transformEdits());
+            $allPhotos = array_merge($allPhotos, $csvTransformer->transformPhotos());
+        });
+
+        return $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
     }
 
     public function getOpenSpoutWriter(): OpenSpoutXlsxWriter
