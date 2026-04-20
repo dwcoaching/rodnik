@@ -19,6 +19,9 @@ yarn-error.log
 .my.testing.cnf
 latest.sh
 backup.sh
+db-pull.sh
+db-restore.sh
+photos-pull.sh
 .DS_Store
 auth.json
 /dumps
