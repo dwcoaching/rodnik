@@ -106,137 +106,28 @@ class OverpassImport extends Model
 
     public function getQueryAttribute()
     {
+        $area = $this->area;
+
         $query = "
             [out:json][timeout:180];
-
-            node
-              [natural=spring]
-              {$this->area}
-            out meta;
-            node
-              [man_made=spring_box]
-              {$this->area}
-            out meta;
-            node
-              [man_made=water_well]
-              {$this->area}
-            out meta;
-            node
-              [man_made=water_tap]
-              {$this->area}
-            out meta;
-            node
-              [amenity=drinking_water]
-              {$this->area}
-            out meta;
-            node
-              [amenity=fountain]
-              {$this->area}
-            out meta;
-            node
-              [amenity=watering_place]
-              {$this->area}
-            out meta;
-            node
-              [man_made=drinking_fountain]
-              {$this->area}
-            out meta;
-            node
-              [amenity=water_point]
-              {$this->area}
-            out meta;
-            node
-              [waterway=water_point]
-              {$this->area}
-            out meta;
-            node
-              [water_point=yes]
-              {$this->area}
-            out meta;
-            node
-              [drinking_water]
-              {$this->area}
-            out meta;
-            node
-              [\"drinking_water:seasonal\"]
-              {$this->area}
-            out meta;
-            node
-              [\"drinking_water:legal\"]
-              {$this->area}
-            out meta;
-            node
-              [natural=hot_spring]
-              {$this->area}
-            out meta;
-            node
-              [natural=geyser]
-              {$this->area}
-            out meta;
-
-            way
-              [natural=spring]
-              {$this->area}
-            out meta center;
-            way
-              [man_made=spring_box]
-              {$this->area}
-            out meta center;
-            way
-              [man_made=water_well]
-              {$this->area}
-            out meta center;
-            way
-              [man_made=water_tap]
-              {$this->area}
-            out meta center;
-            way
-              [amenity=drinking_water]
-              {$this->area}
-            out meta center;
-            way
-              [amenity=fountain]
-              {$this->area}
-            out meta center;
-            way
-            [amenity=watering_place]
-              {$this->area}
-            out meta center;
-            way
-              [man_made=drinking_fountain]
-              {$this->area}
-            out meta center;
-            way
-              [amenity=water_point]
-              {$this->area}
-            out meta center;
-            way
-              [waterway=water_point]
-              {$this->area}
-            out meta center;
-            way
-              [water_point=yes]
-              {$this->area}
-            out meta center;
-            way
-              [drinking_water]
-              {$this->area}
-            out meta center;
-            way
-              [\"drinking_water:seasonal\"]
-              {$this->area}
-            out meta center;
-            way
-              [\"drinking_water:legal\"]
-              {$this->area}
-            out meta center;
-            way
-              [natural=hot_spring]
-              {$this->area}
-            out meta center;
-            way
-              [natural=geyser]
-              {$this->area}
+            (
+              nwr[natural=spring]{$area}
+              nwr[man_made=spring_box]{$area}
+              nwr[man_made=water_well]{$area}
+              nwr[man_made=water_tap]{$area}
+              nwr[amenity=drinking_water]{$area}
+              nwr[amenity=fountain]{$area}
+              nwr[amenity=watering_place]{$area}
+              nwr[man_made=drinking_fountain]{$area}
+              nwr[amenity=water_point]{$area}
+              nwr[waterway=water_point]{$area}
+              nwr[water_point=yes]{$area}
+              nwr[drinking_water]{$area}
+              nwr[\"drinking_water:seasonal\"]{$area}
+              nwr[\"drinking_water:legal\"]{$area}
+              nwr[natural=hot_spring]{$area}
+              nwr[natural=geyser]{$area}
+            );
             out meta center;
         ";
 

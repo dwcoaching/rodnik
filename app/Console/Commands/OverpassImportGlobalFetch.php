@@ -29,10 +29,15 @@ class OverpassImportGlobalFetch extends Command
     public function handle()
     {
         $dueImports = OverpassImport::whereNull('fetched_at')->get();
+        $lastIndex = $dueImports->count() - 1;
 
-        foreach ($dueImports as $dueImport) {
+        foreach ($dueImports as $index => $dueImport) {
             echo "Fetching id = {$dueImport->id} ({$dueImport->latitude_from}, {$dueImport->longitude_from}) to ({$dueImport->latitude_to}, {$dueImport->longitude_to}) \n";
             $dueImport->fetch();
+
+            if ($index < $lastIndex) {
+                sleep(1);
+            }
         }
     }
 }
