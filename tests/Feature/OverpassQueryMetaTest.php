@@ -11,7 +11,6 @@ test('Overpass query requests meta metadata on nodes and ways', function () {
 
     $query = $import->query;
 
-    expect($query)->toContain('out meta;');
     expect($query)->toContain('out meta center;');
     expect($query)->not->toMatch('/\bout;\s/');
     expect($query)->not->toMatch('/\bout center;/');

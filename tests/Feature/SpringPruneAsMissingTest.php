@@ -56,20 +56,23 @@ test('pruneAsMissing deletes associated spring_revisions including from_osm ones
     expect(SpringRevision::where('spring_id', $spring->id)->count())->toBe(0);
 });
 
-test('pruneAsMissing throws when canBePrunedAsMissing is false and leaves state intact', function () {
-    $spring = Spring::factory()->create([
-        'osm_node_id' => 9002,
-        'name' => 'local override',
-        'osm_name' => 'osm value',
-        'type' => 'Spring', 'osm_type' => 'Spring',
-        'latitude' => 10.0, 'osm_latitude' => 10.0,
-        'longitude' => 20.0, 'osm_longitude' => 20.0,
+test('pruneAsMissing throws when spring has reports and leaves state intact', function () {
+    $spring = makeCleanPrunableSpring();
+
+    $reportId = \DB::table('reports')->insertGetId([
+        'spring_id' => $spring->id,
+        'visited_at' => now()->toDateString(),
+        'quality' => 'good',
+        'state' => 'running',
+        'created_at' => now(),
+        'updated_at' => now(),
     ]);
 
-    $tag = OSMTag::factory()->create(['spring_id' => $spring->id, 'key' => 'natural', 'value' => 'spring']);
+    $tag = OSMTag::where('spring_id', $spring->id)->first();
 
     expect(fn () => $spring->pruneAsMissing())->toThrow(\Exception::class);
 
     expect(Spring::find($spring->id))->not->toBeNull();
     expect(OSMTag::find($tag->id))->not->toBeNull();
+    expect(\DB::table('reports')->where('id', $reportId)->exists())->toBeTrue();
 });
