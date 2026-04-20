@@ -25,3 +25,4 @@ photos-pull.sh
 .DS_Store
 auth.json
 /dumps
+/public/exports
