@@ -111,22 +111,22 @@ class OverpassImport extends Model
         $query = "
             [out:json][timeout:180];
             (
-              nwr[natural=spring]{$area}
-              nwr[man_made=spring_box]{$area}
-              nwr[man_made=water_well]{$area}
-              nwr[man_made=water_tap]{$area}
-              nwr[amenity=drinking_water]{$area}
-              nwr[amenity=fountain]{$area}
-              nwr[amenity=watering_place]{$area}
-              nwr[man_made=drinking_fountain]{$area}
-              nwr[amenity=water_point]{$area}
-              nwr[waterway=water_point]{$area}
-              nwr[water_point=yes]{$area}
-              nwr[drinking_water]{$area}
-              nwr[\"drinking_water:seasonal\"]{$area}
-              nwr[\"drinking_water:legal\"]{$area}
-              nwr[natural=hot_spring]{$area}
-              nwr[natural=geyser]{$area}
+              nw[natural=spring]{$area}
+              nw[man_made=spring_box]{$area}
+              nw[man_made=water_well]{$area}
+              nw[man_made=water_tap]{$area}
+              nw[amenity=drinking_water]{$area}
+              nw[amenity=fountain]{$area}
+              nw[amenity=watering_place]{$area}
+              nw[man_made=drinking_fountain]{$area}
+              nw[amenity=water_point]{$area}
+              nw[waterway=water_point]{$area}
+              nw[water_point=yes]{$area}
+              nw[drinking_water]{$area}
+              nw[\"drinking_water:seasonal\"]{$area}
+              nw[\"drinking_water:legal\"]{$area}
+              nw[natural=hot_spring]{$area}
+              nw[natural=geyser]{$area}
             );
             out meta center;
         ";
