@@ -27,6 +27,10 @@ class OverpassImport extends Model
               'form_params' => [
                   'data' => $this->query, // your Overpass QL query
               ],
+              'headers' => [
+                  'User-Agent' => 'Rodnik.today/1.0 (+https://rodnik.today; kolpavko@hey.com)',
+                  'Accept' => '*/*',
+              ],
               'http_errors' => false,
           ]);
 
