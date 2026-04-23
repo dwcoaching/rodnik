@@ -20,11 +20,11 @@ Sources (на случай изменения в будущих версиях):
 
 ```
 docker run --rm \
-    --pull=always \
-    -v "$(pwd)":/opt \
-    -w /opt \
-    laravelsail/php82-composer:latest \
-    bash -c "composer install"
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php84-composer:latest \
+    composer install --ignore-platform-reqs
 ```
 
 > Если не получается, прочитайте ошибку. Возможно, придется добавить `--ignore-platform-req=ext-intl`
