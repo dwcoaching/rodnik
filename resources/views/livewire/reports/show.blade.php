@@ -1,5 +1,16 @@
 <li>
-    @if (! $report->hidden_at)
+    @php
+        $moveTargetSpringId = $report->spring->redirect_to_spring_id;
+    @endphp
+
+    @if ($justMoved)
+        <div class="border-t border-stone-200 p-4 pb-8 flex items-center">
+            <div class="text-sm text-medium text-amber-700 mr-2">
+                Report moved to #{{ $movedToSpringId }}
+            </div>
+            <span wire:click="undoMoveToRedirectTarget" class="rounded-full border border-amber-600 hover:border-amber-700 cursor-pointer text-amber-600 text-xs px-3 py-1">Undo</span>
+        </div>
+    @elseif (! $report->hidden_at)
         <div class="border-t border-stone-200 p-4">
             <div class="flex space-x-3">
                 <div class="flex-1">
@@ -50,10 +61,13 @@
                                 @endif
                             </div>
                         </h3>
-                        @if (! $report->spring_edit
-                            && Auth::check()
-                            && ($report->user_id == Auth::user()->id
-                                || Gate::allows('admin'))
+                        @if (Auth::check()
+                            && (
+                                (! $report->spring_edit
+                                    && ($report->user_id == Auth::user()->id
+                                        || Gate::allows('admin')))
+                                || (Gate::allows('admin') && $moveTargetSpringId)
+                            )
                             )
                             <div x-data>
                                 <div x-menu class="relative">
@@ -121,6 +135,24 @@
                                                     <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
                                                 </svg>
                                                 Hide as Moderator
+                                            </button>
+                                        @endif
+                                        @if (Gate::allows('admin') && $moveTargetSpringId)
+                                            <button
+                                                type="button"
+                                                x-menu:item
+                                                wire:click="moveToRedirectTarget"
+                                                wire:confirm="Move this report to #{{ $moveTargetSpringId }}?"
+                                                :class="{
+                                                    'bg-blue-200 text-blue-700': $menuItem.isActive,
+                                                    'text-blue-600': ! $menuItem.isActive,
+                                                    'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                }"
+                                                class="flex items-center gap-x-2 rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                    <path fill-rule="evenodd" d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03A.75.75 0 0 1 9.28 2.97l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5A.75.75 0 0 1 8.22 11.97l3.22-3.22H2.75A.75.75 0 0 1 2 8Z" clip-rule="evenodd" />
+                                                </svg>
+                                                Move to #{{ $moveTargetSpringId }}
                                             </button>
                                         @endif
                                     </div>

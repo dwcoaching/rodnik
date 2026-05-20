@@ -13,6 +13,7 @@ use App\Library\StatisticsService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use RuntimeException;
 
 class Spring extends Model
 {
@@ -28,9 +29,27 @@ class Spring extends Model
         //'Not a water source',
     ];
 
+    public const MERGE_RADIUS_METERS = 500;
+
+    // 1 degree of latitude ~= 111_320 meters everywhere; 1 degree of longitude
+    // is at most 111_320 meters at the equator and shrinks toward the poles.
+    // Using lat/lng as a square bounding box therefore guarantees the picked
+    // target sits within MERGE_RADIUS_METERS at the equator (and tighter elsewhere).
+    public const MERGE_RADIUS_DEGREES = self::MERGE_RADIUS_METERS / 111320;
+
     public function reports()
     {
         return $this->hasMany(Report::class);
+    }
+
+    public function redirectedTo()
+    {
+        return $this->belongsTo(self::class, 'redirect_to_spring_id');
+    }
+
+    public function redirectedFrom()
+    {
+        return $this->hasMany(self::class, 'redirect_to_spring_id');
     }
 
     public function springRevisions()
@@ -238,6 +257,99 @@ class Spring extends Model
         }
 
         return true;
+    }
+
+    public function isOsmTracked()
+    {
+        return $this->osm_node_id || $this->osm_way_id;
+    }
+
+    // Source spring (the duplicate being merged away). Must not be tracked by
+    // OSM — OSM-tracked springs would re-appear on the next import and need
+    // to be deleted from OSM first.
+    public function canBeRedirectedFrom()
+    {
+        return ! $this->isOsmTracked();
+    }
+
+    // Target spring. Redirect chains are intentional, but a target chain must
+    // not already point back to the source because that would create a loop.
+    public function canBeRedirectedTo(Spring $source)
+    {
+        if ($this->id === $source->id) {
+            return false;
+        }
+
+        if ($this->hidden_at) {
+            return false;
+        }
+
+        if ($source->redirect_to_spring_id) {
+            return false;
+        }
+
+        return ! $this->redirectChainContains($source->id);
+    }
+
+    public function finallyRedirectedTo(): ?self
+    {
+        $spring = $this;
+        $seen = [];
+
+        while ($spring->redirect_to_spring_id) {
+            if (isset($seen[$spring->id])) {
+                throw new RuntimeException("Redirect loop detected for spring #{$this->id}.");
+            }
+
+            $seen[$spring->id] = true;
+            $spring = self::find($spring->redirect_to_spring_id);
+
+            if (! $spring) {
+                return null;
+            }
+        }
+
+        return $spring->id === $this->id ? null : $spring;
+    }
+
+    public function redirectChainContains($springId): bool
+    {
+        $spring = $this;
+        $seen = [];
+
+        while ($spring->redirect_to_spring_id) {
+            if (isset($seen[$spring->id])) {
+                throw new RuntimeException("Redirect loop detected for spring #{$this->id}.");
+            }
+
+            $seen[$spring->id] = true;
+
+            if ((int) $spring->redirect_to_spring_id === (int) $springId) {
+                return true;
+            }
+
+            $spring = self::find($spring->redirect_to_spring_id);
+
+            if (! $spring) {
+                return false;
+            }
+        }
+
+        return false;
+    }
+
+    public function scopeNotRedirected($query)
+    {
+        return $query->whereNull($this->qualifyColumn('redirect_to_spring_id'));
+    }
+
+    public function scopeWithinMergeRadiusOf($query, Spring $other)
+    {
+        $delta = self::MERGE_RADIUS_DEGREES;
+
+        return $query
+            ->whereBetween('latitude', [$other->latitude - $delta, $other->latitude + $delta])
+            ->whereBetween('longitude', [$other->longitude - $delta, $other->longitude + $delta]);
     }
 
     public function scopeMissingFromOsm($query)

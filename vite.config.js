@@ -35,16 +35,19 @@ export default defineConfig({
 });
 
 function detectServerConfig(host) {
-    let keyPath = resolve(homedir(), `.config/valet/Certificates/${host}.key`)
-    let certificatePath = resolve(homedir(), `.config/valet/Certificates/${host}.crt`)
+    const candidates = [
+        resolve(homedir(), `Library/Application Support/Herd/config/valet/Certificates/${host}`),
+        resolve(homedir(), `.config/valet/Certificates/${host}`),
+    ]
 
-    if (!fs.existsSync(keyPath)) {
+    const base = candidates.find(p => fs.existsSync(`${p}.key`) && fs.existsSync(`${p}.crt`))
+
+    if (!base) {
         return {}
     }
 
-    if (!fs.existsSync(certificatePath)) {
-        return {}
-    }
+    const keyPath = `${base}.key`
+    const certificatePath = `${base}.crt`
 
     return {
         hmr: {host},

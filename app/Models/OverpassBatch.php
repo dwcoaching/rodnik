@@ -8,6 +8,7 @@ use App\Jobs\CleanupOSMSprings;
 use App\Jobs\ParseOverpassBatchImports;
 use App\Jobs\PruneMissingOSMSprings;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use App\Jobs\RemoveOlderOverpassArtifacts;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -69,21 +70,19 @@ class OverpassBatch extends Model
 
     public function updateCoverage()
     {
-        $overpassChecksUnknown = $this->overpassChecks()->whereNull('covered_by')->get();
-
-        foreach ($overpassChecksUnknown as $check) {
-            $overpassImport = $this->overpassImports()->where('has_remarks', 0)
-                ->where('latitude_from', '<=', $check->latitude_from)
-                ->where('latitude_to', '>=', $check->latitude_to)
-                ->where('longitude_from', '<=', $check->longitude_from)
-                ->where('longitude_to', '>=', $check->longitude_to)
-                ->first();
-
-            if ($overpassImport) {
-                $check->covered_by = $overpassImport->id;
-                $check->save();
-            }
-        }
+        DB::statement('
+            UPDATE overpass_checks c
+            JOIN overpass_imports i
+              ON i.overpass_batch_id = c.overpass_batch_id
+             AND i.has_remarks = 0
+             AND i.latitude_from  <= c.latitude_from
+             AND i.latitude_to    >= c.latitude_to
+             AND i.longitude_from <= c.longitude_from
+             AND i.longitude_to   >= c.longitude_to
+            SET c.covered_by = i.id
+            WHERE c.overpass_batch_id = ?
+              AND c.covered_by IS NULL
+        ', [$this->id]);
 
         $covered = $this->overpassChecks()->whereNotNull('covered_by')->count();
         $coverage = floor(round($covered / 64800, 5) * 100000) / 100000;

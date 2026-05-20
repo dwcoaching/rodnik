@@ -7,6 +7,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Reactive;
+use App\Actions\Springs\UnmergeSpringsAction;
 
 class Show extends Component
 {
@@ -70,6 +71,18 @@ class Show extends Component
         $spring = Spring::findOrFail($this->springId);
 
         $spring->invalidateTiles();
+
+        return $this->redirect(duo_route(['spring' => $this->springId]));
+    }
+
+    public function unmerge(UnmergeSpringsAction $action)
+    {
+        if (! Gate::allows('admin')) {
+            abort(403);
+        }
+
+        $spring = Spring::findOrFail($this->springId);
+        $action($spring);
 
         return $this->redirect(duo_route(['spring' => $this->springId]));
     }

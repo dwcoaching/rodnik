@@ -6,8 +6,10 @@ use App\Models\Report;
 use Livewire\Component;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Actions\Reports\PostReportsBanAction;
 use App\Actions\Reports\DeleteReportsBanAction;
+use App\Actions\Reports\MoveReportToSpringAction;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
@@ -16,6 +18,9 @@ class Show extends Component
 
     public $report;
     public $justHidden = false;
+    public $justMoved = false;
+    public ?int $movedFromSpringId = null;
+    public ?int $movedToSpringId = null;
 
     public function mount(Report $report)
     {
@@ -66,6 +71,41 @@ class Show extends Component
 
         $this->report->refresh();
         $this->justHidden = false;
+    }
+
+    public function moveToRedirectTarget(MoveReportToSpringAction $moveReportToSpring)
+    {
+        if (! Gate::allows('admin')) {
+            abort(403);
+        }
+
+        $this->report->load('spring');
+        $targetSpringId = $this->report->spring->redirect_to_spring_id;
+
+        if (! $targetSpringId) {
+            abort(404);
+        }
+
+        $this->movedFromSpringId = (int) $this->report->spring_id;
+        $this->movedToSpringId = (int) $targetSpringId;
+        $this->report = $moveReportToSpring($this->report, $targetSpringId);
+        $this->justMoved = true;
+    }
+
+    public function undoMoveToRedirectTarget(MoveReportToSpringAction $moveReportToSpring)
+    {
+        if (! Gate::allows('admin')) {
+            abort(403);
+        }
+
+        if (! $this->justMoved || ! $this->movedFromSpringId) {
+            return;
+        }
+
+        $this->report = $moveReportToSpring($this->report, $this->movedFromSpringId);
+        $this->justMoved = false;
+        $this->movedFromSpringId = null;
+        $this->movedToSpringId = null;
     }
 
     public function render()

@@ -1,4 +1,7 @@
 <div class="px-0 md:px-4 md:pb-4 h-full bg-stone-100" x-data="{}">
+    @if (Gate::allows('admin'))
+        <livewire:duo.springs.merge-modal />
+    @endif
     <div wire:loading.delay.long.flex class="h-full w-full hidden justify-center items-center">
         <div class="-top-6 relative animate-spin w-6 h-6 border border-4 rounded-full border-gray-400 border-t-transparent"></div>
     </div>
@@ -9,6 +12,15 @@
                     <div>
                         <b>This object is hidden.</b> Probably it's not a water source,
                         or a duplicate, or something else.
+                    </div>
+                </div>
+            @endif
+            @if ($spring->redirect_to_spring_id)
+                <div class="alert alert-warning mb-2">
+                    <div>
+                        <b>This water source is a duplicate</b> and normally redirects to
+                        <a href="{{ duo_route(['spring' => $spring->redirect_to_spring_id]) }}" class="underline font-semibold">#{{ $spring->redirect_to_spring_id }}</a>.
+                        You're seeing it because <code>?redirect=false</code> is set.
                     </div>
                 </div>
             @endif
@@ -162,6 +174,40 @@
                                                                 <path fill-rule="evenodd" d="M8.074.945A4.993 4.993 0 0 0 6 5v.032c.004.6.114 1.176.311 1.709.16.428-.204.91-.61.7a5.023 5.023 0 0 1-1.868-1.677c-.202-.304-.648-.363-.848-.058a6 6 0 1 0 8.017-1.901l-.004-.007a4.98 4.98 0 0 1-2.18-2.574c-.116-.31-.477-.472-.744-.28Zm.78 6.178a3.001 3.001 0 1 1-3.473 4.341c-.205-.365.215-.694.62-.59a4.008 4.008 0 0 0 1.873.03c.288-.065.413-.386.321-.666A3.997 3.997 0 0 1 8 8.999c0-.585.126-1.14.351-1.641a.42.42 0 0 1 .503-.235Z" clip-rule="evenodd" />
                                                             </svg>
                                                             Annihilate water source
+                                                        </button>
+                                                    @endif
+                                                    @if ($spring->canBeRedirectedFrom() && ! $spring->redirect_to_spring_id)
+                                                        <button
+                                                            type="button"
+                                                            x-menu:item
+                                                            wire:click="$dispatch('open-merge-modal', { springId: {{ $spring->id }} })"
+                                                            @click="springDropdownOpen = false"
+                                                            :class="{
+                                                                'bg-gray-200 text-gray-700': $menuItem.isActive,
+                                                                'text-gray-600': ! $menuItem.isActive,
+                                                                'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                            }"
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 256 256"><path d="M174.63,81.37a80,80,0,1,0-93.26,93.26,80,80,0,1,0,93.26-93.26ZM100.69,136,120,155.31A63.48,63.48,0,0,1,96,160,63.48,63.48,0,0,1,100.69,136Zm33.75,11.13-25.57-25.57a64.65,64.65,0,0,1,12.69-12.69l25.57,25.57A64.65,64.65,0,0,1,134.44,147.13ZM155.31,120,136,100.69A63.48,63.48,0,0,1,160,96,63.48,63.48,0,0,1,155.31,120ZM32,96a64,64,0,0,1,126-16A80.08,80.08,0,0,0,80.05,158,64.11,64.11,0,0,1,32,96ZM160,224A64.11,64.11,0,0,1,98,176,80.08,80.08,0,0,0,176,98,64,64,0,0,1,160,224Z"></path></svg>
+                                                            Merge into another…
+                                                        </button>
+                                                    @endif
+                                                    @if ($spring->redirect_to_spring_id)
+                                                        <button
+                                                            type="button"
+                                                            x-menu:item
+                                                            wire:click="unmerge"
+                                                            wire:confirm="Remove the redirect on this water source?"
+                                                            :class="{
+                                                                'bg-amber-200 text-amber-700': $menuItem.isActive,
+                                                                'text-amber-600': ! $menuItem.isActive,
+                                                                'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                            }"
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-4 h-4">
+                                                                <path d="M198.63,57.37a32,32,0,0,0-45.19-.06L141.79,69.52a8,8,0,0,1-11.58-11l11.72-12.29a1.59,1.59,0,0,1,.13-.13,48,48,0,0,1,67.88,67.88,1.59,1.59,0,0,1-.13.13l-12.29,11.72a8,8,0,0,1-11-11.58l12.21-11.65A32,32,0,0,0,198.63,57.37ZM114.21,186.48l-11.65,12.21a32,32,0,0,1-45.25-45.25l12.21-11.65a8,8,0,0,0-11-11.58L46.19,141.93a1.59,1.59,0,0,0-.13.13,48,48,0,0,0,67.88,67.88,1.59,1.59,0,0,0,.13-.13l11.72-12.29a8,8,0,1,0-11.58-11ZM216,152H192a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16ZM40,104H64a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm120,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V192A8,8,0,0,0,160,184ZM96,72a8,8,0,0,0,8-8V40a8,8,0,0,0-16,0V64A8,8,0,0,0,96,72Z" />
+                                                            </svg>
+                                                            Remove redirect
                                                         </button>
                                                     @endif
                                                 @endif
@@ -333,7 +379,7 @@
                         x-data
                         x-init="window.initPhotoSwipe('.photoSwipeGallery')">
                         @foreach ($reports as $report)
-                            <livewire:reports.show :report="$report" :key="$report->id" />
+                            <livewire:reports.show :report="$report" :key="'spring-' . $spring->id . '-report-' . $report->id" />
                         @endforeach
                     </ul>
                 </div>

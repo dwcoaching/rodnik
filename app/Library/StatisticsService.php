@@ -13,6 +13,7 @@ class StatisticsService
         if (! Cache::has('springsCount')) {
             $springsCount = Spring
                 ::whereNull('hidden_at')
+                ->notRedirected()
                 ->count();
 
             Cache::put('springsCount', $springsCount);

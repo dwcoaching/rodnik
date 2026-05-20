@@ -25,6 +25,7 @@ class WateredSpringTile extends SpringTile
             ->whereNull('reports.from_osm')
             ->whereNull('reports.hidden_at')
             ->whereNull('springs.hidden_at')
+            ->whereNull('springs.redirect_to_spring_id')
             ->where($this->getCoordinatesFunction())
             ->groupBy('springs.id')
             ->having('reports_count', '>', 0)
