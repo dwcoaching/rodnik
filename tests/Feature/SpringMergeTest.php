@@ -10,7 +10,8 @@ use App\Livewire\Duo;
 use App\Library\StatisticsService;
 use App\Actions\Springs\MergeSpringsAction;
 use App\Actions\Springs\UnmergeSpringsAction;
-use App\Actions\Reports\MoveReportToSpringAction;
+use App\Actions\Reports\MoveReportToMergeTargetAction;
+use App\Actions\Reports\MoveReportBackToRedirectedSourceAction;
 use App\Livewire\Duo\Springs\MergeModal;
 use App\Livewire\Duo\Springs\Show as SpringShow;
 use App\Livewire\Reports\Show as ReportShow;
@@ -82,7 +83,7 @@ function expectTileFilesMissing(array $paths): void
     }
 }
 
-test('merge target may already redirect and source resolves to the final target', function () {
+test('merge target cannot already redirect', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
 
     $source = createMergeableSpring();
@@ -92,11 +93,25 @@ test('merge target may already redirect and source resolves to the final target'
         'redirect_to_spring_id' => $finalTarget->id,
     ]);
 
-    app(MergeSpringsAction::class)($source, $redirectedTarget->id);
+    expect(fn () => app(MergeSpringsAction::class)($source, $redirectedTarget->id))
+        ->toThrow(ValidationException::class);
 
-    $source->refresh();
-    expect($source->redirect_to_spring_id)->toBe($redirectedTarget->id);
-    expect($source->finallyRedirectedTo()->id)->toBe($finalTarget->id);
+    expect($source->fresh()->redirect_to_spring_id)->toBeNull();
+});
+
+test('merge can create a chain when another spring already redirects to the source', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+    $first = createMergeableSpring();
+    $source = createMergeableSpring(['latitude' => 55.0005]);
+    $target = createMergeableSpring(['latitude' => 55.0010]);
+    $first->redirect_to_spring_id = $source->id;
+    $first->save();
+
+    app(MergeSpringsAction::class)($source, $target->id);
+
+    expect($source->fresh()->redirect_to_spring_id)->toBe($target->id);
+    expect($first->fresh()->finallyRedirectedTo()->id)->toBe($target->id);
 });
 
 test('merge cannot create a redirect loop', function () {
@@ -334,13 +349,14 @@ test('report can be moved to merge target and restored', function () {
 
     $reportUser = User::factory()->create(['cached_rating' => 99]);
     $report = createSpringReport($source, $reportUser);
-    $action = app(MoveReportToSpringAction::class);
+    $moveAction = app(MoveReportToMergeTargetAction::class);
+    $restoreAction = app(MoveReportBackToRedirectedSourceAction::class);
 
-    $moved = $action($report, $target->id);
+    $moved = $moveAction($report);
     expect($moved->spring_id)->toBe($target->id);
-    expect($reportUser->fresh()->cached_rating)->toBe(1);
+    expect($reportUser->fresh()->cached_rating)->toBe(99);
 
-    $restored = $action($moved, $source->id);
+    $restored = $restoreAction($moved, $source->id);
     expect($restored->spring_id)->toBe($source->id);
 });
 
@@ -361,13 +377,13 @@ test('moved report invalidates both source and target tiles', function () {
     $sourcePaths = putGeneratedTileFilesForSpring($source);
     $targetPaths = putGeneratedTileFilesForSpring($target);
 
-    app(MoveReportToSpringAction::class)($report, $target->id);
+    app(MoveReportToMergeTargetAction::class)($report);
 
     expectTileFilesMissing($sourcePaths);
     expectTileFilesMissing($targetPaths);
 });
 
-test('moved report cannot move to hidden target spring', function () {
+test('moved report cannot move to hidden merge target spring', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
 
     $source = createMergeableSpring();
@@ -375,12 +391,28 @@ test('moved report cannot move to hidden target spring', function () {
         'latitude' => 55.0010,
         'hidden_at' => now(),
     ]);
+    $source->redirect_to_spring_id = $target->id;
+    $source->save();
     $report = createSpringReport($source, User::factory()->create());
 
-    expect(fn () => app(MoveReportToSpringAction::class)($report, $target->id))
+    expect(fn () => app(MoveReportToMergeTargetAction::class)($report))
         ->toThrow(ValidationException::class);
 
     expect($report->fresh()->spring_id)->toBe($source->id);
+});
+
+test('moved report action rejects arbitrary target spring', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+    $source = createMergeableSpring();
+    $target = createMergeableSpring(['latitude' => 55.0010]);
+    $source->redirect_to_spring_id = $target->id;
+    $source->save();
+
+    $report = createSpringReport($target, User::factory()->create());
+
+    expect(fn () => app(MoveReportToMergeTargetAction::class)($report))
+        ->toThrow(ValidationException::class);
 });
 
 test('moved report action requires admin', function () {
@@ -393,7 +425,7 @@ test('moved report action requires admin', function () {
         'is_superadmin' => false,
     ]));
 
-    expect(fn () => app(MoveReportToSpringAction::class)($report, $target->id))
+    expect(fn () => app(MoveReportToMergeTargetAction::class)($report))
         ->toThrow(AuthorizationException::class);
 });
 
@@ -417,6 +449,29 @@ test('merged spring report menu can move a report and show restore confirmation'
         ->assertSee('Move to #' . $target->id);
 
     expect($report->fresh()->spring_id)->toBe($source->id);
+});
+
+test('merged spring report menu moves a report only to the final redirect target', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+    $source = createMergeableSpring();
+    $intermediate = createMergeableSpring(['latitude' => 55.0005]);
+    $finalTarget = createMergeableSpring(['latitude' => 55.0010]);
+
+    $source->redirect_to_spring_id = $intermediate->id;
+    $source->save();
+    $intermediate->redirect_to_spring_id = $finalTarget->id;
+    $intermediate->save();
+
+    $report = createSpringReport($source, User::factory()->create());
+
+    Livewire::test(ReportShow::class, ['report' => $report])
+        ->assertSee('Move to #' . $finalTarget->id)
+        ->assertDontSee('Move to #' . $intermediate->id)
+        ->call('moveToRedirectTarget')
+        ->assertSee('Report moved to #' . $finalTarget->id);
+
+    expect($report->fresh()->spring_id)->toBe($finalTarget->id);
 });
 
 test('reports count on source page updates after move and after undo', function () {

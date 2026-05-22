@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Actions\Reports\PostReportsBanAction;
 use App\Actions\Reports\DeleteReportsBanAction;
-use App\Actions\Reports\MoveReportToSpringAction;
+use App\Actions\Reports\MoveReportToMergeTargetAction;
+use App\Actions\Reports\MoveReportBackToRedirectedSourceAction;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Show extends Component
@@ -73,26 +74,26 @@ class Show extends Component
         $this->justHidden = false;
     }
 
-    public function moveToRedirectTarget(MoveReportToSpringAction $moveReportToSpring)
+    public function moveToRedirectTarget(MoveReportToMergeTargetAction $moveReportToMergeTarget)
     {
         if (! Gate::allows('admin')) {
             abort(403);
         }
 
         $this->report->load('spring');
-        $targetSpringId = $this->report->spring->redirect_to_spring_id;
+        $target = $this->report->spring->visibleMergeTargetForReports();
 
-        if (! $targetSpringId) {
+        if (! $target) {
             abort(404);
         }
 
         $this->movedFromSpringId = (int) $this->report->spring_id;
-        $this->movedToSpringId = (int) $targetSpringId;
-        $this->report = $moveReportToSpring($this->report, $targetSpringId);
+        $this->movedToSpringId = (int) $target->id;
+        $this->report = $moveReportToMergeTarget($this->report);
         $this->justMoved = true;
     }
 
-    public function undoMoveToRedirectTarget(MoveReportToSpringAction $moveReportToSpring)
+    public function undoMoveToRedirectTarget(MoveReportBackToRedirectedSourceAction $moveReportBackToRedirectedSource)
     {
         if (! Gate::allows('admin')) {
             abort(403);
@@ -102,7 +103,7 @@ class Show extends Component
             return;
         }
 
-        $this->report = $moveReportToSpring($this->report, $this->movedFromSpringId);
+        $this->report = $moveReportBackToRedirectedSource($this->report, $this->movedFromSpringId);
         $this->justMoved = false;
         $this->movedFromSpringId = null;
         $this->movedToSpringId = null;

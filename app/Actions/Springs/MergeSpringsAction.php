@@ -26,7 +26,7 @@ class MergeSpringsAction
     {
         Validator::make(
             ['redirect_to_spring_id' => $targetId],
-            ['redirect_to_spring_id' => ['required', 'integer', 'different:source_id']],
+            ['redirect_to_spring_id' => ['required', 'integer']],
         )->validate();
 
         if (! $source->canBeRedirectedFrom()) {

@@ -1,6 +1,6 @@
 <li>
     @php
-        $moveTargetSpringId = $report->spring->redirect_to_spring_id;
+        $moveTargetSpringId = $report->spring->visibleMergeTargetForReports()?->id;
     @endphp
 
     @if ($justMoved)

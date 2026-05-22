@@ -9,11 +9,11 @@ use App\Models\Report;
 use App\Models\SpringTile;
 use App\Models\SpringRevision;
 use App\Models\OverpassBatch;
+use App\Library\RedirectChain;
 use App\Library\StatisticsService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use RuntimeException;
 
 class Spring extends Model
 {
@@ -272,8 +272,6 @@ class Spring extends Model
         return ! $this->isOsmTracked();
     }
 
-    // Target spring. Redirect chains are intentional, but a target chain must
-    // not already point back to the source because that would create a loop.
     public function canBeRedirectedTo(Spring $source)
     {
         if ($this->id === $source->id) {
@@ -284,58 +282,28 @@ class Spring extends Model
             return false;
         }
 
-        if ($source->redirect_to_spring_id) {
+        if ($this->redirect_to_spring_id) {
             return false;
         }
 
-        return ! $this->redirectChainContains($source->id);
+        return ! $source->redirect_to_spring_id;
     }
 
     public function finallyRedirectedTo(): ?self
     {
-        $spring = $this;
-        $seen = [];
-
-        while ($spring->redirect_to_spring_id) {
-            if (isset($seen[$spring->id])) {
-                throw new RuntimeException("Redirect loop detected for spring #{$this->id}.");
-            }
-
-            $seen[$spring->id] = true;
-            $spring = self::find($spring->redirect_to_spring_id);
-
-            if (! $spring) {
-                return null;
-            }
-        }
-
-        return $spring->id === $this->id ? null : $spring;
+        return $this->redirectChain()->finalTarget();
     }
 
-    public function redirectChainContains($springId): bool
+    public function visibleMergeTargetForReports(): ?self
     {
-        $spring = $this;
-        $seen = [];
+        $target = $this->finallyRedirectedTo();
 
-        while ($spring->redirect_to_spring_id) {
-            if (isset($seen[$spring->id])) {
-                throw new RuntimeException("Redirect loop detected for spring #{$this->id}.");
-            }
+        return $target && ! $target->hidden_at ? $target : null;
+    }
 
-            $seen[$spring->id] = true;
-
-            if ((int) $spring->redirect_to_spring_id === (int) $springId) {
-                return true;
-            }
-
-            $spring = self::find($spring->redirect_to_spring_id);
-
-            if (! $spring) {
-                return false;
-            }
-        }
-
-        return false;
+    public function redirectChain(): RedirectChain
+    {
+        return RedirectChain::fromSpring($this);
     }
 
     public function scopeNotRedirected($query)
