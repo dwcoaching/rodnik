@@ -58,6 +58,7 @@
                                         — {{ $candidate->name ?: $candidate->type }}
                                         @if ($candidate->isOsmTracked()) (OSM) @endif
                                         @if ($candidate->redirect_to_spring_id) (already redirects) @endif
+                                        @if ($candidateDistanceLabels->get($candidate->id)) — {{ $candidateDistanceLabels->get($candidate->id) }} @endif
                                     </option>
                                 @endforeach
                             </select>

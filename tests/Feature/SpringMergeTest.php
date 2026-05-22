@@ -305,6 +305,76 @@ test('merge modal candidate list excludes hidden targets', function () {
         ->assertDontSee('#' . $hiddenCandidate->id);
 });
 
+test('merge modal candidate list shows exact haversine distance in meters', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+    $source = createMergeableSpring();
+    $candidate = createMergeableSpring(['latitude' => 55.0010]);
+
+    Livewire::test(MergeModal::class)
+        ->set('springId', $source->id)
+        ->set('open', true)
+        ->assertSee('#' . $candidate->id)
+        ->assertSee('111 m');
+});
+
+test('merge modal candidate list sorts by exact haversine distance ascending', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+    $source = createMergeableSpring();
+    $farCandidate = createMergeableSpring(['latitude' => 55.0020]);
+    $closeCandidate = createMergeableSpring(['latitude' => 55.0010]);
+
+    Livewire::test(MergeModal::class)
+        ->set('springId', $source->id)
+        ->set('open', true)
+        ->assertSeeInOrder([
+            '#' . $closeCandidate->id,
+            '#' . $farCandidate->id,
+        ]);
+});
+
+test('merge candidates and action use exact haversine radius', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+    $source = createMergeableSpring([
+        'latitude' => 0,
+        'longitude' => 0,
+    ]);
+    $diagonalOffset = Spring::MERGE_RADIUS_DEGREES * 0.99;
+    $candidate = createMergeableSpring([
+        'latitude' => $diagonalOffset,
+        'longitude' => $diagonalOffset,
+    ]);
+
+    Livewire::test(MergeModal::class)
+        ->set('springId', $source->id)
+        ->set('open', true)
+        ->assertDontSee('#' . $candidate->id);
+
+    expect(fn () => app(MergeSpringsAction::class)($source, $candidate->id))
+        ->toThrow(ValidationException::class);
+});
+
+test('merge modal candidate prefilter includes high latitude targets within exact radius', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+
+    $source = createMergeableSpring([
+        'latitude' => 80,
+        'longitude' => 0,
+    ]);
+    $longitudeOffset = (Spring::MERGE_RADIUS_DEGREES / cos(deg2rad(80))) * 0.5;
+    $candidate = createMergeableSpring([
+        'latitude' => 80,
+        'longitude' => $longitudeOffset,
+    ]);
+
+    Livewire::test(MergeModal::class)
+        ->set('springId', $source->id)
+        ->set('open', true)
+        ->assertSee('#' . $candidate->id);
+});
+
 test('unmerge clears only the selected redirect link', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
 
@@ -441,7 +511,7 @@ test('merged spring report menu can move a report and show restore confirmation'
     $report = createSpringReport($source, User::factory()->create());
 
     Livewire::test(ReportShow::class, ['report' => $report])
-        ->assertSee('Move to #' . $target->id)
+        ->assertSee('Move to #' . $target->id . ' (111 m)')
         ->call('moveToRedirectTarget')
         ->assertSee('Report moved to #' . $target->id)
         ->assertSee('Undo')

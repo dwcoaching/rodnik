@@ -3,6 +3,7 @@
 namespace App\Actions\Springs;
 
 use App\Models\Spring;
+use App\Library\HaversineDistance;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
@@ -10,6 +11,11 @@ use Illuminate\Validation\ValidationException;
 
 class MergeSpringsAction
 {
+    public function __construct(
+        protected HaversineDistance $distance,
+    ) {
+    }
+
     public function __invoke(Spring $source, $targetId)
     {
         $this->authorize();
@@ -43,12 +49,9 @@ class MergeSpringsAction
             ]);
         }
 
-        $withinRadius = Spring::query()
-            ->where('id', $target->id)
-            ->withinMergeRadiusOf($source)
-            ->exists();
+        $distanceMeters = $this->distance->metersBetweenSprings($source, $target);
 
-        if (! $withinRadius) {
+        if ($distanceMeters === null || $distanceMeters > Spring::MERGE_RADIUS_METERS) {
             throw ValidationException::withMessages([
                 'redirect_to_spring_id' => 'Target water source is farther than ' . Spring::MERGE_RADIUS_METERS . ' meters away.',
             ]);

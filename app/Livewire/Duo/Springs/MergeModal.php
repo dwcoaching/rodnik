@@ -5,6 +5,7 @@ namespace App\Livewire\Duo\Springs;
 use App\Models\Spring;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use App\Library\HaversineDistance;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use App\Actions\Springs\MergeSpringsAction;
@@ -60,8 +61,13 @@ class MergeModal extends Component
         $source = $this->springId ? Spring::find($this->springId) : null;
 
         $candidates = collect();
+        $candidateDistanceLabels = collect();
 
         if ($source && $this->open) {
+            $distance = app(HaversineDistance::class);
+            $distanceLabels = [];
+            $distanceMetersById = [];
+
             $candidates = Spring::query()
                 ->where('id', '!=', $source->id)
                 ->whereNull('hidden_at')
@@ -69,13 +75,32 @@ class MergeModal extends Component
                 ->withinMergeRadiusOf($source)
                 ->orderBy('id')
                 ->get()
-                ->filter(fn (Spring $candidate) => $candidate->canBeRedirectedTo($source))
+                ->filter(function (Spring $candidate) use ($source, $distance, &$distanceLabels, &$distanceMetersById) {
+                    if (! $candidate->canBeRedirectedTo($source)) {
+                        return false;
+                    }
+
+                    $distanceMeters = $distance->metersBetweenSprings($source, $candidate);
+
+                    if ($distanceMeters === null || $distanceMeters > Spring::MERGE_RADIUS_METERS) {
+                        return false;
+                    }
+
+                    $distanceMetersById[$candidate->id] = $distanceMeters;
+                    $distanceLabels[$candidate->id] = $distance->formatMeters($distanceMeters);
+
+                    return true;
+                })
+                ->sortBy(fn (Spring $candidate) => $distanceMetersById[$candidate->id])
                 ->values();
+
+            $candidateDistanceLabels = collect($distanceLabels);
         }
 
         return view('livewire.duo.springs.merge-modal', [
             'source' => $source,
             'candidates' => $candidates,
+            'candidateDistanceLabels' => $candidateDistanceLabels,
             'radiusMeters' => Spring::MERGE_RADIUS_METERS,
         ]);
     }

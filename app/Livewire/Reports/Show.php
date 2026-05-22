@@ -4,6 +4,7 @@ namespace App\Livewire\Reports;
 
 use App\Models\Report;
 use Livewire\Component;
+use App\Library\HaversineDistance;
 use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -111,6 +112,32 @@ class Show extends Component
 
     public function render()
     {
-        return view('livewire.reports.show');
+        $this->report->loadMissing('spring');
+
+        $moveTargetSpringId = null;
+        $moveTargetLabel = null;
+
+        if (Gate::allows('admin')) {
+            $moveTarget = $this->report->spring?->visibleMergeTargetForReports();
+
+            if ($moveTarget) {
+                $distance = app(HaversineDistance::class);
+                $distanceLabel = $distance->formatMeters(
+                    $distance->metersBetweenSprings($this->report->spring, $moveTarget),
+                );
+
+                $moveTargetSpringId = (int) $moveTarget->id;
+                $moveTargetLabel = '#' . $moveTargetSpringId;
+
+                if ($distanceLabel) {
+                    $moveTargetLabel .= ' (' . $distanceLabel . ')';
+                }
+            }
+        }
+
+        return view('livewire.reports.show', [
+            'moveTargetSpringId' => $moveTargetSpringId,
+            'moveTargetLabel' => $moveTargetLabel,
+        ]);
     }
 }

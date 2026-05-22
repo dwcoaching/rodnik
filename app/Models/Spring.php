@@ -31,10 +31,8 @@ class Spring extends Model
 
     public const MERGE_RADIUS_METERS = 500;
 
-    // 1 degree of latitude ~= 111_320 meters everywhere; 1 degree of longitude
-    // is at most 111_320 meters at the equator and shrinks toward the poles.
-    // Using lat/lng as a square bounding box therefore guarantees the picked
-    // target sits within MERGE_RADIUS_METERS at the equator (and tighter elsewhere).
+    // Coarse query prefilter for nearby merge candidates. Exact merge distance
+    // checks use the HaversineDistance library.
     public const MERGE_RADIUS_DEGREES = self::MERGE_RADIUS_METERS / 111320;
 
     public function reports()
@@ -313,11 +311,45 @@ class Spring extends Model
 
     public function scopeWithinMergeRadiusOf($query, Spring $other)
     {
-        $delta = self::MERGE_RADIUS_DEGREES;
+        if ($other->latitude === null || $other->longitude === null) {
+            return $query->whereRaw('1 = 0');
+        }
 
-        return $query
-            ->whereBetween('latitude', [$other->latitude - $delta, $other->latitude + $delta])
-            ->whereBetween('longitude', [$other->longitude - $delta, $other->longitude + $delta]);
+        $latitude = (float) $other->latitude;
+        $longitude = (float) $other->longitude;
+        $latitudeDelta = self::MERGE_RADIUS_DEGREES;
+        $cosLatitude = abs(cos(deg2rad($latitude)));
+        $longitudeDelta = $cosLatitude > 0.000001
+            ? min(180, $latitudeDelta / $cosLatitude)
+            : 180;
+
+        $query->whereBetween('latitude', [
+            max(-90, $latitude - $latitudeDelta),
+            min(90, $latitude + $latitudeDelta),
+        ]);
+
+        if ($longitudeDelta >= 180) {
+            return $query;
+        }
+
+        $minLongitude = $longitude - $longitudeDelta;
+        $maxLongitude = $longitude + $longitudeDelta;
+
+        return $query->where(function ($query) use ($minLongitude, $maxLongitude) {
+            if ($minLongitude < -180) {
+                return $query
+                    ->whereBetween('longitude', [$minLongitude + 360, 180])
+                    ->orWhereBetween('longitude', [-180, $maxLongitude]);
+            }
+
+            if ($maxLongitude > 180) {
+                return $query
+                    ->whereBetween('longitude', [$minLongitude, 180])
+                    ->orWhereBetween('longitude', [-180, $maxLongitude - 360]);
+            }
+
+            return $query->whereBetween('longitude', [$minLongitude, $maxLongitude]);
+        });
     }
 
     public function scopeMissingFromOsm($query)
