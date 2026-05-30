@@ -1,22 +1,24 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WebController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\SpringController;
-use App\Http\Controllers\HeatmapController;
+declare(strict_types=1);
+
 use App\Http\Controllers\CoverageController;
-use App\Http\Controllers\UserPhotoController;
-use App\Http\Controllers\SpringJsonController;
-use App\Http\Controllers\PhotosBatchController;
+use App\Http\Controllers\HeatmapController;
+use App\Http\Controllers\PhotoUploadController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SpringAggregatesJsonController;
+use App\Http\Controllers\SpringController;
 use App\Http\Controllers\SpringHistoryController;
+use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\SpringLocationController;
 use App\Http\Controllers\SpringTileJsonController;
-use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\Stats\MoscowStatsController;
 use App\Http\Controllers\Tools\EnrichedGPXController;
-use App\Http\Controllers\SpringAggregatesJsonController;
+use App\Http\Controllers\UserPhotoController;
+use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\WateredSpringTileJsonController;
+use App\Http\Controllers\WebController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +37,6 @@ Route::get('/', [WebController::class, 'index'])->name('duo');
 /* redirect */ Route::get('/{spring}/location/edit', [SpringLocationController::class, 'edit'])->name('springs.location.edit')->where('spring', '[0-9]+');
 /* redirect */ Route::get('/users/{userId}', [WebController::class, 'user'])->name('users.show')->where('userId', '[0-9]+');
 
-
 Route::resource('users.photos', UserPhotoController::class)->only('index');
 
 Route::get('/{spring}/edit', [SpringController::class, 'edit'])->name('springs.edit')->where('spring', '[0-9]+');
@@ -43,7 +44,8 @@ Route::get('/{spring}/history', [SpringHistoryController::class, 'index'])->name
 
 Route::resource('reports', ReportController::class);
 
-Route::get('photos/create', [PhotosBatchController::class, 'create']);
+Route::post('photos/uploads', [PhotoUploadController::class, 'store'])->name('photos.uploads.store');
+Route::delete('photos/uploads/{photo}', [PhotoUploadController::class, 'destroy'])->name('photos.uploads.destroy');
 
 Route::get('springs.json', [SpringJsonController::class, 'index']);
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);

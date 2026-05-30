@@ -41,12 +41,15 @@ body.dragover .drag-indicator {
     @apply outline-dashed outline-2 outline-offset-0 outline-indigo-600;
 }
 
-.sortable-chosen a, .sortable-ghost a, .sortable-drag a {
-    transform: rotate(-2deg) !important;
+.photo-sort-card {
+    transform-origin: center;
+    transition: transform 150ms ease;
 }
 
-.sortable-chosen .removePhotoHandle, .sortable-drag .removePhotoHandle, .sortable-ghost .removePhotoHandle {
-    opacity: 0 !important;
+.sortable-chosen .photo-sort-card,
+.sortable-ghost .photo-sort-card,
+.sortable-drag .photo-sort-card {
+    transform: rotate(-2deg);
 }
 
 #map .drop-overlay {

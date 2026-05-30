@@ -33,6 +33,8 @@ class UserFactory extends Factory
             'profile_photo_path' => null,
             'cached_rating' => null,
             'two_factor_confirmed_at' => null,
+            'is_admin' => false,
+            'is_superadmin' => false,
         ];
     }
 

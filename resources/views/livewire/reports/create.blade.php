@@ -1,48 +1,18 @@
 <div class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
-    x-data="{
-        visited_at: $wire.$entangle('visited_at'),
-        state: $wire.$entangle('state'),
-        quality: $wire.$entangle('quality'),
-
-        not_found: $wire.$entangle('not_found'),
-        no_access: $wire.$entangle('no_access'),
-        difficult_access: $wire.$entangle('difficult_access'),
-
-        sortablePhotos: $wire.$entangle('sortablePhotos'),
-
-        sortPhotos: function(item, position) {
-            let index = this.sortablePhotos.findIndex((photo) => item === photo.value)
-            if (index >= 0) {
-                this.sortablePhotos.splice(index, 1);
-            }
-            this.sortablePhotos.splice(position, 0, {
-                value: item,
-                order: position
-            })
-
-            this.sortablePhotos.forEach((photo, index) => {
-                photo.order = index + 1;
-            })
-        },
-
-        removePhoto: function(id) {
-            this.sortablePhotos = this.sortablePhotos.filter(photo => photo.value !== id)
-        },
-
-        withDate: true,
-        previousDate: null,
-        toggleDate: function() {
-            if (this.withDate) {
-                this.previousDate = this.visited_at;
-                this.withDate = false;
-                this.visited_at = null;
-            } else {
-                this.visited_at = this.previousDate;
-                this.withDate = true;
-            }
-        }
-    }"
-    x-init="withDate = !! visited_at"
+    x-data="reportCreateForm({
+        wire: $wire,
+        submitReport: () => $wire.store(),
+        reportId: @js($reportId),
+        uploadUrl: @js(route('photos.uploads.store')),
+        csrfToken: @js(csrf_token()),
+        initialPhotos: @js($photos->map(fn ($photo) => [
+            'id' => $photo->id,
+            'url' => $photo->url,
+            'width' => $photo->width,
+            'height' => $photo->height,
+            'order' => $photo->order,
+        ])->values()->all()),
+    })"
     >
 
     @guest
@@ -179,141 +149,58 @@
         @error('comment') <p class="mt-2 text-sm text-red-600" id="email-error">{{ $message }}</p> @enderror
     </div>
 
-    @if ($photos->count())
-        <ul
-            x-sort="sortPhotos($item, $position)"
-            x-data
-            x-init="window.initPhotoSwipe('#photos');"
-            id="photos"
-            role="list" class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
-            @foreach ($photos as $photo)
-                <li class="relative group" x-ref="photo_{{ $photo->id }}"
-                    wire:key="photo-{{ $photo->id }}"
-                    x-sort:item="{{ $photo->id }}"
-                    >
-                    <a href="{{ $photo->url }}"
-                        data-pswp-width="{{ $photo->width }}"
-                        data-pswp-height="{{ $photo->height }}"
+    <ul
+        x-cloak
+        x-show="photoItems.length"
+        x-sort="sortPhotos($item, $position)"
+        x-sort:config="{ handle: '.photo-sort-handle' }"
+        x-init="window.initPhotoSwipe('#photos');"
+        id="photos"
+        role="list"
+        class="max-w-3xl mt-4 mb-4 grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
+        <template x-for="item in photoItems" :key="item.key">
+            <li class="relative group" x-sort:item="item.key">
+                <div class="photo-sort-card relative w-full aspect-square">
+                    <a
+                        x-show="item.status === 'uploaded'"
+                        x-bind:href="item.url"
+                        x-bind:data-pswp-width="item.width"
+                        x-bind:data-pswp-height="item.height"
                         data-cropped="true"
+                        draggable="false"
                         target="blank"
                         class="photoswipeImage relative block w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
-                        <img style="" src="{{ $photo->url }}" alt="" class="object-cover absolute h-full w-full z-10">
+                        <img x-bind:src="item.url" alt="" draggable="false" class="object-cover absolute h-full w-full z-10">
                     </a>
-                    <div x-sort:handle class="rounded-md bg-black/10 cursor-move opacity-100 absolute left-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
+                    <div
+                        x-show="item.status !== 'uploaded'"
+                        class="relative block w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
+                        <img x-bind:src="item.url" alt="" draggable="false" class="object-cover absolute h-full w-full z-10"
+                            x-bind:class="{
+                                'grayscale opacity-50': isPending(item),
+                                'opacity-80': item.status === 'failed'
+                            }">
+                    </div>
+                    <div x-show="isPending(item)" class="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-lg bg-black/20 text-white">
+                        <div class="animate-spin w-8 h-8 flex border-4 rounded-full border-white/80 border-t-transparent"></div>
+                        <div class="mt-2 rounded bg-black/30 px-2 py-1 text-xs font-bold" x-text="item.status === 'uploading' ? `${item.progress}%` : 'Preparing'"></div>
+                    </div>
+                    <div x-show="item.status === 'failed'" class="absolute inset-x-2 bottom-2 z-20 rounded bg-red-600/90 px-2 py-1 text-xs font-bold text-white">
+                        <div x-text="item.error"></div>
+                        <button type="button" class="mt-1 underline" x-on:click.stop.prevent="retryPhoto(item)">Retry</button>
+                    </div>
+                    <button type="button" x-sort:handle title="Move photo" class="photo-sort-handle rounded-md bg-black/20 cursor-move opacity-100 absolute left-0 top-0 py-2 px-2 z-30 text-white font-semibold text-2xl">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M87.51,64.49a12,12,0,0,1,0-17l32-32a12,12,0,0,1,17,0l32,32a12,12,0,0,1-17,17L140,53V96a12,12,0,0,1-24,0V53L104.49,64.49A12,12,0,0,1,87.51,64.49Zm64,127L140,203V160a12,12,0,0,0-24,0v43l-11.51-11.52a12,12,0,0,0-17,17l32,32a12,12,0,0,0,17,0l32-32a12,12,0,0,0-17-17Zm89-72-32-32a12,12,0,0,0-17,17L203,116H160a12,12,0,0,0,0,24h43l-11.52,11.51a12,12,0,0,0,17,17l32-32A12,12,0,0,0,240.49,119.51ZM53,140H96a12,12,0,0,0,0-24H53l11.52-11.51a12,12,0,1,0-17-17l-32,32a12,12,0,0,0,0,17l32,32a12,12,0,1,0,17-17Z"></path></svg>
-                    </div>
-                    <div x-on:click="$refs.photo_{{ $photo->id }}.remove(); removePhoto({{ $photo->id }}); event.preventDefault();" class="removePhotoHandle rounded-md bg-black/10 opacity-100 cursor-pointer absolute right-0 top-0 py-2 px-2 z-20 text-white font-semibold text-2xl">
+                    </button>
+                    <button type="button" title="Remove photo" x-on:click.stop.prevent="removePhotoItem(item)" class="removePhotoHandle rounded-md bg-black/20 opacity-100 cursor-pointer absolute right-0 top-0 py-2 px-2 z-30 text-white font-semibold text-2xl">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M216,48H180V36A28,28,0,0,0,152,8H104A28,28,0,0,0,76,36V48H40a12,12,0,0,0,0,24h4V208a20,20,0,0,0,20,20H192a20,20,0,0,0,20-20V72h4a12,12,0,0,0,0-24ZM100,36a4,4,0,0,1,4-4h48a4,4,0,0,1,4,4V48H100Zm88,168H68V72H188ZM116,104v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Zm48,0v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Z"></path></svg>
-                    </div>
-                </li>
-            @endforeach
-        </ul>
-    @endif
+                    </button>
+                </div>
+            </li>
+        </template>
+    </ul>
 
-    <div wire:key="reports.create.upload" class="sm:col-span-6 mt-2 max-w-3xl"
-        x-data="{
-            dragover: false,
-            filesInProgress: [],
-            filesInResize: [],
-            dispatchUploadEvent: function() {
-                if (this.filesInProgress.length + this.filesInResize.length) {
-                    $dispatch('uploading');
-                } else {
-                    $dispatch('uploading-completed')
-                }
-            },
-            addFileInProgress: function(data) {
-                this.filesInProgress.push(data)
-                this.dispatchUploadEvent()
-            },
-            addFileInResize: function(data) {
-                this.filesInResize.push(data)
-                this.dispatchUploadEvent()
-            },
-            removeFileInProgress: function(id) {
-                $nextTick(() => {
-                    const key = this.filesInProgress.findIndex(item => item.id !== id)
-                    this.filesInProgress.splice(key, 1)
-                    this.dispatchUploadEvent()
-                })
-            },
-            removeFileInResize: function(id) {
-                $nextTick(() => {
-                    const key = this.filesInResize.findIndex(item => item.id !== id)
-                    this.filesInResize.splice(key, 1)
-                    this.dispatchUploadEvent()
-                })
-            },
-            updateFileInProgress: function(id, event) {
-                this.filesInProgress.forEach(item => {
-                    if (item.id === id) {
-                        item.progress = event.detail.progress;
-                    }
-                });
-            },
-            uploadFile: function (file) {
-                let id = window.uuidv1();
-
-                this.addFileInResize({
-                    id: id,
-                    name: file.name,
-                    oldSize: file.size,
-                })
-
-                // Check if file is HEIC/HEIF and convert it first
-                const isHeic = file.type === 'image/heic' || file.type === 'image/heif' ||
-                              file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif');
-
-                let processFile = Promise.resolve(file);
-
-                if (isHeic) {
-                    processFile = window.convertHeicToJpeg(file);
-                }
-
-                processFile
-                    .then(processedFile => {
-                        return window.ImageBlobReduce.toBlob(processedFile, {max: 1280});
-                    })
-                    .then(newFile => {
-                        this.removeFileInResize(id)
-
-                        this.addFileInProgress({
-                            id: id,
-                            name: file.name,
-                            oldSize: file.size,
-                            newSize: newFile.size,
-                            progress: 0,
-                        })
-                        @this.upload('file', newFile,
-                            (uploadedFilename) => {this.removeFileInProgress(id)}, {{-- success callback --}}
-                            () => {this.removeFileInProgress(id)}, {{-- error callback --}}
-                            (event) => {this.updateFileInProgress(id, event)} {{-- progress callback --}}
-                        )
-                    })
-                    .catch(error => {
-                        console.error('Error processing file:', error);
-                        this.removeFileInResize(id);
-                        // Optionally show error message to user
-                    });
-            },
-            handleFileDrop: function (event) {
-                if (event.dataTransfer.files.length > 0) {
-                    for (let i = 0; i < event.dataTransfer.files.length; i++) {
-                        this.uploadFile(event.dataTransfer.files.item(i));
-                    }
-                }
-            },
-            handleFileSelect: function (event) {
-                if (event.target.files.length > 0) {
-                    for (let i = 0; i < event.target.files.length; i++) {
-                        this.uploadFile(event.target.files.item(i));
-                    }
-                }
-
-                event.target.value = '';
-            }
-        }"
-    >
+    <div wire:key="reports.create.upload" class="sm:col-span-6 mt-2 max-w-3xl">
         <label for="file-upload" class="cursor-pointer group">
             <div class="mt-4 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-xl"
                 x-bind:class="{
@@ -327,34 +214,7 @@
                 x-on:dragleave.prevent="dragover = false"
             >
                 <div class="text-center">
-                    <div x-show="filesInResize.length" class="mt-6">
-                        <template x-for="file in filesInResize">
-                            <div class="mt-2 mb-2">
-                                <b>File <span x-text="file.name"></span> preparing for upload</b><br>
-                                Original size <span x-text="file.oldSize"></span> B<br>
-                                Resized size <span x-text="file.newSize"></span> B<br>
-                            </div>
-                        </template>
-                    </div>
-                    <div x-show="filesInProgress.length" class="mt-6">
-                        <template x-for="file in filesInProgress">
-                            <div class="mt-2 mb-2">
-                                <b>File <span x-text="file.name"></span> uploading</b><br>
-                                Original size <span x-text="file.oldSize"></span> B<br>
-                                Resized size <span x-text="file.newSize"></span> B<br>
-                                <span x-text="file.progress"></span>% uploaded
-                            </div>
-                        </template>
-                    </div>
-                    {{--
-                        <div class="h-12 mb-1 flex items-center" x-cloak x-show="filesInProgress.length > 0 || filesInResize.length > 0">
-                            <svg class="mx-auto flex animate-spin h-6 w-6 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </div>
-                    --}}
-                    <div x-show="filesInProgress.length == 0 && filesInResize.length == 0" class="h-12 mb-1">
+                    <div class="h-12 mb-1">
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
@@ -362,14 +222,11 @@
                     <div class="text-sm text-gray-600">
                         <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
                             <span class="font-bold">Choose a photo</span>
-                            <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">
+                            <input x-on:change="handleFileSelect($event)" multiple accept="image/*,.heic,.heif" id="file-upload" name="file-upload" type="file" class="sr-only">
                         </label>
                         <p class="inline pl-1">or drag and drop here</p>
                     </div>
-                    <p class="text-xs text-gray-500">PNG, JPG, GIF, HEIC (10 MB max)</p>
-                    @error('file')
-                        <p class="mt-2 text-base text-red-500">{{ $message }}</p>
-                    @enderror
+                    <p class="text-xs text-gray-500">PNG, JPG, GIF, HEIC</p>
                 </div>
             </div>
         </label>
@@ -461,19 +318,14 @@
     --}}
 
     <div class="mt-0 pt-4 pb-6">
-        <div x-cloak class="flex justify-start" x-data="{
-            uploading: false,
-        }"
-            x-on:uploading.window="uploading = true;"
-            x-on:uploading-completed.window="uploading = false"
-            >
+        <div x-cloak class="flex justify-start">
             <div wire:loading.remove class="w-full">
-                <template x-if="! uploading">
-                    <button wire:click="store" type="button" class="no-animation btn font-bold btn-primary btn-block max-w-3xl">
+                <template x-if="! isUploadBusy()">
+                    <button x-on:click.prevent="submitReport()" type="button" class="no-animation btn font-bold btn-primary btn-block max-w-3xl">
                         {{ $reportId ? 'Save Changes' : 'Add Report' }}
                     </button>
                 </template>
-                <template x-if="uploading">
+                <template x-if="isUploadBusy()">
                     <button type="button" class="no-animation  justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
                         <div class="animate-spin w-5 h-5 mx-auto flex border border-4 rounded-full border-stone-400 border-t-transparent"></div>
                     </button>

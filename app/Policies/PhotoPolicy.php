@@ -63,9 +63,18 @@ class PhotoPolicy
      * @param  \App\Models\Photo  $photo
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Photo $photo)
+    public function delete(User $user, Photo $photo): bool
     {
-        //
+        if ($user->is_superadmin) {
+            return true;
+        }
+
+        // Regular users never delete unattached photos; a background job prunes them.
+        if ($photo->report_id === null) {
+            return false;
+        }
+
+        return $photo->report?->user_id === $user->id;
     }
 
     /**

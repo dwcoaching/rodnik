@@ -23,14 +23,25 @@ export default defineConfig({
     build: {
         rollupOptions: {
           output: {
-            manualChunks: {
-              'ol': ['ol'],
-              'turf': ['@turf/helpers', '@turf/turf'],
-              'exifr': ['exifr'],
-              'heic': ['heic2any'],
-            }
-          }
-        }
+            manualChunks(id) {
+              if (id.includes('node_modules/heic2any')) {
+                return 'heic2any';
+              }
+
+              if (id.includes('node_modules/ol')) {
+                return 'ol';
+              }
+
+              if (id.includes('node_modules/@turf')) {
+                return 'turf';
+              }
+
+              if (id.includes('node_modules/exifr')) {
+                return 'exifr';
+              }
+            },
+          },
+        },
       }
 });
 

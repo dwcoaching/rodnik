@@ -10,8 +10,8 @@ export default async function (photo, callback) {
             && result.latitude <= 90
             && result.longitude !== undefined
             && ! isNaN(result.longitude)
-            && result.latitude >= -180
-            && result.latitude <= 180) {
+            && result.longitude >= -180
+            && result.longitude <= 180) {
 
             callback(result)
         } else {
