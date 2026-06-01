@@ -222,7 +222,7 @@
                     <div class="text-sm text-gray-600">
                         <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
                             <span class="font-bold">Choose a photo</span>
-                            <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">
+                            <input x-on:change="handleFileSelect($event)" multiple capture id="file-upload" name="file-upload" type="file" class="sr-only">
                         </label>
                         <p class="inline pl-1">or drag and drop here</p>
                     </div>
