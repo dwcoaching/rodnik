@@ -18,7 +18,7 @@
         <div>
             <div class="drawer lg:drawer-open">
               <input id="my-drawer" type="checkbox" class="drawer-toggle" />
-              <div class="drawer-content">
+              <div class="drawer-content min-w-0 max-w-full overflow-x-hidden">
                 <div class="lg:hidden navbar bg-base-200">
                   <div class="flex-1 items-stretch">
                     <label for="my-drawer" class="btn btn-ghost flex items-center">
@@ -30,7 +30,7 @@
 
                   </div>
                 </div>
-                <div class="p-8">
+                <div class="p-8 min-w-0 max-w-full">
                     @yield('content')
                 </div>
               </div>

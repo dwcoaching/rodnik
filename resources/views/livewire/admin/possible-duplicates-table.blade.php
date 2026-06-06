@@ -19,8 +19,8 @@
             <div class="mt-4 text-sm text-gray-500">Looking for possible duplicates...</div>
         </div>
     @else
-        <div class="mt-6 overflow-x-auto">
-            <table class="table table-zebra w-full">
+        <div class="mt-6 overflow-x-auto" style="width: min(100%, calc(100vw - 4rem)); max-width: min(100%, calc(100vw - 4rem));">
+            <table class="table table-zebra min-w-[620px] w-full">
                 <thead>
                     <tr>
                         <th>Distance</th>
