@@ -11,21 +11,11 @@ Rodnik.today is a geo-monitoring web application for sharing user reports on pub
 ### Development
 - `npm run dev` - Start Vite development server for frontend assets
 - `npm run build` - Build production frontend assets
-- `php artisan serve` - Start Laravel development server
+- `https://rodnik.test` - is the domain (no need to do php artisan server or anything, it is always fully working)
 
 ### Testing
 - `php artisan test` - Run tests using Pest (configured in phpunit.xml)
 - Test framework: Pest PHP with PHPUnit as the underlying test runner
-
-### Database
-- `php artisan migrate` - Run database migrations
-- `php artisan db:seed` - Seed database with sample data
-
-### Artisan Commands (Console/Commands)
-The project includes many custom Artisan commands for data processing:
-- `php artisan overpass:*` - OpenStreetMap data import/processing commands
-- `php artisan spring:*` - Water source aggregation and tile generation commands
-- `php artisan photos:get-sizes` - Process photo metadata
 
 ## Architecture
 
