@@ -8,9 +8,10 @@
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->
-        @vite(['resources/css/app.css'])
+        @livewireStyles
 
-        <script src="//unpkg.com/alpinejs" defer></script>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireScriptConfig
         <!-- Scripts -->
     </head>
     <body class="folio">
@@ -58,6 +59,11 @@
                           class="active"
                         @endif
                       >🦸&nbsp; Admin</a></li>
+                      <li><a href="/docs/admin/duplicates"
+                        @if (Request::is('docs/admin/duplicates'))
+                          class="active"
+                        @endif
+                      >🔎&nbsp; Possible Duplicates</a></li>
                   {{--  @endcan
                   @endauth--}}
                   <li><a href="/docs/contact-us"
