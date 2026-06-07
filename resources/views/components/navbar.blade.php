@@ -48,7 +48,7 @@
                         <div x-menu:items x-cloak
                             style="display: none;"
                             class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg shadow-lg border border-stone-300
-                            focus:outline-none
+                            focus:outline-hidden
                             ">
                             <a x-menu:item href="{{ duo_route(['location' => 1]) }}"
                                 @click.prevent="
@@ -91,7 +91,7 @@
                                 }"
                                 class="rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
                                     <span class="mr-1">My Water Sources</span>
-                                    <span class="ml-0 text-xs font-medium px-1 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ number_format(Auth::user()->rating, 0, ',', ' ') }}</span>
+                                    <span class="ml-0 text-xs font-medium px-1 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">{{ number_format(Auth::user()->rating, 0, ',', ' ') }}</span>
                             </a>
                             <div class="border-t border-stone-300 h-0 -mx-1 px-5 mt-1 mb-1 text-sm text-gray-400 font-bold">
                                 {{--Account Management--}}

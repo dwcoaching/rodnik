@@ -9,12 +9,12 @@ class Dashboard extends BasePage
 {
     protected static ?string $pollingInterval = null;
 
-    protected static ?string $navigationIcon = 'heroicon-o-home';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-home';
 
     protected static ?string $navigationLabel = 'Dashboard';
     protected static ?string $title = 'Dashboard';
 
-    public function getColumns(): int | string | array
+    public function getColumns(): int|array
     {
         return 3;
     }

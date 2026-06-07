@@ -2,10 +2,15 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Resources\JobResource\Pages\ListJobs;
+use App\Filament\Resources\JobResource\Pages\CreateJob;
+use App\Filament\Resources\JobResource\Pages\EditJob;
 use App\Models\Job;
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\TextColumn;
@@ -18,12 +23,12 @@ class JobResource extends Resource
 {
     protected static ?string $model = Job::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 //
             ]);
     }
@@ -37,11 +42,11 @@ class JobResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                DeleteBulkAction::make(),
             ]);
     }
     
@@ -55,9 +60,9 @@ class JobResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListJobs::route('/'),
-            'create' => Pages\CreateJob::route('/create'),
-            'edit' => Pages\EditJob::route('/{record}/edit'),
+            'index' => ListJobs::route('/'),
+            'create' => CreateJob::route('/create'),
+            'edit' => EditJob::route('/{record}/edit'),
         ];
     }    
 }

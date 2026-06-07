@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use Filament\Widgets\StatsOverviewWidget\Stat;
 use App\Models\User;
 use App\Models\Report;
 use App\Models\Spring;
@@ -9,7 +10,6 @@ use App\Models\SpringTile;
 use App\Models\OverpassBatch;
 use App\Models\SpringRevision;
 use App\Models\WateredSpringTile;
-use Filament\Widgets\StatsOverviewWidget\Card;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
 class StatsOverview extends BaseWidget
@@ -19,7 +19,7 @@ class StatsOverview extends BaseWidget
         return 3;
     }
 
-    protected function getCards(): array
+    protected function getStats(): array
     {
         $totalSources = Spring::count();
         $osmSources = Spring::whereNotNull('osm_node_id')
@@ -49,17 +49,17 @@ class StatsOverview extends BaseWidget
             + WateredSpringTile::whereNotNull('generated_at')->count();
 
         return [
-            Card::make('Water Sources', $totalSources),
-            Card::make('OSM Sources', $osmSources),
-            Card::make('Rodnik Sources', $rodnikSources),
-            Card::make('Reports', $totalReports),
-            Card::make('Springs with Reports', $springsWithReports),
-            Card::make('User Spring Updates', $userSpringUpdates),
-            Card::make('OSM Spring Updates', $osmSpringUpdates),
-            Card::make('Users', $users),
-            Card::make('Users with Reports', $usersWithReports),
-            Card::make('LastOSMUpdate', $lastOSMUpdate),
-            Card::make('Tiles Generated', $tilesGenerated)
+            Stat::make('Water Sources', $totalSources),
+            Stat::make('OSM Sources', $osmSources),
+            Stat::make('Rodnik Sources', $rodnikSources),
+            Stat::make('Reports', $totalReports),
+            Stat::make('Springs with Reports', $springsWithReports),
+            Stat::make('User Spring Updates', $userSpringUpdates),
+            Stat::make('OSM Spring Updates', $osmSpringUpdates),
+            Stat::make('Users', $users),
+            Stat::make('Users with Reports', $usersWithReports),
+            Stat::make('LastOSMUpdate', $lastOSMUpdate),
+            Stat::make('Tiles Generated', $tilesGenerated)
                 ->description('Out of 67 586'),
         ];
     }

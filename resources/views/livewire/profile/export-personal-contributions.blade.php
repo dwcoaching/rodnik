@@ -8,7 +8,7 @@
         </x-section-title>
     
         <div class="mt-5 md:mt-0 md:col-span-2">
-            <div class="px-4 py-5 bg-white sm:p-6 shadow sm:rounded-md">
+            <div class="px-4 py-5 bg-white sm:p-6 shadow-sm sm:rounded-md">
                 <div class="grid grid-cols-6 gap-6">
                     <div class="col-span-6 sm:col-span-4">
                         You have contributed {{ $user->reports()->visible()->count() }} reports and {{  $user->springRevisions->count() }} water sources edits to Rodnik.today.

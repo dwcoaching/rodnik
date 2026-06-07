@@ -2,14 +2,15 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Forms\Components\Textarea;
+use App\Filament\Resources\SpringResource\Pages\ListSprings;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Spring;
 use App\Library\Tagger;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -24,17 +25,17 @@ class SpringResource extends Resource
 {
     protected static ?string $model = Spring::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery();
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 //
             ]);
     }
@@ -60,8 +61,8 @@ class SpringResource extends Resource
             ->recordUrl(false)
             ->filters([
                 Filter::make('tags')
-                    ->form([
-                        Forms\Components\Textarea::make('tags')
+                    ->schema([
+                        Textarea::make('tags')
                             ->default("tourism=camp_site\ndrinking_water=no")
                             ->live(onBlur: true)
                     ])
@@ -81,10 +82,10 @@ class SpringResource extends Resource
                 Filter::make('hidden_at')->label('Visible')->default(true)
                     ->query(fn (Builder $query): Builder => $query->whereNull('hidden_at')),
             ])
-            ->actions([
+            ->recordActions([
                 //Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 // Tables\Actions\BulkActionGroup::make([
                 //     Tables\Actions\DeleteBulkAction::make(),
                 // ]),
@@ -102,7 +103,7 @@ class SpringResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSprings::route('/'),
+            'index' => ListSprings::route('/'),
             // 'create' => Pages\CreateSpring::route('/create'),
             // 'edit' => Pages\EditSpring::route('/{record}/edit'),
         ];

@@ -1,6 +1,6 @@
 @props(['report'])
 
-<li class="bg-white md:rounded-lg md:shadow overflow-hidden">
+<li class="bg-white md:rounded-lg md:shadow-sm overflow-hidden">
     <div class="">
         @if (! $report->hidden_at)
             <div>
@@ -63,37 +63,37 @@
                             </h3>
                         </div>
 
-                        <div class="mt-1 text-sm text-black break-normal [overflow-wrap:anywhere]">
+                        <div class="mt-1 text-sm text-black break-normal wrap-anywhere">
                             {!! nl2br(e($report->shortComment)) !!}
                         </div>
 
                         <div class="mt-1">
                             @if ($report->state == 'dry')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Dry </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-red-600 text-white"> Dry </span>
                             @endif
 
                             @if ($report->state == 'notfound')
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Water source not found </span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-red-600 text-white"> Water source not found </span>
                             @endif
 
                           @if ($report->state == 'dripping')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Very little water </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-yellow-400 text-black"> Very little water </span>
                           @endif
 
                           @if ($report->state == 'running')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Watered </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-green-600 text-white"> Watered </span>
                           @endif
 
                           @if ($report->quality == 'bad')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white"> Poor water </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-red-600 text-white"> Poor water </span>
                           @endif
 
                           @if ($report->quality == 'uncertain')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-yellow-400 text-black"> Questionable water </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-yellow-400 text-black"> Questionable water </span>
                           @endif
 
                           @if ($report->quality == 'good')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium bg-green-600 text-white"> Good water </span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-green-600 text-white"> Good water </span>
                           @endif
                         </div>
 

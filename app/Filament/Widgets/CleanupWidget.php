@@ -11,7 +11,7 @@ class CleanupWidget extends Widget
 {
     public $started = false;
 
-    protected static string $view = 'filament.widgets.cleanup-widget';
+    protected string $view = 'filament.widgets.cleanup-widget';
 
     public $tags = [];
 

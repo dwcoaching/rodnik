@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Response;
 use App\Models\Report;
 use App\Models\Spring;
 use Illuminate\Http\Request;
@@ -11,7 +12,7 @@ class ReportController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -21,7 +22,7 @@ class ReportController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create(Request $request)
     {
@@ -34,8 +35,8 @@ class ReportController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -45,8 +46,8 @@ class ReportController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Report $report
-     * @return \Illuminate\Http\Response
+     * @param Report $report
+     * @return Response
      */
     public function show(Report $report)
     {
@@ -56,8 +57,8 @@ class ReportController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Report $report
-     * @return \Illuminate\Http\Response
+     * @param Report $report
+     * @return Response
      */
     public function edit(Report $report)
     {
@@ -71,9 +72,9 @@ class ReportController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Report $report
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Report $report
+     * @return Response
      */
     public function update(Request $request, Report $report)
     {
@@ -83,8 +84,8 @@ class ReportController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Report $report
-     * @return \Illuminate\Http\Response
+     * @param Report $report
+     * @return Response
      */
     public function destroy(Report $report)
     {

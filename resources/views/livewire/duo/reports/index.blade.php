@@ -10,7 +10,7 @@
                 <div
                 class="rounded-lg flex items-center">
                     <div class="mr-2 text-xl font-medium">{{ $user?->name }}</div>
-                    <span class="ml-0 text-sm font-medium px-1.5 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ $user?->rating }}</span>
+                    <span class="ml-0 text-sm font-medium px-1.5 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">{{ $user?->rating }}</span>
                 </div>
             </div>
         @else
@@ -40,9 +40,9 @@
                 --}}
             </div>
             <div class="mt-2 px-4 mb-3 text-sm font-medium">
-                <span class="px-1.5 py-0 rounded-full bg-[#33A9FF]/[0.1] border border-[#33A9FF]">{{ number_format($springsCount, 0, ',', ' ') }}</span>
+                <span class="px-1.5 py-0 rounded-full bg-[#33A9FF]/10 border border-[#33A9FF]">{{ number_format($springsCount, 0, ',', ' ') }}</span>
                 {{ \Str::plural('water source', $springsCount) }} with
-                <span class="ml-0 px-1.5 py-0 rounded-full bg-[#FFD300]/[0.25] border border-[#ff6633]">{{ number_format($reportsCount, 0, ',', ' ') }}</span>
+                <span class="ml-0 px-1.5 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">{{ number_format($reportsCount, 0, ',', ' ') }}</span>
                 {{ \Str::plural('report', $reportsCount) }}. 
                 <button @click="showLegendModal = true" class="text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
                     Show map legend
@@ -54,7 +54,7 @@
             border-t
             border-b
             border-stone-200
-            gap-[1px]
+            gap-px
             md:bg-inherit
             md:border-0
             md:gap-4 items-stretch md:items-start" wire:key="reports">
@@ -102,7 +102,7 @@
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">Map Legend</h3>
                 <button @click="showLegendModal = false" 
-                        class="text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600">
+                        class="text-gray-400 hover:text-gray-600 focus:outline-hidden focus:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
@@ -114,7 +114,7 @@
                 <div class="space-y-4">
                     <!-- Default/Unreported Sources -->
                     <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#33A9FF] bg-[#33A9FF]/10 flex-shrink-0"></div>
+                        <div class="w-6 h-6 rounded-full border border-[#33A9FF] bg-[#33A9FF]/10 shrink-0"></div>
                         <div class="flex-1">
                             <div class="font-medium text-gray-900">No user reports</div>
                             <div class="text-sm text-gray-600">Nobody has visited the source yet</div>
@@ -123,7 +123,7 @@
 
                     <!-- Good Water Quality -->
                     <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#006600] bg-[#009900]/50 flex-shrink-0"></div>
+                        <div class="w-6 h-6 rounded-full border border-[#006600] bg-[#009900]/50 shrink-0"></div>
                         <div class="flex-1">
                             <div class="font-medium text-gray-900">Good water</div>
                             <div class="text-sm text-gray-600">People mostly report good water</div>
@@ -132,7 +132,7 @@
                     
                     <!-- Bad Water Quality -->
                     <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#FF0000] bg-[#FF0000]/50 flex-shrink-0"></div>
+                        <div class="w-6 h-6 rounded-full border border-[#FF0000] bg-[#FF0000]/50 shrink-0"></div>
                         <div class="flex-1">
                             <div class="font-medium text-gray-900">Poor water</div>
                             <div class="text-sm text-gray-600">People mostly report poor water</div>
@@ -141,7 +141,7 @@
 
                     <!-- Sources with Reports -->
                     <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#ff9900] bg-[#FFB400]/80 flex-shrink-0"></div>
+                        <div class="w-6 h-6 rounded-full border border-[#ff9900] bg-[#FFB400]/80 shrink-0"></div>
                         <div class="flex-1">
                             <div class="font-medium text-gray-900">Unsure</div>
                             <div class="text-sm text-gray-600">People are unsure or had different observations</div>
@@ -150,7 +150,7 @@
                     
                     <!-- Not Found Sources -->
                     <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-red-500 flex-shrink-0 flex items-center justify-center">
+                        <div class="w-6 h-6 rounded-full border border-red-500 shrink-0 flex items-center justify-center">
                             <span class="text-red-500 font-bold text-sm">✕</span>
                         </div>
                         <div class="flex-1">

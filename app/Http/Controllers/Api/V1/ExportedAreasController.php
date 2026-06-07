@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api\V1;
 
-use App\Models\Spring;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ExportedSpringResource;
+use App\Library\GeoJsonArea;
+use App\Models\Spring;
 
-class ExportedAreasController extends Controller
+final class ExportedAreasController extends Controller
 {
     public function show(string $area)
     {
@@ -37,21 +39,18 @@ class ExportedAreasController extends Controller
 
         $springs = Spring::where($boundingBox)->with(['reports.photos'])->get();
 
-        if (extension_loaded('geos')) {
-            $areafile = match($area) {
-                'armenia' => 'geojson/armenia.geojson',
-                'yerevan' => 'geojson/yerevan.geojson',
-                'lycian-way' => null,
-            };
+        $areafile = match ($area) {
+            'armenia' => 'geojson/armenia.geojson',
+            'yerevan' => 'geojson/yerevan.geojson',
+            'lycian-way' => null,
+        };
 
-            if ($areafile) {
-                $area = \geoPHP::load(file_get_contents(resource_path($areafile)), 'json');
+        if ($areafile) {
+            $area = GeoJsonArea::fromResource($areafile);
 
-                $springs = $springs->filter(function ($spring) use ($area) {
-                    $point = \geoPHP::load('POINT('.$spring->longitude.' '.$spring->latitude.')', 'wkt');
-                    return $area->contains($point);
-                });
-            }
+            $springs = $springs->filter(function ($spring) use ($area) {
+                return $area->contains((float) $spring->longitude, (float) $spring->latitude);
+            });
         }
 
         return ExportedSpringResource::collection($springs)->toJson(

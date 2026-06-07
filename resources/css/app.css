@@ -1,9 +1,93 @@
-@import "ol/ol.css";
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;0,1000;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900;1,1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;0,1000;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900;1,1000&display=swap')
+layer(base);
+@import 'ol/ol.css' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+@plugin 'daisyui' {
+  themes: false;
+}
+@plugin 'daisyui/theme' {
+  name: 'mytheme';
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #ffffff;
+  --color-base-200: #f3f4f6;
+  --color-base-300: #e5e7eb;
+  --color-base-content: #111827;
+  --color-primary: #2563eb;
+  --color-primary-content: #ffffff;
+  --color-secondary: #f6d860;
+  --color-secondary-content: #1f2937;
+  --color-accent: #37cdbe;
+  --color-accent-content: #111827;
+  --color-neutral: #3d4451;
+  --color-neutral-content: #ffffff;
+  --color-info: #3b82f6;
+  --color-info-content: #ffffff;
+  --color-success: #16a34a;
+  --color-success-content: #ffffff;
+  --color-warning: #facc15;
+  --color-warning-content: #111827;
+  --color-error: #dc2626;
+  --color-error-content: #ffffff;
+  --radius-selector: 1.9rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/laravel/jetstream/**/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+  --font-sans:
+    Nunito, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@layer components {
+  .select-primary,
+  .input-primary {
+    @apply border-gray-300;
+  }
+
+  .select-primary:focus,
+  .input-primary:focus {
+    @apply z-10 border-blue-600 outline-hidden ring-1 ring-blue-600 outline-offset-0;
+  }
+
+  .drawer-toggle:checked ~ .drawer-side > .drawer-overlay {
+    background-color: rgba(17, 24, 39, 0.8);
+  }
+}
 
 .springImageBlock {
     padding-bottom: 75%;
@@ -28,7 +112,7 @@ html {
 .ol-minimized .ol-scale-line
     {display: none;}
 
-@media screen(sm) {
+@media (width >= theme(--breakpoint-sm)) {
     .ol-minimized .ol-attribution,
     .ol-minimized .ol-zoom,
     .ol-minimized .ol-scale-line

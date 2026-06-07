@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Exception;
+use DB;
 use Faker\Factory;
 use App\Models\Photo;
 use App\Models\OSMTag;
@@ -211,7 +213,7 @@ class Spring extends Model
     public function annihilate()
     {
         if (! $this->canBeAnnihilated()) {
-            throw new \Exception("Spring can not be annihilated");
+            throw new Exception("Spring can not be annihilated");
         }
 
         $latitude = $this->latitude;
@@ -389,14 +391,14 @@ class Spring extends Model
     public function pruneAsMissing()
     {
         if (! $this->canBePrunedAsMissing()) {
-            throw new \Exception("Spring can not be pruned as missing");
+            throw new Exception("Spring can not be pruned as missing");
         }
 
         $longitude = $this->longitude;
         $latitude = $this->latitude;
         $id = $this->id;
 
-        \DB::transaction(function () use ($id) {
+        DB::transaction(function () use ($id) {
             OSMTag::where('spring_id', $id)->delete();
             SpringRevision::where('spring_id', $id)->delete();
             Spring::where('id', $id)->delete();

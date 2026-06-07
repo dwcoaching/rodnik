@@ -2,13 +2,16 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\Action;
+use App\Filament\Resources\OverpassBatchResource\Pages\ListOverpassBatches;
+use App\Filament\Resources\OverpassBatchResource\Pages\CreateOverpassBatch;
+use App\Filament\Resources\OverpassBatchResource\Pages\EditOverpassBatch;
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\OverpassBatch;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\Action;
 use App\Jobs\FetchOverpassBatchImports;
 use App\Jobs\ParseOverpassBatchImports;
 use Filament\Tables\Columns\TextColumn;
@@ -21,12 +24,12 @@ class OverpassBatchResource extends Resource
 {
     protected static ?string $model = OverpassBatch::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 //
             ]);
     }
@@ -50,7 +53,7 @@ class OverpassBatchResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
+            ->recordActions([
                 Action::make('Fetch Imports')
                     ->action(function (OverpassBatch $record): void {
                         FetchOverpassBatchImports::dispatch($record);
@@ -71,7 +74,7 @@ class OverpassBatchResource extends Resource
                         && $record->parse_status !== 'parsed'
                     )
             ])
-            ->bulkActions([
+            ->toolbarActions([
 
             ]);
     }
@@ -86,9 +89,9 @@ class OverpassBatchResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOverpassBatches::route('/'),
-            'create' => Pages\CreateOverpassBatch::route('/create'),
-            'edit' => Pages\EditOverpassBatch::route('/{record}/edit'),
+            'index' => ListOverpassBatches::route('/'),
+            'create' => CreateOverpassBatch::route('/create'),
+            'edit' => EditOverpassBatch::route('/{record}/edit'),
         ];
     }    
 }

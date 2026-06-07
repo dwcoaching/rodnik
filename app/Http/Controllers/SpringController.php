@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Response;
 use App\Models\Spring;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class SpringController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function index()
     {
@@ -27,7 +28,7 @@ class SpringController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function create()
     {
@@ -37,8 +38,8 @@ class SpringController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return Response
      */
     public function store(Request $request)
     {
@@ -48,8 +49,8 @@ class SpringController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Spring  $spring
-     * @return \Illuminate\Http\Response
+     * @param Spring $spring
+     * @return Response
      */
     public function show($springId)
     {
@@ -59,8 +60,8 @@ class SpringController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Spring  $spring
-     * @return \Illuminate\Http\Response
+     * @param Spring $spring
+     * @return Response
      */
     public function edit(Spring $spring)
     {
@@ -72,9 +73,9 @@ class SpringController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Spring  $spring
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param Spring $spring
+     * @return Response
      */
     public function update(Request $request, Spring $spring)
     {
@@ -84,8 +85,8 @@ class SpringController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Spring  $spring
-     * @return \Illuminate\Http\Response
+     * @param Spring $spring
+     * @return Response
      */
     public function destroy(Spring $spring)
     {

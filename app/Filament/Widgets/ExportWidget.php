@@ -11,7 +11,7 @@ class ExportWidget extends Widget
 {
     public $started = false;
 
-    protected static string $view = 'filament.widgets.export-widget';
+    protected string $view = 'filament.widgets.export-widget';
 
     public $tags = [];
 

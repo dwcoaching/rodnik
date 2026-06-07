@@ -1,0 +1,27 @@
+{
+    "agents": [
+        "claude_code",
+        "cursor",
+        "opencode",
+        "zed",
+        "codex"
+    ],
+    "cloud": false,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "packages": [
+        "filament/filament",
+        "barryvdh/laravel-debugbar"
+    ],
+    "sail": false,
+    "skills": [
+        "folio-routing",
+        "fortify-development",
+        "laravel-best-practices",
+        "livewire-development",
+        "pest-testing",
+        "tailwindcss-development",
+        "debug-using-debugbar"
+    ]
+}

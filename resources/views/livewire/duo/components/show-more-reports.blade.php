@@ -5,7 +5,7 @@
             bg-stone-200
             border-b
             border-stone-200
-            gap-[1px]
+            gap-px
             md:bg-inherit
             md:border-0
             md:gap-4 items-stretch

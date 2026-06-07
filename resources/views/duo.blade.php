@@ -1,3 +1,3 @@
 <x-duo-layout>
-    <livewire:duo>
+    <livewire:duo />
 </x-duo-layout>

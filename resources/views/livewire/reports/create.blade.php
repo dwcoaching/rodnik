@@ -39,8 +39,8 @@
                 of reports, and you'll be able to update or delete your reports!
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login</a>
-                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Register</a>
+                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login</a>
+                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Register</a>
             </div>
         </div>
     @endguest
@@ -58,7 +58,7 @@
     <div class="font-black mt-2 text-lg">
         New Report
     </div>
-    <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-sm focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+    <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-xs focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-bold text-gray-500 flex justify-between items-center">
             <span class="mr-3">
                 Visit Date
@@ -77,7 +77,7 @@
     <div class="mt-4">
       <label for="visited_at" class="block text-sm font-bold text-gray-500">Visit date</label>
       <div class="mt-1">
-        <input wire:model="visited_at" type="date" name="visited_at" id="visited_at" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
+        <input wire:model="visited_at" type="date" name="visited_at" id="visited_at" class="shadow-xs focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
       </div>
     </div>
 --}}
@@ -123,7 +123,7 @@
                 @class([
                     'w-full' => true,
                     'sm:max-w-lg' => true,
-                    'shadow-sm' => true,
+                    'shadow-xs' => true,
                     'block' => true,
                     'w-full' => true,
                     'sm:text-sm' => true,
@@ -183,9 +183,9 @@
                     </div>
                     <div x-show="isPending(item)" class="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-lg bg-black/20 text-white">
                         <div class="animate-spin w-8 h-8 flex border-4 rounded-full border-white/80 border-t-transparent"></div>
-                        <div class="mt-2 rounded bg-black/30 px-2 py-1 text-xs font-bold" x-text="item.status === 'uploading' ? `${item.progress}%` : 'Preparing'"></div>
+                        <div class="mt-2 rounded-sm bg-black/30 px-2 py-1 text-xs font-bold" x-text="item.status === 'uploading' ? `${item.progress}%` : 'Preparing'"></div>
                     </div>
-                    <div x-show="item.status === 'failed'" class="absolute inset-x-2 bottom-2 z-20 rounded bg-red-600/90 px-2 py-1 text-xs font-bold text-white">
+                    <div x-show="item.status === 'failed'" class="absolute inset-x-2 bottom-2 z-20 rounded-sm bg-red-600/90 px-2 py-1 text-xs font-bold text-white">
                         <div x-text="item.error"></div>
                         <button type="button" class="mt-1 underline" x-on:click.stop.prevent="retryPhoto(item)">Retry</button>
                     </div>

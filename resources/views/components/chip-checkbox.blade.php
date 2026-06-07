@@ -1,5 +1,5 @@
 <button {{ $attributes }} @click="{{ $key }} = {{ $key }} ? false : true" type="button"
-class="mr-1 mb-2 bg-white inline-flex flex-nowrap whitespace-nowrap border-2 items-center px-4 py-2 text-sm font-regular rounded-full shadow"
+class="mr-1 mb-2 bg-white inline-flex flex-nowrap whitespace-nowrap border-2 items-center px-4 py-2 text-sm font-regular rounded-full shadow-sm"
     :class="{
         'text-gray-600': ! {{ $key }},
         'border-blue-600': {{ $key }},

@@ -32,7 +32,7 @@
                         This will mark
                         <span class="font-semibold">#{{ $source->id }} {{ $source->name ?: $source->type }}</span>
                         as a duplicate. Visiting its page will redirect to the target unless
-                        <code class="bg-stone-100 rounded px-1">?redirect=false</code> is in the URL.
+                        <code class="bg-stone-100 rounded-sm px-1">?redirect=false</code> is in the URL.
                     </p>
 
                     <div>
@@ -49,7 +49,7 @@
                                 id="targetSpringId"
                                 wire:model="targetSpringId"
                                 x-model="target"
-                                class="block w-full rounded-md border-stone-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                                class="block w-full rounded-md border-stone-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 text-sm"
                             >
                                 <option value="" disabled @selected(! $targetSpringId)>Select a water source</option>
                                 @foreach ($candidates as $candidate)

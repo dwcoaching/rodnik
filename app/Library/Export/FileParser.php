@@ -2,6 +2,8 @@
 
 namespace App\Library\Export;
 
+use Exception;
+use Throwable;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -65,14 +67,14 @@ class FileParser
         try {
             // Convert timestamp format from YYYY-MM-DD_HH-ii-ss to Carbon
             $timestamp = Carbon::createFromFormat('Y-m-d_H-i-s', $timestampString);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return null;
         }
         
         $sizeBytes = 0;
         try {
             $sizeBytes = (int) Storage::disk('public')->size($filePath);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $sizeBytes = 0;
         }
         

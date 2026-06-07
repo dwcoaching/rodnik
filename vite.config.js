@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import {homedir} from 'os';
 import {resolve} from 'path';
@@ -9,6 +10,7 @@ let host = 'rodnik.test';
 
 export default defineConfig({
     plugins: [
+        tailwindcss(),
         laravel([
             'resources/css/app.css',
             'resources/js/app.js',

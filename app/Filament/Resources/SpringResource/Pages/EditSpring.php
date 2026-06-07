@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\SpringResource\Pages;
 
 use App\Filament\Resources\SpringResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditSpring extends EditRecord
@@ -13,7 +13,7 @@ class EditSpring extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

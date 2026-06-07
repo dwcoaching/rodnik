@@ -52,27 +52,27 @@ name('docs.exports');
                             $formatInfo = match ($label) {
                                 'JSON' => [
                                     'name' => 'JSON',
-                                    'cardBg' => 'bg-gradient-to-br from-rose-500 to-red-800',
+                                    'cardBg' => 'bg-linear-to-br from-rose-500 to-red-800',
                                     'hoverBg' => 'hover:from-pink-500 hover:via-red-600 hover:to-red-900',
-                                    'shadow' => 'hover:shadow-2xl hover:shadow-red-600/60',
+                                    'shadow-sm' => 'hover:shadow-2xl hover:shadow-red-600/60',
                                 ],
                                 'CSV' => [
                                     'name' => 'CSV',
-                                    'cardBg' => 'bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-700',
+                                    'cardBg' => 'bg-linear-to-br from-cyan-500 via-blue-600 to-indigo-700',
                                     'hoverBg' => 'hover:from-cyan-300 hover:via-blue-600 hover:to-purple-900',
-                                    'shadow' => 'hover:shadow-2xl hover:shadow-blue-600/60',
+                                    'shadow-sm' => 'hover:shadow-2xl hover:shadow-blue-600/60',
                                 ],
                                 'XLSX' => [
                                     'name' => 'XLSX',
-                                    'cardBg' => 'bg-gradient-to-br from-lime-500 via-emerald-700 to-teal-900',
+                                    'cardBg' => 'bg-linear-to-br from-lime-500 via-emerald-700 to-teal-900',
                                     'hoverBg' => 'hover:from-lime-400 hover:via-emerald-600 hover:to-green-900',
-                                    'shadow' => 'hover:shadow-2xl hover:shadow-emerald-600/60',
+                                    'shadow-sm' => 'hover:shadow-2xl hover:shadow-emerald-600/60',
                                 ],
                             };
                         @endphp
                         <a href="/exports/{{ $file['filename'] }}" 
                            download
-                           class="group relative block rounded-2xl {{ $formatInfo['cardBg'] }} {{ $formatInfo['hoverBg'] }} p-8 transition-all duration-300 {{ $formatInfo['shadow'] }} hover:-translate-y-1 overflow-hidden no-underline">
+                           class="group relative block rounded-2xl {{ $formatInfo['cardBg'] }} {{ $formatInfo['hoverBg'] }} p-8 transition-all duration-300 {{ $formatInfo['shadow-sm'] }} hover:-translate-y-1 overflow-hidden no-underline">
                             {{-- Content --}}
                             <div class="relative z-10 flex flex-col items-center text-center">
                                 {{-- Format Icon --}}

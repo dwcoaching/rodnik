@@ -24,7 +24,7 @@
                     </div>
                 </div>
             @endif
-            <div class="mt-1 bg-white md:rounded-lg shadow">
+            <div class="mt-1 bg-white md:rounded-lg shadow-sm">
                 <div class="p-4" wire:key="spring.{{ $spring->id }}">
                     <div class="flex items-start justify-between flex-nowrap">
                         <div class="text-xl font-extrabold mr-3">
@@ -56,7 +56,7 @@
                                             <div x-menu:items x-cloak
                                                 style="display: none;"
                                                 class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
-                                                focus:outline-none
+                                                focus:outline-hidden
                                                 ">
                                                 <a x-menu:item href="{{ duo_route(['spring' => $spring->id, 'location' => 1]) }}"
                                                     @click.prevent="
@@ -357,7 +357,7 @@
                     </div>
                 @endif
             </div>
-            <div class="mt-1 md:mt-2 bg-white md:rounded-lg shadow">
+            <div class="mt-1 md:mt-2 bg-white md:rounded-lg shadow-sm">
                 <div class="p-4 flex mt-0 items-center justify-between">
                     <div class="text-xl font-extrabold flex items-center gap-x-2">
                         @if ($reports->count())
