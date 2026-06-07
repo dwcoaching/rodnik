@@ -2,35 +2,32 @@
 
 namespace App\Models;
 
-use App\Library\Tile;
-use App\Models\Spring;
 use App\Library\SpringsGeoJSON;
-use Illuminate\Support\Facades\DB;
-use Barryvdh\Debugbar\Facades\Debugbar;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SpringTile extends Model
 {
     use HasFactory;
 
-    const DISK = 'tiles';
+    public const DISK = 'tiles';
 
-    const LIMITS = [
+    public const LIMITS = [
         '0' => 1000,
         '5' => 1000,
         '8' => 0,
     ];
 
     protected $fillable = [
-        'z', 'x', 'y'
+        'z', 'x', 'y',
     ];
 
     protected $geoJSONString = null;
 
-    static public function checkXYZ($x, $y, $z)
+    public static function checkXYZ($x, $y, $z)
     {
         if (! in_array($z, array_keys(static::LIMITS))) {
             abort(404);
@@ -43,24 +40,24 @@ class SpringTile extends Model
         }
     }
 
-    static public function fromXYZ($x, $y, $z)
+    public static function fromXYZ($x, $y, $z)
     {
         static::checkXYZ($x, $y, $z);
 
         return static::firstOrCreate([
             'x' => $x,
             'y' => $y,
-            'z' => $z
+            'z' => $z,
         ]);
     }
 
-    static public function fromCoordinates($longitude, $latitude)
+    public static function fromCoordinates($longitude, $latitude)
     {
         $zoom = collect(array_keys(static::LIMITS));
 
         $springTiles = $zoom->map(function ($z) use ($longitude, $latitude) {
             $x = floor((($longitude + 180) / 360) * pow(2, $z));
-            $y = floor((1 - log(tan(deg2rad($latitude)) + 1 / cos(deg2rad($latitude))) / pi()) /2 * pow(2, $z));
+            $y = floor((1 - log(tan(deg2rad($latitude)) + 1 / cos(deg2rad($latitude))) / pi()) / 2 * pow(2, $z));
 
             return static::fromXYZ($x, $y, $z);
         });
@@ -68,10 +65,10 @@ class SpringTile extends Model
         return $springTiles;
     }
 
-    static public function invalidate($longitude, $latitude)
+    public static function invalidate($longitude, $latitude)
     {
         $springTiles = static::fromCoordinates($longitude, $latitude);
-        $springTiles->each(function($item) {
+        $springTiles->each(function ($item) {
             $item->deleteFile();
         });
 
@@ -101,18 +98,18 @@ class SpringTile extends Model
         if ($this->getLimit()) {
             $randomQuery = $this->getRandomQuery();
 
-            $springsQuery->joinSub($randomQuery, 'randomSprings', function($join) {
+            $springsQuery->joinSub($randomQuery, 'randomSprings', function ($join) {
                 $join->on('springs.id', '=', 'randomSprings.id');
             })
-            ->withCount(
-                [
-                    'reports' => function(Builder $query) {
-                        $query
-                            ->whereNull('reports.hidden_at')
-                            ->whereNull('reports.from_osm');
-                    }
-                ]
-            );
+                ->withCount(
+                    [
+                        'reports' => function (Builder $query) {
+                            $query
+                                ->whereNull('reports.hidden_at')
+                                ->whereNull('reports.from_osm');
+                        },
+                    ]
+                );
         } else {
             $springsQuery
                 ->where($this->getCoordinatesFunction())
@@ -121,25 +118,23 @@ class SpringTile extends Model
                 })
                 ->withCount(
                     [
-                        'reports' => function(Builder $query) {
+                        'reports' => function (Builder $query) {
                             $query
                                 ->whereNull('reports.hidden_at')
                                 ->whereNull('reports.from_osm');
-                        }
+                        },
                     ]
                 );
         }
 
-        Debugbar::startMeasure('sql',);
         $springs = $springsQuery->get();
-        Debugbar::stopMeasure('sql');
 
         return SpringsGeoJSON::convert($springs);
     }
 
     public function path()
     {
-        return '/' . $this->z . '/' . $this->x . '/' . $this->y . '.json';
+        return '/'.$this->z.'/'.$this->x.'/'.$this->y.'.json';
     }
 
     public function saveFile()
@@ -171,7 +166,8 @@ class SpringTile extends Model
             ->limit($this->getLimit());
     }
 
-    public function getCoordinatesFunction() {
+    public function getCoordinatesFunction()
+    {
         $tileCount = pow(2, $this->z);
         $longitude_from = $this->x / $tileCount * 360 - 180;
         $longitude_to = ($this->x + 1) / $tileCount * 360 - 180;
@@ -179,7 +175,7 @@ class SpringTile extends Model
         $latitude_from = rad2deg(atan(sinh(pi() * (1 - 2 * ($this->y + 1) / $tileCount))));
         $latitude_to = rad2deg(atan(sinh(pi() * (1 - 2 * $this->y / $tileCount))));
 
-        $coordinatesFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
+        $coordinatesFunction = function ($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
             $query->where('latitude', '>', $latitude_from)
                 ->where('latitude', '<', $latitude_to)
                 ->where('longitude', '>', $longitude_from)

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Spring;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\Debugbar\Facades\Debugbar;
-use Illuminate\Database\Eloquent\Builder;
 
 class SpringJsonController extends Controller
 {
@@ -20,7 +19,7 @@ class SpringJsonController extends Controller
 
         $springsQuery = Spring::with('osm_tags');
 
-        $latitudeFunction = function($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
+        $latitudeFunction = function ($query) use ($latitude_from, $latitude_to, $longitude_from, $longitude_to) {
             $query->where('latitude', '>', $latitude_from)
                 ->where('latitude', '<', $latitude_to)
                 ->where('longitude', '>', $longitude_from)
@@ -34,7 +33,7 @@ class SpringJsonController extends Controller
             ->limit($limit);
 
         if ($limit) {
-            $springsQuery->joinSub($randomQuery, 'randomSprings', function($join) {
+            $springsQuery->joinSub($randomQuery, 'randomSprings', function ($join) {
                 $join->on('springs.id', '=', 'randomSprings.id');
             });
         } else {
@@ -42,28 +41,25 @@ class SpringJsonController extends Controller
                 ->where($latitudeFunction)
                 ->withCount(
                     [
-                        'reports' => function(Builder $query) {
+                        'reports' => function (Builder $query) {
                             $query->whereNull('reports.hidden_at');
-                        }
+                        },
                     ]
                 );
         }
 
-        Debugbar::startMeasure('sql',);
         $springs = $springsQuery->get();
-            // ->whereDoesntHave('osm_tags', function($query) {
-            //     $query->where(function($query) {
-            //             return $query->where('key', 'amenity')
-            //                 ->where('value', 'fountain');
-            //         })
-            //     ->orWhere(function($query) {
-            //             return $query->where('key', 'drinking_water')
-            //                 ->where('value', 'no');
-            //         });
+        // ->whereDoesntHave('osm_tags', function($query) {
+        //     $query->where(function($query) {
+        //             return $query->where('key', 'amenity')
+        //                 ->where('value', 'fountain');
+        //         })
+        //     ->orWhere(function($query) {
+        //             return $query->where('key', 'drinking_water')
+        //                 ->where('value', 'no');
+        //         });
 
-            // })
-        Debugbar::stopMeasure('sql');
-
+        // })
         $json_encoded = UserSpringsJsonController::convert($springs);
 
         return $json_encoded;
