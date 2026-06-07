@@ -69,7 +69,7 @@
                                 <div x-menu class="relative">
                                     <button x-menu:button
                                         class="rounded-full bg-stone-200 p-1 text-sm font-semibold text-stone-600 hover:bg-stone-300
-                                            outline-blue-700 outline-2 outline-offset-[3px]">
+                                            focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-blue-700">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 shrink-0">
                                                 <path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z" />
                                             </svg>

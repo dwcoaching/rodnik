@@ -40,7 +40,7 @@ layer(base);
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
-  --depth: 1;
+  --depth: 0;
   --noise: 0;
 }
 
@@ -82,6 +82,10 @@ layer(base);
   .select-primary:focus,
   .input-primary:focus {
     @apply z-10 border-blue-600 outline-hidden ring-1 ring-blue-600 outline-offset-0;
+  }
+
+  .btn:not(.btn-primary):not(.btn-secondary):not(.btn-accent):not(.btn-neutral):not(.btn-info):not(.btn-success):not(.btn-warning):not(.btn-error):not(.btn-ghost):not(.btn-link):not(.btn-outline):not(.btn-dash):not(.btn-soft) {
+    --btn-color: var(--color-stone-200);
   }
 
   .drawer-toggle:checked ~ .drawer-side > .drawer-overlay {

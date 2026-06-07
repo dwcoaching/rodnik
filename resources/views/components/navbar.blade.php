@@ -41,7 +41,7 @@
                 }">
                     <div x-menu x-model="navbarDropdownMenuOpen" class="relative">
                         <button x-menu:button
-                            class="border-0 h-7 w-7 flex text-sm rounded-full outline-blue-700 outline-2 outline-offset-[3px] opacity-80 hover:opacity-100">
+                            class="border-0 h-7 w-7 flex text-sm rounded-full opacity-80 hover:opacity-100 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-blue-700">
                                 <img class="h-7 w-7 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
                         </button>
 

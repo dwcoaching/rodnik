@@ -72,7 +72,7 @@
                                         @endif
                                     </div>
                                     <button type="button" class="rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-stone-600 hover:bg-stone-300
-                                                    outline-blue-700 outline-2 outline-offset-[3px] gap-x-1 flex items-center"
+                                                    focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-blue-700 gap-x-1 flex items-center"
                                         @if ($springId)
                                             x-on:click="
                                                 window.dispatchEvent(
