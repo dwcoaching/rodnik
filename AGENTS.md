@@ -2,6 +2,15 @@
 
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
+## production access
+You can access production only for debugging when explicitly asked by the user
+
+ssh -l rodnik rodnik.today
+
+but only use it for read-only and diagnostics, never change
+the code directly (the server is updated via deployment with Laravel Forge),
+and ask me before modifying anything or any destructive actions.
+
 ## Project Overview
 
 Rodnik.today is a geo-monitoring web application for sharing user reports on public water sources worldwide. It's built with Laravel and uses OpenStreetMap data integration with a community-driven reporting system.
@@ -36,7 +45,7 @@ All business logic follows a strict Action pattern (`docs/1.0/development/action
 - Actions use Laravel validation with custom rules
 
 ### Frontend Architecture
-- **Livewire 3** - Main reactive frontend framework
+- **Livewire 4** - Main reactive frontend framework
 - **Alpine.js** - Client-side interactivity
 - **Tailwind CSS** + **DaisyUI** - Styling
 - **OpenLayers** - Interactive mapping (`resources/js/`)
@@ -88,11 +97,6 @@ Uses decimal degrees (latitude/longitude) with custom validation rules
 - Use Action pattern for all business logic
 - Test Actions thoroughly (validation, authorization, execution)
 - Maintain clean separation between OSM data and user-generated data
-
-### Database Considerations
-- Uses MySQL with spatial indexing for coordinates
-- Heavy use of background jobs for data processing
-- Caching strategy for statistics and tile generation
 
 ### Geographic Data
 - Coordinate validation via custom rules (`app/Rules/LatitudeRule.php`, `app/Rules/LongitudeRule.php`)
@@ -212,10 +216,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - Use array shape type definitions in PHPDoc blocks.
 
 === deployments rules ===
-
-# Deployment
-
-- Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
 
 === herd rules ===
 
