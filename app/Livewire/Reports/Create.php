@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Reports;
 
+use App\Enums\ReportAccess;
+use App\Enums\ReportQuality;
+use App\Enums\ReportState;
 use App\Jobs\SendReportNotification;
 use App\Library\StatisticsService;
 use App\Models\Photo;
@@ -38,11 +41,11 @@ final class Create extends Component
 
     public $visited_at;
 
-    public $not_found;
+    public $access;
 
-    public $no_access;
+    public $littered = false;
 
-    public $difficult_access;
+    public $ruined = false;
 
     protected $spring;
 
@@ -63,8 +66,11 @@ final class Create extends Component
             $this->report = Report::findOrFail($this->reportId);
             $this->authorize('update', $this->report);
 
-            $this->state = $this->report->state;
-            $this->quality = $this->report->quality;
+            $this->state = $this->report->state?->value;
+            $this->quality = $this->report->quality?->value;
+            $this->access = $this->report->access?->value;
+            $this->littered = (bool) $this->report->littered;
+            $this->ruined = (bool) $this->report->ruined;
             $this->comment = $this->report->comment;
             $this->visited_at = $this->report->visited_at?->format('Y-m-d');
             $this->sortedPhotos = $this->report->photos()->orderBy('order')->get();
@@ -74,10 +80,6 @@ final class Create extends Component
                     'value' => $item->id,
                 ];
             })->values()->all();
-
-            $this->not_found = false;
-            $this->no_access = false;
-            $this->difficult_access = false;
         }
     }
 
@@ -104,11 +106,17 @@ final class Create extends Component
 
         $this->validate();
 
-        $this->report->spring_id = $this->springId;
-
-        if (in_array($this->state, ['dry', 'notfound'])) {
+        if (in_array($this->state, [ReportState::Dry->value, ReportState::NotFound->value], true)) {
             $this->quality = null;
         }
+
+        if ($this->state === ReportState::NotFound->value) {
+            $this->access = null;
+            $this->littered = false;
+            $this->ruined = false;
+        }
+
+        $this->report->spring_id = $this->springId;
 
         if (Auth::check()) {
             $this->report->user_id = Auth::user()->id;
@@ -116,6 +124,9 @@ final class Create extends Component
 
         $this->report->state = $this->state;
         $this->report->quality = $this->quality;
+        $this->report->access = $this->access;
+        $this->report->littered = $this->littered ? true : null;
+        $this->report->ruined = $this->ruined ? true : null;
         $this->report->comment = $this->comment;
         $this->report->visited_at = $this->visited_at;
 
@@ -213,13 +224,19 @@ final class Create extends Component
             'visited_at' => 'nullable|date',
             'state' => [
                 'nullable',
-                Rule::in(['dry', 'dripping', 'running', 'notfound']),
+                Rule::enum(ReportState::class),
             ],
             'quality' => [
                 'nullable',
-                Rule::in(['bad', 'uncertain', 'good']),
+                Rule::enum(ReportQuality::class),
             ],
             'comment' => 'nullable|string|max:65535',
+            'access' => [
+                'nullable',
+                Rule::enum(ReportAccess::class),
+            ],
+            'littered' => 'nullable|boolean',
+            'ruined' => 'nullable|boolean',
             'springId' => 'required|integer',
         ];
     }

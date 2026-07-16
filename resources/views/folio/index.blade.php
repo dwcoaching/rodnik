@@ -64,6 +64,11 @@
                           class="active"
                         @endif
                       >🔎&nbsp; Possible Duplicates</a></li>
+                      <li><a href="/docs/admin/spring-scores"
+                        @if (Request::is('docs/admin/spring-scores'))
+                          class="active"
+                        @endif
+                      >🚦&nbsp; Spring Scores</a></li>
                   {{--  @endcan
                   @endauth--}}
                   <li><a href="/docs/contact-us"

@@ -9,7 +9,6 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SpringAggregatesJsonController;
 use App\Http\Controllers\SpringController;
 use App\Http\Controllers\SpringHistoryController;
-use App\Http\Controllers\SpringJsonController;
 use App\Http\Controllers\SpringLocationController;
 use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\Stats\MoscowStatsController;
@@ -47,7 +46,6 @@ Route::resource('reports', ReportController::class);
 Route::post('photos/uploads', [PhotoUploadController::class, 'store'])->name('photos.uploads.store');
 Route::delete('photos/uploads/{photo}', [PhotoUploadController::class, 'destroy'])->name('photos.uploads.destroy');
 
-Route::get('springs.json', [SpringJsonController::class, 'index']);
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
 Route::get('tiles/{z}/{x}/{y}.json', [SpringTileJsonController::class, 'show']);
 Route::get('watered-tiles/{z}/{x}/{y}.json', [WateredSpringTileJsonController::class, 'show']);

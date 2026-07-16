@@ -1,15 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library\Export;
 
-use App\Models\User;
-use App\Models\Photo;
-use App\Models\Report;
 use App\Models\Spring;
-use App\Models\SpringRevision;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
-class Transformer
+abstract class Transformer
 {
     public ?User $user = null;
 
@@ -20,19 +19,20 @@ class Transformer
         $this->springs = $this->load($springs);
     }
 
-    public function forUser(?User $user = null): static
+    final public function forUser(?User $user = null): static
     {
         $this->user = $user;
+
         return $this;
     }
 
-    public function load(Collection $springs): Collection
+    final public function load(Collection $springs): Collection
     {
         $springs = Spring::select('id', 'type', 'name', 'latitude', 'longitude', 'osm_latitude', 'osm_longitude', 'osm_type', 'osm_name')
             ->whereIn('id', $springs->pluck('id'))
             ->with([
                 'reports' => function ($query) {
-                    $query->select('id', 'spring_id', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'comment');
+                    $query->select('id', 'spring_id', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access', 'littered', 'ruined', 'comment');
                 },
                 'reports.user' => function ($query) {
                     $query->select('id', 'name');
@@ -46,7 +46,7 @@ class Transformer
                 },
                 'springRevisions.user' => function ($query) {
                     $query->select('id', 'name');
-                }
+                },
             ])
             ->get();
 

@@ -1,16 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library\Export;
 
-use App\Models\User;
 use App\Models\Photo;
 use App\Models\Report;
 use App\Models\Spring;
 use App\Models\SpringRevision;
-use App\Library\Export\Transformer;
-use Illuminate\Database\Eloquent\Collection;
 
-class JsonTransformer extends Transformer
+final class JsonTransformer extends Transformer
 {
     public function transform(): array
     {
@@ -26,38 +25,41 @@ class JsonTransformer extends Transformer
                 'osm_type' => $spring->osm_type,
                 'osm_name' => $spring->osm_name,
                 'reports' => $spring->reports->filter(function (Report $report) {
-                    return $report->user_id === $this->user?->id || !$this->user;
+                    return $report->user_id === $this->user?->id || ! $this->user;
                 })
-                ->map(function (Report $report) {
-                    return [
-                        'id' => $report->id,
-                        'user' => $report->user?->name ?? 'Anonymous',
-                        'user_id' => $report->user_id ?? null,
-                        'created_at' => $report->created_at?->format('Y-m-d H:i:s') ?? '',
-                        'visited_at' => (string) ($report->visited_at ?? ''), 
-                        'state' => $report->state ?? '',
-                        'quality' => $report->quality ?? '',
-                        'comment' => $report->comment ?? '',
-                        'photos' => $report->photos->map(function (Photo $photo) {
-                            return $photo->url ?? '';
-                        }),
-                    ];
-                }),
+                    ->map(function (Report $report) {
+                        return [
+                            'id' => $report->id,
+                            'user' => $report->user?->name ?? 'Anonymous',
+                            'user_id' => $report->user_id ?? null,
+                            'created_at' => $report->created_at?->format('Y-m-d H:i:s') ?? '',
+                            'visited_at' => (string) ($report->visited_at ?? ''),
+                            'state' => $report->state?->value ?? '',
+                            'quality' => $report->quality?->value ?? '',
+                            'access' => $report->access?->value,
+                            'littered' => $report->littered,
+                            'ruined' => $report->ruined,
+                            'comment' => $report->comment ?? '',
+                            'photos' => $report->photos->map(function (Photo $photo) {
+                                return $photo->url ?? '';
+                            }),
+                        ];
+                    }),
                 'edits' => $spring->springRevisions->filter(function (SpringRevision $revision) {
-                    return $revision->user_id === $this->user?->id || !$this->user;
+                    return $revision->user_id === $this->user?->id || ! $this->user;
                 })
-                ->map(function (SpringRevision $revision) {
-                    return [
-                        'id' => $revision->id,
-                        'user' => $revision->user?->name ?? 'Anonymous',
-                        'user_id' => $revision->user_id ?? null,
-                        'latitude' => $revision->new_latitude,
-                        'longitude' => $revision->new_longitude,
-                        'type' => $revision->new_type,
-                        'name' => $revision->new_name,
-                        'created_at' => $revision->created_at?->format('Y-m-d H:i:s') ?? '',
-                    ];
-                }),
+                    ->map(function (SpringRevision $revision) {
+                        return [
+                            'id' => $revision->id,
+                            'user' => $revision->user?->name ?? 'Anonymous',
+                            'user_id' => $revision->user_id ?? null,
+                            'latitude' => $revision->new_latitude,
+                            'longitude' => $revision->new_longitude,
+                            'type' => $revision->new_type,
+                            'name' => $revision->new_name,
+                            'created_at' => $revision->created_at?->format('Y-m-d H:i:s') ?? '',
+                        ];
+                    }),
             ];
         });
 

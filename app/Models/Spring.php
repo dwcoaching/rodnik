@@ -1,23 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Exception;
-use DB;
-use Faker\Factory;
-use App\Models\Photo;
-use App\Models\OSMTag;
-use App\Models\Report;
-use App\Models\SpringTile;
-use App\Models\SpringRevision;
-use App\Models\OverpassBatch;
+use App\Enums\ReportQuality;
+use App\Enums\ReportState;
 use App\Library\RedirectChain;
 use App\Library\StatisticsService;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
+use DB;
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Spring extends Model
+final class Spring extends Model
 {
     use HasFactory;
 
@@ -28,8 +26,11 @@ class Spring extends Model
         'Drinking water source',
         'Fountain',
         'Water source',
-        //'Not a water source',
+        // 'Not a water source',
     ];
+
+    // Keep in sync with resources/js/utils/classifyScore.js.
+    public const WATER_SCORE_THRESHOLD = 0.4;
 
     public const MERGE_RADIUS_METERS = 500;
 
@@ -40,6 +41,11 @@ class Spring extends Model
     public function reports()
     {
         return $this->hasMany(Report::class);
+    }
+
+    public function visibleReports(): HasMany
+    {
+        return $this->hasMany(Report::class)->visible();
     }
 
     public function redirectedTo()
@@ -70,7 +76,7 @@ class Spring extends Model
     public function getCoordinatesAttribute()
     {
         if ($this->latitude && $this->longitude) {
-            return $this->latitude . ', ' . $this->longitude;
+            return $this->latitude.', '.$this->longitude;
         }
 
         return '';
@@ -78,8 +84,8 @@ class Spring extends Model
 
     public function parseOSMIntermittent()
     {
-        $intermittentOrSeasonalTags = $this->osm_tags->filter(function($item) {
-            return $item->key == 'seasonal' || $item->key == 'intermittent';
+        $intermittentOrSeasonalTags = $this->osm_tags->filter(function ($item) {
+            return $item->key === 'seasonal' || $item->key === 'intermittent';
         });
 
         if (! $intermittentOrSeasonalTags->count()) {
@@ -87,7 +93,7 @@ class Spring extends Model
         }
 
         $permanentTagsCount = $intermittentOrSeasonalTags->reduce(function ($carry, $item) {
-            return $carry + intval($item->value === 'no' ? 1 : 0);
+            return $carry + (int) ($item->value === 'no' ? 1 : 0);
         });
 
         if ($permanentTagsCount) {
@@ -99,8 +105,8 @@ class Spring extends Model
 
     public function parseOSMName()
     {
-        $name = $this->osm_tags->first(function($item) {
-            return $item->key == 'name';
+        $name = $this->osm_tags->first(function ($item) {
+            return $item->key === 'name';
         });
 
         if ($name) {
@@ -113,40 +119,40 @@ class Spring extends Model
     public function parseOSMType()
     {
         if (count(
-            $this->osm_tags->filter(function($item) {
-                return $item->key == 'natural' &&
-                    ($item->value == 'spring' || $item->value == 'spring_box');
+            $this->osm_tags->filter(function ($item) {
+                return $item->key === 'natural' &&
+                    ($item->value === 'spring' || $item->value === 'spring_box');
             }))) {
             return 'Spring';
         }
 
         if (count(
-            $this->osm_tags->filter(function($item) {
-                return $item->key == 'man_made' && $item->value == 'water_well';
+            $this->osm_tags->filter(function ($item) {
+                return $item->key === 'man_made' && $item->value === 'water_well';
             }))) {
             return 'Water well';
         }
 
         if (count(
-            $this->osm_tags->filter(function($item) {
-                return $item->key == 'man_made' && $item->value == 'water_tap';
+            $this->osm_tags->filter(function ($item) {
+                return $item->key === 'man_made' && $item->value === 'water_tap';
             }))) {
             return 'Water tap';
         }
 
         if (count(
-            $this->osm_tags->filter(function($item) {
+            $this->osm_tags->filter(function ($item) {
                 return
-                    ($item->key == 'amenity' && $item->value == 'drinking_water')
-                    || ($item->key == 'drinking_water' && $item->value == 'yes')
-                    || ($item->key == 'man_made' && $item->value == 'drinking_fountain');
+                    ($item->key === 'amenity' && $item->value === 'drinking_water')
+                    || ($item->key === 'drinking_water' && $item->value === 'yes')
+                    || ($item->key === 'man_made' && $item->value === 'drinking_fountain');
             }))) {
             return 'Drinking water source';
         }
 
         if (count(
-            $this->osm_tags->filter(function($item) {
-                return $item->key == 'amenity' && $item->value == 'fountain';
+            $this->osm_tags->filter(function ($item) {
+                return $item->key === 'amenity' && $item->value === 'fountain';
             }))) {
             return 'Fountain';
         }
@@ -162,17 +168,17 @@ class Spring extends Model
 
     public function updateFromOSM($key, $newValue, SpringRevision $revision)
     {
-        if ($this->{'osm_' . $key} != $newValue) {
-            if ($this->{$key} == $this->{'osm_' . $key}) {
-                $revision->{'old_' . $key} = $this->{'osm_' . $key};
-                $revision->{'new_' . $key} = $newValue;
+        if (! $this->osmValuesAreEquivalent($key, $this->{'osm_'.$key}, $newValue)) {
+            if ($this->osmValuesAreEquivalent($key, $this->{$key}, $this->{'osm_'.$key})) {
+                $revision->{'old_'.$key} = $this->{'osm_'.$key};
+                $revision->{'new_'.$key} = $newValue;
 
                 $this->{$key} = $newValue;
             }
 
-            $revision->{'old_osm_' . $key} = $this->{'osm_' . $key};
-            $revision->{'new_osm_' . $key} = $newValue;
-            $this->{'osm_' . $key} = $newValue;
+            $revision->{'old_osm_'.$key} = $this->{'osm_'.$key};
+            $revision->{'new_osm_'.$key} = $newValue;
+            $this->{'osm_'.$key} = $newValue;
         }
 
         return $revision;
@@ -183,22 +189,15 @@ class Spring extends Model
         $presenceOfGoodWaterCount = 0;
         $absenceOfGoodWaterCount = 0;
 
-        foreach ($this->reports as $report) {
-            if ($report->quality == 'good' && $report->state == 'running') {
+        foreach ($this->visibleReports as $report) {
+            if ($report->quality === ReportQuality::Good) {
                 $presenceOfGoodWaterCount++;
             }
 
             if (
-                    (
-                        ! is_null($report->quality)
-                        && $report->quality != 'good'
-                    )
-                    ||
-                    (
-                        ! is_null($report->state)
-                        && $report->state != 'running'
-                    )
-                ) {
+                ! is_null($report->quality)
+                && $report->quality !== ReportQuality::Good
+            ) {
                 $absenceOfGoodWaterCount++;
             }
         }
@@ -213,7 +212,7 @@ class Spring extends Model
     public function annihilate()
     {
         if (! $this->canBeAnnihilated()) {
-            throw new Exception("Spring can not be annihilated");
+            throw new Exception('Spring can not be annihilated');
         }
 
         $latitude = $this->latitude;
@@ -272,7 +271,7 @@ class Spring extends Model
         return ! $this->isOsmTracked();
     }
 
-    public function canBeRedirectedTo(Spring $source)
+    public function canBeRedirectedTo(self $source)
     {
         if ($this->id === $source->id) {
             return false;
@@ -311,7 +310,7 @@ class Spring extends Model
         return $query->whereNull($this->qualifyColumn('redirect_to_spring_id'));
     }
 
-    public function scopeWithinMergeRadiusOf($query, Spring $other)
+    public function scopeWithinMergeRadiusOf($query, self $other)
     {
         if ($other->latitude === null || $other->longitude === null) {
             return $query->whereRaw('1 = 0');
@@ -371,7 +370,7 @@ class Spring extends Model
             })
             ->where(function ($q) use ($latest) {
                 $q->whereNull('last_seen_overpass_batch_id')
-                  ->orWhere('last_seen_overpass_batch_id', '<', $latest);
+                    ->orWhere('last_seen_overpass_batch_id', '<', $latest);
             });
     }
 
@@ -391,7 +390,7 @@ class Spring extends Model
     public function pruneAsMissing()
     {
         if (! $this->canBePrunedAsMissing()) {
-            throw new Exception("Spring can not be pruned as missing");
+            throw new Exception('Spring can not be pruned as missing');
         }
 
         $longitude = $this->longitude;
@@ -414,45 +413,46 @@ class Spring extends Model
         return ! $this->hidden_at;
     }
 
-    // zero means no reports or equal number of good and bad reports
-    // positive means more good reports than bad reports
-    // negative means more bad reports than good reports
-    public function getWaterScore()
+    /**
+     * Eager-load visible reports with just the columns needed for scoring
+     * (getWaterScore()/isNotFound()).
+     */
+    public function scopeWithVisibleReportConditions(Builder $query): void
     {
-        $presenceOfGoodWaterCount = 0;
-        $absenceOfGoodWaterCount = 0;
-
-        foreach ($this->reports as $report) {
-            if ($report->quality == 'good') {
-                $presenceOfGoodWaterCount++;
-            }
-
-            if (
-                    (
-                        ! is_null($report->quality)
-                        && $report->quality == 'bad'
-                    )
-                    ||
-                    (
-                        ! is_null($report->state)
-                        && in_array($report->state, ['dry'])
-                    )
-                ) {
-                $absenceOfGoodWaterCount++;
-            }
-        }
-
-        return $presenceOfGoodWaterCount - $absenceOfGoodWaterCount;
+        $query->with([
+            'visibleReports' => function (HasMany $reports): void {
+                $reports->select(['id', 'spring_id', ...Report::CONDITION_COLUMNS]);
+            },
+        ]);
     }
 
-    public function notFoundReportsCount()
+    public function getWaterScore(): ?float
     {
-        return $this->reports->where('state', 'notfound')->count();
+        $scores = $this->visibleReports
+            ->map(fn (Report $report): ?int => $report->getWaterScore())
+            ->filter(fn (?int $score): bool => $score !== null);
+
+        if ($scores->isEmpty()) {
+            return null;
+        }
+
+        return (float) $scores->average();
+    }
+
+    public function isNotFound(): bool
+    {
+        if (! $this->visibleReports->contains('state', ReportState::NotFound)) {
+            return false;
+        }
+
+        return ! $this->visibleReports->contains(
+            fn (Report $report): bool => $report->confirmsSpringFound(),
+        );
     }
 
     public function getRodnikType()
     {
-        if ($this->type != $this->osm_type) {
+        if ($this->type !== $this->osm_type) {
             return $this->type;
         } // this condition is here for legacy reasons when we didn't have spring_revisions table
 
@@ -461,7 +461,7 @@ class Spring extends Model
 
     public function getRodnikName()
     {
-        if ($this->name != $this->osm_name) {
+        if ($this->name !== $this->osm_name) {
             return $this->name;
         } // this condition is here for legacy reasons when we didn't have spring_revisions table
 
@@ -470,7 +470,7 @@ class Spring extends Model
 
     public function getRodnikLatitude()
     {
-        if ($this->latitude != $this->osm_latitude) {
+        if ($this->latitude !== $this->osm_latitude) {
             return $this->latitude;
         } // this condition is here for legacy reasons when we didn't have spring_revisions table
 
@@ -479,10 +479,28 @@ class Spring extends Model
 
     public function getRodnikLongitude()
     {
-        if ($this->longitude != $this->osm_longitude) {
+        if ($this->longitude !== $this->osm_longitude) {
             return $this->longitude;
         } // this condition is here for legacy reasons when we didn't have spring_revisions table
 
         return $this->springRevisions->whereNotNull('new_longitude')->sortByDesc('updated_at')->first()?->new_longitude ?? null;
+    }
+
+    private function osmValuesAreEquivalent(string $key, mixed $currentValue, mixed $newValue): bool
+    {
+        if (! in_array($key, ['latitude', 'longitude'], true)) {
+            return $currentValue === $newValue;
+        }
+
+        if ($currentValue === null || $newValue === null) {
+            return $currentValue === $newValue;
+        }
+
+        if (! is_numeric($currentValue) || ! is_numeric($newValue)) {
+            return $currentValue === $newValue;
+        }
+
+        return number_format((float) $currentValue, 6, '.', '')
+            === number_format((float) $newValue, 6, '.', '');
     }
 }

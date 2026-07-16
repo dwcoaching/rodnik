@@ -1,40 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library;
 
 use App\Models\Spring;
+use Illuminate\Support\Str;
 
-class EnrichGPX
+final class EnrichGPX
 {
-    static public function enrich(string $gpx)
+    public static function enrich(string $gpx)
     {
-       // parse gpx
-       $gpx = simplexml_load_string($gpx);
+        // parse gpx
+        $gpx = simplexml_load_string($gpx);
 
-       // Register the GPX namespace
-       $namespaces = $gpx->getNamespaces(true);
+        // Register the GPX namespace
+        $namespaces = $gpx->getNamespaces(true);
 
-       // Iterate over all waypoints (wpt)
-       foreach ($gpx->wpt as $wpt) {
-           // Find the <link> element
-           $link = $wpt->link;
-           if ($link && isset($link['href'])) {
-               $href = (string)$link['href'];
-               // Match the id from the URL
-               if (preg_match('#https://rodnik\.today/(\d+)#', $href, $matches)) {
-                   $id = intval($matches[1]);
-                   // Add <desc> tag
-                   $wpt->addChild('desc', self::getEnrichedDescriptionForId($id));
-               }
-           }
-       }
+        // Iterate over all waypoints (wpt)
+        foreach ($gpx->wpt as $wpt) {
+            // Find the <link> element
+            $link = $wpt->link;
+            if ($link && isset($link['href'])) {
+                $href = (string) $link['href'];
+                // Match the id from the URL
+                if (preg_match('#https://rodnik\.today/(\d+)#', $href, $matches)) {
+                    $id = (int) ($matches[1]);
+                    // Add <desc> tag
+                    $wpt->addChild('desc', self::getEnrichedDescriptionForId($id));
+                }
+            }
+        }
 
-       $gpxString = $gpx->asXML();
-       
-       return $gpxString;
+        $gpxString = $gpx->asXML();
+
+        return $gpxString;
     }
 
-    static public function getEnrichedDescriptionForId(int $springId)
+    public static function getEnrichedDescriptionForId(int $springId)
     {
         $spring = Spring::find($springId);
 
@@ -46,9 +49,9 @@ class EnrichGPX
         $reports = '';
 
         if ($spring->osm_tags->count()) {
-            $osm .= 'OSM tags: ' . $spring->osm_tags->map(function ($tag) {
-                return $tag->key . '=' . $tag->value;
-            })->join(', ') . '.';
+            $osm .= 'OSM tags: '.$spring->osm_tags->map(function ($tag) {
+                return $tag->key.'='.$tag->value;
+            })->join(', ').'.';
         }
 
         if ($spring->reports()->visible()->count()) {
@@ -58,36 +61,31 @@ class EnrichGPX
             // 1. Reports with null visited_at get priority 1, others get 0 (to push nulls to the end)
             // 2. For date comparison, use visited_at if available, otherwise fall back to created_at
             // 3. Use negative ID as final tiebreaker to ensure consistent ordering
-            $reports .= 'Reports: ' . $spring->reports()->visible()->get()->sortByDesc(function ($report) {
+            $reports .= 'Reports: '.$spring->reports()->visible()->get()->sortByDesc(function ($report) {
                 return [$report->visited_at === null ? 0 : 1, $report->visited_at ?: $report->created_at, -$report->id];
             })->map(function ($report) {
                 $author = $report->user ? $report->user->name : 'Unknown';
-                // Map quality
-                $qualityMap = [
-                    'good' => '[Good Water]',
-                    'bad' => '[Poor Water]',
-                ];
-                $quality = $qualityMap[$report->quality] ?? '';
-                // Map state
-                $stateMap = [
-                    'running' => '[Watered]',
-                    'dry' => '[Dry]',
-                    'notfound' => '[Not Found]',
-                ];
-                $state = $stateMap[$report->state] ?? '';
-
                 $conditions = [];
-                if ($quality) {
-                    $conditions[] = $quality;
+                if ($report->quality !== null) {
+                    $conditions[] = '['.Str::title($report->quality->getLabel()).']';
                 }
-                if ($state) {
-                    $conditions[] = $state;
+                if ($report->state !== null) {
+                    $conditions[] = '['.Str::title($report->state->gpxLabel()).']';
+                }
+                if ($report->access !== null) {
+                    $conditions[] = '['.Str::title($report->access->getLabel()).']';
+                }
+                if ($report->littered) {
+                    $conditions[] = '[Littered]';
+                }
+                if ($report->ruined) {
+                    $conditions[] = '[Ruined]';
                 }
 
                 $condition = '';
 
                 if (count($conditions)) {
-                    $condition .= join(' ', $conditions);
+                    $condition .= implode(' ', $conditions);
                 }
 
                 $comment = $report->comment ?? '';
@@ -102,11 +100,11 @@ class EnrichGPX
             })->join("\n");
         }
 
-        $result = join("\n", [$osm, $reports]);
+        $result = implode("\n", [$osm, $reports]);
 
         // Escape special XML characters to ensure the result is safe for XML
         $result = htmlspecialchars($result, ENT_XML1 | ENT_QUOTES, 'UTF-8');
-        
+
         // Remove any null bytes or other invalid XML characters
         $result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $result);
 

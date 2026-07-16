@@ -161,35 +161,7 @@
                         {!! nl2br(e($report->comment)) !!}
                     </div>
 
-                    <div class="mt-1">
-                        @if ($report->state == 'dry')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-red-600 text-white"> Dry </span>
-                        @endif
-
-                        @if ($report->state == 'notfound')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-red-600 text-white"> Water source not found </span>
-                        @endif
-
-                      @if ($report->state == 'dripping')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-yellow-400 text-black"> Very little water </span>
-                      @endif
-
-                      @if ($report->state == 'running')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-green-600 text-white"> Watered </span>
-                      @endif
-
-                      @if ($report->quality == 'bad')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-red-600 text-white"> Poor water </span>
-                      @endif
-
-                      @if ($report->quality == 'uncertain')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-yellow-400 text-black"> Questionable water </span>
-                      @endif
-
-                      @if ($report->quality == 'good')
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium bg-green-600 text-white"> Good water </span>
-                      @endif
-                    </div>
+                    <x-report-condition-badges :report="$report" class="mt-1" />
 
                     <div class="overflow-clip">
                         @if ($report->new_name)

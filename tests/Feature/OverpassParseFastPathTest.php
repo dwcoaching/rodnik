@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Library\Overpass;
 use App\Models\OSMTag;
 use App\Models\OverpassBatch;
@@ -43,6 +45,40 @@ test('fast path: unchanged version produces no revision and no tag refresh', fun
     expect(OSMTag::where('spring_id', $spring->id)->pluck('id')->sort()->values()->all())
         ->toEqual($tagIdsBefore);
     expect($spring->last_seen_overpass_batch_id)->toBe($batchNew->id);
+});
+
+test('OSM updates treat database decimal strings and incoming coordinate floats as equal', function () {
+    $spring = new Spring();
+    $spring->setRawAttributes([
+        'latitude' => '10.111111',
+        'osm_latitude' => '10.111111',
+        'longitude' => '20.222222',
+        'osm_longitude' => '20.222222',
+    ]);
+    $spring->syncOriginal();
+
+    $revision = $spring->updateFromOSM('latitude', 10.111111, new SpringRevision());
+    $revision = $spring->updateFromOSM('longitude', 20.222222, $revision);
+
+    expect($revision->isDirty())->toBeFalse()
+        ->and($spring->isDirty())->toBeFalse();
+});
+
+test('OSM updates still record meaningful coordinate changes', function () {
+    $spring = new Spring();
+    $spring->setRawAttributes([
+        'latitude' => '10.111111',
+        'osm_latitude' => '10.111111',
+    ]);
+
+    $revision = $spring->updateFromOSM('latitude', 10.111112, new SpringRevision());
+
+    expect($revision->old_latitude)->toBe('10.111111')
+        ->and($revision->new_latitude)->toBe(10.111112)
+        ->and($revision->old_osm_latitude)->toBe('10.111111')
+        ->and($revision->new_osm_latitude)->toBe(10.111112)
+        ->and($spring->latitude)->toBe(10.111112)
+        ->and($spring->osm_latitude)->toBe(10.111112);
 });
 
 test('slow path: version bump updates osm_name and writes revision', function () {

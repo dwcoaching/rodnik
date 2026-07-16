@@ -1,4 +1,12 @@
-<div class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-6"
+<div
+    data-test="report-create-form"
+    class="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 text-[18px]/[28px]
+        [&_.text-xs]:text-[14px]/[20px]
+        [&_.text-sm]:text-[16px]/[24px]
+        [&_.text-lg]:text-[20px]/[30px]
+        [&_.text-xl]:text-[22px]/[30px]
+        [&_.text-2xl]:text-[26px]/[34px]
+        [&_.btn]:text-[16px]/[24px]"
     x-data="reportCreateForm({
         wire: $wire,
         submitReport: () => $wire.store(),
@@ -24,22 +32,20 @@
                 However, we encourage you to register and log in.
             </div>
             <div class="mt-2 max-w-prose">
-                The main reason we ask
-                you to register is to establish a reputation
-                for each piece of knowledge. Nobody knows whether to trust an anonymous
-                reporter on the web.
+                Registration helps establish a reputation for each contribution.
+                Without an account history, other users may not know whether they can
+                trust an anonymous report.
             </div>
             <div class="mt-2 max-w-prose">
-                By having a history of your reports, we will know that the information
-                from you is reliable, and we will make necessary changes to the
-                OpenStreetMap database.
+                A history of your reports helps us assess their reliability and make
+                the necessary changes to OpenStreetMap.
             </div>
             <div class="mt-2 max-w-prose">
-                Besides, you will have your personal page and a collection
-                of reports, and you'll be able to update or delete your reports!
+                You will also have a personal page with all your reports, and you will
+                be able to update or delete them.
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Login</a>
+                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Log in</a>
                 <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Register</a>
             </div>
         </div>
@@ -56,77 +62,75 @@
         </div>
     </div>
     <div class="font-black mt-2 text-lg">
-        New Report
+        New report
     </div>
     <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-xs focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-bold text-gray-500 flex justify-between items-center">
             <span class="mr-3">
-                Visit Date
+                Visit date
             </span>
             <span @click="toggleDate" class="cursor-pointer text-blue-600 text-xs"
                 :class="{
                     'font-bold': ! withDate
                 }"
             >
-                Do Not Specify
+                Do not specify
             </span>
         </label>
-        <input x-show="withDate" x-model="visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-sm" placeholder="">
+        <input x-show="withDate" x-model="visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-base text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-base" placeholder="">
     </div>
-{{--
-    <div class="mt-4">
-      <label for="visited_at" class="block text-sm font-bold text-gray-500">Visit date</label>
-      <div class="mt-1">
-        <input wire:model="visited_at" type="date" name="visited_at" id="visited_at" class="shadow-xs focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-xl max-w-xs" />
-      </div>
-    </div>
---}}
-
     <div class="mt-4">
         <div>
             <div class="mb-2">
-                <div class="text-sm font-bold text-gray-500 mt-4 mb-2">Condition</div>
-                <x-chip-radio name="💧 There is water" key="state" value="running" />
-                <x-chip-radio name="🌵 No water" key="state" value="dry" />
-                <x-chip-radio name="😡 Water source not found" key="state" value="notfound" />
+                <x-form-group-info id="condition-info" title="Condition" class="mt-4">
+                    <p><span class="font-semibold text-gray-700">Has water:</span> Water is present, even if the flow is very weak.</p>
+                    <p><span class="font-semibold text-gray-700">No water:</span> The source is dry; there is not enough water to fill a cup.</p>
+                    <p><span class="font-semibold text-gray-700">Water source not found:</span> Neither the source nor any trace of it can be found. This may indicate a mapping error.</p>
+                </x-form-group-info>
+                <x-chip :indicator="false" :name="'💧 '.\App\Enums\ReportState::Running->formLabel()" key="state" :value="\App\Enums\ReportState::Running->value" />
+                <x-chip :indicator="false" :name="'🌵 '.\App\Enums\ReportState::Dry->formLabel()" key="state" :value="\App\Enums\ReportState::Dry->value" />
+                <x-chip :indicator="false" :name="'😡 '.\App\Enums\ReportState::NotFound->formLabel()" key="state" :value="\App\Enums\ReportState::NotFound->value" />
             </div>
-            <div x-show="state !== 'dry' && state !== 'notfound'">
-                <div class="text-sm font-bold text-gray-500 mt-2 mb-2">Water quality</div>
-                <x-chip-radio name="🚰 Good Water" key="quality" value="good" />
-                <x-chip-radio name="🚱 Poor Water" key="quality" value="bad" />
+            <div x-show="state !== @js(\App\Enums\ReportState::Dry->value) && state !== @js(\App\Enums\ReportState::NotFound->value)">
+                <x-form-group-info id="water-quality-info" title="Water quality" class="mt-2">
+                    <p>
+                        <span class="font-semibold text-gray-700">Use your own judgment.</span>
+                        Consider the source in its local context. A “good” rating does not guarantee that the water
+                        is safe to drink. Water that would be considered poor in mountains with crystal-clear streams may still
+                        be valuable in a desert if it can be made safe through appropriate treatment.
+                    </p>
+                </x-form-group-info>
+                <x-chip :indicator="false" :name="'🚰 '.\App\Enums\ReportQuality::Good->getLabel()" key="quality" :value="\App\Enums\ReportQuality::Good->value" />
+                <x-chip :indicator="false" :name="'🚱 '.\App\Enums\ReportQuality::Bad->getLabel()" key="quality" :value="\App\Enums\ReportQuality::Bad->value" />
+            </div>
+            <div x-show="state !== @js(\App\Enums\ReportState::NotFound->value)">
+                <x-form-group-info id="problems-info" title="Details" class="mt-2">
+                    <p><span class="font-semibold text-gray-700">No access:</span> The source is locked, located behind a wall, or otherwise inaccessible.</p>
+                    <p><span class="font-semibold text-gray-700">Limited access:</span> Access is limited by seasonal or time restrictions, hazards (such as a steep slope or dense vegetation), or the need for special equipment (such as a bucket for a well).</p>
+                    <p><span class="font-semibold text-gray-700">Littered:</span> There is rubbish around or inside the source.</p>
+                    <p><span class="font-semibold text-gray-700">Ruined:</span> The source is severely damaged or no longer functional.</p>
+                </x-form-group-info>
+                <x-chip :name="\App\Enums\ReportAccess::No->getLabel()" key="access" :value="\App\Enums\ReportAccess::No->value" />
+                <x-chip :name="\App\Enums\ReportAccess::Limited->getLabel()" key="access" :value="\App\Enums\ReportAccess::Limited->value" />
+                <x-chip mode="checkbox" name="Littered" key="littered" />
+                <x-chip mode="checkbox" name="Ruined" key="ruined" />
             </div>
         </div>
     </div>
-
-    {{--
-    <div class="mt-4">
-        <div>
-            <div class="mb-2">
-                <div class="text-sm font-bold text-gray-500 mt-4 mb-2">Condition</div>
-                <x-chip-radio name="💧 There is water" key="state" value="running" />
-                <x-chip-radio name="🌵 Little water" key="state" value="dry" />
-                <x-chip-radio name="🚫 No water" key="state" value="dry" />
-            </div>
-            <div x-show="state !== 'dry' && state !== 'notfound'">
-                <div class="text-sm font-bold text-gray-500 mt-2 mb-2">Water quality</div>
-                <x-chip-radio name="🚰 Good Water" key="quality" value="good" />
-                <x-chip-radio name="🚱 Poor Water" key="quality" value="bad" />
-            </div>
-        </div>
-    </div>
-    --}}
 
     <div class="mt-2">
+        <div class="text-sm font-bold text-gray-500 mb-2">Additional details</div>
         <div class="relative">
             <textarea wire:model="comment" rows="4" name="comment" id="comment"
-                placeholder="Comment"
+                placeholder="Describe what you observed…"
                 @class([
                     'w-full' => true,
                     'sm:max-w-lg' => true,
                     'shadow-xs' => true,
                     'block' => true,
                     'w-full' => true,
-                    'sm:text-sm' => true,
+                    'text-base' => true,
+                    'sm:text-base' => true,
                     'rounded-md' => true,
                     'border-gray-300' => ! $errors->has('comment'),
                     'focus:ring-blue-500' => ! $errors->has('comment'),
@@ -231,102 +235,16 @@
             </div>
         </label>
     </div>
-    {{--
-    <div class="collapse mt-4 p-4 bg-gray-200 rounded-xl max-w-3xl">
-        <div>
-            <div class="font-black text-lg">Extra parameters</div>
-            <div class="mt-4">
-                <x-chip-checkbox name="Very little water" key="not_found" value="notfound" />
-                <x-chip-checkbox name="No access" key="no_access" value="notfound" />
-                <x-chip-checkbox name="Difficult access" key="difficult_access" value="notfound" />
-                <x-chip-checkbox name="Broken" key="difficult_access" value="notfound" />
-                <x-chip-checkbox name="Duplicate" key="difficult_access" value="notfound" />
-                <x-chip-checkbox name="Decorative fountain" key="difficult_access" value="notfound" />
-            </div>
-
-
-            <div class="mt-2">
-                <div class="text-sm font-bold text-gray-500 mb-2">Coordinates</div>
-                <x-chip-radio name="Accurate" key="not_found" value="notfound" />
-                <x-chip-radio name="Inaccurate" key="no_access" value="notfound" />
-                <x-chip-radio name="Water source not found" key="difficult_access" value="notfound" />
-            </div>
-            <div class="mt-2">
-                <div class="text-sm font-bold text-gray-500 mb-2">Access to the object</div>
-                <x-chip-radio name="Free" key="not_found" value="notfound" />
-                <x-chip-radio name="Restricted" key="no_access" value="notfound" />
-                <x-chip-radio name="No access" key="difficult_access" value="notfound" />
-            </div>
-            <div class="mt-4">
-                <div class="text-sm font-bold text-gray-500 mb-2">Access to the water</div>
-                <x-chip-radio name="Easy" key="not_found" value="notfound" />
-                <x-chip-radio name="Difficult" key="no_access" value="notfound" />
-                <x-chip-radio name="No access" key="difficult_access" value="notfound" />
-            </div>
-            <div class="mt-4">
-                <div class="text-sm font-bold text-gray-500 mb-2">State of repair</div>
-                <x-chip-radio name="Good" key="not_found" value="notfound" />
-                <x-chip-radio name="Needs repair" key="no_access" value="notfound" />
-                <x-chip-radio name="Ruined" key="difficult_access" value="notfound" />
-            </div>
-            <div class="mt-4">
-                <div class="text-sm font-bold text-gray-500 mb-2">Additional information</div>
-                <x-chip-checkbox name="Aggressive vegetation" key="not_found" value="notfound" />
-                <x-chip-checkbox name="Littered" key="no_access" value="notfound" />
-                <x-chip-checkbox name="Decorative" key="difficult_access" value="notfound" />
-            </div>
-        </div>
-    </div>
-    --}}
-    {{--
-        <div class="mt-2 overflow-x-scroll">
-            <x-chip-checkbox name="Stale water" key="stale" />
-            <x-chip-checkbox name="Dripping" key="dripping" />
-            <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
-            <x-chip-checkbox name="Abandoned" key="abandoned" />
-            <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
-            <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
-        </div>
-    --}}
-    {{--
-        <div class="mt-6 block text-sm font-regular text-gray-700">Water source</div>
-        <div class="mt-2 overflow-x-scroll">
-            <x-chip-checkbox name="Stale water" key="stale" />
-            <x-chip-checkbox name="Dripping" key="dripping" />
-            <x-chip-checkbox name="Abandoned" key="abandoned" />
-            <x-chip-checkbox name="Not found" key="notfound" />
-        </div>
-
-        <div class="mt-6 block text-sm font-regular text-gray-700">Water</div>
-        <div class="mt-2 overflow-x-scroll">
-            <x-chip-checkbox name="Drinking water" key="drinkingwater" />
-            <x-chip-checkbox name="Boiling or filtering required" key="drinkingwaterconditional" />
-            <x-chip-checkbox name="Not drinkable" key="drinkingwaterno" />
-
-            <x-chip-checkbox name="Sign: potable water" key="drinkingwaterlegal" />
-            <x-chip-checkbox name="Sign: not potable water" key="drinkingwaterlegalno" />
-        </div>
-    --}}
-
-    {{--
-        <label for="" class="mt-6 block text-sm font-medium text-gray-700"></label>
-        <div class="">
-            <x-chip-checkbox name="Wheelchair access" key="wheelchair" />
-            <x-chip-checkbox name="Easy to fill up a bottle" key="bottle" />
-            <x-chip-checkbox name="Access for dogs" key="dog" />
-        </div>
-    --}}
-
     <div class="mt-0 pt-4 pb-6">
         <div x-cloak class="flex justify-start">
             <div wire:loading.remove class="w-full">
                 <template x-if="! isUploadBusy()">
-                    <button x-on:click.prevent="submitReport()" type="button" class="no-animation btn font-bold btn-primary btn-block max-w-3xl">
-                        {{ $reportId ? 'Save Changes' : 'Add Report' }}
+                    <button x-on:click.prevent="submitReport()" type="button" class="no-animation btn h-11 font-bold btn-primary btn-block max-w-3xl">
+                        {{ $reportId ? 'Save changes' : 'Add report' }}
                     </button>
                 </template>
                 <template x-if="isUploadBusy()">
-                    <button type="button" class="no-animation  justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
+                    <button type="button" class="no-animation h-11 justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
                         <div class="animate-spin w-5 h-5 mx-auto flex border border-4 rounded-full border-stone-400 border-t-transparent"></div>
                     </button>
                 </template>

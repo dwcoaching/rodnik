@@ -1,18 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library\Export;
 
 use App\Models\User;
-use OpenSpout\Common\Entity\Row;
-use OpenSpout\Writer\AbstractWriter;
-use App\Library\Export\CsvTransformer;
 use Illuminate\Support\Facades\Storage;
+use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
-use Illuminate\Database\Eloquent\Builder;
-use OpenSpout\Writer\CSV\Writer as OpenSpoutCsvWriter;
 use OpenSpout\Writer\XLSX\Writer as OpenSpoutXlsxWriter;
 
-class XlsxWriter extends CsvWriter
+final class XlsxWriter extends CsvWriter
 {
     public function save(): string
     {
@@ -54,13 +52,13 @@ class XlsxWriter extends CsvWriter
 
         $timestamp = now()->format('Y-m-d_H-i-s');
 
-        $filename = 'rodnik' 
-            . ($this->user ? '-user-' . $this->user->id : '') 
-            . '-from-' . $timestamp . '.xlsx';
+        $filename = 'rodnik'
+            .($this->user ? '-user-'.$this->user->id : '')
+            .'-from-'.$timestamp.'.xlsx';
 
         $writer->openToFile(Storage::disk('public')->path('exports/'
-        . ($this->user ? 'users/' : '') 
-        . $filename));
+        .($this->user ? 'users/' : '')
+        .$filename));
 
         // Create bold style for headers
         $headerStyle = new Style();
@@ -85,7 +83,7 @@ class XlsxWriter extends CsvWriter
             8 => 20,  // osm_type
             9 => 35,  // osm_name
         ];
-        
+
         $this->styleSheet($writer, $springsSheet, $allSprings, $headerStyle, $defaultStyle, $columnWidths);
 
         // Create and write Reports sheet
@@ -100,7 +98,10 @@ class XlsxWriter extends CsvWriter
             6 => 20,  // visited_at
             7 => 15,  // state
             8 => 15,  // quality
-            9 => 60   // comment (significantly increased for long text)
+            9 => 15,  // access
+            10 => 12, // littered
+            11 => 12, // ruined
+            12 => 60,  // comment (significantly increased for long text)
         ]);
 
         // Create and write Edits sheet
@@ -115,7 +116,7 @@ class XlsxWriter extends CsvWriter
             6 => 15,  // longitude
             7 => 20,  // type
             8 => 35,  // name
-            9 => 20   // created_at
+            9 => 20,   // created_at
         ]);
 
         // Create and write Photos sheet
@@ -125,9 +126,9 @@ class XlsxWriter extends CsvWriter
             1 => 10,  // id
             2 => 12,  // report_id
             3 => 12,  // spring_id
-            4 => 60   // url (increased for long URLs)
+            4 => 60,   // url (increased for long URLs)
         ]);
-        
+
         $writer->close();
 
         return $filename;

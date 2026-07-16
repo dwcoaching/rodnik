@@ -44,9 +44,9 @@ window.reportCreateForm = function(config) {
         state: config.wire.$entangle('state'),
         quality: config.wire.$entangle('quality'),
 
-        not_found: config.wire.$entangle('not_found'),
-        no_access: config.wire.$entangle('no_access'),
-        difficult_access: config.wire.$entangle('difficult_access'),
+        access: config.wire.$entangle('access'),
+        littered: config.wire.$entangle('littered'),
+        ruined: config.wire.$entangle('ruined'),
 
         wire: null,
         sortablePhotos: config.wire.$entangle('sortablePhotos'),
@@ -66,6 +66,15 @@ window.reportCreateForm = function(config) {
                 status: 'uploaded',
                 progress: 100,
             }));
+
+            this.$watch('state', (value) => {
+                if (value === 'notfound') {
+                    this.quality = null;
+                    this.access = null;
+                    this.littered = false;
+                    this.ruined = false;
+                }
+            });
         },
 
         toggleDate() {

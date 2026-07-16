@@ -1,7 +1,8 @@
 {
     "preset": "laravel",
     "notPath": [
-        "tests/TestCase.php"
+        "tests/TestCase.php",
+        "app/Models/SpringTile.php"
     ],
     "rules": {
         "array_push": true,

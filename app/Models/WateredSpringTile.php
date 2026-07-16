@@ -1,25 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use App\Models\SpringTile;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 
-class WateredSpringTile extends SpringTile
+final class WateredSpringTile extends SpringTile
 {
     use HasFactory;
 
-    const LIMITS = [
+    public const LIMITS = [
         '0' => 1000,
         '5' => 1000,
     ];
 
-    const DISK = 'watered-tiles';
+    public const DISK = 'watered-tiles';
 
     public function getRandomQuery()
     {
-        $randomQuery = DB::table('springs')
+        $randomQuery = Spring::query()
             ->leftJoin('reports', 'springs.id', '=', 'reports.spring_id')
             ->select('springs.id', DB::raw('COUNT(reports.id) as reports_count'))
             ->whereNull('reports.from_osm')

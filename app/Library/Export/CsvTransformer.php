@@ -1,15 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library\Export;
 
-use App\Models\User;
-use App\Models\Photo;
-use App\Models\Report;
 use App\Models\Spring;
-use App\Models\SpringRevision;
-use Illuminate\Database\Eloquent\Collection;
 
-class CsvTransformer extends Transformer
+final class CsvTransformer extends Transformer
 {
     public function transformSprings(): array
     {
@@ -27,38 +24,42 @@ class CsvTransformer extends Transformer
             ];
         })->toArray();
     }
+
     public function transformReports(): array
     {
         $reports = [];
-        
+
         foreach ($this->springs as $spring) {
             foreach ($spring->reports as $report) {
-                if ($report->user_id === $this->user?->id || !$this->user) {
+                if ($report->user_id === $this->user?->id || ! $this->user) {
                     $reports[] = [
                         'id' => $report->id,
                         'spring_id' => $report->spring_id,
                         'user' => $report->user?->name ?? 'Anonymous',
                         'user_id' => $report->user_id ?? null,
                         'created_at' => $report->created_at?->format('Y-m-d H:i:s') ?? '',
-                        'visited_at' => (string) ($report->visited_at ?? ''), 
-                        'state' => $report->state ?? '',
-                        'quality' => $report->quality ?? '',
+                        'visited_at' => (string) ($report->visited_at ?? ''),
+                        'state' => $report->state?->value ?? '',
+                        'quality' => $report->quality?->value ?? '',
+                        'access' => $report->access?->value ?? '',
+                        'littered' => $report->littered ? 'yes' : '',
+                        'ruined' => $report->ruined ? 'yes' : '',
                         'comment' => $report->comment ?? '',
                     ];
                 }
             }
         }
-        
+
         return $reports;
     }
 
     public function transformEdits(): array
     {
         $revisions = [];
-        
+
         foreach ($this->springs as $spring) {
             foreach ($spring->springRevisions as $revision) {
-                if ($revision->user_id === $this->user?->id || !$this->user) {
+                if ($revision->user_id === $this->user?->id || ! $this->user) {
                     $revisions[] = [
                         'id' => $revision->id,
                         'spring_id' => $revision->spring_id,
@@ -73,14 +74,14 @@ class CsvTransformer extends Transformer
                 }
             }
         }
-        
+
         return $revisions;
     }
 
     public function transformPhotos(): array
     {
         $photos = [];
-        
+
         foreach ($this->springs as $spring) {
             foreach ($spring->reports as $report) {
                 foreach ($report->photos as $photo) {
@@ -93,7 +94,7 @@ class CsvTransformer extends Transformer
                 }
             }
         }
-        
+
         return $photos;
     }
 
@@ -104,9 +105,8 @@ class CsvTransformer extends Transformer
 
     public function getHeadersForReports(): array
     {
-        return ['id', 'spring_id', 'user', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'comment'];
+        return ['id', 'spring_id', 'user', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access', 'littered', 'ruined', 'comment'];
     }
-
 
     public function getHeadersForEdits(): array
     {

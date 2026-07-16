@@ -48,10 +48,13 @@
                                         Visit date: {{ $event->visited_at->format('F d, Y') }}<br>
                                     @endif
                                     @if ($event->quality)
-                                        Quality: {{ $event->quality }}<br>
+                                        Quality: {{ $event->quality->getLabel() }}<br>
                                     @endif
                                     @if ($event->state)
-                                        State: {{ $event->state }}<br>
+                                        State: {{ $event->state->getLabel() }}<br>
+                                    @endif
+                                    @if ($event->access)
+                                        Access: {{ $event->access->getLabel() }}<br>
                                     @endif
                                     @if ($event->comment)
                                         Comment: {{ $event->comment }}<br>

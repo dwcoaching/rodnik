@@ -1,5 +1,6 @@
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style';
 import visible from '@/filters/visible.js'
+import classifyScore from '@/utils/classifyScore.js'
 
 let radius = 12;
 let hiddenStyle = new Style({});
@@ -134,16 +135,18 @@ export default (feature) => {
         return hiddenStyle
     }
 
-    if (feature.get('score') > 0) {
+    if (feature.get('notFound')) {
+        return notFoundStyle;
+    }
+
+    const scoreClass = classifyScore(feature.get('score'));
+
+    if (scoreClass === 'good') {
         return goodWaterStyle(feature);
     }
 
-    if (feature.get('score') < 0) {
+    if (scoreClass === 'bad') {
         return badWaterStyle(feature);
-    }
-
-    if (feature.get('notFound') > 0) {
-        return notFoundStyle;
     }
 
     if (feature.get('hasReports') > 0) {

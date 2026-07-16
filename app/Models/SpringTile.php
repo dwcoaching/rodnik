@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Library\SpringsGeoJSON;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class SpringTile extends Model
@@ -53,6 +53,8 @@ class SpringTile extends Model
 
     public static function fromCoordinates($longitude, $latitude)
     {
+        $longitude = (float) $longitude;
+        $latitude = (float) $latitude;
         $zoom = collect(array_keys(static::LIMITS));
 
         $springTiles = $zoom->map(function ($z) use ($longitude, $latitude) {
@@ -93,38 +95,19 @@ class SpringTile extends Model
     {
         $springsQuery = Spring::query()
             ->whereNull('springs.hidden_at')
-            ->whereNull('springs.redirect_to_spring_id');
+            ->whereNull('springs.redirect_to_spring_id')
+            ->withVisibleReportConditions()
+            ->withCount('visibleReports as reports_count');
 
         if ($this->getLimit()) {
             $randomQuery = $this->getRandomQuery();
 
             $springsQuery->joinSub($randomQuery, 'randomSprings', function ($join) {
                 $join->on('springs.id', '=', 'randomSprings.id');
-            })
-                ->withCount(
-                    [
-                        'reports' => function (Builder $query) {
-                            $query
-                                ->whereNull('reports.hidden_at')
-                                ->whereNull('reports.from_osm');
-                        },
-                    ]
-                );
+            });
         } else {
             $springsQuery
-                ->where($this->getCoordinatesFunction())
-                ->with('reports', function ($query) {
-                    $query->visible();
-                })
-                ->withCount(
-                    [
-                        'reports' => function (Builder $query) {
-                            $query
-                                ->whereNull('reports.hidden_at')
-                                ->whereNull('reports.from_osm');
-                        },
-                    ]
-                );
+                ->where($this->getCoordinatesFunction());
         }
 
         $springs = $springsQuery->get();
@@ -157,7 +140,7 @@ class SpringTile extends Model
 
     public function getRandomQuery()
     {
-        return DB::table('springs')
+        return Spring::query()
             ->select('springs.id')
             ->whereNull('springs.hidden_at')
             ->whereNull('springs.redirect_to_spring_id')

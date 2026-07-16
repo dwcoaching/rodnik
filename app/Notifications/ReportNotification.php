@@ -1,21 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Notifications;
 
 use App\Models\Report;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use NotificationChannels\Telegram\TelegramFile;
-use Illuminate\Notifications\Messages\MailMessage;
 use NotificationChannels\Telegram\TelegramChannel;
+use NotificationChannels\Telegram\TelegramFile;
 use NotificationChannels\Telegram\TelegramMessage;
 
-class ReportNotification extends Notification
+final class ReportNotification extends Notification
 {
-    protected $report;
-
     use Queueable;
+
+    protected $report;
 
     /**
      * Create a new notification instance.
@@ -57,11 +57,17 @@ class ReportNotification extends Notification
 
         $tags = [];
 
-        if ($this->report->state == 'notfound') {$tags[] = 'water source not found';}
-        if ($this->report->state == 'running') {$tags[] = 'watered';}
-        if ($this->report->state == 'dry') {$tags[] = 'dry';}
-        if ($this->report->quality == 'good') {$tags[] = 'good water';}
-        if ($this->report->quality == 'bad') {$tags[] = 'poor water';}
+        foreach ([$this->report->state, $this->report->quality, $this->report->access] as $condition) {
+            if ($condition !== null) {
+                $tags[] = mb_strtolower($condition->getLabel());
+            }
+        }
+        if ($this->report->littered) {
+            $tags[] = 'littered';
+        }
+        if ($this->report->ruined) {
+            $tags[] = 'ruined';
+        }
 
         if (count($tags)) {
             $tags[0] = mb_ucfirst($tags[0]);
@@ -71,13 +77,13 @@ class ReportNotification extends Notification
             return TelegramMessage::create()
                 ->options(
                     [
-                        'parse_mode' => 'HTML'
+                        'parse_mode' => 'HTML',
                     ]
                 )
                 ->view('telegram.report', [
                     'report' => $this->report,
                     'photoCount' => 0,
-                    'tags' => $tags
+                    'tags' => $tags,
                 ]);
         }
 
@@ -87,7 +93,7 @@ class ReportNotification extends Notification
             ->view('telegram.report', [
                 'report' => $this->report,
                 'photoCount' => $photoCount,
-                'tags' => $tags
+                'tags' => $tags,
             ]);
     }
 }

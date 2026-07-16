@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library;
 
-class SpringsGeoJSON
+final class SpringsGeoJSON
 {
-    static public function convert($springs)
+    public static function convert($springs)
     {
-        $features = $springs->map(function($spring) {
+        $features = $springs->map(function ($spring) {
             return [
                 'type' => 'Feature',
                 'id' => $spring->id,
                 'geometry' => [
                     'type' => 'Point',
                     'coordinates' => [
-                        floatval($spring->longitude),
-                        floatval($spring->latitude)
-                    ]
+                        (float) ($spring->longitude),
+                        (float) ($spring->latitude),
+                    ],
                 ],
                 'properties' => [
                     'id' => $spring->id,
@@ -24,15 +26,15 @@ class SpringsGeoJSON
                     'hasReports' => $spring->reports_count,
                     'waterConfirmed' => $spring->waterConfirmed(),
                     'score' => $spring->getWaterScore(),
-                    'notFound' => $spring->notFoundReportsCount(),
+                    'notFound' => $spring->isNotFound(),
                     'type' => $spring->type,
-                ]
+                ],
             ];
         });
 
         $result = [
-            "type" => "FeatureCollection",
-            "features" => $features
+            'type' => 'FeatureCollection',
+            'features' => $features,
         ];
 
         $json_encoded = json_encode($result, JSON_UNESCAPED_UNICODE);

@@ -9,26 +9,28 @@ use App\Filament\Resources\ReportResource\Pages\ListReports;
 use App\Library\HaversineDistance;
 use App\Models\Report;
 use App\Models\Spring;
+use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\TextInput;
-use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
-use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
+use UnitEnum;
 
 final class ReportResource extends Resource
 {
     protected static ?string $model = Report::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'Content';
+    protected static string|UnitEnum|null $navigationGroup = 'Content';
 
     protected static ?int $navigationSort = 20;
 
@@ -73,6 +75,16 @@ final class ReportResource extends Resource
                     ->badge(),
                 TextColumn::make('state')
                     ->badge(),
+                TextColumn::make('access')
+                    ->badge(),
+                TextColumn::make('littered')
+                    ->state(fn (Report $record): ?string => $record->littered ? 'Littered' : null)
+                    ->badge()
+                    ->color('danger'),
+                TextColumn::make('ruined')
+                    ->state(fn (Report $record): ?string => $record->ruined ? 'Ruined' : null)
+                    ->badge()
+                    ->color('danger'),
                 TextColumn::make('comment')
                     ->label('Comment')
                     ->limit(80),
