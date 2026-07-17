@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\ReportAccess;
 use App\Enums\ReportQuality;
 use App\Enums\ReportState;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +15,7 @@ final class Report extends Model
     use HasFactory;
 
     /** @var list<string> Columns required to evaluate getWaterScore()/hasConditionSignals(). */
-    public const CONDITION_COLUMNS = ['state', 'quality', 'access', 'littered', 'ruined'];
+    public const CONDITION_COLUMNS = ['state', 'quality', 'access_limited', 'littered', 'broken'];
 
     protected $casts = [
         'visited_at' => 'date',
@@ -24,9 +23,9 @@ final class Report extends Model
         'updated_at' => 'datetime',
         'state' => ReportState::class,
         'quality' => ReportQuality::class,
-        'access' => ReportAccess::class,
+        'access_limited' => 'boolean',
         'littered' => 'boolean',
-        'ruined' => 'boolean',
+        'broken' => 'boolean',
     ];
 
     public function user()
@@ -64,13 +63,12 @@ final class Report extends Model
         if (
             $this->quality === ReportQuality::Bad
             || $this->state === ReportState::Dry
-            || $this->access === ReportAccess::No
         ) {
             return -1;
         }
 
         if ($this->quality === ReportQuality::Good) {
-            return $this->access === ReportAccess::Limited ? 0 : 1;
+            return $this->access_limited ? 0 : 1;
         }
 
         return $this->hasConditionSignals() ? 0 : null;
@@ -86,9 +84,9 @@ final class Report extends Model
     {
         return $this->state !== null
             || $this->quality !== null
-            || $this->access !== null
+            || $this->access_limited
             || $this->littered
-            || $this->ruined;
+            || $this->broken;
     }
 
     public function scopeVisible(Builder $query): void

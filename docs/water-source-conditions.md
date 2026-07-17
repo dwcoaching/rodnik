@@ -4,8 +4,6 @@
 - [Water Availability](#water-availability)
 - [Water Quality](#water-quality)
 - [Accessibility](#accessibility)
-  - [Object Access](#object-access)
-  - [Water Access](#water-access)
 - [Condition](#condition)
 - [Special Conditions](#special-conditions)
 - [Original Table](#original-table)
@@ -37,36 +35,18 @@ This document categorizes different conditions that can be associated with water
 <a name="accessibility"></a>
 ## [Accessibility](#accessibility)
 
-<a name="object-access"></a>
-### [Object Access (доступ к объекту)](#object-access)
-
 - **Publicly Accessible (общедоступен)** - The water source is freely accessible to the public.
-- **Limited Access (доступ ограничен)** - Access to the water source is limited. For example:
+- **Access Limited (доступ ограничен)** - Access to the water source is restricted, hazardous, or requires special equipment. For example:
   - The source is located in a park with restricted hours
-  - The access is partially restricted due to other factors
-
-- **Inaccessible (недоступен)** - The water source cannot be accessed. For example:
   - Fire water tank located behind a fence with barbed wire
   - Source for internal use located in a closed, guarded area
-
-<a name="water-access"></a>
-### [Water Access (доступ к воде)](#water-access)
-
-- **Available (есть)** - Water can be accessed directly.
-- **Difficult (затруднен)** - Water access is possible but difficult. For example:
-  - Well without bucket and rope
-  - Water supply tap requires tools or is located in a non-obvious place
-
-- **Unavailable (отсутствует)** - Water cannot be accessed. For example:
-  - Well is locked
-  - Well is part of a private water supply system where public access is not intended
-  - Pressure release device in the pipeline is locked
+  - A steep slope, dense vegetation, or a locked well makes access difficult
 
 <a name="condition"></a>
 ## [Condition](#condition)
 
 - **Needs Repair (требуется ремонт)** - The source or water supply is out of order due to minor damage.
-- **Ruins (руины)** - The source or water supply is destroyed.
+- **Broken (сломан)** - The source is severely damaged or no longer functional.
 
 <a name="special-conditions"></a>
 ## [Special Conditions](#special-conditions)
@@ -102,5 +82,3 @@ This document categorizes different conditions that can be associated with water
 | специальные | агрессивная растительность | | | Источник зарос крапивой или колючими растениями вследствии низкой посещаемости |
 | | декоративный источник воды | | | Например: <br>= Фонтан дружбы народов на ВДНХ;<br>= декоративный пруд/каскад в парке; |
 | | мусор | | | Мусор создает санитарные или эмоциональные препятствия для использования воды |
-
-

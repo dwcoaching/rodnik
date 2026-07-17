@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\ReportAccess;
 use App\Enums\ReportQuality;
 use App\Enums\ReportState;
 use App\Models\Report;
@@ -17,9 +16,9 @@ test('a report contributes the expected water score', function (array $tags, ?in
     $report = Report::factory()->for($spring)->create(array_merge([
         'state' => null,
         'quality' => null,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ], $tags));
 
     expect($report->getWaterScore())->toBe($expectedScore)
@@ -35,29 +34,24 @@ test('a report contributes the expected water score', function (array $tags, ?in
         'state' => ReportState::NotFound,
         'quality' => ReportQuality::Bad,
     ], null],
-    'no access' => [['access' => ReportAccess::No], -1],
-    'good water with no access' => [[
+    'good water with access limited' => [[
         'quality' => ReportQuality::Good,
-        'access' => ReportAccess::No,
-    ], -1],
-    'good water with limited access' => [[
-        'quality' => ReportQuality::Good,
-        'access' => ReportAccess::Limited,
+        'access_limited' => true,
     ], 0],
-    'poor water with limited access' => [[
+    'poor water with access limited' => [[
         'quality' => ReportQuality::Bad,
-        'access' => ReportAccess::Limited,
+        'access_limited' => true,
     ], -1],
-    'dry with limited access' => [[
+    'dry with access limited' => [[
         'state' => ReportState::Dry,
-        'access' => ReportAccess::Limited,
+        'access_limited' => true,
     ], -1],
     'has water without quality' => [['state' => ReportState::Running], 0],
     'very little water without quality' => [['state' => ReportState::Dripping], 0],
     'questionable water' => [['quality' => ReportQuality::Uncertain], 0],
-    'limited access' => [['access' => ReportAccess::Limited], 0],
+    'access limited' => [['access_limited' => true], 0],
     'littered' => [['littered' => true], 0],
-    'ruined' => [['ruined' => true], 0],
+    'broken' => [['broken' => true], 0],
 ]);
 
 test('water score averages non-null report scores', function () {
@@ -74,9 +68,9 @@ test('water score averages non-null report scores', function () {
         Report::factory()->for($spring)->create(array_merge([
             'state' => null,
             'quality' => null,
-            'access' => null,
+            'access_limited' => null,
             'littered' => null,
-            'ruined' => null,
+            'broken' => null,
         ], $tags));
     }
 
@@ -186,9 +180,9 @@ test('water score can reach an exact map color boundary', function (array $votes
         Report::factory()->for($spring)->create(array_merge([
             'state' => null,
             'quality' => null,
-            'access' => null,
+            'access_limited' => null,
             'littered' => null,
-            'ruined' => null,
+            'broken' => null,
         ], $vote));
     }
 

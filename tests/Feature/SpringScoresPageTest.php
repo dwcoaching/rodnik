@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\ReportAccess;
 use App\Enums\ReportQuality;
 use App\Enums\ReportState;
 use App\Models\Report;
@@ -19,14 +18,14 @@ test('spring scores page displays the current score and visible report tags', fu
     Report::factory()->for($spring)->create([
         'state' => ReportState::Running,
         'quality' => ReportQuality::Good,
-        'access' => ReportAccess::Limited,
+        'access_limited' => true,
         'littered' => true,
     ]);
 
     Report::factory()->for($spring)->create([
         'state' => ReportState::NotFound,
         'quality' => null,
-        'access' => null,
+        'access_limited' => null,
         'hidden_at' => now(),
     ]);
 
@@ -41,7 +40,7 @@ test('spring scores page displays the current score and visible report tags', fu
         ->assertSee('Score '.$expectedScore)
         ->assertSee('Has water')
         ->assertSee('Good water')
-        ->assertSee('Limited access')
+        ->assertSee('Access limited')
         ->assertSee('Littered')
         ->assertDontSee('Spring without reports')
         ->assertDontSee('Water source not found');
@@ -71,30 +70,30 @@ test('spring scores page displays each report contribution', function () {
     $positiveReport = Report::factory()->for($spring)->create([
         'state' => null,
         'quality' => ReportQuality::Good,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
     $negativeReport = Report::factory()->for($spring)->create([
         'state' => null,
         'quality' => ReportQuality::Bad,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
     $neutralReport = Report::factory()->for($spring)->create([
         'state' => ReportState::Running,
         'quality' => null,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
     $nullReport = Report::factory()->for($spring)->create([
         'state' => null,
         'quality' => null,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
     $this->get(route('docs.admin.spring-scores'))
@@ -117,23 +116,23 @@ test('spring scores page colors score badges using the water score threshold', f
     Report::factory()->for($goodSpring)->create([
         'state' => null,
         'quality' => ReportQuality::Good,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
     Report::factory()->for($badSpring)->create([
         'state' => null,
         'quality' => ReportQuality::Bad,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
     Report::factory()->for($uncertainSpring)->create([
         'state' => ReportState::Running,
         'quality' => null,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
     $html = $this->get(route('docs.admin.spring-scores'))

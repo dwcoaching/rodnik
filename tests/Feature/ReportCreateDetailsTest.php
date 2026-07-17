@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\ReportAccess;
 use App\Enums\ReportQuality;
 use App\Enums\ReportState;
 use App\Jobs\SendReportNotification;
@@ -39,10 +38,10 @@ test('report form shows the details group with all problem chips', function () {
         ->assertDontSee('please describe in the comment')
         ->assertSee('Additional details')
         ->assertSee('Describe what you observed…')
-        ->assertSee('No access')
-        ->assertSee('Limited access')
+        ->assertSee('Access limited')
+        ->assertDontSee('No access')
         ->assertSee('Littered')
-        ->assertSee('Ruined');
+        ->assertSee('Broken');
 });
 
 test('report form increases all non-help text by two pixels', function () {
@@ -78,8 +77,7 @@ test('report form group titles toggle explanations for every value', function ()
         ->assertSee('Use your own judgment.')
         ->assertSee('A “good” rating does not guarantee that the water')
         ->assertSee('is safe to drink.')
-        ->assertSee('The source is locked, located behind a wall, or otherwise inaccessible.')
-        ->assertSee('Access is limited by seasonal or time restrictions, hazards (such as a steep slope or dense vegetation), or the need for special equipment (such as a bucket for a well).')
+        ->assertSee('Access is restricted, hazardous, or requires special equipment.')
         ->assertSee('There is rubbish around or inside the source.')
         ->assertSee('The source is severely damaged or no longer functional.');
 
@@ -96,8 +94,8 @@ test('condition and problem chips are wired to their states', function () {
         ->assertSeeHtml("state = state == 'running' ? null : 'running'")
         ->assertSeeHtml("state = state == 'dry' ? null : 'dry'")
         ->assertSeeHtml("state = state == 'notfound' ? null : 'notfound'")
-        ->assertSeeHtml("access = access == 'no' ? null : 'no'")
-        ->assertSeeHtml("access = access == 'limited' ? null : 'limited'");
+        ->assertSeeHtml('access_limited = ! access_limited')
+        ->assertSeeHtml('broken = ! broken');
 });
 
 test('report is stored with problem flags', function () {
@@ -108,9 +106,9 @@ test('report is stored with problem flags', function () {
     Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
         ->set('state', 'running')
         ->set('quality', 'good')
-        ->set('access', 'limited')
+        ->set('access_limited', true)
         ->set('littered', true)
-        ->set('ruined', true)
+        ->set('broken', true)
         ->call('store')
         ->assertHasNoErrors();
 
@@ -118,9 +116,9 @@ test('report is stored with problem flags', function () {
 
     expect($report->state)->toBe(ReportState::Running);
     expect($report->quality)->toBe(ReportQuality::Good);
-    expect($report->access)->toBe(ReportAccess::Limited);
+    expect($report->access_limited)->toBeTrue();
     expect($report->littered)->toBeTrue();
-    expect($report->ruined)->toBeTrue();
+    expect($report->broken)->toBeTrue();
 });
 
 test('unchecked problem flags are stored as null, never as zero', function () {
@@ -135,9 +133,9 @@ test('unchecked problem flags are stored as null, never as zero', function () {
 
     $report = $spring->reports()->firstOrFail();
 
-    expect($report->getRawOriginal('access'))->toBeNull();
+    expect($report->getRawOriginal('access_limited'))->toBeNull();
     expect($report->getRawOriginal('littered'))->toBeNull();
-    expect($report->getRawOriginal('ruined'))->toBeNull();
+    expect($report->getRawOriginal('broken'))->toBeNull();
 });
 
 test('not found clears quality and other problem flags on store', function () {
@@ -148,9 +146,9 @@ test('not found clears quality and other problem flags on store', function () {
     Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
         ->set('state', 'notfound')
         ->set('quality', 'good')
-        ->set('access', 'limited')
+        ->set('access_limited', true)
         ->set('littered', true)
-        ->set('ruined', true)
+        ->set('broken', true)
         ->call('store')
         ->assertHasNoErrors();
 
@@ -158,9 +156,9 @@ test('not found clears quality and other problem flags on store', function () {
 
     expect($report->state)->toBe(ReportState::NotFound);
     expect($report->quality)->toBeNull();
-    expect($report->access)->toBeNull();
+    expect($report->getRawOriginal('access_limited'))->toBeNull();
     expect($report->getRawOriginal('littered'))->toBeNull();
-    expect($report->getRawOriginal('ruined'))->toBeNull();
+    expect($report->getRawOriginal('broken'))->toBeNull();
 });
 
 test('short comment handles null, short and long comments', function () {
@@ -191,7 +189,7 @@ test('report condition fields reject values outside their enums', function (stri
 })->with([
     'state' => ['state', 'flowing'],
     'quality' => ['quality', 'excellent'],
-    'access' => ['access', 'sometimes'],
+    'access limited' => ['access_limited', 'sometimes'],
 ]);
 
 test('problem flags round-trip when editing a report', function () {
@@ -202,28 +200,28 @@ test('problem flags round-trip when editing a report', function () {
         'user_id' => $user->id,
         'state' => 'running',
         'quality' => 'bad',
-        'access' => 'no',
+        'access_limited' => true,
         'littered' => true,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
     Livewire::actingAs($user)
         ->test(CreateReport::class, ['springId' => $report->spring_id, 'reportId' => $report->id])
         ->assertSee('Save changes')
         ->assertDontSee('Save Changes')
-        ->assertSet('access', 'no')
+        ->assertSet('access_limited', true)
         ->assertSet('littered', true)
-        ->assertSet('ruined', false)
-        ->set('access', 'limited')
+        ->assertSet('broken', false)
+        ->set('access_limited', false)
         ->set('littered', false)
         ->call('store')
         ->assertHasNoErrors();
 
     $report->refresh();
 
-    expect($report->access)->toBe(ReportAccess::Limited);
+    expect($report->getRawOriginal('access_limited'))->toBeNull();
     expect($report->getRawOriginal('littered'))->toBeNull();
-    expect($report->getRawOriginal('ruined'))->toBeNull();
+    expect($report->getRawOriginal('broken'))->toBeNull();
 });
 
 test('validation failure does not wipe condition selections', function () {
@@ -234,16 +232,16 @@ test('validation failure does not wipe condition selections', function () {
     Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
         ->set('state', 'running')
         ->set('quality', 'good')
-        ->set('access', 'limited')
+        ->set('access_limited', true)
         ->set('littered', true)
-        ->set('ruined', true)
+        ->set('broken', true)
         ->set('visited_at', 'not-a-date')
         ->call('store')
         ->assertHasErrors(['visited_at'])
         ->assertSet('quality', 'good')
-        ->assertSet('access', 'limited')
+        ->assertSet('access_limited', true)
         ->assertSet('littered', true)
-        ->assertSet('ruined', true);
+        ->assertSet('broken', true);
 
     expect($spring->reports()->count())->toBe(0);
 });

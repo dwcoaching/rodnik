@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\Reports;
 
-use App\Enums\ReportAccess;
 use App\Enums\ReportQuality;
 use App\Enums\ReportState;
 use App\Jobs\SendReportNotification;
@@ -41,11 +40,11 @@ final class Create extends Component
 
     public $visited_at;
 
-    public $access;
+    public $access_limited = false;
 
     public $littered = false;
 
-    public $ruined = false;
+    public $broken = false;
 
     protected $spring;
 
@@ -68,9 +67,9 @@ final class Create extends Component
 
             $this->state = $this->report->state?->value;
             $this->quality = $this->report->quality?->value;
-            $this->access = $this->report->access?->value;
+            $this->access_limited = (bool) $this->report->access_limited;
             $this->littered = (bool) $this->report->littered;
-            $this->ruined = (bool) $this->report->ruined;
+            $this->broken = (bool) $this->report->broken;
             $this->comment = $this->report->comment;
             $this->visited_at = $this->report->visited_at?->format('Y-m-d');
             $this->sortedPhotos = $this->report->photos()->orderBy('order')->get();
@@ -111,9 +110,9 @@ final class Create extends Component
         }
 
         if ($this->state === ReportState::NotFound->value) {
-            $this->access = null;
+            $this->access_limited = false;
             $this->littered = false;
-            $this->ruined = false;
+            $this->broken = false;
         }
 
         $this->report->spring_id = $this->springId;
@@ -124,9 +123,9 @@ final class Create extends Component
 
         $this->report->state = $this->state;
         $this->report->quality = $this->quality;
-        $this->report->access = $this->access;
+        $this->report->access_limited = $this->access_limited ? true : null;
         $this->report->littered = $this->littered ? true : null;
-        $this->report->ruined = $this->ruined ? true : null;
+        $this->report->broken = $this->broken ? true : null;
         $this->report->comment = $this->comment;
         $this->report->visited_at = $this->visited_at;
 
@@ -231,12 +230,9 @@ final class Create extends Component
                 Rule::enum(ReportQuality::class),
             ],
             'comment' => 'nullable|string|max:65535',
-            'access' => [
-                'nullable',
-                Rule::enum(ReportAccess::class),
-            ],
+            'access_limited' => 'nullable|boolean',
             'littered' => 'nullable|boolean',
-            'ruined' => 'nullable|boolean',
+            'broken' => 'nullable|boolean',
             'springId' => 'required|integer',
         ];
     }

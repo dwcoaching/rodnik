@@ -26,9 +26,9 @@ final class ReportFactory extends Factory
                 ReportState::Dripping,
                 ReportState::Running,
             ]),
-            'access' => null,
+            'access_limited' => null,
             'littered' => null,
-            'ruined' => null,
+            'broken' => null,
             'comment' => $this->faker->sentences(3, true),
             'user_id' => User::factory(),
         ];

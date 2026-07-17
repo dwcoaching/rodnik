@@ -98,9 +98,9 @@ final class XlsxWriter extends CsvWriter
             6 => 20,  // visited_at
             7 => 15,  // state
             8 => 15,  // quality
-            9 => 15,  // access
+            9 => 18,  // access_limited
             10 => 12, // littered
-            11 => 12, // ruined
+            11 => 12, // broken
             12 => 60,  // comment (significantly increased for long text)
         ]);
 

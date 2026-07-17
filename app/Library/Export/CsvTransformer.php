@@ -41,9 +41,9 @@ final class CsvTransformer extends Transformer
                         'visited_at' => (string) ($report->visited_at ?? ''),
                         'state' => $report->state?->value ?? '',
                         'quality' => $report->quality?->value ?? '',
-                        'access' => $report->access?->value ?? '',
+                        'access_limited' => $report->access_limited ? 'yes' : '',
                         'littered' => $report->littered ? 'yes' : '',
-                        'ruined' => $report->ruined ? 'yes' : '',
+                        'broken' => $report->broken ? 'yes' : '',
                         'comment' => $report->comment ?? '',
                     ];
                 }
@@ -105,7 +105,7 @@ final class CsvTransformer extends Transformer
 
     public function getHeadersForReports(): array
     {
-        return ['id', 'spring_id', 'user', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access', 'littered', 'ruined', 'comment'];
+        return ['id', 'spring_id', 'user', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access_limited', 'littered', 'broken', 'comment'];
     }
 
     public function getHeadersForEdits(): array

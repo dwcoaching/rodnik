@@ -75,14 +75,16 @@ final class ReportResource extends Resource
                     ->badge(),
                 TextColumn::make('state')
                     ->badge(),
-                TextColumn::make('access')
-                    ->badge(),
+                TextColumn::make('access_limited')
+                    ->state(fn (Report $record): ?string => $record->access_limited ? 'Access limited' : null)
+                    ->badge()
+                    ->color('warning'),
                 TextColumn::make('littered')
                     ->state(fn (Report $record): ?string => $record->littered ? 'Littered' : null)
                     ->badge()
                     ->color('danger'),
-                TextColumn::make('ruined')
-                    ->state(fn (Report $record): ?string => $record->ruined ? 'Ruined' : null)
+                TextColumn::make('broken')
+                    ->state(fn (Report $record): ?string => $record->broken ? 'Broken' : null)
                     ->badge()
                     ->color('danger'),
                 TextColumn::make('comment')

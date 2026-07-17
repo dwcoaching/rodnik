@@ -105,15 +105,13 @@
             </div>
             <div x-show="state !== @js(\App\Enums\ReportState::NotFound->value)">
                 <x-form-group-info id="problems-info" title="Details" class="mt-2">
-                    <p><span class="font-semibold text-gray-700">No access:</span> The source is locked, located behind a wall, or otherwise inaccessible.</p>
-                    <p><span class="font-semibold text-gray-700">Limited access:</span> Access is limited by seasonal or time restrictions, hazards (such as a steep slope or dense vegetation), or the need for special equipment (such as a bucket for a well).</p>
+                    <p><span class="font-semibold text-gray-700">Access limited:</span> Access is restricted, hazardous, or requires special equipment.</p>
                     <p><span class="font-semibold text-gray-700">Littered:</span> There is rubbish around or inside the source.</p>
-                    <p><span class="font-semibold text-gray-700">Ruined:</span> The source is severely damaged or no longer functional.</p>
+                    <p><span class="font-semibold text-gray-700">Broken:</span> The source is severely damaged or no longer functional.</p>
                 </x-form-group-info>
-                <x-chip :name="\App\Enums\ReportAccess::No->getLabel()" key="access" :value="\App\Enums\ReportAccess::No->value" />
-                <x-chip :name="\App\Enums\ReportAccess::Limited->getLabel()" key="access" :value="\App\Enums\ReportAccess::Limited->value" />
+                <x-chip mode="checkbox" name="Access limited" key="access_limited" />
                 <x-chip mode="checkbox" name="Littered" key="littered" />
-                <x-chip mode="checkbox" name="Ruined" key="ruined" />
+                <x-chip mode="checkbox" name="Broken" key="broken" />
             </div>
         </div>
     </div>

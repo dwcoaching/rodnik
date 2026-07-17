@@ -53,8 +53,8 @@
                                     @if ($event->state)
                                         State: {{ $event->state->getLabel() }}<br>
                                     @endif
-                                    @if ($event->access)
-                                        Access: {{ $event->access->getLabel() }}<br>
+                                    @if ($event->access_limited)
+                                        Access limited<br>
                                     @endif
                                     @if ($event->comment)
                                         Comment: {{ $event->comment }}<br>

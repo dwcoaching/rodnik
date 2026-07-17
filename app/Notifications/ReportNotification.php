@@ -57,16 +57,19 @@ final class ReportNotification extends Notification
 
         $tags = [];
 
-        foreach ([$this->report->state, $this->report->quality, $this->report->access] as $condition) {
+        foreach ([$this->report->state, $this->report->quality] as $condition) {
             if ($condition !== null) {
                 $tags[] = mb_strtolower($condition->getLabel());
             }
         }
+        if ($this->report->access_limited) {
+            $tags[] = 'access limited';
+        }
         if ($this->report->littered) {
             $tags[] = 'littered';
         }
-        if ($this->report->ruined) {
-            $tags[] = 'ruined';
+        if ($this->report->broken) {
+            $tags[] = 'broken';
         }
 
         if (count($tags)) {

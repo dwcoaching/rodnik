@@ -32,7 +32,7 @@ abstract class Transformer
             ->whereIn('id', $springs->pluck('id'))
             ->with([
                 'reports' => function ($query) {
-                    $query->select('id', 'spring_id', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access', 'littered', 'ruined', 'comment');
+                    $query->select('id', 'spring_id', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access_limited', 'littered', 'broken', 'comment');
                 },
                 'reports.user' => function ($query) {
                     $query->select('id', 'name');

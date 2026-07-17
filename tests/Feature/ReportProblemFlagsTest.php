@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Enums\ReportAccess;
 use App\Enums\ReportQuality;
 use App\Enums\ReportState;
 use App\Filament\Resources\ReportResource\Pages\ListReports;
@@ -22,19 +21,19 @@ use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
-test('report condition values cast to enums while retaining string storage', function () {
+test('report condition values use enum and boolean casts', function () {
     $report = Report::factory()->create([
         'state' => ReportState::Running,
         'quality' => ReportQuality::Good,
-        'access' => ReportAccess::Limited,
+        'access_limited' => true,
     ]);
 
     expect($report->state)->toBe(ReportState::Running)
         ->and($report->quality)->toBe(ReportQuality::Good)
-        ->and($report->access)->toBe(ReportAccess::Limited)
+        ->and($report->access_limited)->toBeTrue()
         ->and($report->getRawOriginal('state'))->toBe(ReportState::Running->value)
         ->and($report->getRawOriginal('quality'))->toBe(ReportQuality::Good->value)
-        ->and($report->getRawOriginal('access'))->toBe(ReportAccess::Limited->value);
+        ->and($report->getRawOriginal('access_limited'))->toBeTrue();
 });
 
 test('report history renders enum titles', function () {
@@ -42,7 +41,7 @@ test('report history renders enum titles', function () {
     $report = Report::factory()->create([
         'state' => ReportState::Running,
         'quality' => ReportQuality::Uncertain,
-        'access' => ReportAccess::Limited,
+        'access_limited' => true,
     ]);
 
     $this->actingAs($user)
@@ -50,23 +49,23 @@ test('report history renders enum titles', function () {
         ->assertSuccessful()
         ->assertSee('State: Has water')
         ->assertSee('Quality: Questionable water')
-        ->assertSee('Access: Limited access');
+        ->assertSee('Access limited');
 });
 
 test('problem badges render on report details and report teasers', function () {
     $report = Report::factory()->create([
         'state' => 'running',
         'quality' => 'uncertain',
-        'access' => 'limited',
+        'access_limited' => true,
         'littered' => true,
-        'ruined' => true,
+        'broken' => true,
     ]);
 
     Livewire::test(ShowReport::class, ['report' => $report])
         ->assertSee('Questionable water')
-        ->assertSee('Limited access')
+        ->assertSee('Access limited')
         ->assertSee('Littered')
-        ->assertSee('Ruined');
+        ->assertSee('Broken');
 
     $teaser = Blade::render('<x-last-reports.teaser :report="$report" />', [
         'report' => $report->load(['spring', 'user', 'photos']),
@@ -75,21 +74,21 @@ test('problem badges render on report details and report teasers', function () {
     expect($teaser)
         ->toContain('Has water')
         ->toContain('Questionable water')
-        ->toContain('Limited access')
-        ->toContain('border border-amber-200 bg-amber-50 text-amber-900')
+        ->toContain('Access limited')
+        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Access limited</span>')
         ->toContain('Littered')
         ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Littered</span>')
-        ->toContain('Ruined')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Ruined</span>');
+        ->toContain('Broken')
+        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Broken</span>');
 });
 
-test('problem badges distinguish no access and omit unreported problems', function () {
+test('problem badges render access limited and omit unreported problems', function () {
     $successReport = Report::factory()->make([
         'state' => 'running',
         'quality' => 'good',
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
     $successBadges = Blade::render('<x-report-condition-badges :report="$report" />', [
@@ -101,31 +100,31 @@ test('problem badges distinguish no access and omit unreported problems', functi
         ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-green-200 bg-green-50 text-green-900">Good water</span>')
         ->not->toContain('bg-green-600 text-white');
 
-    $noAccessReport = Report::factory()->make([
+    $accessLimitedReport = Report::factory()->make([
         'state' => null,
         'quality' => null,
-        'access' => 'no',
+        'access_limited' => true,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
-    $noAccessBadges = Blade::render('<x-report-condition-badges :report="$report" />', [
-        'report' => $noAccessReport,
+    $accessLimitedBadges = Blade::render('<x-report-condition-badges :report="$report" />', [
+        'report' => $accessLimitedReport,
     ]);
 
-    expect($noAccessBadges)
-        ->toContain('No access')
-        ->toContain('border border-red-200 bg-red-50 text-red-900')
-        ->not->toContain('Limited access')
+    expect($accessLimitedBadges)
+        ->toContain('Access limited')
+        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Access limited</span>')
+        ->not->toContain('No access')
         ->not->toContain('Littered')
-        ->not->toContain('Ruined');
+        ->not->toContain('Broken');
 
     $emptyReport = Report::factory()->make([
         'state' => null,
         'quality' => null,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
     $emptyBadges = Blade::render('<x-report-condition-badges :report="$report" />', [
@@ -139,9 +138,9 @@ test('danger condition badges use subtle red styling', function () {
     $dryAndPoorReport = Report::factory()->make([
         'state' => 'dry',
         'quality' => 'bad',
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
     $dryAndPoorBadges = Blade::render('<x-report-condition-badges :report="$report" />', [
@@ -156,9 +155,9 @@ test('danger condition badges use subtle red styling', function () {
     $notFoundReport = Report::factory()->make([
         'state' => 'notfound',
         'quality' => null,
-        'access' => null,
+        'access_limited' => null,
         'littered' => null,
-        'ruined' => null,
+        'broken' => null,
     ]);
 
     $notFoundBadges = Blade::render('<x-report-condition-badges :report="$report" />', [
@@ -174,18 +173,18 @@ test('problem flags are included in API JSON CSV and XLSX source exports', funct
     $spring = Spring::factory()->create();
     $report = Report::factory()->create([
         'spring_id' => $spring->id,
-        'access' => 'limited',
+        'access_limited' => true,
         'littered' => true,
-        'ruined' => true,
+        'broken' => true,
     ]);
 
     $resource = (new ExportedReportResource($report))->resolve();
 
     expect($resource)
         ->toMatchArray([
-            'access' => 'limited',
+            'access_limited' => true,
             'littered' => true,
-            'ruined' => true,
+            'broken' => true,
         ]);
 
     $springs = new Collection([$spring]);
@@ -194,21 +193,21 @@ test('problem flags are included in API JSON CSV and XLSX source exports', funct
 
     expect($jsonReport)
         ->toMatchArray([
-            'access' => 'limited',
+            'access_limited' => true,
             'littered' => true,
-            'ruined' => true,
+            'broken' => true,
         ]);
 
     $csvTransformer = new CsvTransformer($springs);
     $csvReport = $csvTransformer->transformReports()[0];
 
     expect($csvTransformer->getHeadersForReports())
-        ->toBe(['id', 'spring_id', 'user', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access', 'littered', 'ruined', 'comment']);
+        ->toBe(['id', 'spring_id', 'user', 'user_id', 'created_at', 'visited_at', 'state', 'quality', 'access_limited', 'littered', 'broken', 'comment']);
     expect($csvReport)
         ->toMatchArray([
-            'access' => 'limited',
+            'access_limited' => 'yes',
             'littered' => 'yes',
-            'ruined' => 'yes',
+            'broken' => 'yes',
         ]);
 });
 
@@ -216,9 +215,9 @@ test('problem flags are included in Telegram and GPX report summaries', function
     $report = Report::factory()->create([
         'state' => 'dripping',
         'quality' => 'uncertain',
-        'access' => 'no',
+        'access_limited' => true,
         'littered' => true,
-        'ruined' => true,
+        'broken' => true,
     ])->load(['photos', 'spring', 'user']);
 
     $telegramText = (new ReportNotification($report))->toTelegram()->toArray()['text'];
@@ -226,18 +225,18 @@ test('problem flags are included in Telegram and GPX report summaries', function
     expect($telegramText)
         ->toContain('Very little water')
         ->toContain('questionable water')
-        ->toContain('no access')
+        ->toContain('access limited')
         ->toContain('littered')
-        ->toContain('ruined');
+        ->toContain('broken');
 
     $gpxDescription = EnrichGPX::getEnrichedDescriptionForId($report->spring_id);
 
     expect($gpxDescription)
         ->toContain('[Very Little Water]')
         ->toContain('[Questionable Water]')
-        ->toContain('[No Access]')
+        ->toContain('[Access Limited]')
         ->toContain('[Littered]')
-        ->toContain('[Ruined]');
+        ->toContain('[Broken]');
 });
 
 test('report admin table exposes all problem fields', function () {
@@ -246,14 +245,14 @@ test('report admin table exposes all problem fields', function () {
     Report::factory()->create([
         'state' => ReportState::Running,
         'quality' => ReportQuality::Uncertain,
-        'access' => ReportAccess::Limited,
+        'access_limited' => true,
     ]);
 
     Livewire::test(ListReports::class)
-        ->assertTableColumnExists('access')
+        ->assertTableColumnExists('access_limited')
         ->assertTableColumnExists('littered')
-        ->assertTableColumnExists('ruined')
+        ->assertTableColumnExists('broken')
         ->assertSee('Has water')
         ->assertSee('Questionable water')
-        ->assertSee('Limited access');
+        ->assertSee('Access limited');
 });

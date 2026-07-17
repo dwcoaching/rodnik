@@ -44,9 +44,9 @@ window.reportCreateForm = function(config) {
         state: config.wire.$entangle('state'),
         quality: config.wire.$entangle('quality'),
 
-        access: config.wire.$entangle('access'),
+        access_limited: config.wire.$entangle('access_limited'),
         littered: config.wire.$entangle('littered'),
-        ruined: config.wire.$entangle('ruined'),
+        broken: config.wire.$entangle('broken'),
 
         wire: null,
         sortablePhotos: config.wire.$entangle('sortablePhotos'),
@@ -70,9 +70,9 @@ window.reportCreateForm = function(config) {
             this.$watch('state', (value) => {
                 if (value === 'notfound') {
                     this.quality = null;
-                    this.access = null;
+                    this.access_limited = false;
                     this.littered = false;
-                    this.ruined = false;
+                    this.broken = false;
                 }
             });
         },

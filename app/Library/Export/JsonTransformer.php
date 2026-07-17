@@ -36,9 +36,9 @@ final class JsonTransformer extends Transformer
                             'visited_at' => (string) ($report->visited_at ?? ''),
                             'state' => $report->state?->value ?? '',
                             'quality' => $report->quality?->value ?? '',
-                            'access' => $report->access?->value,
+                            'access_limited' => $report->access_limited,
                             'littered' => $report->littered,
-                            'ruined' => $report->ruined,
+                            'broken' => $report->broken,
                             'comment' => $report->comment ?? '',
                             'photos' => $report->photos->map(function (Photo $photo) {
                                 return $photo->url ?? '';

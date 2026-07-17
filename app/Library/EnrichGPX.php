@@ -72,14 +72,14 @@ final class EnrichGPX
                 if ($report->state !== null) {
                     $conditions[] = '['.Str::title($report->state->gpxLabel()).']';
                 }
-                if ($report->access !== null) {
-                    $conditions[] = '['.Str::title($report->access->getLabel()).']';
+                if ($report->access_limited) {
+                    $conditions[] = '[Access Limited]';
                 }
                 if ($report->littered) {
                     $conditions[] = '[Littered]';
                 }
-                if ($report->ruined) {
-                    $conditions[] = '[Ruined]';
+                if ($report->broken) {
+                    $conditions[] = '[Broken]';
                 }
 
                 $condition = '';
