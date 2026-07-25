@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
+use App\Http\Middleware\SetLocale;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Folio\Folio;
 
-class FolioServiceProvider extends ServiceProvider
+final class FolioServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
@@ -22,8 +25,14 @@ class FolioServiceProvider extends ServiceProvider
     {
         Folio::path(resource_path('views/pages'))->middleware([
             '*' => [
-                //
+                SetLocale::class.':en',
             ],
         ])->uri('/docs');
+
+        Folio::path(resource_path('views/pages-ru'))->middleware([
+            '*' => [
+                SetLocale::class.':ru',
+            ],
+        ])->uri('/ru/docs');
     }
 }

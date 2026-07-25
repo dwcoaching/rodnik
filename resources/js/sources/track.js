@@ -1,5 +1,6 @@
 import VectorSource from 'ol/source/Vector'
 import GPX from 'ol/format/GPX'
+import trans from '@/i18n'
 
 export default class TrackSource extends VectorSource {
     constructor() {
@@ -16,7 +17,7 @@ export default class TrackSource extends VectorSource {
             this.addFeatures(features)
             window.rodnikMap.buffer.setTrack(features)
         } else {
-            alert('Please upload a GPX file')
+            alert(trans('please_upload_gpx', 'Please upload a GPX file'))
         }
     }
 

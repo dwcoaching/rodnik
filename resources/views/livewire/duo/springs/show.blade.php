@@ -10,17 +10,18 @@
             @if ($spring->hidden_at)
                 <div class="alert alert-warning mb-2">
                     <div>
-                        <b>This object is hidden.</b> Probably it's not a water source,
-                        or a duplicate, or something else.
+                        <b>{{ __('ui.spring.hidden_title') }}</b> {{ __('ui.spring.hidden_description') }}
                     </div>
                 </div>
             @endif
             @if ($spring->redirect_to_spring_id)
                 <div class="alert alert-warning mb-2">
                     <div>
-                        <b>This water source is a duplicate</b> and normally redirects to
-                        <a href="{{ duo_route(['spring' => $spring->redirect_to_spring_id]) }}" class="underline font-semibold">#{{ $spring->redirect_to_spring_id }}</a>.
-                        You're seeing it because <code>?redirect=false</code> is set.
+                        <b>{{ __('ui.spring.duplicate_title') }}</b>
+                        {!! __('ui.spring.duplicate_description', [
+                            'target' => '<a href="' . e(duo_route(['spring' => $spring->redirect_to_spring_id])) . '" class="underline font-semibold">#' . $spring->redirect_to_spring_id . '</a>',
+                            'parameter' => '<code>?redirect=false</code>',
+                        ]) !!}
                     </div>
                 </div>
             @endif
@@ -29,11 +30,11 @@
                     <div class="flex items-start justify-between flex-nowrap">
                         <div class="text-xl font-extrabold mr-3">
                             <div class="mr-1">
-                                {{ ( $spring->name ? $spring->name : $spring->type ) ?: 'No name' }}
+                                {{ $spring->name ?: ($spring->type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($spring->type)) : __('ui.spring.no_name')) }}
                             </div>
                             <div class="font-light text-gray-900 text-sm">
                                 @if ($spring->name)
-                                    {{ $spring->type }}
+                                    {{ __('ui.spring.types.' . \Illuminate\Support\Str::snake($spring->type)) }}
                                 @endif
                             </div>
                         </div>
@@ -86,9 +87,9 @@
                                                         <path fill-rule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clip-rule="evenodd" />
                                                     </svg>--}}
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="#000000" viewBox="0 0 256 256"><path d="M232,116h-4.72A100.21,100.21,0,0,0,140,28.72V24a12,12,0,0,0-24,0v4.72A100.21,100.21,0,0,0,28.72,116H24a12,12,0,0,0,0,24h4.72A100.21,100.21,0,0,0,116,227.28V232a12,12,0,0,0,24,0v-4.72A100.21,100.21,0,0,0,227.28,140H232a12,12,0,0,0,0-24Zm-92,87v-3a12,12,0,0,0-24,0v3a76.15,76.15,0,0,1-63-63h3a12,12,0,0,0,0-24H53a76.15,76.15,0,0,1,63-63v3a12,12,0,0,0,24,0V53a76.15,76.15,0,0,1,63,63h-3a12,12,0,0,0,0,24h3A76.15,76.15,0,0,1,140,203ZM128,84a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,84Zm0,64a20,20,0,1,1,20-20A20,20,0,0,1,128,148Z"></path></svg>
-                                                    Update Location
+                                                    {{ __('ui.spring.update_location') }}
                                                 </a>
-                                                <a x-menu:item href="{{ route('springs.edit', $spring) }}"
+                                                <a x-menu:item href="{{ localized_route('springs.edit', ['spring' => $spring]) }}"
                                                     :class="{
                                                         'bg-stone-200 text-gray-900': $menuItem.isActive,
                                                         'text-gray-600': ! $menuItem.isActive,
@@ -98,9 +99,9 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
                                                         <path fill-rule="evenodd" d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z" clip-rule="evenodd" />
                                                     </svg>
-                                                    Edit Name and Type
+                                                    {{ __('ui.spring.edit_name_and_type') }}
                                                 </a>
-                                                <a x-menu:item href="{{ route('springs.history', $spring) }}"
+                                                <a x-menu:item href="{{ localized_route('springs.history', ['spring' => $spring]) }}"
                                                     :class="{
                                                         'bg-stone-200 text-gray-900': $menuItem.isActive,
                                                         'text-gray-600': ! $menuItem.isActive,
@@ -111,9 +112,9 @@
                                                         <path d="M3 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3Z" />
                                                         <path fill-rule="evenodd" d="M3 6h10v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Zm3 2.75A.75.75 0 0 1 6.75 8h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 6 8.75Z" clip-rule="evenodd" />
                                                     </svg>
-                                                    View History
+                                                    {{ __('ui.spring.view_history') }}
                                                     <div class="border-stone-300 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">
-                                                        {{ $spring->springRevisions->count() ? $spring->springRevisions->count() : 'Empty' }}
+                                                        {{ $spring->springRevisions->count() ?: __('ui.common.empty') }}
                                                     </div>
                                                 </a>
 
@@ -136,14 +137,14 @@
                                                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
                                                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
                                                             </svg>
-                                                            Regenerate Tiles
+                                                            {{ __('ui.spring.regenerate_tiles') }}
                                                         </button>
                                                     @if ($spring->visible())
                                                         <button
                                                             type="button"
                                                             x-menu:item
                                                             wire:click="hide"
-                                                            wire:confirm="Hide this water source?"
+                                                            wire:confirm="{{ __('ui.spring.hide_confirm') }}"
                                                             :class="{
                                                                 'bg-amber-200 text-amber-700': $menuItem.isActive,
                                                                 'text-amber-600': ! $menuItem.isActive,
@@ -154,7 +155,7 @@
                                                                 <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l10.5 10.5a.75.75 0 1 0 1.06-1.06l-1.322-1.323a7.012 7.012 0 0 0 2.16-3.11.87.87 0 0 0 0-.567A7.003 7.003 0 0 0 4.82 3.76l-1.54-1.54Zm3.196 3.195 1.135 1.136A1.502 1.502 0 0 1 9.45 8.389l1.136 1.135a3 3 0 0 0-4.109-4.109Z" clip-rule="evenodd" />
                                                                 <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
                                                             </svg>
-                                                            Hide water source
+                                                            {{ __('ui.spring.hide') }}
                                                         </button>
                                                     @endif
                                                     @if ($spring->canBeAnnihilated())
@@ -163,7 +164,7 @@
                                                             @click.prevent="springDropdownOpen = false"
                                                             x-menu:item
                                                             wire:click.prevent="annihilate"
-                                                            wire:confirm="Annihilate this water source? This auction is not reversible"
+                                                            wire:confirm="{{ __('ui.spring.annihilate_confirm') }}"
                                                             :class="{
                                                                 'bg-red-200 text-red-700': $menuItem.isActive,
                                                                 'text-red-600': ! $menuItem.isActive,
@@ -173,7 +174,7 @@
                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
                                                                 <path fill-rule="evenodd" d="M8.074.945A4.993 4.993 0 0 0 6 5v.032c.004.6.114 1.176.311 1.709.16.428-.204.91-.61.7a5.023 5.023 0 0 1-1.868-1.677c-.202-.304-.648-.363-.848-.058a6 6 0 1 0 8.017-1.901l-.004-.007a4.98 4.98 0 0 1-2.18-2.574c-.116-.31-.477-.472-.744-.28Zm.78 6.178a3.001 3.001 0 1 1-3.473 4.341c-.205-.365.215-.694.62-.59a4.008 4.008 0 0 0 1.873.03c.288-.065.413-.386.321-.666A3.997 3.997 0 0 1 8 8.999c0-.585.126-1.14.351-1.641a.42.42 0 0 1 .503-.235Z" clip-rule="evenodd" />
                                                             </svg>
-                                                            Annihilate water source
+                                                            {{ __('ui.spring.annihilate') }}
                                                         </button>
                                                     @endif
                                                     @if ($spring->canBeRedirectedFrom() && ! $spring->redirect_to_spring_id)
@@ -189,7 +190,7 @@
                                                             }"
                                                             class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 256 256"><path d="M174.63,81.37a80,80,0,1,0-93.26,93.26,80,80,0,1,0,93.26-93.26ZM100.69,136,120,155.31A63.48,63.48,0,0,1,96,160,63.48,63.48,0,0,1,100.69,136Zm33.75,11.13-25.57-25.57a64.65,64.65,0,0,1,12.69-12.69l25.57,25.57A64.65,64.65,0,0,1,134.44,147.13ZM155.31,120,136,100.69A63.48,63.48,0,0,1,160,96,63.48,63.48,0,0,1,155.31,120ZM32,96a64,64,0,0,1,126-16A80.08,80.08,0,0,0,80.05,158,64.11,64.11,0,0,1,32,96ZM160,224A64.11,64.11,0,0,1,98,176,80.08,80.08,0,0,0,176,98,64,64,0,0,1,160,224Z"></path></svg>
-                                                            Merge into another…
+                                                            {{ __('ui.spring.merge_into_another') }}
                                                         </button>
                                                     @endif
                                                     @if ($spring->redirect_to_spring_id)
@@ -197,7 +198,7 @@
                                                             type="button"
                                                             x-menu:item
                                                             wire:click="unmerge"
-                                                            wire:confirm="Remove the redirect on this water source?"
+                                                            wire:confirm="{{ __('ui.spring.remove_redirect_confirm') }}"
                                                             :class="{
                                                                 'bg-amber-200 text-amber-700': $menuItem.isActive,
                                                                 'text-amber-600': ! $menuItem.isActive,
@@ -207,7 +208,7 @@
                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-4 h-4">
                                                                 <path d="M198.63,57.37a32,32,0,0,0-45.19-.06L141.79,69.52a8,8,0,0,1-11.58-11l11.72-12.29a1.59,1.59,0,0,1,.13-.13,48,48,0,0,1,67.88,67.88,1.59,1.59,0,0,1-.13.13l-12.29,11.72a8,8,0,0,1-11-11.58l12.21-11.65A32,32,0,0,0,198.63,57.37ZM114.21,186.48l-11.65,12.21a32,32,0,0,1-45.25-45.25l12.21-11.65a8,8,0,0,0-11-11.58L46.19,141.93a1.59,1.59,0,0,0-.13.13,48,48,0,0,0,67.88,67.88,1.59,1.59,0,0,0,.13-.13l11.72-12.29a8,8,0,1,0-11.58-11ZM216,152H192a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16ZM40,104H64a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm120,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V192A8,8,0,0,0,160,184ZM96,72a8,8,0,0,0,8-8V40a8,8,0,0,0-16,0V64A8,8,0,0,0,96,72Z" />
                                                             </svg>
-                                                            Remove redirect
+                                                            {{ __('ui.spring.remove_redirect') }}
                                                         </button>
                                                     @endif
                                                 @endif
@@ -235,12 +236,12 @@
                                 "
                                 >
                                     <div class="text-gray-500 font-medium">
-                                        Location
+                                        {{ __('ui.spring.location') }}
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline -mt-0.5 w-4 h-4">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
                                         </svg>
                                         <span x-cloak x-show="copied" x-transition.opacity.duration.300 class="font-regular">
-                                            copied
+                                            {{ __('ui.common.copied') }}
                                         </span>
                                     </div>
                                     <div>
@@ -255,7 +256,7 @@
                                     timeout: null
                                 }"
                                 @click="
-                                    $clipboard('{{ route('springs.show', $spring) }}');
+                                    $clipboard('{{ localized_route('springs.show', ['springId' => $spring->id]) }}');
                                     copied = true;
                                     clearTimeout(timeout);
                                     timeout = setTimeout(() => {
@@ -264,15 +265,15 @@
                                 "
                                 >
                                     <div class="text-gray-500 font-medium">
-                                        URL
+                                        {{ __('ui.spring.url') }}
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="inline -mt-0.5 w-4 h-4">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
                                         </svg>
                                         <span x-cloak x-show="copied" x-transition.opacity.duration.300 class="font-regular">
-                                            copied
+                                            {{ __('ui.common.copied') }}
                                         </span>
                                     </div>
-                                    <div class="font-bold">{{ without_http(route('springs.show', $spring)) }}</div>
+                                    <div class="font-bold">{{ without_http(localized_route('springs.show', ['springId' => $spring->id])) }}</div>
                                 </div>
                         </div>
                     </div>
@@ -285,8 +286,8 @@
                         <div @click="osmTagsShown = ! osmTagsShown" class="cursor-pointer text-gray-900 text-sm flex justify-between">
                             <div
                                 class="flex items-center font-semibold mr-3 text-gray-500">
-                                <div class="mr-1 text-gray-500">OpenStreetMap Data</div>
-                                <div class="border-gray-300 bg-gray-100 border rounded-full text-xs px-1.5 py-0.5">{{ $spring->osm_tags->count() }} {{ Str::plural('tag', $spring->osm_tags->count()) }}</div>
+                                <div class="mr-1 text-gray-500">{{ __('ui.spring.osm_data') }}</div>
+                                <div class="border-gray-300 bg-gray-100 border rounded-full text-xs px-1.5 py-0.5">{{ trans_choice('ui.spring.tags_count', $spring->osm_tags->count(), ['count' => $spring->osm_tags->count()]) }}</div>
                             </div>
                             <div>
                                 <svg x-show="! osmTagsShown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -306,7 +307,7 @@
                             @if ($spring->osm_node_id)
                                 <span class="text-gray-900 text-sm font-bold flex items-center mt-1 gap-x-1">
                                     <div class="text-gray-500 text-sm font-semibold">
-                                        OSM Node Id: </div>
+                                        {{ __('ui.spring.osm_node_id') }} </div>
                                     <a class="cursor-pointer text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-x-1" target="_blank" href="https://www.openstreetmap.org/node/{{ $spring->osm_node_id }}">{{ $spring->osm_node_id }}
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 -mt-0.5">
                                             <path d="M6.22 8.72a.75.75 0 0 0 1.06 1.06l5.22-5.22v1.69a.75.75 0 0 0 1.5 0v-3.5a.75.75 0 0 0-.75-.75h-3.5a.75.75 0 0 0 0 1.5h1.69L6.22 8.72Z" />
@@ -318,7 +319,7 @@
                             @if ($spring->osm_way_id)
                                 <span class="text-gray-900 text-sm font-bold flex items-center mt-1 gap-x-1">
                                     <div class="text-gray-500 text-sm font-semibold">
-                                        OSM Way Id: </div>
+                                        {{ __('ui.spring.osm_way_id') }} </div>
                                     <a class="cursor-pointer text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-x-1" target="_blank" href="https://www.openstreetmap.org/way/{{ $spring->osm_way_id }}">{{ $spring->osm_way_id }}
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
                                             <path d="M6.22 8.72a.75.75 0 0 0 1.06 1.06l5.22-5.22v1.69a.75.75 0 0 0 1.5 0v-3.5a.75.75 0 0 0-.75-.75h-3.5a.75.75 0 0 0 0 1.5h1.69L6.22 8.72Z" />
@@ -334,7 +335,7 @@
                                         timeout: null
                                     }"
                                     >
-                                    <div class="text-gray-500 font-semibold">OSM Location </div>
+                                    <div class="text-gray-500 font-semibold">{{ __('ui.spring.osm_location') }} </div>
                                     <span class="cursor-pointer text-gray-600" @click="
                                         $clipboard('{{ $spring->osm_latitude }}, {{ $spring->osm_longitude }}');
                                         copied = true;
@@ -348,7 +349,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
                                         </svg>
                                         <span x-cloak x-show="copied" x-transition.opacity.duration.300 class="font-regular">
-                                            copied
+                                            {{ __('ui.common.copied') }}
                                         </span>
                                     </span>
                                 </span>
@@ -361,17 +362,17 @@
                 <div class="p-4 flex mt-0 items-center justify-between">
                     <div class="text-xl font-extrabold flex items-center gap-x-2">
                         @if ($reports->count())
-                            <span>Reports</span>
+                            <span>{{ __('ui.report.reports') }}</span>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold bg-stone-200 text-stone-600">{{ $reports->count() }}</span>
                         @else
-                            No reports yet
+                            {{ __('ui.report.no_reports_yet') }}
                         @endif
                         </div>
-                    <a type="button" href="{{ route('reports.create', ['spring_id' => $spring]) }}" class="btn btn-primary">
+                    <a type="button" href="{{ localized_route('reports.create', ['spring_id' => $spring]) }}" class="btn btn-primary">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                         </svg>
-                      New Report
+                      {{ __('ui.report.new_report') }}
                     </a>
                 </div>
                 <div class="mt">

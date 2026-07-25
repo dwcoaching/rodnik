@@ -12,6 +12,7 @@ import Coordinates from 'coordinate-parser';
 import { getInitialSourceName } from '@/initial';
 import locateByPhoto from '@/utils/locateByPhoto';
 import sort from '@alpinejs/sort'
+import trans from '@/i18n';
 
 Alpine.plugin(Clipboard);
 Alpine.plugin(sort);
@@ -260,7 +261,7 @@ window.reportCreateForm = function(config) {
                 }
 
                 item.status = 'failed';
-                item.error = error?.message || 'Upload failed';
+                item.error = error?.message || trans('upload_failed', 'Upload failed');
                 item.xhr = null;
             }
         },
@@ -287,12 +288,13 @@ window.reportCreateForm = function(config) {
                 xhr.setRequestHeader('Accept', 'application/json');
                 xhr.setRequestHeader('X-CSRF-TOKEN', config.csrfToken);
                 xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                xhr.setRequestHeader('X-Rodnik-Locale', window.rodnikLocale || 'en');
 
                 const watchdog = window.setInterval(() => {
                     if (Date.now() - lastProgressAt > 120000) {
                         timedOut = true;
                         xhr.abort();
-                        reject(new Error('Upload timed out'));
+                        reject(new Error(trans('upload_timed_out', 'Upload timed out')));
                     }
                 }, 5000);
 
@@ -319,12 +321,14 @@ window.reportCreateForm = function(config) {
 
                 xhr.onerror = () => {
                     cleanup();
-                    reject(new Error('Network error'));
+                    reject(new Error(trans('network_error', 'Network error')));
                 };
 
                 xhr.onabort = () => {
                     cleanup();
-                    reject(new Error(timedOut ? 'Upload timed out' : 'Upload cancelled'));
+                    reject(new Error(timedOut
+                        ? trans('upload_timed_out', 'Upload timed out')
+                        : trans('upload_cancelled', 'Upload cancelled')));
                 };
 
                 item.xhr = xhr;
@@ -341,13 +345,13 @@ window.reportCreateForm = function(config) {
                 }
 
                 if (response.errors) {
-                    return Object.values(response.errors).flat()[0] || 'Upload failed';
+                    return Object.values(response.errors).flat()[0] || trans('upload_failed', 'Upload failed');
                 }
             } catch (error) {
-                return 'Upload failed';
+                return trans('upload_failed', 'Upload failed');
             }
 
-            return 'Upload failed';
+            return trans('upload_failed', 'Upload failed');
         },
 
         retryPhoto(item) {
@@ -408,7 +412,12 @@ window.initPhotoSwipe = function(id) {
         gallery: id,
         children: '.photoswipeImage',
         pswpModule: () => import('photoswipe'),
-        loop: false
+        loop: false,
+        closeTitle: trans('photo_close', 'Close'),
+        zoomTitle: trans('photo_zoom', 'Zoom'),
+        arrowPrevTitle: trans('photo_previous', 'Previous'),
+        arrowNextTitle: trans('photo_next', 'Next'),
+        errorMsg: trans('photo_load_error', 'The image cannot be loaded'),
     });
     lightbox.init();
     lightbox.on('beforeOpen', () => {

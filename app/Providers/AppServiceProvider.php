@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,15 @@ final class AppServiceProvider extends ServiceProvider
     {
 
         Carbon::setLocale(config('app.locale'));
+
+        Livewire::listen('hydrate', function (mixed $component, array $memo): void {
+            $locale = $memo['locale'] ?? app()->getLocale();
+
+            if (array_key_exists($locale, config('localization.supported'))) {
+                app()->setLocale($locale);
+                Carbon::setLocale($locale);
+            }
+        });
 
         Vite::prefetch(concurrency: 1, event: 'load');
 

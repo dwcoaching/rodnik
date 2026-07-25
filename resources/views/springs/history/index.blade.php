@@ -15,7 +15,7 @@
             </div>
         </div>
 
-        <h1 class="mt-4 mb-2 text-3xl font-bold">Water Source History</h1>
+        <h1 class="mt-4 mb-2 text-3xl font-bold">{{ __('ui.history.title') }}</h1>
         <div class="grid grid-cols-1 gap-1 ">
             @foreach($events as $event)
                 @if (get_class($event) == 'App\Models\Report')
@@ -34,30 +34,30 @@
                                                 </a>
                                             @else
                                                 <span class="text-sm">
-                                                    Anonymous
+                                                    {{ __('ui.common.anonymous') }}
                                                 </span>
                                             @endif
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge bg-stone-600 text-white text-xs">Report</span>
+                                        <span class="badge bg-stone-600 text-white text-xs">{{ __('ui.history.report') }}</span>
                                     </div>
                                 </div>
                                 <div class="">
                                     @if ($event->visited_at)
-                                        Visit date: {{ $event->visited_at->format('F d, Y') }}<br>
+                                        {{ __('ui.history.visit_date', ['date' => $event->visited_at->translatedFormat('d F Y')]) }}<br>
                                     @endif
                                     @if ($event->quality)
-                                        Quality: {{ $event->quality->getLabel() }}<br>
+                                        {{ __('ui.history.quality') }} {{ __('ui.report.conditions.' . $event->quality->value) }}<br>
                                     @endif
                                     @if ($event->state)
-                                        State: {{ $event->state->getLabel() }}<br>
+                                        {{ __('ui.history.state') }} {{ __('ui.report.conditions.' . $event->state->value) }}<br>
                                     @endif
                                     @if ($event->access_limited)
-                                        Access limited<br>
+                                        {{ __('ui.report.badges.access_limited') }}<br>
                                     @endif
                                     @if ($event->comment)
-                                        Comment: {{ $event->comment }}<br>
+                                        {{ __('ui.history.comment') }} {{ $event->comment }}<br>
                                     @endif
                                     @if ($event->photos->count())
                                         <div class="mt-1">
@@ -104,7 +104,7 @@
                                                     </a>
                                                 @else
                                                     <span class="text-sm">
-                                                        Anonymous
+                                                        {{ __('ui.common.anonymous') }}
                                                     </span>
                                                 @endif
                                             @endif
@@ -112,9 +112,9 @@
                                     </div>
                                     <div>
                                         @if ($event->revision_type == 'from_osm')
-                                            <span class="badge bg-amber-600 text-white text-xs">OSM Update</span>
+                                            <span class="badge bg-amber-600 text-white text-xs">{{ __('ui.history.osm_update') }}</span>
                                         @else
-                                            <span class="badge bg-indigo-600 text-white text-xs">Edit</span>
+                                            <span class="badge bg-indigo-600 text-white text-xs">{{ __('ui.history.edit') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -126,28 +126,28 @@
                                             )
                                         )
                                         @include('springs.history.change', [
-                                            'key' => 'Location',
+                                            'key' => __('ui.history.fields.location'),
                                             'old' => $event->old_latitude . ', ' . $event->old_longitude,
                                             'new' => $event->new_latitude . ', ' . $event->new_longitude,
                                         ])
                                     @endif
                                     @if ($event->old_name !== $event->new_name)
                                         @include('springs.history.change', [
-                                            'key' => 'Name',
+                                            'key' => __('ui.history.fields.name'),
                                             'old' => $event->old_name,
                                             'new' => $event->new_name,
                                         ])
                                     @endif
                                     @if ($event->old_type !== $event->new_type)
                                         @include('springs.history.change', [
-                                            'key' => 'Type',
-                                            'old' => $event->old_type,
-                                            'new' => $event->new_type,
+                                            'key' => __('ui.history.fields.type'),
+                                            'old' => $event->old_type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($event->old_type)) : '',
+                                            'new' => $event->new_type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($event->new_type)) : '',
                                         ])
                                     @endif
                                     @if ($event->old_intermittent !== $event->new_intermittent)
                                         @include('springs.history.change', [
-                                            'key' => 'Intermittent',
+                                            'key' => __('ui.history.fields.intermittent'),
                                             'old' => $event->old_intermittent,
                                             'new' => $event->new_intermittent,
                                         ])

@@ -2,9 +2,9 @@
     @if ($justMoved)
         <div class="border-t border-stone-200 p-4 pb-8 flex items-center">
             <div class="text-sm text-medium text-amber-700 mr-2">
-                Report moved to #{{ $movedToSpringId }}
+                {{ __('ui.report.moved_to', ['spring' => $movedToSpringId]) }}
             </div>
-            <span wire:click="undoMoveToRedirectTarget" class="rounded-full border border-amber-600 hover:border-amber-700 cursor-pointer text-amber-600 text-xs px-3 py-1">Undo</span>
+            <span wire:click="undoMoveToRedirectTarget" class="rounded-full border border-amber-600 hover:border-amber-700 cursor-pointer text-amber-600 text-xs px-3 py-1">{{ __('ui.common.undo') }}</span>
         </div>
     @elseif (! $report->hidden_at)
         <div class="border-t border-stone-200 p-4">
@@ -40,7 +40,7 @@
                                         </a>
                                     @else
                                         <span class="text-sm">
-                                            Anonymous
+                                            {{ __('ui.common.anonymous') }}
                                         </span>
                                     @endif
                                 </div>
@@ -48,11 +48,11 @@
                             <div>
                                 @if ($report->visited_at && $report->visited_at->format('Y-m-d') !== $report->created_at->format('Y-m-d'))
                                     <div class="text-sm mt-0.5 text-gray-500">
-                                        Report was created on {{ $report->created_at->format('d.m.Y') }}
+                                        {{ __('ui.report.created_on', ['date' => $report->created_at->format('d.m.Y')]) }}
                                     </div>
                                 @elseif (!$report->visited_at)
                                     <div class="text-sm mt-0.5 text-gray-500">
-                                        Date of the actual visit was not specified.
+                                        {{ __('ui.report.visit_date_missing') }}
                                     </div>
                                 @endif
                             </div>
@@ -84,7 +84,7 @@
                                         @if (! $report->spring_edit
                                             && Auth::check()
                                             && $report->user_id == Auth::user()->id)
-                                            <a href="{{ route('reports.edit', $report) }}"
+                                            <a href="{{ localized_route('reports.edit', ['report' => $report]) }}"
                                                 x-menu:item
                                                 :class="{
                                                     'bg-stone-200 text-gray-900': $menuItem.isActive,
@@ -96,7 +96,7 @@
                                                     <path d="M13.488 2.513a1.75 1.75 0 0 0-2.475 0L6.75 6.774a2.75 2.75 0 0 0-.596.892l-.848 2.047a.75.75 0 0 0 .98.98l2.047-.848a2.75 2.75 0 0 0 .892-.596l4.261-4.262a1.75 1.75 0 0 0 0-2.474Z" />
                                                     <path d="M4.75 3.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h6.5c.69 0 1.25-.56 1.25-1.25V9A.75.75 0 0 1 14 9v2.25A2.75 2.75 0 0 1 11.25 14h-6.5A2.75 2.75 0 0 1 2 11.25v-6.5A2.75 2.75 0 0 1 4.75 2H7a.75.75 0 0 1 0 1.5H4.75Z" />
                                                 </svg>
-                                                Edit
+                                                {{ __('ui.common.edit') }}
                                             </a>
                                             <button type="button"
                                                 x-menu:item
@@ -110,7 +110,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 shrink-0">
                                                     <path fill-rule="evenodd" d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z" clip-rule="evenodd" />
                                                 </svg>
-                                                Delete
+                                                {{ __('ui.common.delete') }}
                                             </button>
                                         @elseif (! $report->spring_edit
                                             && Auth::check()
@@ -119,7 +119,7 @@
                                                 type="button"
                                                 x-menu:item
                                                 wire:click="hideByModerator"
-                                                wire:confirm="Hide this report?"
+                                                wire:confirm="{{ __('ui.report.hide_confirm') }}"
                                                 :class="{
                                                     'bg-amber-200 text-amber-600': $menuItem.isActive,
                                                     'text-amber-500': ! $menuItem.isActive,
@@ -130,7 +130,7 @@
                                                     <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l10.5 10.5a.75.75 0 1 0 1.06-1.06l-1.322-1.323a7.012 7.012 0 0 0 2.16-3.11.87.87 0 0 0 0-.567A7.003 7.003 0 0 0 4.82 3.76l-1.54-1.54Zm3.196 3.195 1.135 1.136A1.502 1.502 0 0 1 9.45 8.389l1.136 1.135a3 3 0 0 0-4.109-4.109Z" clip-rule="evenodd" />
                                                     <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
                                                 </svg>
-                                                Hide as Moderator
+                                                {{ __('ui.report.hide_as_moderator') }}
                                             </button>
                                         @endif
                                         @if (Gate::allows('admin') && $moveTargetSpringId)
@@ -138,7 +138,7 @@
                                                 type="button"
                                                 x-menu:item
                                                 wire:click="moveToRedirectTarget"
-                                                wire:confirm="Move this report to {{ $moveTargetLabel }}?"
+                                                wire:confirm="{{ __('ui.report.move_confirm', ['target' => $moveTargetLabel]) }}"
                                                 :class="{
                                                     'bg-blue-200 text-blue-700': $menuItem.isActive,
                                                     'text-blue-600': ! $menuItem.isActive,
@@ -148,7 +148,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 shrink-0">
                                                     <path fill-rule="evenodd" d="M2 8a.75.75 0 0 1 .75-.75h8.69L8.22 4.03A.75.75 0 0 1 9.28 2.97l4.5 4.5a.75.75 0 0 1 0 1.06l-4.5 4.5A.75.75 0 0 1 8.22 11.97l3.22-3.22H2.75A.75.75 0 0 1 2 8Z" clip-rule="evenodd" />
                                                 </svg>
-                                                Move to {{ $moveTargetLabel }}
+                                                {{ __('ui.report.move_to', ['target' => $moveTargetLabel]) }}
                                             </button>
                                         @endif
                                     </div>
@@ -176,8 +176,8 @@
                         @if ($report->new_type)
                             <div class="my-2 flex">
                                 <span class="rounded-md bg-gray-200 px-3 py-1 text-sm">
-                                    <span class="text-gray-500">{{ $report->old_type }}</span>
-                                    → <span class="text-black">{{ $report->new_type }}</span>
+                                    <span class="text-gray-500">{{ $report->old_type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($report->old_type)) : '' }}</span>
+                                    → <span class="text-black">{{ __('ui.spring.types.' . \Illuminate\Support\Str::snake($report->new_type)) }}</span>
                                 </span>
                             </div>
                         @endif
@@ -224,15 +224,15 @@
         <div class="border-t border-slade-200 p-4 pb-8 flex items-center">
             @if ($report->hidden_by_author_id)
                 <div class="text-sm text-medium text-red-700 mr-2">
-                    Report deleted
+                    {{ __('ui.report.deleted') }}
                 </div>
-                <span wire:click="unhideByAuthor" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">Restore</span>
+                <span wire:click="unhideByAuthor" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">{{ __('ui.common.restore') }}</span>
             @endif
             @if ($report->hidden_by_moderator_id)
                 <div class="text-sm text-medium text-red-700 mr-2">
-                    Report hidden
+                    {{ __('ui.report.hidden') }}
                 </div>
-                <span wire:click="unhideByModerator" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">Unhide</span>
+                <span wire:click="unhideByModerator" class="rounded-full border border-red-600 hover:border-red-700 cursor-pointer text-red-600 text-xs px-3 py-1">{{ __('ui.common.unhide') }}</span>
             @endif
         </div>
     @endif

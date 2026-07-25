@@ -6,7 +6,7 @@ import { OSM, XYZ, Vector as VectorSource} from 'ol/source';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
-import { ScaleLine, FullScreen, defaults as defaultControls } from 'ol/control';
+import { ScaleLine, FullScreen } from 'ol/control';
 
 import { createXYZ } from 'ol/tilegrid';
 import { tile } from 'ol/loadingstrategy';
@@ -33,6 +33,7 @@ import GeolocationLayer from '@/layers/geolocation';
 
 import SpringsFinalSource from '@/sources/final.js';
 import SpringsUserSource from '@/sources/user.js';
+import localizedControls from '@/localizedControls';
 
 export default class OpenHelper {
     constructor(element, coordinates) {
@@ -73,7 +74,7 @@ export default class OpenHelper {
         });
 
         this.map = new Map({
-            controls: defaultControls().extend([this.scaleControl]),
+            controls: localizedControls().extend([this.scaleControl]),
             target: element,
             layers: [this.osmLayer, this.springLayer],
             view: this.view,

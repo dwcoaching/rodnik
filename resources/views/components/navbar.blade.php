@@ -18,7 +18,7 @@
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </span>
             @else
-                <a href="/"
+                <a href="{{ localized_public_path() }}"
                     class="pt-4 pb-2 mr-4 cursor-pointer">
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </a>
@@ -26,7 +26,8 @@
         </div>
     </div>
 
-    <div class="flex items-center">
+    <div class="flex items-center gap-3">
+        <x-language-switcher />
         @guest
             <div class="my-1 flex">
                 <a href="{{ route('login') }}" class="pt-4 pb-2 block mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
@@ -70,7 +71,7 @@
                                     'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                 }"
                                 class="rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
-                                New Water Source
+                                {{ __('ui.spring.new_water_source') }}
                             </a>
                             <a x-menu:item href="{{ duo_route(['user' => Auth::user()->id]) }}"
                                 @click.prevent="
@@ -90,7 +91,7 @@
                                     'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                 }"
                                 class="rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
-                                    <span class="mr-1">My Water Sources</span>
+                                    <span class="mr-1">{{ __('ui.nav.my_water_sources') }}</span>
                                     <span class="ml-0 text-xs font-medium px-1 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">{{ number_format(Auth::user()->rating, 0, ',', ' ') }}</span>
                             </a>
                             <div class="border-t border-stone-300 h-0 -mx-1 px-5 mt-1 mb-1 text-sm text-gray-400 font-bold">
@@ -103,7 +104,7 @@
                                     'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                 }"
                                 class="rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
-                                Profile
+                                {{ __('Profile') }}
                             </a>
                             <form method="POST" action="{{ route('logout') }}" x-data>
                                 <a x-menu:item href="{{ route('logout') }}"
@@ -115,7 +116,7 @@
                                     }"
                                     class="rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
                                     @csrf
-                                    Log Out
+                                    {{ __('Log Out') }}
                                 </a>
                             </form>
                         </div>

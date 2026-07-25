@@ -33,10 +33,10 @@
                 <span class="mr-2 inline-flex items-center">
                     @if ($spring->type)
                         <div>
-                            Edit Name and Type
+                            {{ __('ui.spring.edit_name_and_type') }}
                         </div>
                     @else
-                        Add Name and Type
+                        {{ __('ui.spring.add_name_and_type') }}
                     @endif
                 </span>
             </span>
@@ -46,7 +46,7 @@
     <div class="mt-4">
         <div class="w-full">
             <label for="coordinates" class="text-sm font-semibold leading-6 text-gray-500 leading-6">
-                <span>Type</span>
+                <span>{{ __('ui.spring.type') }}</span>
             </label>
             <div class="mt-1">
                 <select x-model="type" name="type"
@@ -74,11 +74,11 @@
                     @foreach ($waterSourceTypes as $waterSourceType)
                         <option value="{{ $waterSourceType }}">
                             @if ($waterSourceType == 'Water source')
-                                Other
+                                {{ __('ui.spring.type_options.water_source') }}
                             @elseif ($waterSourceType == 'Fountain')
-                                Decorative fountain
+                                {{ __('ui.spring.type_options.fountain') }}
                             @else
-                                {{ $waterSourceType }}
+                                {{ __('ui.spring.types.' . \Illuminate\Support\Str::snake($waterSourceType)) }}
                             @endif
                         </option>
                     @endforeach
@@ -93,7 +93,7 @@
         <div class="w-full">
             <div class="mt-4 w-full">
                 <label for="coordinates" class="text-sm font-semibold leading-6 text-gray-500 leading-6">
-                    <span>Name <span class="text-gray-500">(optional)</span></span>
+                    <span>{{ __('ui.spring.name') }} <span class="text-gray-500">({{ __('ui.common.optional') }})</span></span>
                 </label>
                 <div class="mt-1">
                     <input
@@ -117,7 +117,7 @@
                     'btn-disabled': saving
                 }"
             >
-                {{ $spring->type ? 'Save changes' : 'Add Name and Type' }}
+                {{ $spring->type ? __('ui.common.save_changes') : __('ui.spring.add_name_and_type') }}
             </button>
         </div>
     </div>

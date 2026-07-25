@@ -23,7 +23,7 @@
                     "
                     href="{{ duo_route(['spring' => $report->spring->id]) }}" class="group cursor-pointer mr-2">
                         <div
-                            class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ ( $report->spring->name ? $report->spring->name : $report->spring->type ) ?: 'No name' }}</div>
+                            class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ $report->spring->name ?: ($report->spring->type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($report->spring->type)) : __('ui.spring.no_name')) }}</div>
                     </a>
                 </div>
 
@@ -56,7 +56,7 @@
                                         </a>
                                     @else
                                         <span class="text-sm">
-                                            Anonymous
+                                            {{ __('ui.common.anonymous') }}
                                         </span>
                                     @endif
                                 </div>
@@ -82,8 +82,8 @@
                             @if ($report->new_type)
                                 <div class="my-2 flex">
                                     <span class="rounded-md bg-gray-200 px-3 py-1 text-sm">
-                                        <span class="text-gray-500">{{ $report->old_type }}</span>
-                                        → <span class="text-black">{{ $report->new_type }}</span>
+                                        <span class="text-gray-500">{{ $report->old_type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($report->old_type)) : '' }}</span>
+                                        → <span class="text-black">{{ __('ui.spring.types.' . \Illuminate\Support\Str::snake($report->new_type)) }}</span>
                                     </span>
                                 </div>
                             @endif

@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Rules;
 
 use App\Models\Spring;
 use Illuminate\Contracts\Validation\Rule;
 
-class SpringTypeRule implements Rule
+final class SpringTypeRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -36,6 +38,6 @@ class SpringTypeRule implements Rule
      */
     public function message()
     {
-        return 'Please select a water source type';
+        return __('ui.validation.select_water_source_type');
     }
 }

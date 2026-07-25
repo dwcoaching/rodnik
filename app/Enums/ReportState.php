@@ -16,19 +16,14 @@ enum ReportState: string implements HasColor, HasLabel
 
     public function getLabel(): string
     {
-        return match ($this) {
-            self::Running => 'Has water',
-            self::Dripping => 'Very little water',
-            self::Dry => 'Dry',
-            self::NotFound => 'Water source not found',
-        };
+        return (string) __('ui.report.conditions.'.$this->value);
     }
 
     public function formLabel(): string
     {
         return match ($this) {
-            self::Running => 'Has water',
-            self::Dry => 'No water',
+            self::Running => (string) __('ui.report.form_conditions.running'),
+            self::Dry => (string) __('ui.report.form_conditions.dry'),
             default => $this->getLabel(),
         };
     }
@@ -36,7 +31,7 @@ enum ReportState: string implements HasColor, HasLabel
     public function gpxLabel(): string
     {
         return match ($this) {
-            self::NotFound => 'Not Found',
+            self::NotFound => (string) __('ui.home.map_legend.not_found'),
             default => $this->getLabel(),
         };
     }

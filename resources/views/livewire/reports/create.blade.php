@@ -26,27 +26,23 @@
     @guest
         <div class="bg-yellow-100 p-4 rounded-lg border border-yellow-400 mb-6  max-w-3xl">
             <div class="font-bold max-w-prose">
-                <span class="text-2xl">💧</span> You can publish reports anonymously
+                <span class="text-2xl">💧</span> {{ __('ui.report.guest.title') }}
             </div>
             <div class="mt-2 max-w-prose">
-                However, we encourage you to register and log in.
+                {{ __('ui.report.guest.encourage_account') }}
             </div>
             <div class="mt-2 max-w-prose">
-                Registration helps establish a reputation for each contribution.
-                Without an account history, other users may not know whether they can
-                trust an anonymous report.
+                {{ __('ui.report.guest.reputation') }}
             </div>
             <div class="mt-2 max-w-prose">
-                A history of your reports helps us assess their reliability and make
-                the necessary changes to OpenStreetMap.
+                {{ __('ui.report.guest.reliability') }}
             </div>
             <div class="mt-2 max-w-prose">
-                You will also have a personal page with all your reports, and you will
-                be able to update or delete them.
+                {{ __('ui.report.guest.personal_page') }}
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Log in</a>
-                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Register</a>
+                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.log_in') }}</a>
+                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.register') }}</a>
             </div>
         </div>
     @endguest
@@ -62,19 +58,19 @@
         </div>
     </div>
     <div class="font-black mt-2 text-lg">
-        New report
+        {{ __('ui.report.new') }}
     </div>
     <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-xs focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-bold text-gray-500 flex justify-between items-center">
             <span class="mr-3">
-                Visit date
+                {{ __('ui.report.visit_date') }}
             </span>
             <span @click="toggleDate" class="cursor-pointer text-blue-600 text-xs"
                 :class="{
                     'font-bold': ! withDate
                 }"
             >
-                Do not specify
+                {{ __('ui.report.do_not_specify') }}
             </span>
         </label>
         <input x-show="withDate" x-model="visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-base text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-base" placeholder="">
@@ -82,45 +78,43 @@
     <div class="mt-4">
         <div>
             <div class="mb-2">
-                <x-form-group-info id="condition-info" title="Condition" class="mt-4">
-                    <p><span class="font-semibold text-gray-700">Has water:</span> Water is present, even if the flow is very weak.</p>
-                    <p><span class="font-semibold text-gray-700">No water:</span> The source is dry; there is not enough water to fill a cup.</p>
-                    <p><span class="font-semibold text-gray-700">Water source not found:</span> Neither the source nor any trace of it can be found. This may indicate a mapping error.</p>
+                <x-form-group-info id="condition-info" title="{{ __('ui.report.condition') }}" class="mt-4">
+                    <p><span class="font-semibold text-gray-700">{{ __('ui.report.condition_help.has_water_title') }}</span> {{ __('ui.report.condition_help.has_water') }}</p>
+                    <p><span class="font-semibold text-gray-700">{{ __('ui.report.condition_help.no_water_title') }}</span> {{ __('ui.report.condition_help.no_water') }}</p>
+                    <p><span class="font-semibold text-gray-700">{{ __('ui.report.condition_help.not_found_title') }}</span> {{ __('ui.report.condition_help.not_found') }}</p>
                 </x-form-group-info>
-                <x-chip :indicator="false" :name="'💧 '.\App\Enums\ReportState::Running->formLabel()" key="state" :value="\App\Enums\ReportState::Running->value" />
-                <x-chip :indicator="false" :name="'🌵 '.\App\Enums\ReportState::Dry->formLabel()" key="state" :value="\App\Enums\ReportState::Dry->value" />
-                <x-chip :indicator="false" :name="'😡 '.\App\Enums\ReportState::NotFound->formLabel()" key="state" :value="\App\Enums\ReportState::NotFound->value" />
+                <x-chip :indicator="false" :name="'💧 ' . __('ui.report.form_conditions.running')" key="state" :value="\App\Enums\ReportState::Running->value" />
+                <x-chip :indicator="false" :name="'🌵 ' . __('ui.report.form_conditions.dry')" key="state" :value="\App\Enums\ReportState::Dry->value" />
+                <x-chip :indicator="false" :name="'😡 ' . __('ui.report.form_conditions.notfound')" key="state" :value="\App\Enums\ReportState::NotFound->value" />
             </div>
             <div x-show="state !== @js(\App\Enums\ReportState::Dry->value) && state !== @js(\App\Enums\ReportState::NotFound->value)">
-                <x-form-group-info id="water-quality-info" title="Water quality" class="mt-2">
+                <x-form-group-info id="water-quality-info" title="{{ __('ui.report.water_quality') }}" class="mt-2">
                     <p>
-                        <span class="font-semibold text-gray-700">Use your own judgment.</span>
-                        Consider the source in its local context. A “good” rating does not guarantee that the water
-                        is safe to drink. Water that would be considered poor in mountains with crystal-clear streams may still
-                        be valuable in a desert if it can be made safe through appropriate treatment.
+                        <span class="font-semibold text-gray-700">{{ __('ui.report.quality_help.title') }}</span>
+                        {{ __('ui.report.quality_help.text') }}
                     </p>
                 </x-form-group-info>
-                <x-chip :indicator="false" :name="'🚰 '.\App\Enums\ReportQuality::Good->getLabel()" key="quality" :value="\App\Enums\ReportQuality::Good->value" />
-                <x-chip :indicator="false" :name="'🚱 '.\App\Enums\ReportQuality::Bad->getLabel()" key="quality" :value="\App\Enums\ReportQuality::Bad->value" />
+                <x-chip :indicator="false" :name="'🚰 ' . __('ui.report.conditions.good')" key="quality" :value="\App\Enums\ReportQuality::Good->value" />
+                <x-chip :indicator="false" :name="'🚱 ' . __('ui.report.conditions.bad')" key="quality" :value="\App\Enums\ReportQuality::Bad->value" />
             </div>
             <div x-show="state !== @js(\App\Enums\ReportState::NotFound->value)">
-                <x-form-group-info id="problems-info" title="Details" class="mt-2">
-                    <p><span class="font-semibold text-gray-700">Access limited:</span> Access is restricted, hazardous, or requires special equipment.</p>
-                    <p><span class="font-semibold text-gray-700">Littered:</span> There is rubbish around or inside the source.</p>
-                    <p><span class="font-semibold text-gray-700">Broken:</span> The source is severely damaged or no longer functional.</p>
+                <x-form-group-info id="problems-info" title="{{ __('ui.report.details') }}" class="mt-2">
+                    <p><span class="font-semibold text-gray-700">{{ __('ui.report.problem_help.access_limited_title') }}</span> {{ __('ui.report.problem_help.access_limited') }}</p>
+                    <p><span class="font-semibold text-gray-700">{{ __('ui.report.problem_help.littered_title') }}</span> {{ __('ui.report.problem_help.littered') }}</p>
+                    <p><span class="font-semibold text-gray-700">{{ __('ui.report.problem_help.broken_title') }}</span> {{ __('ui.report.problem_help.broken') }}</p>
                 </x-form-group-info>
-                <x-chip mode="checkbox" name="Access limited" key="access_limited" />
-                <x-chip mode="checkbox" name="Littered" key="littered" />
-                <x-chip mode="checkbox" name="Broken" key="broken" />
+                <x-chip mode="checkbox" name="{{ __('ui.report.badges.access_limited') }}" key="access_limited" />
+                <x-chip mode="checkbox" name="{{ __('ui.report.badges.littered') }}" key="littered" />
+                <x-chip mode="checkbox" name="{{ __('ui.report.badges.broken') }}" key="broken" />
             </div>
         </div>
     </div>
 
     <div class="mt-2">
-        <div class="text-sm font-bold text-gray-500 mb-2">Additional details</div>
+        <div class="text-sm font-bold text-gray-500 mb-2">{{ __('ui.report.additional_details') }}</div>
         <div class="relative">
             <textarea wire:model="comment" rows="4" name="comment" id="comment"
-                placeholder="Describe what you observed…"
+                placeholder="{{ __('ui.report.comment_placeholder') }}"
                 @class([
                     'w-full' => true,
                     'sm:max-w-lg' => true,
@@ -185,16 +179,16 @@
                     </div>
                     <div x-show="isPending(item)" class="absolute inset-0 z-20 flex flex-col items-center justify-center rounded-lg bg-black/20 text-white">
                         <div class="animate-spin w-8 h-8 flex border-4 rounded-full border-white/80 border-t-transparent"></div>
-                        <div class="mt-2 rounded-sm bg-black/30 px-2 py-1 text-xs font-bold" x-text="item.status === 'uploading' ? `${item.progress}%` : 'Preparing'"></div>
+                        <div class="mt-2 rounded-sm bg-black/30 px-2 py-1 text-xs font-bold" x-text="item.status === 'uploading' ? `${item.progress}%` : @js(__('ui.report.photo.preparing'))"></div>
                     </div>
                     <div x-show="item.status === 'failed'" class="absolute inset-x-2 bottom-2 z-20 rounded-sm bg-red-600/90 px-2 py-1 text-xs font-bold text-white">
                         <div x-text="item.error"></div>
-                        <button type="button" class="mt-1 underline" x-on:click.stop.prevent="retryPhoto(item)">Retry</button>
+                        <button type="button" class="mt-1 underline" x-on:click.stop.prevent="retryPhoto(item)">{{ __('ui.report.photo.retry') }}</button>
                     </div>
-                    <button type="button" x-sort:handle title="Move photo" class="photo-sort-handle rounded-md bg-black/20 cursor-move opacity-100 absolute left-0 top-0 py-2 px-2 z-30 text-white font-semibold text-2xl">
+                    <button type="button" x-sort:handle title="{{ __('ui.report.photo.move') }}" class="photo-sort-handle rounded-md bg-black/20 cursor-move opacity-100 absolute left-0 top-0 py-2 px-2 z-30 text-white font-semibold text-2xl">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M87.51,64.49a12,12,0,0,1,0-17l32-32a12,12,0,0,1,17,0l32,32a12,12,0,0,1-17,17L140,53V96a12,12,0,0,1-24,0V53L104.49,64.49A12,12,0,0,1,87.51,64.49Zm64,127L140,203V160a12,12,0,0,0-24,0v43l-11.51-11.52a12,12,0,0,0-17,17l32,32a12,12,0,0,0,17,0l32-32a12,12,0,0,0-17-17Zm89-72-32-32a12,12,0,0,0-17,17L203,116H160a12,12,0,0,0,0,24h43l-11.52,11.51a12,12,0,0,0,17,17l32-32A12,12,0,0,0,240.49,119.51ZM53,140H96a12,12,0,0,0,0-24H53l11.52-11.51a12,12,0,1,0-17-17l-32,32a12,12,0,0,0,0,17l32,32a12,12,0,1,0,17-17Z"></path></svg>
                     </button>
-                    <button type="button" title="Remove photo" x-on:click.stop.prevent="removePhotoItem(item)" class="removePhotoHandle rounded-md bg-black/20 opacity-100 cursor-pointer absolute right-0 top-0 py-2 px-2 z-30 text-white font-semibold text-2xl">
+                    <button type="button" title="{{ __('ui.report.photo.remove') }}" x-on:click.stop.prevent="removePhotoItem(item)" class="removePhotoHandle rounded-md bg-black/20 opacity-100 cursor-pointer absolute right-0 top-0 py-2 px-2 z-30 text-white font-semibold text-2xl">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#fff" viewBox="0 0 256 256"><path d="M216,48H180V36A28,28,0,0,0,152,8H104A28,28,0,0,0,76,36V48H40a12,12,0,0,0,0,24h4V208a20,20,0,0,0,20,20H192a20,20,0,0,0,20-20V72h4a12,12,0,0,0,0-24ZM100,36a4,4,0,0,1,4-4h48a4,4,0,0,1,4,4V48H100Zm88,168H68V72H188ZM116,104v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Zm48,0v64a12,12,0,0,1-24,0V104a12,12,0,0,1,24,0Z"></path></svg>
                     </button>
                 </div>
@@ -223,10 +217,10 @@
                     </div>
                     <div class="text-sm text-gray-600">
                         <label class="relative rounded-md font-regular text-blue-600 group-hover:text-blue-700">
-                            <span class="font-bold">Choose a photo</span>
+                            <span class="font-bold">{{ __('ui.report.photo.choose') }}</span>
                             <input x-on:change="handleFileSelect($event)" multiple id="file-upload" name="file-upload" type="file" class="sr-only">
                         </label>
-                        <p class="inline pl-1">or drag and drop here</p>
+                        <p class="inline pl-1">{{ __('ui.report.photo.drag_and_drop') }}</p>
                     </div>
                     <p class="text-xs text-gray-500">PNG, JPG, GIF, HEIC</p>
                 </div>
@@ -238,7 +232,7 @@
             <div wire:loading.remove class="w-full">
                 <template x-if="! isUploadBusy()">
                     <button x-on:click.prevent="submitReport()" type="button" class="no-animation btn h-11 font-bold btn-primary btn-block max-w-3xl">
-                        {{ $reportId ? 'Save changes' : 'Add report' }}
+                        {{ $reportId ? __('ui.common.save_changes') : __('ui.report.add') }}
                     </button>
                 </template>
                 <template x-if="isUploadBusy()">

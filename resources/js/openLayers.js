@@ -6,7 +6,7 @@ import { OSM, XYZ, Vector as VectorSource} from 'ol/source';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
-import { ScaleLine, defaults as defaultControls } from 'ol/control';
+import { ScaleLine } from 'ol/control';
 import GPX from 'ol/format/GPX';
 import visible from '@/filters/visible.js'
 import Buffer from '@/buffer.js'
@@ -44,6 +44,8 @@ import GeolocationLayer from '@/layers/geolocation';
 
 import SpringsFinalSource from '@/sources/final.js';
 import SpringsUserSource from '@/sources/user.js';
+import trans from '@/i18n';
+import localizedControls from '@/localizedControls';
 
 export default class OpenLayersMap {
 
@@ -127,7 +129,7 @@ export default class OpenLayersMap {
         });
 
         this.map = new Map({
-            controls: defaultControls().extend([this.scaleControl]),
+            controls: localizedControls().extend([this.scaleControl]),
             target: this.elementId,
             layers: [
                 this.wateredSpringsDistantLayer,
@@ -373,7 +375,7 @@ export default class OpenLayersMap {
     download() {
         if (this.view.getZoom() < 9
             && this.springsFinalLayer.getSource() instanceof SpringsFinalSource) {
-            alert('Please zoom in to export GPX')
+            alert(trans('zoom_in_to_export', 'Please zoom in to export GPX'))
             return false
         }
 
@@ -388,7 +390,7 @@ export default class OpenLayersMap {
             }
             
             feature.setProperties({
-                link: `https://rodnik.today/${feature.getProperties().id}`
+                link: `${window.rodnikPublicBaseUrl}/${feature.getProperties().id}`
             })
             
             return feature

@@ -1,25 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Springs;
 
-use App\Models\Spring;
 use App\Library\HaversineDistance;
 use App\Library\StatisticsService;
+use App\Models\Spring;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class MergeSpringsAction
+final class MergeSpringsAction
 {
     public function __construct(
-        protected HaversineDistance $distance,
-    ) {
-    }
+        private HaversineDistance $distance,
+    ) {}
 
     public function __invoke(Spring $source, $targetId)
     {
         $this->authorize();
         $target = $this->validate($source, $targetId);
+
         return $this->execute($source, $target);
     }
 
@@ -37,7 +39,7 @@ class MergeSpringsAction
 
         if (! $source->canBeRedirectedFrom()) {
             throw ValidationException::withMessages([
-                'redirect_to_spring_id' => 'OSM-tracked water sources cannot be merged. Delete it from OSM first.',
+                'redirect_to_spring_id' => __('ui.actions.merge_osm_source'),
             ]);
         }
 
@@ -45,7 +47,7 @@ class MergeSpringsAction
 
         if (! $target || ! $target->canBeRedirectedTo($source)) {
             throw ValidationException::withMessages([
-                'redirect_to_spring_id' => 'Target water source does not exist or is not eligible.',
+                'redirect_to_spring_id' => __('ui.actions.merge_target_ineligible'),
             ]);
         }
 
@@ -53,7 +55,7 @@ class MergeSpringsAction
 
         if ($distanceMeters === null || $distanceMeters > Spring::MERGE_RADIUS_METERS) {
             throw ValidationException::withMessages([
-                'redirect_to_spring_id' => 'Target water source is farther than ' . Spring::MERGE_RADIUS_METERS . ' meters away.',
+                'redirect_to_spring_id' => __('ui.actions.merge_target_too_far', ['distance' => Spring::MERGE_RADIUS_METERS]),
             ]);
         }
 

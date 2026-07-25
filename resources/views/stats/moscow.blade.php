@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Moscow Stats</title>
+        <title>{{ __('ui.moscow_stats.title') }}</title>
         <style>
             table { border-collapse: collapse; }
             th { text-align: left; }
@@ -16,10 +16,10 @@
             <h1>{{ $areaName }}</h1>
             <table border>
                 <tr>
-                    <th>Тип</th>
-                    <th>Всего</th>
-                    <th>Изведаны</th>
-                    <th>В процентах</th>
+                    <th>{{ __('ui.moscow_stats.type') }}</th>
+                    <th>{{ __('ui.moscow_stats.total') }}</th>
+                    <th>{{ __('ui.moscow_stats.explored') }}</th>
+                    <th>{{ __('ui.moscow_stats.percentage') }}</th>
                 </tr>
                 @foreach ($stats as $type => $discoveredness)
                     <tr>
@@ -39,13 +39,13 @@
                                     )
                                 }}%
                             @else
-                                n/a
+                                {{ __('ui.moscow_stats.not_available') }}
                             @endif
                         </td>
                     </tr>
                 @endforeach
                 <tr>
-                    <th>Итого</th>
+                    <th>{{ __('ui.moscow_stats.grand_total') }}</th>
                     <th class="value">
                         {{
                             $stats->sum(function ($group) {
@@ -78,7 +78,7 @@
                                 )
                             }}%
                         @else
-                            n/a
+                            {{ __('ui.moscow_stats.not_available') }}
                         @endif
                     </th>
                 </tr>

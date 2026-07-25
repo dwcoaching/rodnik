@@ -27,7 +27,7 @@
             <button
                 class="w-full p-3 bg-stone-200 rounded-xl mt-4 text-sm flex items-center justify-center"
                 wire:click="show" type="button">
-                <div class="h-5">Show {{ $take }} more</div>
+                <div class="h-5">{{ __('ui.home.show_more_reports', ['count' => $take]) }}</div>
             </button>
         </div>
         <div wire:loading.flex class="hidden px-4 pb-6">

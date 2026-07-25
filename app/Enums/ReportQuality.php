@@ -15,11 +15,7 @@ enum ReportQuality: string implements HasColor, HasLabel
 
     public function getLabel(): string
     {
-        return match ($this) {
-            self::Bad => 'Poor water',
-            self::Uncertain => 'Questionable water',
-            self::Good => 'Good water',
-        };
+        return (string) __('ui.report.conditions.'.$this->value);
     }
 
     public function getColor(): string

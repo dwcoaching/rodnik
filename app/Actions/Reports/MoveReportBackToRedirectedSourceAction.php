@@ -1,20 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Reports;
 
+use App\Library\ReportSpringMover;
 use App\Models\Report;
 use App\Models\Spring;
-use App\Library\ReportSpringMover;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class MoveReportBackToRedirectedSourceAction
+final class MoveReportBackToRedirectedSourceAction
 {
     public function __construct(
-        protected ReportSpringMover $mover,
-    ) {
-    }
+        private ReportSpringMover $mover,
+    ) {}
 
     public function __invoke(Report $report, $sourceSpringId): Report
     {
@@ -40,7 +41,7 @@ class MoveReportBackToRedirectedSourceAction
 
         if (! $source || $source->hidden_at) {
             throw ValidationException::withMessages([
-                'source_spring_id' => 'Source water source does not exist or is hidden.',
+                'source_spring_id' => __('ui.actions.source_missing_or_hidden'),
             ]);
         }
 
@@ -48,7 +49,7 @@ class MoveReportBackToRedirectedSourceAction
 
         if (! $mergeTarget || (int) $mergeTarget->id !== (int) $report->spring_id) {
             throw ValidationException::withMessages([
-                'source_spring_id' => 'Report can only be moved back to a water source that redirects to its current source.',
+                'source_spring_id' => __('ui.actions.source_not_redirecting_to_current'),
             ]);
         }
 

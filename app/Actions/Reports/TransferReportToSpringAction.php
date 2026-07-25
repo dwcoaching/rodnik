@@ -39,7 +39,7 @@ final class TransferReportToSpringAction
 
         if ((int) $report->spring_id === (int) $targetSpringId) {
             throw ValidationException::withMessages([
-                'target_spring_id' => 'Report is already attached to this water source.',
+                'target_spring_id' => __('ui.actions.report_already_attached'),
             ]);
         }
 
@@ -47,13 +47,13 @@ final class TransferReportToSpringAction
 
         if (! $target || $target->hidden_at) {
             throw ValidationException::withMessages([
-                'target_spring_id' => 'Target water source does not exist or is hidden.',
+                'target_spring_id' => __('ui.actions.target_missing_or_hidden'),
             ]);
         }
 
         if ($target->redirect_to_spring_id) {
             throw ValidationException::withMessages([
-                'target_spring_id' => 'Target water source is redirected. Transfer reports to the final water source instead.',
+                'target_spring_id' => __('ui.actions.target_redirected'),
             ]);
         }
 

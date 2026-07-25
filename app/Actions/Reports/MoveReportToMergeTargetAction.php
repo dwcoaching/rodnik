@@ -1,19 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Reports;
 
+use App\Library\ReportSpringMover;
 use App\Models\Report;
 use App\Models\Spring;
-use App\Library\ReportSpringMover;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
-class MoveReportToMergeTargetAction
+final class MoveReportToMergeTargetAction
 {
     public function __construct(
-        protected ReportSpringMover $mover,
-    ) {
-    }
+        private ReportSpringMover $mover,
+    ) {}
 
     public function __invoke(Report $report): Report
     {
@@ -35,7 +36,7 @@ class MoveReportToMergeTargetAction
 
         if (! $target) {
             throw ValidationException::withMessages([
-                'target_spring_id' => 'Report is not attached to a merged water source with an eligible target.',
+                'target_spring_id' => __('ui.actions.report_has_no_merge_target'),
             ]);
         }
 

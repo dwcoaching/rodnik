@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <x-seo />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -20,6 +20,7 @@
         @livewireStyles
 
         <!-- Scripts -->
+        <x-js-translations />
         <script defer src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"></script>
         <script defer src="/js/@alpinejs/focus@3.14.1.dist.cdn.min.js"></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -50,6 +51,7 @@
         @drop="dragover = false; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
         x-bind:class="{ 'dragover': dragover }"
         >
+        <x-language-suggestion />
         @if ($navbar)
             <div class="grow-0">
                 <nav class="">

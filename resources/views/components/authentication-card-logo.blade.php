@@ -1,8 +1,6 @@
-<a href="/">
-    <svg class="w-16 h-16" width="387px" height="380px" viewBox="0 0 387 380" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<a href="{{ localized_public_path() }}" aria-label="Rodnik.today">
+    <svg aria-hidden="true" focusable="false" class="w-16 h-16" width="387px" height="380px" viewBox="0 0 387 380" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <!-- Generator: Sketch 57.1 (83088) - https://sketch.com -->
-        <title>Combined Shape 2</title>
-        <desc>Created with Sketch.</desc>
         <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
             <g id="Artboard" transform="translate(-872.000000, -879.000000)" fill="#67BFFF" fill-rule="nonzero">
                 <g id="Group" transform="translate(538.000000, 251.000000)">

@@ -1,24 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Filament\Panel;
-use App\Models\Photo;
-use App\Models\Report;
-use App\Models\Spring;
-use App\Models\SpringRevision;
-use Laravel\Sanctum\HasApiTokens;
-use Laravel\Jetstream\HasProfilePhoto;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Models\Contracts\FilamentUser;
-use Laravel\Fortify\TwoFactorAuthenticatable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Filament\Panel;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser
+final class User extends Authenticatable implements FilamentUser, HasLocalePreference
 {
     use HasApiTokens;
     use HasFactory;
@@ -71,6 +68,11 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->belongsToMany(Spring::class, 'reports', 'user_id', 'spring_id')
             ->whereNull('reports.hidden_at');
+    }
+
+    public function preferredLocale(): string
+    {
+        return $this->locale ?? config('localization.default');
     }
 
     public function reports()
@@ -130,7 +132,7 @@ class User extends Authenticatable implements FilamentUser
 
     protected function defaultProfilePhotoUrl()
     {
-        $name = trim(collect(explode(' ', $this->name))->map(function ($segment) {
+        $name = mb_trim(collect(explode(' ', $this->name))->map(function ($segment) {
             return mb_substr($segment, 0, 1);
         })->join(' '));
 

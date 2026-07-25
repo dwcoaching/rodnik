@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
 
-class LatitudeRule implements Rule
+final class LatitudeRule implements Rule
 {
     /**
      * Create a new rule instance.
@@ -39,6 +41,6 @@ class LatitudeRule implements Rule
      */
     public function message()
     {
-        return 'Invalid coordinates';
+        return __('ui.validation.invalid_coordinates');
     }
 }

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <x-seo />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -20,6 +20,7 @@
         @livewireStyles
 
         <!-- Scripts -->
+        <x-js-translations />
         {{--<script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>--}}
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireScriptConfig
@@ -43,6 +44,10 @@
         <!-- /Yandex.Metrika counter -->
     </head>
     <body class="w-full min-h-screen bg-stone-100 flex flex-col">
+        <x-language-suggestion />
+        <div class="fixed right-3 top-3 z-10">
+            <x-language-switcher class="rounded-lg border border-stone-200 bg-white p-1 shadow-sm" />
+        </div>
         <div class="grow h-full">
             @yield('main')
         </div>

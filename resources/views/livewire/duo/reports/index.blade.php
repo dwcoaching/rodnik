@@ -16,14 +16,14 @@
         @else
             <div class="px-4">
                 <span class="font-normal text-base text-blue-600 hover:text-blue-700">
-                    <span class="text-gray-900 mr-1">Map of public water sources with user reports in cities and wild places</span>
+                    <span class="text-gray-900 mr-1">{{ __('ui.home.tagline') }}</span>
                 
-                <a href="/docs/about" class="text-blue-600 font-normal text-base text-blue-600 hover:text-blue-700 whitespace-nowrap">
+                <a href="{{ url((app()->getLocale() === config('localization.default') ? '' : '/' . app()->getLocale()) . '/docs/about') }}" class="text-blue-600 font-normal text-base text-blue-600 hover:text-blue-700 whitespace-nowrap">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="relative -mt-0.5 inline" viewBox="0 0 16 16">
                         <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
                     </svg>
                     <span class="hover:underline">
-                        About
+                        {{ __('ui.common.about') }}
                     </span>
                 </a>
                 {{-- 
@@ -40,12 +40,10 @@
                 --}}
             </div>
             <div class="mt-2 px-4 mb-3 text-sm font-medium">
-                <span class="px-1.5 py-0 rounded-full bg-[#33A9FF]/10 border border-[#33A9FF]">{{ number_format($springsCount, 0, ',', ' ') }}</span>
-                {{ \Str::plural('water source', $springsCount) }} with
-                <span class="ml-0 px-1.5 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">{{ number_format($reportsCount, 0, ',', ' ') }}</span>
-                {{ \Str::plural('report', $reportsCount) }}. 
+                {!! trans_choice('ui.home.water_sources_count', $springsCount, ['count' => '<span class="px-1.5 py-0 rounded-full bg-[#33A9FF]/10 border border-[#33A9FF]">' . number_format($springsCount, 0, ',', ' ') . '</span>']) !!}
+                {!! trans_choice('ui.home.with_reports_count', $reportsCount, ['count' => '<span class="ml-0 px-1.5 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">' . number_format($reportsCount, 0, ',', ' ') . '</span>']) !!}.
                 <button @click="showLegendModal = true" class="text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
-                    Show map legend
+                    {{ __('ui.home.show_map_legend') }}
                 </button>.
             </div>
         @endif
@@ -100,7 +98,7 @@
             
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">Map Legend</h3>
+                <h3 class="text-lg font-semibold text-gray-900">{{ __('ui.home.map_legend.title') }}</h3>
                 <button @click="showLegendModal = false" 
                         class="text-gray-400 hover:text-gray-600 focus:outline-hidden focus:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,8 +114,8 @@
                     <div class="flex items-center space-x-3">
                         <div class="w-6 h-6 rounded-full border border-[#33A9FF] bg-[#33A9FF]/10 shrink-0"></div>
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900">No user reports</div>
-                            <div class="text-sm text-gray-600">Nobody has visited the source yet</div>
+                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.no_reports') }}</div>
+                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.no_reports_description') }}</div>
                         </div>
                     </div>
 
@@ -125,8 +123,8 @@
                     <div class="flex items-center space-x-3">
                         <div class="w-6 h-6 rounded-full border border-[#006600] bg-[#009900]/50 shrink-0"></div>
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900">Good water</div>
-                            <div class="text-sm text-gray-600">People mostly report good water</div>
+                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.good_water') }}</div>
+                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.good_water_description') }}</div>
                         </div>
                     </div>
                     
@@ -134,8 +132,8 @@
                     <div class="flex items-center space-x-3">
                         <div class="w-6 h-6 rounded-full border border-[#FF0000] bg-[#FF0000]/50 shrink-0"></div>
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900">Poor water</div>
-                            <div class="text-sm text-gray-600">People mostly report poor water</div>
+                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.poor_water') }}</div>
+                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.poor_water_description') }}</div>
                         </div>
                     </div>
 
@@ -143,8 +141,8 @@
                     <div class="flex items-center space-x-3">
                         <div class="w-6 h-6 rounded-full border border-[#ff9900] bg-[#FFB400]/80 shrink-0"></div>
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900">Unsure</div>
-                            <div class="text-sm text-gray-600">People are unsure or had different observations</div>
+                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.unsure') }}</div>
+                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.unsure_description') }}</div>
                         </div>
                     </div>
                     
@@ -154,15 +152,15 @@
                             <span class="text-red-500 font-bold text-sm">✕</span>
                         </div>
                         <div class="flex-1">
-                            <div class="font-medium text-gray-900">Not Found</div>
-                            <div class="text-sm text-gray-600">Some people haven't found the source</div>
+                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.not_found') }}</div>
+                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.not_found_description') }}</div>
                         </div>
                     </div>
                     
                     <!-- Additional Info -->
                     <div class="mt-6 p-4 bg-gray-100 rounded-lg">
                         <div class="text-sm text-gray-800">
-                            <strong>Numbers on markers</strong> indicate the count of reports for that water source.
+                            {!! __('ui.home.map_legend.marker_numbers') !!}
                         </div>
                     </div>
                 </div>

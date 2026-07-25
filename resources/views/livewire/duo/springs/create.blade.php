@@ -66,9 +66,9 @@
                                 <div class="flex items-center justify-between ">
                                     <div class="text-lg font-extrabold">
                                         @if ($springId)
-                                            Update Location
+                                            {{ __('ui.spring.update_location') }}
                                         @else
-                                            New Water Source
+                                            {{ __('ui.spring.new_water_source') }}
                                         @endif
                                     </div>
                                     <button type="button" class="rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-stone-600 hover:bg-stone-300
@@ -100,7 +100,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
                                             <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
                                         </svg>
-                                        Cancel
+                                        {{ __('ui.common.cancel') }}
                                     </button>
                                 </div>
                             </span>
@@ -112,7 +112,7 @@
                     <div class="w-full">
                         <div class="mt-2 w-full">
                             <label for="coordinates" class="text-sm font-semibold leading-6 text-gray-500 leading-6">
-                                <span class="">Latitude, longitude</span>
+                                <span class="">{{ __('ui.spring.latitude_longitude') }}</span>
                                 <svg x-cloak x-show="coordinatesError" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="inline w-4 h-4 text-red-600">
                                     <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                                 </svg>
@@ -156,7 +156,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
                             <path fill-rule="evenodd" d="M10.986 3H12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h1.014A2.25 2.25 0 0 1 7.25 1h1.5a2.25 2.25 0 0 1 2.236 2ZM9.5 4v-.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75V4h3Z" clip-rule="evenodd" />
                         </svg>
-                        From Clipboard
+                        {{ __('ui.spring.from_clipboard') }}
                     </div>
                     <label for="locate-by-photo"
                         x-data="{
@@ -177,24 +177,24 @@
                             <path d="M9.5 8.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
                             <path fill-rule="evenodd" d="M2.5 5A1.5 1.5 0 0 0 1 6.5v5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 13.5 5h-.879a1.5 1.5 0 0 1-1.06-.44l-1.122-1.12A1.5 1.5 0 0 0 9.38 3H6.62a1.5 1.5 0 0 0-1.06.44L4.439 4.56A1.5 1.5 0 0 1 3.38 5H2.5ZM11 8.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clip-rule="evenodd" />
                         </svg>
-                        Locate by Photo
+                        {{ __('ui.spring.locate_by_photo') }}
                         <input class="opacity-0 absolute inset-0" x-on:change="handlePhotoSelect($event)" id="locate-by-photo" name="locate-by-photo" type="file" class="sr-only">
                     </label>
                 </div>
 
                 <div class="mt-2">
-                    <span class="mt-2 mr-1 font-bold text-blue-600/70 text-sm">Zoom</span>
+                    <span class="mt-2 mr-1 font-bold text-blue-600/70 text-sm">{{ __('ui.spring.zoom') }}</span>
                     <div class="join mt-2 ">
-                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(10)">City</button>
-                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(14)">Street</button>
-                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(18)">Building</button>
+                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(10)">{{ __('ui.spring.zoom_city') }}</button>
+                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(14)">{{ __('ui.spring.zoom_street') }}</button>
+                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(18)">{{ __('ui.spring.zoom_building') }}</button>
                     </div>
                     <button type="button" x-cloak x-show="coordinates != lastInputCoordinates"
                         class="mt-2 btn btn-sm btn-error btn-outline"
                         @click="
                             updateCoordinates(lastInputCoordinates)
                         ">
-                        Undo Map Move
+                        {{ __('ui.spring.undo_map_move') }}
                     </button>
                 </div>
 
@@ -211,11 +211,11 @@
                                         'btn-disabled': error() || saving,
                                     }"
                                 >
-                                    Save Location
+                                    {{ __('ui.spring.save_location') }}
                                 </button>
                             @else
                                 <div class="bg-yellow-100 text-center text-base px-4 py-3 rounded-lg border border-yellow-400 w-full">
-                                    Please <a href="{{ route('login') }}" class="font-bold underline text-blue-600 hover:text-blue-700">log in</a> to edit the location.
+                                    {!! __('ui.spring.login_to_edit_location', ['login' => '<a href="' . e(route('login')) . '" class="font-bold underline text-blue-600 hover:text-blue-700">' . e(__('ui.common.log_in')) . '</a>']) !!}
                                 </div>
                             @endcan
                         @else
@@ -229,11 +229,11 @@
                                         'btn-disabled': error() || saving,
                                     }"
                                 >
-                                        Add Water Source
+                                        {{ __('ui.spring.add_water_source') }}
                                 </button>
                             @else
                                 <div class="bg-yellow-100 text-center text-base px-4 py-3 rounded-lg border border-yellow-400 w-full">
-                                    Please <a href="{{ route('login') }}" class="font-bold underline text-blue-600 hover:text-blue-700">log in</a> to add a water source.
+                                    {!! __('ui.spring.login_to_add', ['login' => '<a href="' . e(route('login')) . '" class="font-bold underline text-blue-600 hover:text-blue-700">' . e(__('ui.common.log_in')) . '</a>']) !!}
                                 </div>
                             @endcan
                         @endif

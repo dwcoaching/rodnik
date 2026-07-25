@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <x-seo />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -20,6 +20,7 @@
         @livewireStyles
 
         <!-- Scripts -->
+        <x-js-translations />
         <script defer src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"></script>
         <script defer src="/js/@alpinejs/focus@3.14.1.dist.cdn.min.js"></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -50,6 +51,7 @@
         @drop="dragover = false; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
         x-bind:class="{ 'dragover': dragover }"
         >
+        <x-language-suggestion />
         <div class="grow h-full flex flex-col">
             <div
                 x-data="{
@@ -219,7 +221,7 @@
                                                 <input @change="toggleAllFilters" x-model="filters.all" id="filters.all" name="filter__all" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <span class="font-bold text-gray-700">All water sources</span>
+                                                <span class="font-bold text-gray-700">{{ __('ui.map.filters.all') }}</span>
                                             </div>
                                         </label>
                                         <label for="filters.spring" class="relative flex items-start cursor-pointer px-4 py-1">
@@ -227,7 +229,7 @@
                                                 <input @change="updateFilters" x-model="filters.spring" id="filters.spring" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <span class="font-regular text-gray-700">Springs</span>
+                                                <span class="font-regular text-gray-700">{{ __('ui.map.filters.springs') }}</span>
                                             </div>
                                         </label>
                                         <label for="filters.water_well"  class="relative flex items-start cursor-pointer px-4 py-1">
@@ -235,7 +237,7 @@
                                                 <input @change="updateFilters" x-model="filters.water_well" id="filters.water_well" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <span class="font-regular text-gray-700">Water well</span>
+                                                <span class="font-regular text-gray-700">{{ __('ui.map.filters.water_wells') }}</span>
                                             </div>
                                         </label>
                                         <label for="filters.water_tap" class="relative flex items-start cursor-pointer px-4 py-1">
@@ -243,7 +245,7 @@
                                                 <input @change="updateFilters" x-model="filters.water_tap" id="filters.water_tap" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <span class="font-regular text-gray-700">Water taps</label>
+                                                <span class="font-regular text-gray-700">{{ __('ui.map.filters.water_taps') }}</span>
                                             </div>
                                         </label>
                                         <label for="filters.drinking_water"  class="relative flex items-start cursor-pointer px-4 py-1">
@@ -251,7 +253,7 @@
                                                 <input @change="updateFilters" x-model="filters.drinking_water" id="filters.drinking_water" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <span class="font-regular text-gray-700">Drinking water sources</span>
+                                                <span class="font-regular text-gray-700">{{ __('ui.map.filters.drinking_water_sources') }}</span>
                                             </div>
                                         </label>
                                         <label for="filters.fountain" class="relative flex items-start cursor-pointer px-4 py-1">
@@ -259,7 +261,7 @@
                                                 <input @change="updateFilters" x-model="filters.fountain" id="filters.fountain" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <span class="font-regular text-gray-700">Fountains</span>
+                                                <span class="font-regular text-gray-700">{{ __('ui.map.filters.fountains') }}</span>
                                             </div>
                                         </label>
                                         <label for="filters.other"  class="relative flex items-start cursor-pointer px-4 py-1">
@@ -267,7 +269,7 @@
                                                 <input @change="updateFilters" x-model="filters.other" id="filters.other" name="filter__intermittent" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                             </div>
                                             <div class="ml-3 text-sm">
-                                                <span class="font-regular text-gray-700">Other</span>
+                                                <span class="font-regular text-gray-700">{{ __('ui.map.filters.other') }}</span>
                                             </div>
                                         </label>
                                         <div class="px-4 py-1 flex items-center cursor-pointer"
@@ -289,7 +291,7 @@
                                                     }"
                                                     aria-hidden="true" class="translate-x-0 pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"></span>
                                             </button>
-                                            <div class="font-regular text-gray-700 text-sm">Only confirmed good water</div>
+                                            <div class="font-regular text-gray-700 text-sm">{{ __('ui.map.filters.confirmed_good') }}</div>
                                         </div>
                                         <div class="px-4 py-1 flex items-center cursor-pointer"
                                             @click="filters.along = ! filters.along; updateFilters()"
@@ -310,7 +312,7 @@
                                                     }"
                                                     aria-hidden="true" class="translate-x-0 pointer-events-none absolute left-0 inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out"></span>
                                             </button>
-                                            <div class="font-regular text-gray-700 text-sm">Only along uploaded track</div>
+                                            <div class="font-regular text-gray-700 text-sm">{{ __('ui.map.filters.along_track') }}</div>
                                         </div>
                                     </fieldset>
                                 </div>
@@ -396,7 +398,7 @@
                                                     'text-blue-700': active != 'terrain',
                                                     'text-white': active == 'terrain'
                                                 }"
-                                            >Terrain</button>
+                                            >{{ __('ui.map.layers.terrain') }}</button>
                                             <button @click="source('satellite')" type="button" class="inline-flex items-center px-3 py-1.5 border border-blue-600 text-xs font-medium rounded-full shadow-xs"
                                                 :class="{
                                                     'bg-white': active != 'satellite',
@@ -404,7 +406,7 @@
                                                     'text-blue-700': active != 'satellite',
                                                     'text-white': active == 'satellite'
                                                 }"
-                                            >Satellite</button>
+                                            >{{ __('ui.map.layers.satellite') }}</button>
                                         </div>
 
                                         <div class="mt-3 mb-1 space-y-2 space-x-1">
@@ -414,7 +416,7 @@
                                                         <input @change="updateOverlays" x-model="overlays.stravaPublic" id="overlays.stravaPublic" name="overlays__stravaPublic" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                                     </div>
                                                     <div class="ml-3 text-sm">
-                                                        <label for="overlays.stravaPublic" class="font-regular text-gray-700">Strava Heatmap</label>
+                                                        <label for="overlays.stravaPublic" class="font-regular text-gray-700">{{ __('ui.map.layers.strava_heatmap') }}</label>
                                                         {{--
                                                             <p class="text-gray-500">Without detailed heatmap for zoomed in maps — Strava does not permit that</p>
                                                         --}}
@@ -425,7 +427,7 @@
                                                         <input @change="updateOverlays" x-model="overlays.osmTraces" id="overlays.osmTraces" name="overlays__osmTraces" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded-sm">
                                                     </div>
                                                     <div class="ml-3 text-sm">
-                                                        <label for="overlays.osmTraces" class="font-regular text-gray-700">OpenStreetMap Traces</label>
+                                                        <label for="overlays.osmTraces" class="font-regular text-gray-700">{{ __('ui.map.layers.osm_traces') }}</label>
                                                     </div>
                                                 </div>
                                             </fieldset>
@@ -454,7 +456,7 @@
                                 }
                                 "
                                 @click.outside="gpxTrackMenuOpen = false;"
-                                for="gpx-track-upload" title="Upload GPX Track" class="mt-2 h-9 w-9 bg-white border-2 shadow-xs rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700" :class="{
+                                for="gpx-track-upload" title="{{ __('ui.map.upload_track') }}" class="mt-2 h-9 w-9 bg-white border-2 shadow-xs rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700" :class="{
                                 'border-blue-600': gpxTrackMenuOpen,
                                 'border-white': ! gpxTrackMenuOpen,
                                 'text-blue-700': gpxTrackMenuOpen,
@@ -473,11 +475,11 @@
                                 x-show="gpxTrackMenuOpen"
                                 class="absolute shadow-sm top-0 right-11 w-64 rounded-md shadow-sm bg-white px-4 py-4 flex flex-col gap-y-2"
                                 >
-                                <button @click="window.rodnikMap.trackLayer.clear()" class="px-3 py-1 border border-red-500 hover:bg-red-50 rounded-sm text-red-500 hover:text-red-600 text-sm font-medium transition-colors">Remove Track</button>
-                                <button @click="forceUpload = true; $refs.gpxTrackUploadLabel.click()" class="px-3 py-1 border border-blue-500 hover:bg-blue-50 rounded-sm text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors">Upload New Track or Photo</button>
+                                <button @click="window.rodnikMap.trackLayer.clear()" class="px-3 py-1 border border-red-500 hover:bg-red-50 rounded-sm text-red-500 hover:text-red-600 text-sm font-medium transition-colors">{{ __('ui.map.remove_track') }}</button>
+                                <button @click="forceUpload = true; $refs.gpxTrackUploadLabel.click()" class="px-3 py-1 border border-blue-500 hover:bg-blue-50 rounded-sm text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors">{{ __('ui.map.upload_new_track_or_photo') }}</button>
                             </div>
                         </div>
-                        <div @click="window.rodnikMap.download()" title="Download Water Sources as GPX Waypoints" class="mt-2 h-9 w-9 bg-white shadow-xs rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
+                        <div @click="window.rodnikMap.download()" title="{{ __('ui.map.download_waypoints') }}" class="mt-2 h-9 w-9 bg-white shadow-xs rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5">
                                 <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
                                 <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
@@ -501,11 +503,11 @@
                     </div>
                     <div class="drop-overlay" style="z-index: 10002;">
                         <div class="text-center">
-                            <div class="font-extrabold text-2xl lg:text-4xl">Drop a GPX Track</div>
-                            <div class="mt-1 font-medium text-lg">to display the route on the map</div>
-                            <div class="my-4 font-extrabold text-3xl">or</div>
-                            <div class="font-extrabold text-2xl lg:text-4xl">Drop a Photo</div>
-                            <div class="mt-1 font-medium text-lg">to locate the map using its coordinates</div>
+                            <div class="font-extrabold text-2xl lg:text-4xl">{{ __('ui.map.drop_track') }}</div>
+                            <div class="mt-1 font-medium text-lg">{{ __('ui.map.display_route') }}</div>
+                            <div class="my-4 font-extrabold text-3xl">{{ __('ui.map.or') }}</div>
+                            <div class="font-extrabold text-2xl lg:text-4xl">{{ __('ui.map.drop_photo') }}</div>
+                            <div class="mt-1 font-medium text-lg">{{ __('ui.map.locate_from_photo') }}</div>
                         </div>
                     </div>
                 </div>

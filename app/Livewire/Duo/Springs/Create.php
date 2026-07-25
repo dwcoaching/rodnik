@@ -1,23 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Duo\Springs;
 
+use App\Actions\Springs\PatchSpringsLocationAction;
+use App\Actions\Springs\PostSpringsAction;
 use App\Models\Spring;
-use Livewire\Component;
-use App\Models\SpringTile;
 use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
-use App\Models\SpringRevision;
-use Livewire\Attributes\Locked;
-use App\Models\WateredSpringTile;
 use Livewire\Attributes\Reactive;
-use App\Library\StatisticsService;
-use Illuminate\Support\Facades\Auth;
-use App\Actions\Springs\PostSpringsAction;
-use App\Jobs\SendSpringRevisionNotification;
-use App\Actions\Springs\PatchSpringsLocationAction;
+use Livewire\Component;
 
-class Create extends Component
+final class Create extends Component
 {
     #[Reactive]
     public $springId;
@@ -28,16 +23,10 @@ class Create extends Component
     public $saving;
 
     public $coordinates;
-    public $latitude = null;
-    public $longitude = null;
 
-    protected function rules()
-    {
-        return [
-            'latitude' => [new LatitudeRule],
-            'longitude' => [new LongitudeRule],
-        ];
-    }
+    public $latitude = null;
+
+    public $longitude = null;
 
     public function mount($springId, $location)
     {
@@ -45,12 +34,12 @@ class Create extends Component
             $this->spring = Spring::find($this->springId);
             // $this->authorize('update', $this->spring); // the page should be displayed with a warning, but updating is forbidden
 
-            $this->coordinates = $this->spring->latitude . ', ' . $this->spring->longitude;
+            $this->coordinates = $this->spring->latitude.', '.$this->spring->longitude;
             $this->latitude = $this->spring->latitude;
             $this->longitude = $this->spring->longitude;
-        } else {
-            // $this->authorize('create', Spring::class); // the page should be displayed with a warning, but creating is forbidden
         }
+        // $this->authorize('create', Spring::class); // the page should be displayed with a warning, but creating is forbidden
+
     }
 
     public function render()
@@ -67,7 +56,7 @@ class Create extends Component
             'longitude' => $this->longitude,
         ]);
 
-        return redirect()->route('springs.edit', $spring);
+        return redirect(localized_route('springs.edit', ['spring' => $spring]));
     }
 
     public function update(PatchSpringsLocationAction $patchSpringsLocation)
@@ -80,5 +69,13 @@ class Create extends Component
         ]);
 
         return redirect(duo_route(['spring' => $spring->id]));
+    }
+
+    protected function rules()
+    {
+        return [
+            'latitude' => [new LatitudeRule],
+            'longitude' => [new LongitudeRule],
+        ];
     }
 }

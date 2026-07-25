@@ -8,6 +8,9 @@ name('docs.exports');
 
 @extends('folio.index')
 
+@section('title', __('pages.exports.title').' — Rodnik.today')
+@section('description', __('pages.exports.seo_description'))
+
 @php
     use App\Library\Export\FileParser;
     $files = FileParser::getExportFiles();
@@ -16,25 +19,25 @@ name('docs.exports');
 @section('content')
     <div class="prose">
         <div class="font-black text-2xl">
-            Copyright
+            {{ __('pages.exports.copyright.title') }}
         </div>
         <div class="mt-3 max-w-prose">
             <p>
-                All data contributed by users of Rodnik.today is in the <b>public domain</b>.
+                {{ __('pages.exports.copyright.user_data_before_status') }} <b>{{ __('pages.exports.copyright.public_domain') }}</b>.
             </p>
             <p>
-                Rodnik.today contains data from OpenStreetMap, which is licensed under the <a href="https://www.openstreetmap.org/copyright" class="text-blue-600" target="_blank">ODbL</a>.
-                In the exports, this data is marked with an <b>osm_* prefix</b>.
+                {{ __('pages.exports.copyright.openstreetmap_before_license') }} <a href="https://www.openstreetmap.org/copyright" class="text-blue-600" target="_blank">ODbL</a>.
+                {{ __('pages.exports.copyright.openstreetmap_prefix_before_value') }} <b>osm_*</b>{{ __('pages.exports.copyright.openstreetmap_prefix_after_value') }}
             </p>
             <p>
-                All other data is in the public domain. You are free to include it in your own projects and databases, even without mentioning Rodnik.today.
-                (Although it would be nice.)
+                {{ __('pages.exports.copyright.other_data') }}
+                {{ __('pages.exports.copyright.attribution_note') }}
             </p>
         </div>
         <div class="mt-9 font-black text-xl">
-            Exports 
+            {{ __('pages.exports.title') }}
             @if ($files->count() > 0)
-                <span class="text-gray-400">{{ 'as of ' . $files->min('timestamp')?->format('Y-m-d H:i:00') . ' UTC' ?? '' }}</span>
+                <span class="text-gray-400">{{ __('pages.exports.as_of', ['date' => $files->min('timestamp')?->format('Y-m-d H:i:00')]) }}</span>
             @endif
         </div>
         <div class="mt-3">
@@ -83,7 +86,7 @@ name('docs.exports');
                                 {{-- Format Name & Description --}}
                                 <div>
                                     <h3 class="font-bold text-white text-2xl mb-2">{{ $formatInfo['name'] }}</h3>
-                                    <span class="text-base font-medium text-white/80">{{ $file['size_human'] }}@if(strtoupper($file['extension']) === 'ZIP') (zipped)@endif</span>
+                                    <span class="text-base font-medium text-white/80">{{ $file['size_human'] }}@if(strtoupper($file['extension']) === 'ZIP') ({{ __('pages.exports.zipped') }})@endif</span>
                                 </div>
                             </div>
                         </a>
@@ -94,26 +97,26 @@ name('docs.exports');
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    <p class="mt-2 text-gray-600">No exports available at the moment.</p>
-                    <p class="text-sm text-gray-500 mt-1">Please check back later.</p>
+                    <p class="mt-2 text-gray-600">{{ __('pages.exports.empty.title') }}</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('pages.exports.empty.description') }}</p>
                 </div>
             @endif
         </div>
         <div class="mt-9 font-black text-xl">
-            Update frequency
+            {{ __('pages.exports.update_frequency.title') }}
         </div>
         <div class="mt-3">
-            The exports are updated daily.
+            {{ __('pages.exports.update_frequency.description') }}
         </div>
 
         <div class="mt-9 font-black text-xl">
-            Personal user exports
+            {{ __('pages.exports.personal.title') }}
         </div>
         <div class="mt-3">
-            You can export all of your personal contributions to Rodnik.today from your user profile.
+            {{ __('pages.exports.personal.description') }}
             @auth
                 <a href="{{ route('profile.show') }}" class="text-blue-600">
-                    Go to your profile
+                    {{ __('pages.exports.personal.profile_link') }}
                 </a>
             @endauth
         </div>

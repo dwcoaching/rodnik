@@ -2,7 +2,7 @@
 
 use function Laravel\Folio\name;
 
-name('docs.exports');
+name('docs.admin');
 
 ?>
 

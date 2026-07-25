@@ -1,4 +1,5 @@
 import { gps as exifrGPS } from 'exifr';
+import trans from '@/i18n';
 
 export default async function (photo, callback) {
     if (photo.type.startsWith('image/')) {
@@ -15,7 +16,7 @@ export default async function (photo, callback) {
 
             callback(result)
         } else {
-            alert("This photo doesn't have coordinates");
+            alert(trans('photo_no_coordinates', "This photo doesn't have coordinates"));
         }
     }
 }
