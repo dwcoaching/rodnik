@@ -53,7 +53,6 @@ ssh "${ssh_options[@]}" "$development_ssh" "install -d -m 0770 '$stage_path'"
 
 echo "Streaming the production database dump..."
 ssh "${ssh_options[@]}" "$production_ssh" 'bash -s' <<'PRODUCTION_DUMP' \
-    | gzip -1 \
     | ssh "${ssh_options[@]}" "$development_ssh" "umask 0077; cat > '$stage_path/database.sql.gz'"
 set -Eeuo pipefail
 cd /home/rodnik/rodnik.today
@@ -75,11 +74,12 @@ db_name="$(env_value DB_DATABASE)"
 db_user="$(env_value DB_USERNAME)"
 db_password="$(env_value DB_PASSWORD)"
 
-MYSQL_PWD="$db_password" exec mysqldump \
+MYSQL_PWD="$db_password" mysqldump \
     --host="$db_host" --port="$db_port" --user="$db_user" \
     --single-transaction --quick --skip-lock-tables --hex-blob \
     --set-gtid-purged=OFF --no-tablespaces \
-    --default-character-set=utf8mb4 "$db_name"
+    --default-character-set=utf8mb4 "$db_name" \
+    | gzip -1
 PRODUCTION_DUMP
 
 echo "Streaming photos and generated tiles..."
