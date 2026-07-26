@@ -6,7 +6,7 @@ production_ssh="rodnik@rodnik.today"
 development_ssh="ilya@ilya.rodnik.today"
 production_root="/home/rodnik/rodnik.today"
 development_root="/home/ilya/ilya.rodnik.today"
-ssh_options=(-o BatchMode=yes -o ConnectTimeout=10)
+ssh_options=(-o BatchMode=yes -o ConnectTimeout=20 -o ControlMaster=auto -o ControlPersist=60 -o ControlPath=/tmp/rodnik-refresh-%C)
 
 usage() {
     printf '%s\n' \
