@@ -39,12 +39,16 @@ stage_path="$stage_root/$stage_name"
 database_dump="$stage_path/database.sql.gz"
 staged_photos="$stage_path/storage/app/photos"
 staged_profile_photos="$stage_path/storage/app/public/profile-photos"
+staged_tiles="$stage_path/storage/app/public/tiles"
+staged_watered_tiles="$stage_path/storage/app/public/watered-tiles"
 
 for required_path in \
     "$database_dump" \
     "$stage_path/manifest.txt" \
     "$staged_photos" \
-    "$staged_profile_photos"; do
+    "$staged_profile_photos" \
+    "$staged_tiles" \
+    "$staged_watered_tiles"; do
     [[ -e "$required_path" ]] || {
         echo "Incomplete stage; missing: $required_path" >&2
         exit 1
@@ -105,7 +109,7 @@ on_exit() {
     if [[ "$restore_failed" == true ]]; then
         echo "Restore failed. Development remains in maintenance mode." >&2
         echo "Database backup: $backup_path/database.sql.gz" >&2
-        echo "Previous photos, if moved, are under: $backup_path" >&2
+        echo "Previous photos and tiles, if moved, are under: $backup_path" >&2
     fi
 }
 trap on_exit EXIT
@@ -131,16 +135,28 @@ TRUNCATE TABLE failed_jobs;
 SET FOREIGN_KEY_CHECKS=1;
 SQL
 
-echo "Swapping the staged photo directories into place..."
+echo "Swapping the staged photo and tile directories into place..."
 if [[ -e storage/app/photos ]]; then
     mv storage/app/photos "$backup_path/photos"
 fi
 if [[ -e storage/app/public/profile-photos ]]; then
     mv storage/app/public/profile-photos "$backup_path/profile-photos"
 fi
+if [[ -e storage/app/public/tiles ]]; then
+    mv storage/app/public/tiles "$backup_path/tiles"
+fi
+if [[ -e storage/app/public/watered-tiles ]]; then
+    mv storage/app/public/watered-tiles "$backup_path/watered-tiles"
+fi
 mv "$staged_photos" storage/app/photos
 mv "$staged_profile_photos" storage/app/public/profile-photos
-chmod 0775 storage/app/photos storage/app/public/profile-photos
+mv "$staged_tiles" storage/app/public/tiles
+mv "$staged_watered_tiles" storage/app/public/watered-tiles
+chmod 0775 \
+    storage/app/photos \
+    storage/app/public/profile-photos \
+    storage/app/public/tiles \
+    storage/app/public/watered-tiles
 
 php artisan storage:link --force
 php artisan optimize:clear
@@ -155,6 +171,10 @@ database_photo_count="$(MYSQL_PWD="$db_password" mysql \
     -e 'SELECT COUNT(*) FROM photos;')"
 file_photo_count="$(find storage/app/photos -type f -print | wc -l)"
 profile_photo_count="$(find storage/app/public/profile-photos -type f -print | wc -l)"
+tile_count="$(find storage/app/public/tiles -type f -print | wc -l)"
+watered_tile_count="$(find storage/app/public/watered-tiles -type f -print | wc -l)"
+expected_tile_count="$(sed -n 's/^tile_files=//p' "$stage_path/manifest.txt")"
+expected_watered_tile_count="$(sed -n 's/^watered_tile_files=//p' "$stage_path/manifest.txt")"
 missing_photo_count=0
 missing_profile_photo_count=0
 
@@ -186,6 +206,14 @@ done < <(MYSQL_PWD="$db_password" mysql \
     echo "Referenced photo verification failed: report=$missing_photo_count profile=$missing_profile_photo_count" >&2
     exit 1
 }
+[[ -n "$expected_tile_count" && "$tile_count" -eq "$expected_tile_count" ]] || {
+    echo "Tile verification failed: expected=$expected_tile_count files=$tile_count" >&2
+    exit 1
+}
+[[ -n "$expected_watered_tile_count" && "$watered_tile_count" -eq "$expected_watered_tile_count" ]] || {
+    echo "Watered tile verification failed: expected=$expected_watered_tile_count files=$watered_tile_count" >&2
+    exit 1
+}
 
 php artisan up
 restore_failed=false
@@ -196,4 +224,6 @@ printf '%s\n' \
     "Database photo rows: $database_photo_count" \
     "Report photo files: $file_photo_count" \
     "Profile photo files: $profile_photo_count" \
+    "Tile files: $tile_count" \
+    "Watered tile files: $watered_tile_count" \
     "Rollback data: $backup_path"

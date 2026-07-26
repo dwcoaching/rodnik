@@ -42,8 +42,7 @@ stage_path="$development_root/storage/dumps/production-refresh/$stage_name"
 
 echo "Production source:  $production_ssh:$production_root"
 echo "Development stage: $development_ssh:$stage_path"
-echo "Content: database, report photos, and profile photos"
-echo "Generated tiles and exports are intentionally excluded."
+echo "Content: database, report photos, profile photos, and generated tiles"
 
 if [[ "$execute" != true ]]; then
     echo "Dry run only. Re-run with --execute to transfer data."
@@ -83,27 +82,41 @@ MYSQL_PWD="$db_password" exec mysqldump \
     --default-character-set=utf8mb4 "$db_name"
 PRODUCTION_DUMP
 
-echo "Streaming report and profile photos..."
+echo "Streaming photos and generated tiles..."
 ssh "${ssh_options[@]}" "$production_ssh" \
-    "cd '$production_root' && exec tar -cf - storage/app/photos storage/app/public/profile-photos" \
+    "cd '$production_root' && exec tar -cf - storage/app/photos storage/app/public/profile-photos storage/app/public/tiles storage/app/public/watered-tiles" \
     | ssh "${ssh_options[@]}" "$development_ssh" "cd '$stage_path' && exec tar -xf -"
 
 production_photo_count="$(ssh "${ssh_options[@]}" "$production_ssh" \
     "find '$production_root/storage/app/photos' -type f -print | wc -l")"
 production_profile_count="$(ssh "${ssh_options[@]}" "$production_ssh" \
     "find '$production_root/storage/app/public/profile-photos' -type f -print | wc -l")"
+production_tile_count="$(ssh "${ssh_options[@]}" "$production_ssh" \
+    "find '$production_root/storage/app/public/tiles' -type f -print | wc -l")"
+production_watered_tile_count="$(ssh "${ssh_options[@]}" "$production_ssh" \
+    "find '$production_root/storage/app/public/watered-tiles' -type f -print | wc -l")"
 
 ssh "${ssh_options[@]}" "$development_ssh" "bash -s" <<DEVELOPMENT_MANIFEST
 set -Eeuo pipefail
 cd "$stage_path"
 staged_photo_count="\$(find storage/app/photos -type f -print | wc -l)"
 staged_profile_count="\$(find storage/app/public/profile-photos -type f -print | wc -l)"
+staged_tile_count="\$(find storage/app/public/tiles -type f -print | wc -l)"
+staged_watered_tile_count="\$(find storage/app/public/watered-tiles -type f -print | wc -l)"
 [[ "\$staged_photo_count" -eq "$production_photo_count" ]] || {
     echo "Report photo count mismatch: production=$production_photo_count staged=\$staged_photo_count" >&2
     exit 1
 }
 [[ "\$staged_profile_count" -eq "$production_profile_count" ]] || {
     echo "Profile photo count mismatch: production=$production_profile_count staged=\$staged_profile_count" >&2
+    exit 1
+}
+[[ "\$staged_tile_count" -eq "$production_tile_count" ]] || {
+    echo "Tile count mismatch: production=$production_tile_count staged=\$staged_tile_count" >&2
+    exit 1
+}
+[[ "\$staged_watered_tile_count" -eq "$production_watered_tile_count" ]] || {
+    echo "Watered tile count mismatch: production=$production_watered_tile_count staged=\$staged_watered_tile_count" >&2
     exit 1
 }
 gzip -t database.sql.gz
@@ -115,9 +128,11 @@ database_sha256="\$(sha256sum database.sql.gz | cut -d ' ' -f 1)"
     echo "database_sha256=\$database_sha256"
     echo "report_photo_files=\$staged_photo_count"
     echo "profile_photo_files=\$staged_profile_count"
+    echo "tile_files=\$staged_tile_count"
+    echo "watered_tile_files=\$staged_watered_tile_count"
 } > manifest.txt
 chmod 0600 database.sql.gz manifest.txt
-du -sh database.sql.gz storage/app/photos storage/app/public/profile-photos
+du -sh database.sql.gz storage/app/photos storage/app/public/profile-photos storage/app/public/tiles storage/app/public/watered-tiles
 cat manifest.txt
 DEVELOPMENT_MANIFEST
 
