@@ -45,7 +45,7 @@
     <div
         x-trap.noscroll.inert="isOpen"
         x-on:click.stop
-        class="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white shadow-xl"
+        class="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-lg bg-white shadow-xl"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0 scale-95"
         x-transition:enter-end="opacity-100 scale-100"
@@ -53,7 +53,7 @@
         x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-95"
     >
-        <div class="flex items-start justify-between gap-4 border-b border-gray-200 p-5 sm:p-6">
+        <div class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-200 p-5 sm:p-6">
             <div>
                 <h2 id="report-tag-palette-title" class="text-lg font-semibold text-gray-900">
                     {{ __('ui.home.tag_palette.title') }}
@@ -73,7 +73,7 @@
             </button>
         </div>
 
-        <div class="space-y-4 p-5 sm:p-6">
+        <div class="space-y-4 overflow-y-auto p-5 sm:p-6">
             @foreach ($paletteTypes as $type => $settings)
                 <section class="rounded-lg border border-gray-200 bg-gray-50 p-4">
                     <div class="flex flex-wrap items-start justify-between gap-3">
@@ -104,6 +104,47 @@
                     </div>
                 </section>
             @endforeach
+
+            <div class="grid gap-2 sm:grid-cols-3" role="group" aria-label="{{ __('ui.home.tag_palette.tools') }}">
+                <button
+                    type="button"
+                    x-on:click="reset()"
+                    class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                >
+                    <svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.206.75.75 0 0 0-1.06 1.06 7 7 0 1 0-.687-8.562l-.43-2.148a.75.75 0 0 0-1.47.294l.75 3.75a.75.75 0 0 0 .882.588l3.75-.75a.75.75 0 0 0-.294-1.47l-1.621.324a5.5 5.5 0 1 1 9.381 4.708Z" clip-rule="evenodd" />
+                    </svg>
+                    {{ __('ui.home.tag_palette.reset') }}
+                </button>
+                <button
+                    type="button"
+                    x-on:click="copy()"
+                    class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-xs hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                >
+                    <svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M5.5 2A1.5 1.5 0 0 0 4 3.5v9A1.5 1.5 0 0 0 5.5 14H7v-1.5H5.5v-9h7V5H14V3.5A1.5 1.5 0 0 0 12.5 2h-7Z" />
+                        <path d="M8 7.5A1.5 1.5 0 0 1 9.5 6h5A1.5 1.5 0 0 1 16 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 8 16.5v-9Zm1.5 0v9h5v-9h-5Z" />
+                    </svg>
+                    <span x-show="! copied">{{ __('ui.home.tag_palette.copy') }}</span>
+                    <span x-show="copied" x-cloak>{{ __('ui.home.tag_palette.copied') }}</span>
+                </button>
+                <button
+                    type="button"
+                    x-on:click="toggleImport()"
+                    x-bind:aria-expanded="importOpen"
+                    aria-controls="report-tag-palette-import"
+                    class="inline-flex items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-medium shadow-xs focus:outline-hidden focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                    x-bind:class="importOpen
+                        ? 'border-blue-300 bg-blue-50 text-blue-700'
+                        : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'"
+                >
+                    <svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.69L6.03 8.22a.75.75 0 0 0-1.06 1.06l4.5 4.5a.75.75 0 0 0 1.06 0l4.5-4.5a.75.75 0 1 0-1.06-1.06l-3.22 3.22V2.75Z" />
+                        <path d="M3.5 12.5a.75.75 0 0 0-1.5 0v2.75A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25V12.5a.75.75 0 0 0-1.5 0v2.75c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25V12.5Z" />
+                    </svg>
+                    {{ __('ui.home.tag_palette.import') }}
+                </button>
+            </div>
 
             <section
                 id="report-tag-palette-import"
@@ -146,28 +187,11 @@
             </section>
         </div>
 
-        <div class="flex flex-col-reverse gap-3 border-t border-gray-200 p-5 sm:flex-row sm:flex-wrap sm:items-center sm:p-6">
-            <button type="button" x-on:click="reset()" class="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
-                {{ __('ui.home.tag_palette.reset') }}
-            </button>
-            <button type="button" x-on:click="copy()" class="rounded-md px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">
-                <span x-show="! copied">{{ __('ui.home.tag_palette.copy') }}</span>
-                <span x-show="copied" x-cloak>{{ __('ui.home.tag_palette.copied') }}</span>
-            </button>
-            <button
-                type="button"
-                x-on:click="toggleImport()"
-                x-bind:aria-expanded="importOpen"
-                aria-controls="report-tag-palette-import"
-                class="rounded-md px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50"
-            >
-                {{ __('ui.home.tag_palette.import') }}
-            </button>
-            <div class="hidden grow sm:block"></div>
-            <button type="button" x-on:click="cancel()" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+        <div class="grid shrink-0 grid-cols-2 gap-3 border-t border-gray-200 bg-gray-50 p-4 sm:flex sm:justify-end sm:px-6">
+            <button type="button" x-on:click="cancel()" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-xs hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 sm:min-w-28">
                 {{ __('ui.common.cancel') }}
             </button>
-            <button type="button" x-on:click="save()" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+            <button type="button" x-on:click="save()" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 sm:min-w-28">
                 {{ __('ui.home.tag_palette.save') }}
             </button>
         </div>

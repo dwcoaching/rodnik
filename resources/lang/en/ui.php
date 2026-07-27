@@ -56,6 +56,7 @@ return [
             'background' => 'Background',
             'text' => 'Text',
             'choose_color' => 'Choose color: :name',
+            'tools' => 'Palette actions',
             'reset' => 'Reset colors',
             'copy' => 'Copy palette',
             'copied' => 'Palette copied',
