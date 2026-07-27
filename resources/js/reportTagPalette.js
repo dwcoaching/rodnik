@@ -52,6 +52,23 @@ function normalizePalette(value) {
     return palette;
 }
 
+function parsePalette(value) {
+    const palette = JSON.parse(value);
+    const isComplete = palette
+        && typeof palette === 'object'
+        && paletteTypes.every((type) => (
+            palette[type]
+            && typeof palette[type] === 'object'
+            && colorRoles.every((role) => isHexColor(palette[type][role]))
+        ));
+
+    if (! isComplete) {
+        throw new Error('Invalid report tag palette');
+    }
+
+    return normalizePalette(palette);
+}
+
 function loadPalette() {
     try {
         return normalizePalette(JSON.parse(localStorage.getItem(STORAGE_KEY)));
@@ -93,12 +110,17 @@ window.reportTagPalette = {
     apply: applyPalette,
     save: savePalette,
     serialize: (value) => JSON.stringify(normalizePalette(value)),
+    parse: parsePalette,
 };
 
 window.reportTagPalettePicker = function() {
     return {
         isOpen: false,
         copied: false,
+        importOpen: false,
+        importValue: '',
+        importError: false,
+        imported: false,
         palette: loadPalette(),
         savedPalette: loadPalette(),
 
@@ -110,6 +132,10 @@ window.reportTagPalettePicker = function() {
             this.savedPalette = loadPalette();
             this.palette = clonePalette(this.savedPalette);
             this.copied = false;
+            this.importOpen = false;
+            this.importValue = '';
+            this.importError = false;
+            this.imported = false;
             this.isOpen = true;
             this.$nextTick(() => this.$refs.closeButton.focus());
         },
@@ -141,6 +167,28 @@ window.reportTagPalettePicker = function() {
                 this.copied = true;
             } catch (error) {
                 this.copied = false;
+            }
+        },
+
+        toggleImport() {
+            this.importOpen = ! this.importOpen;
+            this.importError = false;
+            this.imported = false;
+
+            if (this.importOpen) {
+                this.$nextTick(() => this.$refs.importInput.focus());
+            }
+        },
+
+        importPalette() {
+            try {
+                this.palette = applyPalette(parsePalette(this.importValue));
+                this.importError = false;
+                this.imported = true;
+                this.copied = false;
+            } catch (error) {
+                this.importError = true;
+                this.imported = false;
             }
         },
     };

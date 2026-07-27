@@ -104,6 +104,46 @@
                     </div>
                 </section>
             @endforeach
+
+            <section
+                id="report-tag-palette-import"
+                x-show="importOpen"
+                x-cloak
+                class="rounded-lg border border-blue-200 bg-blue-50 p-4"
+            >
+                <label for="report-tag-palette-json" class="block text-sm font-semibold text-gray-900">
+                    {{ __('ui.home.tag_palette.import_title') }}
+                </label>
+                <p id="report-tag-palette-import-help" class="mt-1 text-sm text-gray-600">
+                    {{ __('ui.home.tag_palette.import_description') }}
+                </p>
+                <textarea
+                    id="report-tag-palette-json"
+                    x-ref="importInput"
+                    x-model="importValue"
+                    x-on:input="importError = false; imported = false"
+                    rows="4"
+                    class="mt-3 block w-full rounded-md border-gray-300 bg-white font-mono text-xs shadow-xs focus:border-blue-600 focus:ring-blue-600"
+                    placeholder="{{ __('ui.home.tag_palette.import_placeholder') }}"
+                    aria-describedby="report-tag-palette-import-help"
+                ></textarea>
+                <p x-show="importError" x-cloak class="mt-2 text-sm font-medium text-red-700" role="alert">
+                    {{ __('ui.home.tag_palette.import_error') }}
+                </p>
+                <p x-show="imported" x-cloak class="mt-2 text-sm font-medium text-green-700" role="status">
+                    {{ __('ui.home.tag_palette.import_success') }}
+                </p>
+                <div class="mt-3 flex justify-end">
+                    <button
+                        type="button"
+                        x-on:click="importPalette()"
+                        x-bind:disabled="! importValue.trim()"
+                        class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                        {{ __('ui.home.tag_palette.import_apply') }}
+                    </button>
+                </div>
+            </section>
         </div>
 
         <div class="flex flex-col-reverse gap-3 border-t border-gray-200 p-5 sm:flex-row sm:flex-wrap sm:items-center sm:p-6">
@@ -113,6 +153,15 @@
             <button type="button" x-on:click="copy()" class="rounded-md px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">
                 <span x-show="! copied">{{ __('ui.home.tag_palette.copy') }}</span>
                 <span x-show="copied" x-cloak>{{ __('ui.home.tag_palette.copied') }}</span>
+            </button>
+            <button
+                type="button"
+                x-on:click="toggleImport()"
+                x-bind:aria-expanded="importOpen"
+                aria-controls="report-tag-palette-import"
+                class="rounded-md px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50"
+            >
+                {{ __('ui.home.tag_palette.import') }}
             </button>
             <div class="hidden grow sm:block"></div>
             <button type="button" x-on:click="cancel()" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">

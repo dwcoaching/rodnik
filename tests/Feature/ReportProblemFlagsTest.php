@@ -196,7 +196,11 @@ test('home page offers nine graphical report tag color pickers', function () {
     expect(mb_substr_count($modal, 'type="color"'))->toBe(9)
         ->and($modal)->toContain('id="report-tag-success-border"')
         ->and($modal)->toContain('id="report-tag-warning-background"')
-        ->and($modal)->toContain('id="report-tag-danger-text"');
+        ->and($modal)->toContain('id="report-tag-danger-text"')
+        ->and($modal)->toContain('Import palette')
+        ->and($modal)->toContain('id="report-tag-palette-json"')
+        ->and($modal)->toContain('importPalette()')
+        ->and($modal)->toContain('role="alert"');
 });
 
 test('problem flags are included in API JSON CSV and XLSX source exports', function () {
