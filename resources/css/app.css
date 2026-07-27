@@ -44,6 +44,18 @@ layer(base);
   --noise: 0;
 }
 
+:root {
+  --report-tag-success-border: #bbf7d0;
+  --report-tag-success-background: #f0fdf4;
+  --report-tag-success-text: #14532d;
+  --report-tag-warning-border: #facc15;
+  --report-tag-warning-background: #facc15;
+  --report-tag-warning-text: #000000;
+  --report-tag-danger-border: #fecaca;
+  --report-tag-danger-background: #fef2f2;
+  --report-tag-danger-text: #7f1d1d;
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/laravel/jetstream/**/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -90,6 +102,28 @@ layer(base);
 
   .drawer-toggle:checked ~ .drawer-side > .drawer-overlay {
     background-color: rgba(17, 24, 39, 0.8);
+  }
+
+  .report-condition-badge {
+    @apply inline-flex items-center rounded-sm border px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .report-condition-badge--success {
+    border-color: var(--report-tag-success-border);
+    background-color: var(--report-tag-success-background);
+    color: var(--report-tag-success-text);
+  }
+
+  .report-condition-badge--warning {
+    border-color: var(--report-tag-warning-border);
+    background-color: var(--report-tag-warning-background);
+    color: var(--report-tag-warning-text);
+  }
+
+  .report-condition-badge--danger {
+    border-color: var(--report-tag-danger-border);
+    background-color: var(--report-tag-danger-background);
+    color: var(--report-tag-danger-text);
   }
 }
 

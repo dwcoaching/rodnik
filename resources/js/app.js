@@ -13,6 +13,7 @@ import { getInitialSourceName } from '@/initial';
 import locateByPhoto from '@/utils/locateByPhoto';
 import sort from '@alpinejs/sort'
 import trans from '@/i18n';
+import './reportTagPalette.js';
 
 Alpine.plugin(Clipboard);
 Alpine.plugin(sort);

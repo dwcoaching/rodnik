@@ -2,10 +2,10 @@
     @foreach ([$report->state, $report->quality] as $condition)
         @if ($condition !== null)
             <span @class([
-                'inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium',
-                'border border-green-200 bg-green-50 text-green-900' => $condition->getColor() === 'success',
-                'bg-yellow-400 text-black' => $condition->getColor() === 'warning',
-                'border border-red-200 bg-red-50 text-red-900' => $condition->getColor() === 'danger',
+                'report-condition-badge',
+                'report-condition-badge--success' => $condition->getColor() === 'success',
+                'report-condition-badge--warning' => $condition->getColor() === 'warning',
+                'report-condition-badge--danger' => $condition->getColor() === 'danger',
             ])>{{ __('ui.report.conditions.' . $condition->value) }}</span>
         @endif
     @endforeach

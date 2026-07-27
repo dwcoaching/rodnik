@@ -45,6 +45,11 @@
                 <button @click="showLegendModal = true" class="text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
                     {{ __('ui.home.show_map_legend') }}
                 </button>.
+                <div class="mt-1">
+                    <button type="button" x-on:click="$dispatch('open-report-tag-palette')" class="text-blue-600 hover:text-blue-700 hover:underline">
+                        {{ __('ui.home.tag_palette.trigger') }}
+                    </button>
+                </div>
             </div>
         @endif
         <ul x-cloak role="list" class="grid grid-cols-2 lg:grid-cols-3 mt-2 md:px-4
@@ -69,6 +74,8 @@
                 />
         @endif
     </div>
+
+    <x-report-tag-palette-modal />
 
     <!-- Map Legend Modal -->
     <div x-show="showLegendModal" 

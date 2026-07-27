@@ -9,6 +9,7 @@ use App\Http\Resources\ExportedReportResource;
 use App\Library\EnrichGPX;
 use App\Library\Export\CsvTransformer;
 use App\Library\Export\JsonTransformer;
+use App\Livewire\Duo\Reports\Index as ReportsIndex;
 use App\Livewire\Reports\Show as ShowReport;
 use App\Models\Report;
 use App\Models\Spring;
@@ -96,9 +97,9 @@ test('problem badges render access limited and omit unreported problems', functi
     ]);
 
     expect($successBadges)
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-green-200 bg-green-50 text-green-900">Has water</span>')
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-green-200 bg-green-50 text-green-900">Good water</span>')
-        ->not->toContain('bg-green-600 text-white');
+        ->toContain('class="report-condition-badge report-condition-badge--success">Has water</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--success">Good water</span>')
+        ->not->toContain('border-green-200');
 
     $accessLimitedReport = Report::factory()->make([
         'state' => null,
@@ -148,9 +149,9 @@ test('danger condition badges use subtle red styling', function () {
     ]);
 
     expect($dryAndPoorBadges)
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-red-200 bg-red-50 text-red-900">Dry</span>')
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-red-200 bg-red-50 text-red-900">Poor water</span>')
-        ->not->toContain('bg-red-600 text-white');
+        ->toContain('class="report-condition-badge report-condition-badge--danger">Dry</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--danger">Poor water</span>')
+        ->not->toContain('border-red-200');
 
     $notFoundReport = Report::factory()->make([
         'state' => 'notfound',
@@ -165,8 +166,37 @@ test('danger condition badges use subtle red styling', function () {
     ]);
 
     expect($notFoundBadges)
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-red-200 bg-red-50 text-red-900">Water source not found</span>')
-        ->not->toContain('bg-red-600 text-white');
+        ->toContain('class="report-condition-badge report-condition-badge--danger">Water source not found</span>')
+        ->not->toContain('border-red-200');
+});
+
+test('warning condition badges use the configurable warning palette', function () {
+    $report = Report::factory()->make([
+        'state' => 'dripping',
+        'quality' => 'uncertain',
+    ]);
+
+    $badges = Blade::render('<x-report-condition-badges :report="$report" />', [
+        'report' => $report,
+    ]);
+
+    expect($badges)
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Very little water</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Questionable water</span>')
+        ->not->toContain('bg-yellow-400');
+});
+
+test('home page offers nine graphical report tag color pickers', function () {
+    Livewire::test(ReportsIndex::class)
+        ->assertSee('Customize tag colors')
+        ->assertSeeHtml('open-report-tag-palette');
+
+    $modal = Blade::render('<x-report-tag-palette-modal />');
+
+    expect(mb_substr_count($modal, 'type="color"'))->toBe(9)
+        ->and($modal)->toContain('id="report-tag-success-border"')
+        ->and($modal)->toContain('id="report-tag-warning-background"')
+        ->and($modal)->toContain('id="report-tag-danger-text"');
 });
 
 test('problem flags are included in API JSON CSV and XLSX source exports', function () {
