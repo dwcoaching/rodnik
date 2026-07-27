@@ -75,10 +75,10 @@ test('problem badges render on report details and report teasers', function () {
     expect($teaser)
         ->toContain('Has water')
         ->toContain('Questionable water')
-        ->toContain('Access limited')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Access limited</span>')
-        ->toContain('Littered')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Littered</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Access limited</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Littered</span>')
+        ->toContain('class="report-condition-badge border-amber-200 bg-amber-50 text-amber-900">Questionable water</span>')
+        ->not->toContain('report-condition-badge--warning">Questionable water</span>')
         ->toContain('Broken')
         ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Broken</span>');
 });
@@ -115,8 +115,7 @@ test('problem badges render access limited and omit unreported problems', functi
 
     expect($accessLimitedBadges)
         ->toContain('Access limited')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Access limited</span>')
-        ->not->toContain('No access')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Access limited</span>')
         ->not->toContain('Littered')
         ->not->toContain('Broken');
 
@@ -170,7 +169,7 @@ test('danger condition badges use subtle red styling', function () {
         ->not->toContain('border-red-200');
 });
 
-test('warning condition badges use the configurable warning palette', function () {
+test('legacy warning conditions keep fixed styling instead of the configurable warning palette', function () {
     $report = Report::factory()->make([
         'state' => 'dripping',
         'quality' => 'uncertain',
@@ -181,9 +180,9 @@ test('warning condition badges use the configurable warning palette', function (
     ]);
 
     expect($badges)
-        ->toContain('class="report-condition-badge report-condition-badge--warning">Very little water</span>')
-        ->toContain('class="report-condition-badge report-condition-badge--warning">Questionable water</span>')
-        ->not->toContain('bg-yellow-400');
+        ->toContain('class="report-condition-badge border-amber-200 bg-amber-50 text-amber-900">Very little water</span>')
+        ->toContain('class="report-condition-badge border-amber-200 bg-amber-50 text-amber-900">Questionable water</span>')
+        ->not->toContain('report-condition-badge--warning');
 });
 
 test('home page offers nine graphical report tag color pickers', function () {
@@ -197,6 +196,9 @@ test('home page offers nine graphical report tag color pickers', function () {
         ->and($modal)->toContain('id="report-tag-success-border"')
         ->and($modal)->toContain('id="report-tag-warning-background"')
         ->and($modal)->toContain('id="report-tag-danger-text"')
+        ->and($modal)->toContain('Access limited')
+        ->and($modal)->toContain('Littered')
+        ->and($modal)->not->toContain('Very little water')
         ->and($modal)->toContain('Import palette')
         ->and($modal)->toContain('id="report-tag-palette-json"')
         ->and($modal)->toContain('importPalette()')

@@ -3,17 +3,17 @@
         'success' => [
             'title' => __('ui.home.tag_palette.success'),
             'description' => __('ui.home.tag_palette.success_description'),
-            'example' => __('ui.report.conditions.running'),
+            'examples' => [__('ui.report.conditions.running')],
         ],
         'warning' => [
             'title' => __('ui.home.tag_palette.warning'),
             'description' => __('ui.home.tag_palette.warning_description'),
-            'example' => __('ui.report.conditions.dripping'),
+            'examples' => [__('ui.report.badges.access_limited'), __('ui.report.badges.littered')],
         ],
         'danger' => [
             'title' => __('ui.home.tag_palette.danger'),
             'description' => __('ui.home.tag_palette.danger_description'),
-            'example' => __('ui.report.conditions.dry'),
+            'examples' => [__('ui.report.conditions.dry')],
         ],
     ];
 
@@ -81,9 +81,11 @@
                             <h3 class="font-semibold text-gray-900">{{ $settings['title'] }}</h3>
                             <p class="text-sm text-gray-600">{{ $settings['description'] }}</p>
                         </div>
-                        <span class="report-condition-badge report-condition-badge--{{ $type }}">
-                            {{ $settings['example'] }}
-                        </span>
+                        <div class="flex flex-wrap justify-end gap-1">
+                            @foreach ($settings['examples'] as $example)
+                                <span class="report-condition-badge report-condition-badge--{{ $type }}">{{ $example }}</span>
+                            @endforeach
+                        </div>
                     </div>
 
                     <div class="mt-4 grid grid-cols-3 gap-3">
