@@ -44,18 +44,6 @@ layer(base);
   --noise: 0;
 }
 
-:root {
-  --report-tag-success-border: #bbf7d0;
-  --report-tag-success-background: #f0fdf4;
-  --report-tag-success-text: #14532d;
-  --report-tag-warning-border: #facc15;
-  --report-tag-warning-background: #facc15;
-  --report-tag-warning-text: #000000;
-  --report-tag-danger-border: #fecaca;
-  --report-tag-danger-background: #fef2f2;
-  --report-tag-danger-text: #7f1d1d;
-}
-
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/laravel/jetstream/**/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -109,21 +97,21 @@ layer(base);
   }
 
   .report-condition-badge--success {
-    border-color: var(--report-tag-success-border);
-    background-color: var(--report-tag-success-background);
-    color: var(--report-tag-success-text);
+    border-color: #d3e9b7;
+    background-color: #d3e9b7;
+    color: #232323;
   }
 
   .report-condition-badge--warning {
-    border-color: var(--report-tag-warning-border);
-    background-color: var(--report-tag-warning-background);
-    color: var(--report-tag-warning-text);
+    border-color: #ffe4a8;
+    background-color: #ffe4a8;
+    color: #232323;
   }
 
   .report-condition-badge--danger {
-    border-color: var(--report-tag-danger-border);
-    background-color: var(--report-tag-danger-background);
-    color: var(--report-tag-danger-text);
+    border-color: #ffbfaf;
+    background-color: #febcb0;
+    color: #232323;
   }
 }
 

@@ -9,7 +9,6 @@ use App\Http\Resources\ExportedReportResource;
 use App\Library\EnrichGPX;
 use App\Library\Export\CsvTransformer;
 use App\Library\Export\JsonTransformer;
-use App\Livewire\Duo\Reports\Index as ReportsIndex;
 use App\Livewire\Reports\Show as ShowReport;
 use App\Models\Report;
 use App\Models\Spring;
@@ -77,10 +76,9 @@ test('problem badges render on report details and report teasers', function () {
         ->toContain('Questionable water')
         ->toContain('class="report-condition-badge report-condition-badge--warning">Access limited</span>')
         ->toContain('class="report-condition-badge report-condition-badge--warning">Littered</span>')
-        ->toContain('class="report-condition-badge border-amber-200 bg-amber-50 text-amber-900">Questionable water</span>')
-        ->not->toContain('report-condition-badge--warning">Questionable water</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Questionable water</span>')
         ->toContain('Broken')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Broken</span>');
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Broken</span>');
 });
 
 test('problem badges render access limited and omit unreported problems', function () {
@@ -169,7 +167,7 @@ test('danger condition badges use subtle red styling', function () {
         ->not->toContain('border-red-200');
 });
 
-test('legacy warning conditions keep fixed styling instead of the configurable warning palette', function () {
+test('all warning conditions use the fixed warning style', function () {
     $report = Report::factory()->make([
         'state' => 'dripping',
         'quality' => 'uncertain',
@@ -180,29 +178,8 @@ test('legacy warning conditions keep fixed styling instead of the configurable w
     ]);
 
     expect($badges)
-        ->toContain('class="report-condition-badge border-amber-200 bg-amber-50 text-amber-900">Very little water</span>')
-        ->toContain('class="report-condition-badge border-amber-200 bg-amber-50 text-amber-900">Questionable water</span>')
-        ->not->toContain('report-condition-badge--warning');
-});
-
-test('home page offers nine graphical report tag color pickers', function () {
-    Livewire::test(ReportsIndex::class)
-        ->assertSee('Customize tag colors')
-        ->assertSeeHtml('open-report-tag-palette');
-
-    $modal = Blade::render('<x-report-tag-palette-modal />');
-
-    expect(mb_substr_count($modal, 'type="color"'))->toBe(9)
-        ->and($modal)->toContain('id="report-tag-success-border"')
-        ->and($modal)->toContain('id="report-tag-warning-background"')
-        ->and($modal)->toContain('id="report-tag-danger-text"')
-        ->and($modal)->toContain('Access limited')
-        ->and($modal)->toContain('Littered')
-        ->and($modal)->not->toContain('Very little water')
-        ->and($modal)->toContain('Import palette')
-        ->and($modal)->toContain('id="report-tag-palette-json"')
-        ->and($modal)->toContain('importPalette()')
-        ->and($modal)->toContain('role="alert"');
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Very little water</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Questionable water</span>');
 });
 
 test('problem flags are included in API JSON CSV and XLSX source exports', function () {

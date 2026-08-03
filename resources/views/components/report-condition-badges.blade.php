@@ -4,7 +4,7 @@
             <span @class([
                 'report-condition-badge',
                 'report-condition-badge--success' => $condition->getColor() === 'success',
-                'border-amber-200 bg-amber-50 text-amber-900' => $condition->getColor() === 'warning',
+                'report-condition-badge--warning' => $condition->getColor() === 'warning',
                 'report-condition-badge--danger' => $condition->getColor() === 'danger',
             ])>{{ __('ui.report.conditions.' . $condition->value) }}</span>
         @endif
@@ -19,6 +19,6 @@
     @endif
 
     @if ($report->broken)
-        <span class="inline-flex items-center rounded-sm border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">{{ __('ui.report.badges.broken') }}</span>
+        <span class="report-condition-badge report-condition-badge--warning">{{ __('ui.report.badges.broken') }}</span>
     @endif
 </div>
