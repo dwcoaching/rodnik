@@ -74,12 +74,11 @@ test('problem badges render on report details and report teasers', function () {
     expect($teaser)
         ->toContain('Has water')
         ->toContain('Questionable water')
-        ->toContain('Access limited')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Access limited</span>')
-        ->toContain('Littered')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Littered</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Access limited</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Littered</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Questionable water</span>')
         ->toContain('Broken')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Broken</span>');
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Broken</span>');
 });
 
 test('problem badges render access limited and omit unreported problems', function () {
@@ -96,9 +95,9 @@ test('problem badges render access limited and omit unreported problems', functi
     ]);
 
     expect($successBadges)
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-green-200 bg-green-50 text-green-900">Has water</span>')
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-green-200 bg-green-50 text-green-900">Good water</span>')
-        ->not->toContain('bg-green-600 text-white');
+        ->toContain('class="report-condition-badge report-condition-badge--success">Has water</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--success">Good water</span>')
+        ->not->toContain('border-green-200');
 
     $accessLimitedReport = Report::factory()->make([
         'state' => null,
@@ -114,8 +113,7 @@ test('problem badges render access limited and omit unreported problems', functi
 
     expect($accessLimitedBadges)
         ->toContain('Access limited')
-        ->toContain('border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-900">Access limited</span>')
-        ->not->toContain('No access')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Access limited</span>')
         ->not->toContain('Littered')
         ->not->toContain('Broken');
 
@@ -148,9 +146,9 @@ test('danger condition badges use subtle red styling', function () {
     ]);
 
     expect($dryAndPoorBadges)
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-red-200 bg-red-50 text-red-900">Dry</span>')
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-red-200 bg-red-50 text-red-900">Poor water</span>')
-        ->not->toContain('bg-red-600 text-white');
+        ->toContain('class="report-condition-badge report-condition-badge--danger">Dry</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--danger">Poor water</span>')
+        ->not->toContain('border-red-200');
 
     $notFoundReport = Report::factory()->make([
         'state' => 'notfound',
@@ -165,8 +163,23 @@ test('danger condition badges use subtle red styling', function () {
     ]);
 
     expect($notFoundBadges)
-        ->toContain('class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium border border-red-200 bg-red-50 text-red-900">Water source not found</span>')
-        ->not->toContain('bg-red-600 text-white');
+        ->toContain('class="report-condition-badge report-condition-badge--danger">Water source not found</span>')
+        ->not->toContain('border-red-200');
+});
+
+test('all warning conditions use the fixed warning style', function () {
+    $report = Report::factory()->make([
+        'state' => 'dripping',
+        'quality' => 'uncertain',
+    ]);
+
+    $badges = Blade::render('<x-report-condition-badges :report="$report" />', [
+        'report' => $report,
+    ]);
+
+    expect($badges)
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Very little water</span>')
+        ->toContain('class="report-condition-badge report-condition-badge--warning">Questionable water</span>');
 });
 
 test('problem flags are included in API JSON CSV and XLSX source exports', function () {

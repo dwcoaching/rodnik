@@ -91,6 +91,28 @@ layer(base);
   .drawer-toggle:checked ~ .drawer-side > .drawer-overlay {
     background-color: rgba(17, 24, 39, 0.8);
   }
+
+  .report-condition-badge {
+    @apply inline-flex items-center rounded-sm border px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .report-condition-badge--success {
+    border-color: #d3e9b7;
+    background-color: #d3e9b7;
+    color: #232323;
+  }
+
+  .report-condition-badge--warning {
+    border-color: #ffe4a8;
+    background-color: #ffe4a8;
+    color: #232323;
+  }
+
+  .report-condition-badge--danger {
+    border-color: #ffbfaf;
+    background-color: #febcb0;
+    color: #232323;
+  }
 }
 
 .springImageBlock {
