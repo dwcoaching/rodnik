@@ -1,49 +1,140 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use GuzzleHttp\Client;
 use App\Library\Overpass;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\TransferException;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class OverpassImport extends Model
+final class OverpassImport extends Model
 {
     use HasFactory;
+
+    public const ENDPOINT = 'https://overpass-api.de/api/interpreter';
+
+    /**
+     * Response code we record ourselves when the request never reached the API at all.
+     */
+    public const TRANSPORT_ERROR = 0;
+
+    /**
+     * How often the same area may be fetched before we fall back to grinding it up.
+     */
+    public const MAXIMUM_ATTEMPTS = 25;
 
     protected $cachedArea = null;
 
     public function fetch()
     {
-        $guzzle = new Client;
+        $guzzle = $this->httpClient();
 
         $this->started_at = now();
+        $this->attempts = $this->attempts + 1;
 
         if (false && config('app.env') !== 'production') {
             $this->fake();
         } else {
-            $result = $guzzle->request('POST', 'https://overpass-api.de/api/interpreter', [
-              'form_params' => [
-                  'data' => $this->query, // your Overpass QL query
-              ],
-              'headers' => [
-                  'User-Agent' => 'Rodnik.today/1.0 (+https://rodnik.today; kolpavko@hey.com)',
-                  'Accept' => '*/*',
-              ],
-              'http_errors' => false,
-          ]);
+            try {
+                $result = $guzzle->request('POST', self::ENDPOINT, [
+                    'form_params' => [
+                        'data' => $this->query, // your Overpass QL query
+                    ],
+                    'headers' => [
+                        'User-Agent' => 'Rodnik.today/1.0 (+https://rodnik.today; kolpavko@hey.com)',
+                        'Accept' => '*/*',
+                    ],
+                    'http_errors' => false,
+                ]);
 
-            $this->response_code = $result->getStatusCode();
-            $this->response_phrase = $result->getReasonPhrase();
-            $this->response = $result->getBody();
+                $this->response_code = $result->getStatusCode();
+                $this->response_phrase = $result->getReasonPhrase();
+                $this->response = $result->getBody();
+            } catch (TransferException $exception) {
+                // DNS, TCP and TLS failures bypass `http_errors`, so they have to be caught
+                // here or a single unreachable moment kills the whole batch.
+                $this->response_code = self::TRANSPORT_ERROR;
+                $this->response_phrase = mb_substr($exception->getMessage(), 0, 500);
+                $this->response = '';
+            }
         }
 
         $this->fetched_at = now();
         $this->save();
     }
 
-    public function fake() {
+    /**
+     * Whether the response is a usable Overpass payload.
+     */
+    public function succeeded(): bool
+    {
+        return (int) $this->response_code === 200 && ! $this->responseHasRemarks();
+    }
+
+    /**
+     * Whether this area should be fetched again unchanged.
+     *
+     * Anything that is not a success and not a complaint about the area itself is treated as
+     * congestion, deliberately: splitting an area up multiplies the traffic that caused the
+     * refusal in the first place, so retrying is the safe default for an unrecognised failure.
+     * An area that keeps failing still ends up ground up once it runs out of attempts.
+     */
+    public function isCongested(): bool
+    {
+        return ! $this->succeeded() && ! $this->needsSmallerArea();
+    }
+
+    /**
+     * Whether the API complained about this area specifically, which is the only case where
+     * grinding it up into smaller areas actually helps.
+     */
+    public function needsSmallerArea(): bool
+    {
+        if ((int) $this->response_code === 400) {
+            return true;
+        }
+
+        if ((int) $this->response_code !== 200) {
+            return false;
+        }
+
+        $remark = mb_strtolower((string) $this->responseRemark());
+
+        return str_contains($remark, 'timed out') || str_contains($remark, 'out of memory');
+    }
+
+    /**
+     * The top level `remark` Overpass adds to an otherwise valid response when a query hit a
+     * limit. Tags named `remark` on individual elements are not remarks in this sense.
+     */
+    public function responseRemark(): ?string
+    {
+        $json = json_decode((string) $this->response);
+
+        return isset($json->remark) ? (string) $json->remark : null;
+    }
+
+    public function hasAttemptsLeft(): bool
+    {
+        return $this->attempts < self::MAXIMUM_ATTEMPTS;
+    }
+
+    /**
+     * Put this import back in the queue over the very same area.
+     */
+    public function scheduleRetry(): void
+    {
+        $this->fetched_at = null;
+        $this->has_remarks = null;
+        $this->save();
+    }
+
+    public function fake()
+    {
         $lottery = rand(0, 100);
 
         if ($lottery >= 10) {
@@ -53,13 +144,15 @@ class OverpassImport extends Model
         }
     }
 
-    public function fakeSuccess() {
+    public function fakeSuccess()
+    {
         $this->response_code = 200;
         $this->response_phrase = 'OK';
         $this->response = Storage::disk('local')->get('overpass/responses/4577.json');
     }
 
-    public function fakeFailure() {
+    public function fakeFailure()
+    {
         $this->response_code = 200;
         $this->response_phrase = 'OK';
         $this->response = Storage::disk('local')->get('overpass/responses/4578.json');
@@ -88,21 +181,21 @@ class OverpassImport extends Model
 
     public function getResponsePathAttribute()
     {
-        return 'overpass/responses/' . $this->id . '.json';
+        return 'overpass/responses/'.$this->id.'.json';
     }
 
     public function getAreaAttribute()
     {
         if (! $this->cachedArea) {
             $this->cachedArea = '('
-                . $this->latitude_from
-                . ','
-                . $this->longitude_from
-                . ','
-                . $this->latitude_to
-                . ','
-                . $this->longitude_to
-                . ');';
+                .$this->latitude_from
+                .','
+                .$this->longitude_from
+                .','
+                .$this->latitude_to
+                .','
+                .$this->longitude_to
+                .');';
         }
 
         return $this->cachedArea;
@@ -151,8 +244,8 @@ class OverpassImport extends Model
         $this->parsed_at = now();
         $this->save();
 
-        echo 'new: ' . $stats->new . "\n";
-        echo 'existing: ' . $stats->existing . "\n";
+        echo 'new: '.$stats->new."\n";
+        echo 'existing: '.$stats->existing."\n";
 
         unset($stats);
     }
@@ -169,21 +262,16 @@ class OverpassImport extends Model
         } elseif ($this->latitude_to - $this->latitude_from > 1) {
             $this->grindUpLatitudinally();
         } else {
-            $this->retry1x1();
-            // throw new \Exception('Trying to grind up below 1x1 degree');
+            $this->giveUp();
         }
     }
 
-    public function retry1x1()
+    /**
+     * A 1x1 degree area cannot be split any further, so stop working on it.
+     */
+    public function giveUp(): void
     {
-        $overpassImport = new OverpassImport();
-        $overpassImport->latitude_from = $this->latitude_from;
-        $overpassImport->latitude_to = $this->latitude_to;
-        $overpassImport->longitude_from = $this->longitude_from;
-        $overpassImport->longitude_to = $this->longitude_to;
-        $overpassImport->parent_id = $this->id;
-        $overpassImport->overpass_batch_id = $this->overpass_batch_id;
-        $overpassImport->save();
+        echo "Giving up on import id = {$this->id} after {$this->attempts} attempts\n";
 
         $this->ground_up = true;
         $this->save();
@@ -195,9 +283,9 @@ class OverpassImport extends Model
         $step = $range / 10;
 
         for ($longitude = $this->longitude_from; $longitude < $this->longitude_to; $longitude = $longitude + $step) {
-            $overpassImport = new OverpassImport();
-            $overpassImport->latitude_from = -90;
-            $overpassImport->latitude_to = 90;
+            $overpassImport = new self();
+            $overpassImport->latitude_from = $this->latitude_from;
+            $overpassImport->latitude_to = $this->latitude_to;
             $overpassImport->longitude_from = $longitude;
             $overpassImport->longitude_to = $longitude + $step;
             $overpassImport->parent_id = $this->id;
@@ -211,22 +299,19 @@ class OverpassImport extends Model
 
     public function grindUpLatitudinally()
     {
-        $range = $this->latitude_to - $this->latitude_from;
+        // Latitudes come out of the database as decimal strings, so compare whole degrees.
+        $range = (int) round((float) $this->latitude_to - (float) $this->latitude_from);
 
-        if ($range == 180) {
-            $step = 60;
-        } elseif ($range == 60) {
-            $step = 20;
-        } elseif ($range == 20) {
-            $step = 10;
-        } elseif ($range == 10) {
-            $step = 5;
-        } else {
-            $step = 1;
-        }
+        $step = match ($range) {
+            180 => 60,
+            60 => 20,
+            20 => 10,
+            10 => 5,
+            default => 1,
+        };
 
         for ($latitude = $this->latitude_from; $latitude < $this->latitude_to; $latitude = $latitude + $step) {
-            $overpassImport = new OverpassImport();
+            $overpassImport = new self();
             $overpassImport->latitude_from = $latitude;
             $overpassImport->latitude_to = $latitude + $step;
             $overpassImport->longitude_from = $this->longitude_from;
@@ -249,5 +334,14 @@ class OverpassImport extends Model
     public function deleteArtifacts()
     {
         Storage::disk('local')->delete($this->responsePath);
+    }
+
+    /**
+     * Resolved through the container so tests can bind a client that answers without reaching
+     * the network.
+     */
+    private function httpClient(): Client
+    {
+        return app(Client::class);
     }
 }

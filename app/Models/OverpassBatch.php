@@ -1,27 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use App\Models\OverpassCheck;
-use App\Models\OverpassImport;
 use App\Jobs\CleanupOSMSprings;
 use App\Jobs\ParseOverpassBatchImports;
 use App\Jobs\PruneMissingOSMSprings;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use App\Jobs\RemoveOlderOverpassArtifacts;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Library\OverpassGate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
-class OverpassBatch extends Model
+final class OverpassBatch extends Model
 {
     use HasFactory;
 
+    /**
+     * Backstop for {@see self::fetchImports()} so a permanently unhappy API cannot spin forever.
+     */
+    public const MAXIMUM_FETCH_PASSES = 200;
+
+    /**
+     * @return HasMany<OverpassImport, $this>
+     */
     public function overpassImports(): HasMany
     {
         return $this->hasMany(OverpassImport::class);
     }
 
+    /**
+     * @return HasMany<OverpassCheck, $this>
+     */
     public function overpassChecks(): HasMany
     {
         return $this->hasMany(OverpassCheck::class);
@@ -89,11 +101,11 @@ class OverpassBatch extends Model
         $this->coverage = $coverage * 100;
 
         if ($coverage === 1.0) {
-            $this->fetch_status = "fetched";
+            $this->fetch_status = 'fetched';
 
             ParseOverpassBatchImports::dispatch($this);
         } else {
-            $this->fetch_status = "fetching";
+            $this->fetch_status = 'fetching';
         }
 
         $this->save();
@@ -108,7 +120,7 @@ class OverpassBatch extends Model
             ->mapToGroups(function ($item) {
                 return [! is_null($item->parsed_at) => $item];
             }
-        );
+            );
 
         $parsed = $groups->has(1) ? $groups[1]->count() : 0;
         $unparsed = $groups->has(0) ? $groups[0]->count() : 0;
@@ -117,32 +129,54 @@ class OverpassBatch extends Model
         $this->parsed_percentage = $percentage * 100;
 
         if ($percentage === 1.0) {
-            $this->parse_status = "parsed";
+            $this->parse_status = 'parsed';
             CleanupOSMSprings::dispatch($this);
             PruneMissingOSMSprings::dispatch($this);
             RemoveOlderOverpassArtifacts::dispatch($this);
         } else {
-            $this->parse_status = "parsing";
+            $this->parse_status = 'parsing';
         }
 
         $this->save();
     }
 
+    /**
+     * Fetch every outstanding import, then keep re-queueing whatever failed until nothing is
+     * left to do. Written as a loop rather than as mutual recursion with
+     * {@see self::grindUpFailedImports()}, which used to grow the stack once per pass.
+     */
     public function fetchImports()
     {
         $this->fetch_status = 'fetching';
         $this->save();
 
-        $dueImports = $this->overpassImports()->whereNull('fetched_at')->get();
+        $gate = new OverpassGate;
+        $consecutiveFailures = 0;
+        $pass = 0;
 
-        foreach ($dueImports as $dueImport) {
-            echo "Fetching id = {$dueImport->id} ({$dueImport->latitude_from}, {$dueImport->longitude_from}) to ({$dueImport->latitude_to}, {$dueImport->longitude_to}) \n";
-            $dueImport->fetch();
-            $this->checkImports();
-        }
+        do {
+            $dueImports = $this->overpassImports()->whereNull('fetched_at')->get();
 
-        $this->updateCoverage();
-        $this->grindUpFailedImports();
+            foreach ($dueImports as $dueImport) {
+                echo "Fetching id = {$dueImport->id} ({$dueImport->latitude_from}, {$dueImport->longitude_from}) to ({$dueImport->latitude_to}, {$dueImport->longitude_to}) \n";
+
+                $gate->awaitSlot();
+                $dueImport->fetch();
+
+                if ($dueImport->isCongested()) {
+                    $consecutiveFailures = $consecutiveFailures + 1;
+                    $gate->backOff($consecutiveFailures);
+                } else {
+                    $consecutiveFailures = 0;
+                }
+
+                $this->checkImports();
+            }
+
+            $this->updateCoverage();
+
+            $pass = $pass + 1;
+        } while ($this->grindUpFailedImports() && $pass < self::MAXIMUM_FETCH_PASSES);
     }
 
     public function checkImports()
@@ -165,6 +199,12 @@ class OverpassBatch extends Model
         }
     }
 
+    /**
+     * Re-queue every failed import. An area the API simply refused to serve is retried
+     * unchanged; only an area the API complained about is ground up into smaller ones.
+     *
+     * @return bool Whether anything was queued for another pass.
+     */
     public function grindUpFailedImports()
     {
         $dueImports = $this->overpassImports()->whereNotNull('fetched_at')
@@ -176,12 +216,15 @@ class OverpassBatch extends Model
             ->get();
 
         foreach ($dueImports as $import) {
-            $import->grindUp();
+            if ($import->isCongested() && $import->hasAttemptsLeft()) {
+                echo "Retrying import id = {$import->id} unchanged (attempt {$import->attempts})\n";
+                $import->scheduleRetry();
+            } else {
+                $import->grindUp();
+            }
         }
 
-        if ($dueImports->count()) {
-            $this->fetchImports();
-        }
+        return $dueImports->count() > 0;
     }
 
     public function parseImports()

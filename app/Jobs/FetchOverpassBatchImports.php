@@ -1,20 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\OverpassBatch;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class FetchOverpassBatchImports implements ShouldQueue
+final class FetchOverpassBatchImports implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 0;
+
+    /**
+     * The worker runs with the default `--tries=1`, so the batch used to die on the first
+     * unhandled error. A job property overrides that option, and the work is resumable:
+     * every fetched import is recorded, so a retry picks up where the last attempt stopped.
+     */
+    public $tries = 50;
+
+    public $maxExceptions = 50;
+
+    public $backoff = [60, 300, 900];
 
     /**
      * Create a new job instance.
