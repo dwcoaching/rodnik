@@ -1,7 +1,7 @@
-<div class="flex justify-between flex-nowrap
+<div class="flex justify-between items-center flex-nowrap pt-4 pb-2
     {{ $map ? 'px-4' : '' }}
 ">
-    <div class="flex flex-wrap">
+    <div class="flex items-center flex-wrap">
         <!-- Logo -->
         <div class="shrink-0 flex items-center">
             @if ($map)
@@ -14,24 +14,24 @@
                                 }
                             )
                         )"
-                    class="pt-4 pb-2 mr-4 cursor-pointer">
+                    class="flex mr-2 sm:mr-4 cursor-pointer">
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </span>
             @else
                 <a href="{{ localized_public_path() }}"
-                    class="pt-4 pb-2 mr-4 cursor-pointer">
+                    class="flex mr-2 sm:mr-4 cursor-pointer">
                     <img src="/rodnik-nunito-logo.svg" class="h-6" />
                 </a>
             @endif
         </div>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
         <x-language-switcher />
         @guest
-            <div class="my-1 flex">
-                <a href="{{ route('login') }}" class="pt-4 pb-2 block mr-4 text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" class="pt-4 pb-2 block text-sm text-gray-500">{{ __('Register') }}</a>
+            <div class="flex items-center gap-3 sm:gap-4">
+                <a href="{{ route('login') }}" class="block text-sm text-gray-500">{{ __('Login') }}</a>
+                <a href="{{ route('register') }}" class="block text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth

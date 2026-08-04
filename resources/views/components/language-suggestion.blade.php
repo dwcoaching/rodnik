@@ -7,16 +7,12 @@
     >
         <span>{{ __('locale.suggestion') }}</span>
         <div class="flex shrink-0 items-center gap-2">
-            <form method="POST" action="{{ route('locale.update', ['locale' => $suggestedLocale]) }}">
-                @csrf
-                <input type="hidden" name="redirect" value="{{ localized_path($suggestedLocale) }}">
+            <x-locale-form :locale="$suggestedLocale">
                 <button type="submit" class="font-semibold text-blue-700 hover:text-blue-900 hover:underline">
                     {{ __('locale.open_suggestion') }}
                 </button>
-            </form>
-            <form method="POST" action="{{ route('locale.update', ['locale' => config('localization.default')]) }}">
-                @csrf
-                <input type="hidden" name="redirect" value="{{ localized_path(config('localization.default')) }}">
+            </x-locale-form>
+            <x-locale-form :locale="config('localization.default')">
                 <button
                     type="submit"
                     class="rounded p-1 text-gray-500 hover:bg-stone-100 hover:text-gray-900"
@@ -25,7 +21,7 @@
                 >
                     ×
                 </button>
-            </form>
+            </x-locale-form>
         </div>
     </div>
 @endif

@@ -86,6 +86,91 @@ test('Accept-Language suggests Russian on English pages without redirecting', fu
         ->assertSee('value="/ru"', false);
 });
 
+test('the language switcher is a dropdown naming the current language and offering both', function () {
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertSee('aria-haspopup="listbox"', false)
+        ->assertSee('<span>EN</span>', false)
+        ->assertSee('action="'.route('locale.update', ['locale' => 'en']).'"', false)
+        ->assertSee('action="'.route('locale.update', ['locale' => 'ru']).'"', false)
+        ->assertSee('English')
+        ->assertSee('Русский');
+
+    $this->get('/ru')
+        ->assertSuccessful()
+        ->assertSee('<span>RU</span>', false)
+        ->assertDontSee('<span>EN</span>', false);
+});
+
+test('the language switcher returns to the current page with its query string intact', function () {
+    $spring = Spring::factory()->create();
+
+    $this->get('/?page[spring]='.$spring->id.'&redirect=false')
+        ->assertSuccessful()
+        ->assertSee('value="/ru?page[spring]='.$spring->id.'&amp;redirect=false"', false);
+
+    $this->get('/ru/docs/about?utm_source=newsletter')
+        ->assertSuccessful()
+        ->assertSee('value="/docs/about?utm_source=newsletter"', false);
+});
+
+test('locale forms rebuild the query string from the browser on submit', function () {
+    $localeForm = file_get_contents(__DIR__.'/../../resources/views/components/locale-form.blade.php');
+
+    expect($localeForm)
+        ->toContain('x-ref="localeRedirect"')
+        ->toContain('window.location.search')
+        ->toContain('window.location.hash');
+
+    // Every locale switch has to go through the component, or it goes stale
+    // the moment Livewire rewrites the URL client-side.
+    foreach (['language-switcher', 'language-suggestion'] as $component) {
+        expect(file_get_contents(__DIR__.'/../../resources/views/components/'.$component.'.blade.php'))
+            ->toContain('<x-locale-form')
+            ->not->toContain('name="redirect"');
+    }
+});
+
+test('the language switcher marks only the active locale as selected', function () {
+    $response = $this->get('/ru')->assertSuccessful();
+
+    $switcher = mb_substr(
+        $response->getContent(),
+        (int) mb_strpos($response->getContent(), 'aria-haspopup="listbox"'),
+        4000,
+    );
+
+    expect($switcher)
+        ->toContain('aria-selected="false"')
+        ->toContain('English')
+        ->toContain('aria-selected="true"')
+        ->and(mb_substr_count($switcher, 'aria-selected="true"'))->toBe(1);
+});
+
+test('the navbar keeps the language switcher on the same row as the guest links', function () {
+    $navbar = file_get_contents(__DIR__.'/../../resources/views/components/navbar.blade.php');
+
+    expect($navbar)
+        ->toContain('flex justify-between items-center flex-nowrap pt-4 pb-2')
+        ->and(mb_substr_count($navbar, 'pt-4 pb-2'))->toBe(1);
+
+    $this->get('/')
+        ->assertSuccessful()
+        ->assertSee('<a href="'.route('login').'" class="block text-sm text-gray-500">', false)
+        ->assertSee('<a href="'.route('register').'" class="block text-sm text-gray-500">', false);
+});
+
+test('the navbar shows the language switcher next to the avatar for signed in users', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get('/user/profile')
+        ->assertSuccessful()
+        ->assertSee('aria-haspopup="listbox"', false)
+        ->assertSee('<span>EN</span>', false)
+        ->assertSee('class="h-7 w-7 rounded-full object-cover"', false);
+});
+
 test('a guest can store a locale cookie and safely return to the equivalent page', function () {
     $this->post('/locale/ru', [
         'redirect' => '/ru/docs/about?from=language-picker',

@@ -46,7 +46,7 @@
                   <li class="mb-2"><a href="{{ localized_public_path() }}">
                       <img src="/rodnik-nunito-logo.svg" class="h-6 mt-0.5" />
                   </a></li>
-                  <li class="mb-2"><x-language-switcher /></li>
+                  <li class="mb-2"><x-language-switcher align="left" /></li>
                   {{--<li><a href="/">🌍&nbsp; Map</a></li>--}}
                   <li><a href="{{ localized_public_path('/docs/about') }}"
                     @if (Request::is('docs/about', 'ru/docs/about'))
