@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,11 +25,18 @@ beforeEach(function () {
  * Answer every Overpass request with a queue of canned Guzzle results.
  *
  * @param  array<int, mixed>  $results
+ * @param  array<int, array<string, mixed>>|null  $history
  */
-function fakeOverpassResponses(array $results): void
+function fakeOverpassResponses(array $results, ?array &$history = null): void
 {
+    $handler = HandlerStack::create(new MockHandler($results));
+
+    if ($history !== null) {
+        $handler->push(Middleware::history($history));
+    }
+
     app()->bind(Client::class, fn (): Client => new Client([
-        'handler' => HandlerStack::create(new MockHandler($results)),
+        'handler' => $handler,
     ]));
 }
 
@@ -277,10 +285,11 @@ test('a connection failure is recorded instead of aborting the batch', function 
 
 test('a successful fetch counts an attempt and keeps the payload', function () {
     $batch = OverpassBatch::create([]);
+    $history = [];
 
     fakeOverpassResponses([
         new Response(200, [], json_encode(['elements' => []])),
-    ]);
+    ], $history);
 
     $import = new OverpassImport();
     $import->overpass_batch_id = $batch->id;
@@ -296,7 +305,10 @@ test('a successful fetch counts an attempt and keeps the payload', function () {
     expect((int) $import->response_code)->toBe(200)
         ->and($import->attempts)->toBe(3)
         ->and($import->succeeded())->toBeTrue()
-        ->and($import->isCongested())->toBeFalse();
+        ->and($import->isCongested())->toBeFalse()
+        ->and($history)->toHaveCount(1)
+        ->and($history[0]['options']['connect_timeout'])->toBe(15)
+        ->and($history[0]['options']['timeout'])->toBe(210);
 });
 
 test('the gate reads free slots and waiting times out of an /api/status body', function () {

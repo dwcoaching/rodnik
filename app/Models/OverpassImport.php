@@ -48,6 +48,8 @@ final class OverpassImport extends Model
                         'User-Agent' => 'Rodnik.today/1.0 (+https://rodnik.today; kolpavko@hey.com)',
                         'Accept' => '*/*',
                     ],
+                    'connect_timeout' => 15,
+                    'timeout' => 210,
                     'http_errors' => false,
                 ]);
 
