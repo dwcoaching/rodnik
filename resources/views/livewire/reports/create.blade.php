@@ -58,7 +58,7 @@
         </div>
     </div>
     <div class="font-black mt-2 text-lg">
-        {{ __('ui.report.new') }}
+        {{ $reportId ? __('ui.report.edit') : __('ui.report.new') }}
     </div>
     <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-xs focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
         <label for="date" class="block text-sm font-bold text-gray-500 flex justify-between items-center">

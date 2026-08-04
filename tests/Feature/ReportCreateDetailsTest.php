@@ -224,6 +224,16 @@ test('problem flags round-trip when editing a report', function () {
     expect($report->getRawOriginal('broken'))->toBeNull();
 });
 
+test('report form is titled Edit report when an existing report is loaded', function () {
+    $user = User::factory()->create();
+    $report = Report::factory()->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->test(CreateReport::class, ['springId' => $report->spring_id, 'reportId' => $report->id])
+        ->assertSee('Edit report')
+        ->assertDontSee('New report');
+});
+
 test('validation failure does not wipe condition selections', function () {
     fakeReportStoreSideEffects();
 

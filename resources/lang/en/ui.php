@@ -46,6 +46,7 @@ return [
 
     'report' => [
         'new' => 'New report',
+        'edit' => 'Edit report',
         'add' => 'Add report',
         'reports' => 'Reports',
         'no_reports_yet' => 'No reports yet',
