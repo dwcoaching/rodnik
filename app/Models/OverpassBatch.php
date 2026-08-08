@@ -9,6 +9,7 @@ use App\Jobs\ParseOverpassBatchImports;
 use App\Jobs\PruneMissingOSMSprings;
 use App\Jobs\RemoveOlderOverpassArtifacts;
 use App\Library\OverpassGate;
+use App\Library\OverpassSeed;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -41,17 +42,19 @@ final class OverpassBatch extends Model
 
     public function createImports()
     {
-        $step = 1;
+        $segments = OverpassSeed::segments();
 
-        for ($longitude = -180; $longitude <= 180 - $step; $longitude = $longitude + $step) {
+        foreach ($segments as $segment) {
             $overpassImport = new OverpassImport();
-            $overpassImport->latitude_from = -90;
-            $overpassImport->latitude_to = 90;
-            $overpassImport->longitude_from = $longitude;
-            $overpassImport->longitude_to = $longitude + $step;
+            $overpassImport->latitude_from = $segment['latitude_from'];
+            $overpassImport->latitude_to = $segment['latitude_to'];
+            $overpassImport->longitude_from = $segment['longitude_from'];
+            $overpassImport->longitude_to = $segment['longitude_to'];
             $overpassImport->overpass_batch_id = $this->id;
             $overpassImport->save();
         }
+
+        echo 'Seeded '.count($segments)." areas\n";
 
         $this->imports_status = 'created';
         $this->save();

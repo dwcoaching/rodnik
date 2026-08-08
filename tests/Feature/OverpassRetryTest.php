@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Library\OverpassGate;
+use App\Models\OverpassAttempt;
 use App\Models\OverpassBatch;
 use App\Models\OverpassImport;
 use GuzzleHttp\Client;
@@ -282,6 +283,46 @@ test('a connection failure is recorded instead of aborting the batch', function 
         ->and($import->attempts)->toBe(1)
         ->and($import->isCongested())->toBeTrue()
         ->and($import->needsSmallerArea())->toBeFalse();
+});
+
+test('every request is logged, including the refusals a retry would otherwise overwrite', function () {
+    $batch = OverpassBatch::create([]);
+
+    fakeOverpassResponses([
+        new Response(429, [], overpassErrorPage('rate_limited')),
+        new Response(200, [], json_encode(['elements' => [
+            ['type' => 'node', 'id' => 1],
+            ['type' => 'way', 'id' => 2],
+        ]])),
+    ]);
+
+    $import = new OverpassImport();
+    $import->overpass_batch_id = $batch->id;
+    $import->latitude_from = -90;
+    $import->latitude_to = 90;
+    $import->longitude_from = 10;
+    $import->longitude_to = 11;
+    $import->save();
+
+    $import->fetch();
+    $import->scheduleRetry();
+    $import->fetch();
+
+    $attempts = OverpassAttempt::where('overpass_import_id', $import->id)->orderBy('attempt')->get();
+
+    // The import itself now looks like a clean success; only the log remembers the refusal.
+    expect((int) $import->response_code)->toBe(200)
+        ->and($attempts)->toHaveCount(2);
+
+    expect((int) $attempts[0]->response_code)->toBe(429)
+        ->and($attempts[0]->congested)->toBeTrue()
+        ->and($attempts[0]->attempt)->toBe(1);
+
+    expect((int) $attempts[1]->response_code)->toBe(200)
+        ->and($attempts[1]->congested)->toBeFalse()
+        ->and($attempts[1]->element_count)->toBe(2)
+        ->and($attempts[1]->response_bytes)->toBeGreaterThan(0)
+        ->and((float) $attempts[1]->longitude_from)->toBe(10.0);
 });
 
 test('a successful fetch counts an attempt and keeps the payload', function () {

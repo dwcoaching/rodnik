@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Library\Overpass;
+use DateTimeInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\TransferException;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -33,7 +34,9 @@ final class OverpassImport extends Model
     {
         $guzzle = $this->httpClient();
 
-        $this->started_at = now();
+        $startedAt = now();
+
+        $this->started_at = $startedAt;
         $this->attempts = $this->attempts + 1;
 
         if (false && config('app.env') !== 'production') {
@@ -65,8 +68,43 @@ final class OverpassImport extends Model
             }
         }
 
-        $this->fetched_at = now();
+        $finishedAt = now();
+
+        $this->fetched_at = $finishedAt;
         $this->save();
+
+        $this->recordAttempt($startedAt, $finishedAt);
+    }
+
+    /**
+     * Keep a permanent record of what this request cost.
+     *
+     * The import's own columns are overwritten by the next retry, so without this a batch that
+     * was refused on a third of its requests still looks like a clean run once every area
+     * eventually succeeds. {@see \App\Library\OverpassSeed} plans the next batch from these rows.
+     */
+    public function recordAttempt(DateTimeInterface $startedAt, DateTimeInterface $finishedAt): void
+    {
+        $body = (string) $this->response;
+
+        OverpassAttempt::create([
+            'overpass_batch_id' => $this->overpass_batch_id,
+            'overpass_import_id' => $this->id,
+            'attempt' => $this->attempts,
+            'latitude_from' => $this->latitude_from,
+            'latitude_to' => $this->latitude_to,
+            'longitude_from' => $this->longitude_from,
+            'longitude_to' => $this->longitude_to,
+            'started_at' => $startedAt,
+            'duration_seconds' => max(0, $finishedAt->getTimestamp() - $startedAt->getTimestamp()),
+            'response_code' => (int) $this->response_code,
+            'response_bytes' => mb_strlen($body, '8bit'),
+            // Counted by hand rather than by decoding: the query only ever asks for nodes and
+            // ways, so these two markers are the elements, and a 15 MB payload does not have to
+            // be materialised just to be measured.
+            'element_count' => mb_substr_count($body, '"type":"node"') + mb_substr_count($body, '"type":"way"'),
+            'congested' => $this->isCongested(),
+        ]);
     }
 
     /**
