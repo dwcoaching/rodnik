@@ -11,6 +11,7 @@ use App\Library\StatisticsService;
 use App\Models\Photo;
 use App\Models\Report;
 use App\Models\Spring;
+use DateTimeZone;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -39,6 +40,8 @@ final class Create extends Component
     public $comment;
 
     public $visited_at;
+
+    public $timezone;
 
     public $access_limited = false;
 
@@ -145,6 +148,11 @@ final class Create extends Component
         return $this->redirect(duo_route(['spring' => $this->springId]));
     }
 
+    public function updatedVisitedAt(): void
+    {
+        $this->validateOnly('visited_at');
+    }
+
     public function getSortedPhotosFromSortablePhotos(int $reportId)
     {
         $sortablePhotos = collect($this->sortablePhotos)
@@ -220,7 +228,12 @@ final class Create extends Component
     protected function rules()
     {
         return [
-            'visited_at' => 'nullable|date',
+            'visited_at' => [
+                'nullable',
+                Rule::date()
+                    ->format('Y-m-d')
+                    ->beforeOrEqual(today($this->validationTimezone())),
+            ],
             'state' => [
                 'nullable',
                 Rule::enum(ReportState::class),
@@ -235,5 +248,25 @@ final class Create extends Component
             'broken' => 'nullable|boolean',
             'springId' => 'required|integer',
         ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'visited_at.before_or_equal' => __('ui.report.visit_date_future'),
+        ];
+    }
+
+    private function validationTimezone(): string
+    {
+        if (! is_string($this->timezone) || $this->timezone === '') {
+            return config('app.timezone');
+        }
+
+        if (in_array($this->timezone, DateTimeZone::listIdentifiers(DateTimeZone::ALL_WITH_BC), true)) {
+            return $this->timezone;
+        }
+
+        return config('app.timezone');
     }
 }

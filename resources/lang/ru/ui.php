@@ -61,6 +61,7 @@ return [
         'move_confirm' => 'Перенести этот отчёт к :target?',
         'move_to' => 'Перенести к :target',
         'visit_date' => 'Дата посещения',
+        'visit_date_future' => 'Дата посещения не может быть в будущем.',
         'do_not_specify' => 'Не указывать',
         'condition' => 'Состояние источника',
         'water_quality' => 'Качество воды',

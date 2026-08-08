@@ -60,7 +60,13 @@
     <div class="font-black mt-2 text-lg">
         {{ $reportId ? __('ui.report.edit') : __('ui.report.new') }}
     </div>
-    <div class="relative mt-2 max-w-xs bg-white border border-gray-300 rounded-md px-3 py-2 shadow-xs focus-within:ring-1 focus-within:ring-blue-600 focus-within:border-blue-600">
+    <div
+        @class([
+            'relative mt-2 max-w-xs rounded-md border border-gray-300 bg-white px-3 py-2 shadow-xs',
+            'focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600' => ! $errors->has('visited_at'),
+            'outline-2 outline-offset-[-1px] outline-[#c00]' => $errors->has('visited_at'),
+        ])
+    >
         <label for="date" class="block text-sm font-bold text-gray-500 flex justify-between items-center">
             <span class="mr-3">
                 {{ __('ui.report.visit_date') }}
@@ -73,8 +79,21 @@
                 {{ __('ui.report.do_not_specify') }}
             </span>
         </label>
-        <input x-show="withDate" x-model="visited_at" type="date" name="date" id="date" class="mt-1 block w-full border-0 p-0 text-base text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-base" placeholder="">
+        <input
+            x-show="withDate"
+            x-model="visited_at"
+            x-bind:max="today"
+            wire:model.change.live="visited_at"
+            type="date"
+            name="date"
+            id="date"
+            class="mt-1 block w-full border-0 p-0 text-base text-gray-900 placeholder-gray-500 focus:ring-0 sm:text-base"
+            @if ($errors->has('visited_at')) aria-invalid="true" aria-describedby="visit-date-error" @endif
+        >
     </div>
+    @error('visited_at')
+        <p id="visit-date-error" class="mt-1 max-w-xs text-xs font-medium text-[#c00]" role="alert">{{ $message }}</p>
+    @enderror
     <div class="mt-4">
         <div>
             <div class="mb-2">

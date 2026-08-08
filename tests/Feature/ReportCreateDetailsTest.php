@@ -9,6 +9,7 @@ use App\Livewire\Reports\Create as CreateReport;
 use App\Models\Report;
 use App\Models\Spring;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -254,4 +255,44 @@ test('validation failure does not wipe condition selections', function () {
         ->assertSet('broken', true);
 
     expect($spring->reports()->count())->toBe(0);
+});
+
+test('report visit date cannot be in the future in the visitors timezone', function () {
+    fakeReportStoreSideEffects();
+    $this->travelTo(CarbonImmutable::parse('2026-08-08 23:30:00 UTC'));
+
+    $spring = Spring::factory()->create();
+
+    Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
+        ->set('timezone', 'America/Adak')
+        ->set('visited_at', '2026-08-09')
+        ->call('store')
+        ->assertHasErrors(['visited_at' => ['before_or_equal']])
+        ->assertSee('The visit date cannot be in the future.');
+
+    expect($spring->reports()->count())->toBe(0);
+});
+
+test('report visit date allows the visitors current date across the UTC date boundary', function () {
+    fakeReportStoreSideEffects();
+    $this->travelTo(CarbonImmutable::parse('2026-08-08 23:30:00 UTC'));
+
+    $spring = Spring::factory()->create();
+
+    Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
+        ->set('timezone', 'Pacific/Kiritimati')
+        ->set('visited_at', '2026-08-09')
+        ->call('store')
+        ->assertHasNoErrors();
+
+    expect($spring->reports()->sole()->visited_at->toDateString())->toBe('2026-08-09');
+});
+
+test('report date field provides local-date constraints and accessible feedback', function () {
+    $spring = Spring::factory()->create();
+
+    Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
+        ->assertDontSee('Choose today or an earlier date.')
+        ->assertSeeHtml('x-bind:max="today"')
+        ->assertSeeHtml('wire:model.change.live="visited_at"');
 });

@@ -57,9 +57,15 @@ window.reportCreateForm = function(config) {
         maxActiveUploads: 2,
         withDate: true,
         previousDate: null,
+        today: '',
 
         init() {
             this.wire = config.wire;
+            this.today = this.localDate(new Date());
+            if (! config.reportId) {
+                this.visited_at = this.today;
+            }
+            this.wire.set('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
             this.withDate = !! this.visited_at;
             this.photoItems = (config.initialPhotos || []).map((photo) => ({
                 ...photo,
@@ -76,6 +82,14 @@ window.reportCreateForm = function(config) {
                     this.broken = false;
                 }
             });
+        },
+
+        localDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
         },
 
         toggleDate() {

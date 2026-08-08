@@ -61,6 +61,7 @@ return [
         'move_confirm' => 'Move this report to :target?',
         'move_to' => 'Move to :target',
         'visit_date' => 'Visit date',
+        'visit_date_future' => 'The visit date cannot be in the future.',
         'do_not_specify' => 'Do not specify',
         'condition' => 'Condition',
         'water_quality' => 'Water quality',
