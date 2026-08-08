@@ -238,6 +238,44 @@ test('a congested import stops being retried once it runs out of attempts', func
         ->and($import->fetched_at)->not->toBeNull();
 });
 
+test('a band of any height splits into three, not into one degree slivers', function (int $from, int $to) {
+    $batch = OverpassBatch::create([]);
+
+    $import = overpassImport($batch, [
+        'latitude_from' => $from,
+        'latitude_to' => $to,
+        'response_code' => 400,
+        'response' => 'Bad Request',
+        'has_remarks' => true,
+    ]);
+
+    $import->grindUp();
+
+    $children = OverpassImport::where('parent_id', $import->id)->orderBy('latitude_from')->get();
+
+    expect($children->count())->toBeLessThanOrEqual(3)->toBeGreaterThan(1);
+
+    // The children must tile the parent exactly: no sliver, no gap, no overshoot.
+    expect((float) $children->first()->latitude_from)->toBe((float) $from)
+        ->and((float) $children->last()->latitude_to)->toBe((float) $to);
+
+    foreach ($children as $i => $child) {
+        expect((float) $child->latitude_from)->toBe(floor((float) $child->latitude_from))
+            ->and((float) $child->latitude_to)->toBe(floor((float) $child->latitude_to));
+
+        if ($i > 0) {
+            expect((float) $child->latitude_from)->toBe((float) $children[$i - 1]->latitude_to);
+        }
+    }
+})->with([
+    'full strip' => [-90, 90],
+    'seed band, tall' => [-90, 46],
+    'seed band, short' => [46, 49],
+    'seed band, upper' => [49, 90],
+    'indivisible by three' => [10, 30],
+    'two degrees' => [40, 42],
+]);
+
 test('a merged block grinds back into whole degree columns, never fractions', function () {
     $batch = OverpassBatch::create([]);
 

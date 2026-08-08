@@ -335,7 +335,7 @@ final class OverpassImport extends Model
             $overpassImport->latitude_from = $this->latitude_from;
             $overpassImport->latitude_to = $this->latitude_to;
             $overpassImport->longitude_from = $longitude;
-            $overpassImport->longitude_to = $longitude + $step;
+            $overpassImport->longitude_to = min($longitude + $step, $this->longitude_to);
             $overpassImport->parent_id = $this->id;
             $overpassImport->overpass_batch_id = $this->overpass_batch_id;
             $overpassImport->save();
@@ -345,23 +345,26 @@ final class OverpassImport extends Model
         $this->save();
     }
 
+    /**
+     * Split into three bands of whole degrees.
+     *
+     * A fixed ladder of steps used to do this, which worked only because every area was a
+     * pole-to-pole 180 degree strip. The seed now hands out bands of any height, and a height
+     * the ladder did not list fell through to one degree steps — turning a single 136 degree
+     * band into 136 requests, which is the amplification this whole retry scheme exists to
+     * avoid. Thirds keep the descent gradual whatever the height, and the upper bound is
+     * clamped so a height that thirds do not divide evenly still tiles the parent exactly.
+     */
     public function grindUpLatitudinally()
     {
         // Latitudes come out of the database as decimal strings, so compare whole degrees.
         $range = (int) round((float) $this->latitude_to - (float) $this->latitude_from);
-
-        $step = match ($range) {
-            180 => 60,
-            60 => 20,
-            20 => 10,
-            10 => 5,
-            default => 1,
-        };
+        $step = max(1, (int) ceil($range / 3));
 
         for ($latitude = $this->latitude_from; $latitude < $this->latitude_to; $latitude = $latitude + $step) {
             $overpassImport = new self();
             $overpassImport->latitude_from = $latitude;
-            $overpassImport->latitude_to = $latitude + $step;
+            $overpassImport->latitude_to = min($latitude + $step, $this->latitude_to);
             $overpassImport->longitude_from = $this->longitude_from;
             $overpassImport->longitude_to = $this->longitude_to;
             $overpassImport->parent_id = $this->id;
