@@ -238,6 +238,36 @@ test('a congested import stops being retried once it runs out of attempts', func
         ->and($import->fetched_at)->not->toBeNull();
 });
 
+test('a merged block grinds back into whole degree columns, never fractions', function () {
+    $batch = OverpassBatch::create([]);
+
+    // A block the seed merged out of eight cheap columns.
+    $import = overpassImport($batch, [
+        'longitude_from' => -28,
+        'longitude_to' => -20,
+        'response_code' => 400,
+        'response' => 'Bad Request',
+        'has_remarks' => true,
+    ]);
+
+    $import->grindUp();
+
+    $children = OverpassImport::where('parent_id', $import->id)->orderBy('longitude_from')->get();
+
+    expect($children)->toHaveCount(8);
+
+    foreach ($children as $child) {
+        // A fractional column covers no 1x1 check cell, so coverage could never reach 100%.
+        expect((float) $child->longitude_from)->toBe(floor((float) $child->longitude_from))
+            ->and((float) $child->longitude_to - (float) $child->longitude_from)->toBe(1.0)
+            ->and((float) $child->latitude_from)->toBe(-90.0)
+            ->and((float) $child->latitude_to)->toBe(90.0);
+    }
+
+    expect((float) $children->first()->longitude_from)->toBe(-28.0)
+        ->and((float) $children->last()->longitude_to)->toBe(-20.0);
+});
+
 test('grinding up a 1x1 area gives up instead of cloning itself forever', function () {
     $batch = OverpassBatch::create([]);
 

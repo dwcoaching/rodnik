@@ -317,10 +317,18 @@ final class OverpassImport extends Model
         $this->save();
     }
 
+    /**
+     * Break a merged block back into the single degree columns it was built from.
+     *
+     * The step has to stay a whole degree: coverage is tracked against a 1x1 degree grid of
+     * {@see OverpassCheck}, and a check only counts as covered by an import that fully contains
+     * it, so a fractional column would cover nothing and leave the batch permanently short of
+     * 100%. Reverting the merge is also the right answer on its own terms — these columns were
+     * put together on the bet that they were jointly cheap, and that bet just lost.
+     */
     public function grindUpLongitudinally()
     {
-        $range = $this->longitude_to - $this->longitude_from;
-        $step = $range / 10;
+        $step = 1;
 
         for ($longitude = $this->longitude_from; $longitude < $this->longitude_to; $longitude = $longitude + $step) {
             $overpassImport = new self();
