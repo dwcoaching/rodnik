@@ -13,6 +13,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
@@ -335,6 +336,24 @@ test('the gate never waits on an unparseable or already elapsed status', functio
 
     expect(OverpassGate::parseStatus('Slot available after: 2026-08-04T15:20:00Z, in -3 seconds.')['wait'])
         ->toBe(1);
+});
+
+test('the gate reserves the next slot from the start of a query, not from its response', function () {
+    Cache::flush();
+
+    $gate = new OverpassGate;
+    $gate->awaitSlot();
+
+    // A query that outlasts the cycle leaves nothing to wait for.
+    $this->travel(OverpassGate::MINIMUM_CYCLE_SECONDS + 5)->seconds();
+    expect(Cache::get('overpass:next-request-at'))->toBeLessThanOrEqual(now()->getTimestamp());
+
+    // A query that comes back quickly still has to sit out the rest of the cycle.
+    Cache::flush();
+    $gate->awaitSlot();
+    $this->travel(4)->seconds();
+    expect(Cache::get('overpass:next-request-at') - now()->getTimestamp())
+        ->toBe(OverpassGate::MINIMUM_CYCLE_SECONDS - 4);
 });
 
 test('the gate backs off exponentially and stays capped', function () {

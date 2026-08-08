@@ -21,9 +21,16 @@ final class OverpassGate
     public const STATUS_URL = 'https://overpass-api.de/api/status';
 
     /**
-     * Never send two queries closer together than this.
+     * Shortest allowed interval between the *starts* of two queries.
+     *
+     * Measured from the start rather than from the previous response on purpose. Overpass keeps
+     * a slot marked busy for a while after a query returns — /api/status advertised waits of up
+     * to 44 seconds during the last full import — so pacing from the response punishes nothing
+     * when a query is slow and paces not at all when it is fast. Cheap ocean areas came back in
+     * seconds and were refused on 98% of first tries, while 150-second European areas, which
+     * space themselves out for free, were never refused once.
      */
-    public const MINIMUM_SPACING_SECONDS = 2;
+    public const MINIMUM_CYCLE_SECONDS = 30;
 
     /**
      * Upper bound for a single wait so an unreachable status endpoint cannot stall a batch.
@@ -70,15 +77,18 @@ final class OverpassGate
     }
 
     /**
-     * Wait until the API is ready for another query. Deliberately does not call /api/status on
-     * the happy path: spacing alone keeps us inside the quota, and asking would double the
-     * number of requests we make.
+     * Wait until the API is ready for another query, then claim the next slot.
+     *
+     * The claim is made here, before the query runs, so that the reservation covers the query
+     * itself: an area that takes longer than the cycle waits no extra time, while a fast one is
+     * held back until the cycle is up. Deliberately does not call /api/status on the happy path,
+     * since asking would double the number of requests we make.
      */
     public function awaitSlot(): void
     {
         $this->sleep($this->secondsUntilNextRequest());
 
-        $this->reserveNextRequestAt(self::MINIMUM_SPACING_SECONDS);
+        $this->reserveNextRequestAt(self::MINIMUM_CYCLE_SECONDS);
     }
 
     /**
