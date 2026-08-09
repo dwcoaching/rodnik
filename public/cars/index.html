@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Подборка авто — Skoda Rapid / VW Polo 1.6 AT</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #fff;
+    --fg: #14161a;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --good: #15803d;
+    --bad: #b91c1c;
+    --warn: #b45309;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1115; --card: #171a20; --fg: #e8eaed; --muted: #9aa1ab;
+      --line: #2a2f38; --good: #4ade80; --bad: #f87171; --warn: #fbbf24;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 64px;
+    font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg); color: var(--fg);
+  }
+  header { max-width: 1400px; margin: 0 auto 20px; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .wrap { max-width: 1400px; margin: 0 auto; overflow-x: auto;
+          background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+  table { border-collapse: collapse; width: 100%; min-width: 940px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { position: sticky; top: 0; background: var(--card); font-size: 12px; text-transform: uppercase;
+       letter-spacing: .04em; color: var(--muted); cursor: pointer; user-select: none; white-space: nowrap; }
+  th:hover { color: var(--fg); }
+  tbody tr:hover { background: color-mix(in srgb, var(--fg) 4%, transparent); }
+  td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .name { font-weight: 600; }
+  a.name { color: inherit; text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--fg) 35%, transparent); }
+  a.name:hover { color: #2563eb; border-bottom-color: #2563eb; }
+  @media (prefers-color-scheme: dark) { a.name:hover { color: #60a5fa; border-bottom-color: #60a5fa; } }
+  .src { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: .03em;
+         padding: 1px 5px; border-radius: 4px; margin-left: 6px; vertical-align: 2px; color: #fff; }
+  .src-avito { background: #00aaff; }
+  .src-autoru { background: #e60023; }
+  .src-drom { background: #d94f2b; }
+  .price { font-weight: 700; font-size: 16px; }
+  .was { color: var(--muted); font-size: 12px; text-decoration: line-through; }
+  .good { color: var(--good); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 999px;
+         border: 1px solid var(--line); color: var(--muted); margin: 1px 2px 1px 0; white-space: nowrap; }
+  .thumb { display: block; width: 132px; height: 96px; overflow: hidden; border-radius: 8px;
+           border: 1px solid var(--line); background: var(--bg); }
+  .thumb img { width: 100%; display: block; margin-top: -6px; }
+  .thumb img.photo { margin-top: 0; height: 96px; object-fit: cover; }
+  .shots { margin-top: 5px; font-size: 11px; }
+  .shots a { color: var(--muted); text-decoration: none; margin-right: 6px; border-bottom: 1px dotted var(--muted); }
+  .shots a:hover { color: var(--fg); }
+  td.rank { font-weight: 700; font-size: 15px; color: var(--muted); width: 1%;
+            text-align: center; white-space: nowrap; cursor: help; }
+  td.rank.top { color: var(--fg); }
+  tr:hover td.rank { color: var(--fg); }
+  tr.cmt td { border-bottom: 1px solid var(--line); padding: 0 12px 12px; }
+  tr.cmt:hover { background: none; }
+  .verdict { max-width: 880px; font-size: 13.5px; line-height: 1.55;
+             border-left: 3px solid var(--line); padding: 9px 0 9px 12px; }
+  .verdict.top { border-left-color: #16a34a; }
+  .verdict.bad { border-left-color: #dc2626; }
+  .v-head { color: #16a34a; }
+  .verdict.bad .v-head { color: #dc2626; }
+  .check { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+  .check span { font-weight: 600; }
+  .panel { max-width: 1400px; margin: 0 auto 20px; background: var(--card);
+           border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; }
+  .panel h2 { font-size: 17px; margin: 0 0 10px; }
+  .panel h3 { font-size: 14px; margin: 16px 0 6px; }
+  .panel p, .panel li { font-size: 14px; line-height: 1.55; margin: 0 0 8px; }
+  .panel ul { margin: 0 0 8px; padding-left: 20px; }
+  .panel .lead { font-size: 15px; }
+  .flag { border-left: 3px solid #d97706; padding-left: 12px; margin: 12px 0; }
+  td.rank .n { border-bottom: 2px dotted var(--muted); padding-bottom: 1px; }
+  td.rank:hover .n { border-bottom-color: currentColor; }
+  tr.excluded { display: none; }  /* моя находка, скрыта — уберите класс, чтобы вернуть */
+  #tip { position: fixed; z-index: 99; max-width: 420px; display: none;
+         background: var(--card); color: var(--fg);
+         border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+         box-shadow: 0 10px 30px rgba(0,0,0,.18); font-size: 13.5px; line-height: 1.5; }
+  @media (prefers-color-scheme: dark) { #tip { box-shadow: 0 10px 30px rgba(0,0,0,.6); } }
+  #tip p { margin: 0 0 8px; }
+  #tip p:last-child { margin-bottom: 0; }
+  .t-title { font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+             color: var(--muted); margin-bottom: 6px; }
+  .t-head { color: #16a34a; }
+  .t-head.t-bad { color: #dc2626; }
+  .t-check { font-size: 12.5px; color: var(--muted); }
+  .t-check span { font-weight: 600; }
+  .t-mine { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line);
+            font-size: 13px; }
+  .t-mine span { font-weight: 600; color: #2563eb; }
+  td.rank { position: relative; }
+  .rank-tools { display: flex; gap: 4px; justify-content: center; margin-top: 5px; }
+  .grip { border: 0; background: none; padding: 2px 3px; border-radius: 4px;
+          font-size: 13px; line-height: 1; color: var(--muted); cursor: pointer; font-family: inherit; }
+  .grip { cursor: grab; }
+  .grip:hover { color: var(--fg); background: color-mix(in srgb, var(--fg) 10%, transparent); }
+  body.nodrag .grip { opacity: .25; cursor: not-allowed; }
+  tr.dragging { opacity: .4; }
+  .dragnote { display: none; max-width: 1400px; margin: 0 auto 10px; font-size: 13px;
+              color: #b45309; }
+  body.nodrag .dragnote { display: block; }
+
+  #modal { position: fixed; inset: 0; z-index: 200; display: none;
+           background: rgba(0,0,0,.45); align-items: center; justify-content: center; padding: 16px; }
+  #modal.on { display: flex; }
+  #modal .box { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+                width: 100%; max-width: 520px; padding: 18px 20px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  #modal h3 { margin: 0 0 4px; font-size: 16px; }
+  #modal .who { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+  #modal textarea { width: 100%; min-height: 130px; resize: vertical; padding: 10px 12px;
+                    font: inherit; font-size: 14px; color: var(--fg); background: var(--bg);
+                    border: 1px solid var(--line); border-radius: 8px; }
+  #modal .btns { display: flex; gap: 8px; margin-top: 12px; }
+  #modal button { font: inherit; font-size: 14px; padding: 8px 14px; border-radius: 8px;
+                  border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
+  #modal button.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+  #modal button.danger { color: #dc2626; }
+  #modal .sp { flex: 1; }
+
+  .jsonbox { max-width: 1400px; margin: 22px auto 0; background: var(--card);
+             border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .jsonbox h2 { font-size: 16px; margin: 0 0 4px; }
+  .jsonbox .hint { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .jsonbox pre { margin: 0; padding: 12px 14px; background: var(--bg); border: 1px solid var(--line);
+                 border-radius: 8px; max-height: 340px; overflow: auto; font-size: 12px; line-height: 1.5;
+                 font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre; }
+  .jsonbox .btns { display: flex; gap: 8px; margin-top: 10px; }
+  .jsonbox button { font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 8px;
+                    border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
+  .jsonbox button:hover { border-color: var(--muted); }
+  .jsonbox .ok { color: #16a34a; font-size: 13px; align-self: center; }
+  td.chk { max-width: 250px; }
+  .delta { font-weight: 600; font-variant-numeric: tabular-nums; margin-bottom: 5px; white-space: nowrap; }
+  .delta.good { color: var(--good); }
+  .delta.bad { color: var(--bad); }
+  td.mycmt { max-width: 240px; font-size: 13px; line-height: 1.45; cursor: text; }
+  td.mycmt .empty { color: var(--muted); }
+  td.mycmt:hover .empty { color: var(--fg); }
+  .trim { font-weight: 600; color: var(--fg); }
+  .trim.none { font-weight: 400; color: var(--warn); }
+  .note { font-size: 12px; color: var(--muted); }
+  footer { max-width: 1400px; margin: 16px auto 0; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Подборка авто — Skoda Rapid / VW Polo, 1.6 AT</h1>
+  <div class="sub">14 объявлений от подборщика · данные со скриншотов от 09.08.2026 · отсортировано по рейтингу. Кликните по заголовку столбца, чтобы отсортировать. Порядок и комментарии — ваши. <b>Наведите на номер</b>, чтобы увидеть мою оценку и моё место.</div>
+</header>
+
+
+<div class="dragnote">Таблица отсортирована по другому столбцу — перетаскивание отключено. Нажмите на заголовок <b>#</b>, чтобы вернуть порядок мест и снова включить перетаскивание.</div>
+<div class="wrap">
+<table id="t">
+<thead>
+<tr>
+  <th data-type="num">#</th>
+  <th data-type="text">Фото</th>
+  <th data-type="text">Модель</th>
+  <th data-type="num">Год</th>
+  <th data-type="num">Пробег, км</th>
+  <th data-type="num">Цена, ₽</th>
+  <th data-type="num">Δ к оценке · проверка</th>
+  <th data-type="num">Влад.</th>
+  <th data-type="text">Мой комментарий</th>
+</tr>
+</thead>
+<tbody>
+
+<tr class="car excluded">
+  <td class="num rank" data-sort="0" data-tip="&lt;div class=&quot;t-title&quot;&gt;Вне подборки&lt;/div&gt;&lt;p&gt;Моя находка с Авто.ру: Rapid 2021, 58 тыс., Hockey Edition, 1 владелец, без ДТП, 1 445 000. Скрыта, чтобы в таблице остались только машины от подборщика.&lt;/p&gt;"><span class="n">—</span></td>
+  <td>
+    <a class="thumb" href="rapid_2021_hockey.jpg" target="_blank"><img class="photo" src="rapid_2021_hockey.jpg" alt="Skoda Rapid 2021 Hockey Edition"></a>
+    <div class="shots"><a href="https://auto.ru/cars/used/sale/skoda/rapid/1133344154-7f232370/" target="_blank" rel="noopener">объявление</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/skoda/rapid/1133344154-7f232370/" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 MPI AT, 110 л.с. · II · <span class="trim">Hockey Edition</span></div></td>
+  <td class="num">2021</td>
+  <td class="num">58 000</td>
+  <td class="num" data-sort="1445000"><span class="price">1 445 000</span></td>
+  <td class="chk" data-sort="-178600">
+    <div class="delta good">−178 600</div><div class="note">−11%, оценка Авто.ру</div>
+    <span class="tag good">без ДТП (ГИБДД)</span><span class="tag good">не в розыске</span><span class="tag">ПТС оригинал/электронный</span><span class="tag">4 отметки о пробеге</span>
+  </td>
+  <td class="num">1</td>
+  <td class="mycmt" data-default=""><span class="empty">—</span></td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="9" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 9 · моё — 14&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Худший вариант подборки.&lt;/b&gt; Style и 53 тыс. пробега — единственные аргументы.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца при таком пробеге, ДТП, +115 000 к оценке, и объявление висит с сентября 2024 года. Почти два года не продаётся — это диагноз.&lt;/p&gt;"><span class="n">9</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.17.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.17.jpeg" alt="Skoda Rapid 2019"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.18.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.19.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/moskva/avtomobili/skoda_rapid_1.6_at_2019_53_000_km_4190970776?hrbkey=4NhGUag3RAQA0rKXqqICh3hpx4cXVbRo" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · II (2019—2026) · <span class="trim">Style</span></div></td>
+  <td class="num"><span class="n">2019</span></td>
+  <td class="num">53 <span class="n">000</span></td>
+  <td class="num" data-sort="1550000"><span class="price">1 550 000</span><div class="was">1 750 000</div></td>
+  <td class="chk" data-sort="115">
+    <div class="delta bad">+115 <span class="n">000</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">оригинал ПТС</span><span class="tag">пробег реальный</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="без проблем кроме 2019 года.
+машина совпадает с первым местом по категории">без проблем кроме 2019 года.<br>машина совпадает с первым местом по категории</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="10" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 10 · моё — 1&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Мой выбор.&lt;/b&gt; Ambition — средний, а не базовый уровень Skoda: подогрев передних сидений и раздельная спинка 60/40 здесь есть. Плюс пробег вдвое ниже среднего по подборке, один владелец, без ДТП, оригинал ПТС и цена ниже оценки Авито.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Задние парктроники на Ambition бывают и в базе, и опцией. 53 тыс. за 7 лет подтвердите сервисной книжкой. Продавец — салон: убедитесь, что «1 владелец» это физлицо, а не перепродажа.&lt;/p&gt;"><span class="n">10</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.19%20(1).jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.19%20(1).jpeg" alt="Skoda Rapid 2019 белый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.20.jpeg" target="_blank">Автотека</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/lesnoy_gorodok/avtomobili/skoda_rapid_1.6_at_2019_53_000_km_8158786393?hrbkey=4NhGUag3RAS4tAtqp1Zg1iD6YXhNlJz8" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · II (2019—2026) · <span class="trim">Ambition</span></div></td>
+  <td class="num"><span class="n">2019</span></td>
+  <td class="num">53 <span class="n">000</span></td>
+  <td class="num" data-sort="1530000"><span class="price">1 530 000</span></td>
+  <td class="chk" data-sort="-7">
+    <div class="delta good">−7 <span class="n">600</span></div>
+    <span class="tag good">без ДТП</span><span class="tag">оригинал ПТС</span><span class="tag">без окрасов (со слов)</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="2019 год. парктроник задний, вроде бы обогрев лобового
+ок, но старее и «ровно как был»
+возможно прокуренный">2019 год. парктроник задний, вроде бы обогрев лобового<br>ок, но старее и «ровно как был»<br>возможно прокуренный</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="13" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 13 · моё — 6&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Только при одном условии.&lt;/b&gt; Рапид, 2021, 67,5 тыс., Ambition, без ДТП, 2 владельца, цена ниже оценки — по содержанию ровно ваш базовый сценарий.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Автотека показывает ограничения на регистрацию: пока их не снимут, машину нельзя поставить на учёт. Дырка в сиденье и чёрный цвет — вкусовое, а вот ограничения объективны.&lt;/p&gt;"><span class="n">13</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.21.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.21.jpeg" alt="Skoda Rapid 2021 чёрный"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.22.jpeg" target="_blank">Автотека</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/pushkino/avtomobili/skoda_rapid_1.6_at_2021_67_500_km_8176724100?hrbkey=4NhGUag3RAS299VV2EzNPWDXoKRtPJtF" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · II (2019—2026) · <span class="trim">Ambition</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">67 <span class="n">500</span></td>
+  <td class="num" data-sort="1600000"><span class="price">1 600 000</span></td>
+  <td class="chk" data-sort="-18">
+    <div class="delta good">−18 <span class="n">500</span></div>
+    <span class="tag good">без ДТП</span><span class="tag bad">есть ограничения на рег.</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="МИМО вроде ок, дырка в переднем сиденьи?
+черный цвет для рапида непривычен :)">МИМО вроде ок, дырка в переднем сиденьи?<br>черный цвет для рапида непривычен :)</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank top" data-sort="1" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 1 · моё — 2&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Лучший из Polo.&lt;/b&gt; 2021 год при 67,6 тыс., один владелец, цена на 52 800 ниже прогноза. Продавец активно скидывает: 1 750 000 → 1 570 000, причём −90 000 за один день — торг до ~1,5 млн вполне реален.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Respect — средний уровень Polo: подогрев передних сидений есть, а задние парктроники чаще идут опцией. Обязательно проверьте раздельную спинку 60/40 — это единственное, что потом не доустановить. Плюс одно ДТП с незначительными повреждениями и царапина на заднем бампере.&lt;/p&gt;"><span class="n">1</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.22%20(1).jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.22%20(1).jpeg" alt="VW Polo 2021 серый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.23.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.24.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133088448-d139e275/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">67 <span class="n">600</span></td>
+  <td class="num" data-sort="1570000"><span class="price">1 570 000</span><div class="was">1 750 000</div></td>
+  <td class="chk" data-sort="-52">
+    <div class="delta good">−52 <span class="n">800</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">царапина на заднем бампере</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="вроде ок, но мало фоток и описание короткое, потенциал есть">вроде ок, но мало фоток и описание короткое, потенциал есть</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="6" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 6 · моё — 12&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Обидный случай: Style, небольшой пробег, ежегодное ТО с отметками в сервисной книжке.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца на пятилетней машине, ДТП и +108 700 к оценке. Внешне без проблем — но история и цена перевешивают.&lt;/p&gt;"><span class="n">6</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.25.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.25.jpeg" alt="Skoda Rapid 2021 коричневый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.26.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.27.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/skoda/rapid/1133303383-ce9e3386/" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · II · <span class="trim">Style</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">69 <span class="n">680</span></td>
+  <td class="num" data-sort="1590000"><span class="price">1 590 000</span><div class="was">1 740 000</div></td>
+  <td class="chk" data-sort="108">
+    <div class="delta bad">+108 <span class="n">700</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">ТО каждый год, сервисная книжка</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="внешне без проблем">внешне без проблем</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank top" data-sort="3" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 3 · моё — 13&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Football Edition — спецсерия с неплохим оснащением, и пробег всего 71 тыс.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца, 4 размещения на Авито, и Автотека не смогла проверить розыск и ограничения. Внешне машина и правда хороша, но юридически это кот в мешке.&lt;/p&gt;"><span class="n">3</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.28.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.28.jpeg" alt="VW Polo 2020 бежевый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.29.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.30.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/moskva/avtomobili/volkswagen_polo_1.6_at_2020_71_000_km_8126761418?hrbkey=4NhGUag3RAR2DzSVHcjBpF2i3RYjbrbb" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Football Edition</span></div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">71 <span class="n">000</span></td>
+  <td class="num" data-sort="1550000"><span class="price">1 550 000</span><div class="was">1 650 000</div></td>
+  <td class="chk" data-sort="0">
+    <div class="delta bad">−<span class="n">400</span></div>
+    <span class="tag good">без ДТП</span><span class="tag warn">розыск/ограничения не проверены</span><span class="tag warn">4 размещения на Авито</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="внешне без проблем">внешне без проблем</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="8" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 8 · моё — 3&lt;/div&gt;&lt;p&gt;Самая большая скидка к оценке — 65 100. Продавец прошёл путь 1 800 000 → 1 550 000 за 10 шагов, то есть мотивирован. Один владелец.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Та же оговорка по Respect, что и у Polo с 67,6 тыс.: парктроники и раздельную спинку подтверждайте по списку опций. Плюс в объявлении 75 455 км, а Автотека показывает 77 406, есть дубль от автодилера и одно незначительное ДТП.&lt;/p&gt;"><span class="n">8</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.31.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.31.jpeg" alt="VW Polo 2021 красный"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.32.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.33.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133461352-066135c3/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">75 <span class="n">455</span></td>
+  <td class="num" data-sort="1550000"><span class="price">1 550 000</span><div class="was">1 800 000</div></td>
+  <td class="chk" data-sort="-65">
+    <div class="delta good">−65 <span class="n">100</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">Автотека: 77 406 км</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="возможно прокуренный
+красный салон — не очень :(">возможно прокуренный<br>красный салон — не очень :(</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="7" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 7 · моё — 11&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Ambition — нормальный уровень оснащения, но на этом хорошее заканчивается.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца, ДТП, +113 400 к оценке. И дубль этого же объявления на Авито за 1 525 000 — вам показывают версию на 50 тыс. дороже.&lt;/p&gt;"><span class="n">7</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.34.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.34.jpeg" alt="Skoda Rapid 2020 белый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.35.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.36.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.drom.ru/noginsk/skoda/rapid/127478558.html" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-drom">Дром</span><div class="note">1.6 MPI AT <span class="trim">Ambition</span> · 2 поколение</div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">88 <span class="n">000</span></td>
+  <td class="num" data-sort="1575000"><span class="price">1 575 000</span><div class="was">1 615 000</div></td>
+  <td class="chk" data-sort="113">
+    <div class="delta bad">+113 <span class="n">400</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">дубль на Авито за 1 525 000</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="черные диски, мало фоток :(">черные диски, мало фоток :(</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank top" data-sort="2" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 2 · моё — 8&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Топовая комплектация Polo.&lt;/b&gt; Exclusive — максимальный уровень, что частично объясняет цену выше оценки. Без ДТП, 2 владельца, проф. продавец, есть видеообзор.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; +48 900 к оценке при 90 тыс. пробега, и цена почти не двигалась (1 600 000 → 1 590 000) — продавец не мотивирован торговаться.&lt;/p&gt;"><span class="n">2</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.38.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.38.jpeg" alt="VW Polo 2020 чёрный"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.39.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.40.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/ramenskoe/avtomobili/volkswagen_polo_1.6_at_2020_90_000_km_8306908805?hrbkey=4NhGUag3RATGqBhzUBZFBtzRn0M3juSl" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Exclusive</span></div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">90 <span class="n">000</span></td>
+  <td class="num" data-sort="1590000"><span class="price">1 590 000</span><div class="was">1 600 000</div></td>
+  <td class="chk" data-sort="48">
+    <div class="delta bad">+48 <span class="n">900</span></div>
+    <span class="tag good">без ДТП</span><span class="tag">в родном окрасе (со слов)</span><span class="tag">видеообзор</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="комплектация хорошая">комплектация хорошая</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="11" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 11 · моё — 10&lt;/div&gt;&lt;p&gt;Один владелец и без ДТП — по бумагам неплохо.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; +96 600 к оценке при 93 тыс. пробега, вмятина на переднем крыле и средний уровень Respect. Мало фотографий — плохой знак для машины, за которую просят выше рынка.&lt;/p&gt;"><span class="n">11</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.41.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.41.jpeg" alt="VW Polo 2021 салон"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.42.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.43.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/himki/avtomobili/volkswagen_polo_1.6_at_2021_93_000_km_8245253431?hrbkey=4NhGUag3RATs%2FhNyuErC17GtS6a5c7eD" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">93 <span class="n">000</span></td>
+  <td class="num" data-sort="1600000"><span class="price">1 600 000</span><div class="was">1 650 000</div></td>
+  <td class="chk" data-sort="96">
+    <div class="delta bad">+96 <span class="n">600</span></div>
+    <span class="tag good">без ДТП</span><span class="tag warn">вмятина на переднем крыле</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="мало фоток, не понятно, темно">мало фоток, не понятно, темно</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank top" data-sort="5" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 5 · моё — 4&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Нужное оснащение в бюджете.&lt;/b&gt; Status — уровень выше Respect, и именно на нём у Polo уверенно появляется всё, что вам нужно: задние парктроники, подогревы, раздельная спинка. При этом 1 480 000 — внутри бюджета.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 95 тыс. — вход в зону плановых расходов. Плюс 2 владельца, ДТП, цена на 55 800 выше оценки и дубли у автодилеров за 1 529 444: «частник» здесь номинальный. Ваша отметка про 4 ДТП — если это подтверждается отчётом, машину я бы снял с рассмотрения совсем.&lt;/p&gt;"><span class="n">5</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.44.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.44.jpeg" alt="VW Polo 2020 синий"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.45.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.46.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.drom.ru/moscow/volkswagen/polo/564511411.html" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-drom">Дром</span><div class="note">1.6 MPI AT <span class="trim">Status</span> · 6 поколение</div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">95 <span class="n">380</span></td>
+  <td class="num" data-sort="1480000"><span class="price">1 480 000</span><div class="was">1 650 000</div></td>
+  <td class="chk" data-sort="55">
+    <div class="delta bad">+55 <span class="n">800</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">от офиц. дилера (со слов)</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="Комплектация хорошая. 
+4 дтп">Комплектация хорошая. <br>4 дтп</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="14" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 14 · моё — 7&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Самая богатая по оснащению.&lt;/b&gt; Style — верхний уровень Skoda: передние и задние парктроники, бесключевой доступ, фары LED Cristal. Без ДТП, 2 владельца, покупалась в Рольфе через специалистов по подбору.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 115 тыс. пробега и +63 700 к оценке. Ваши доводы про чехлы и 17-е диски справедливы: низкий профиль на московских ямах — это расходы на диски и подвеску.&lt;/p&gt;"><span class="n">14</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.48.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.48.jpeg" alt="Skoda Rapid 2021 серый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.49.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.50.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.drom.ru/moscow/skoda/rapid/905488986.html" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-drom">Дром</span><div class="note">1.6 MPI AT <span class="trim">Style</span> · 2 поколение</div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">115 <span class="n">000</span></td>
+  <td class="num" data-sort="1570000"><span class="price">1 570 000</span><div class="was">1 690 000</div></td>
+  <td class="chk" data-sort="63">
+    <div class="delta bad">+63 <span class="n">700</span></div>
+    <span class="tag good">без ДТП</span><span class="tag">Автотека: 113 800 км</span><span class="tag">новые диски и резина</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="МИМО чехлы на сиденья, 17-е диски (низкий профиль / ямы) — минусы, уберём из рассмотрения">МИМО чехлы на сиденья, 17-е диски (низкий профиль / ямы) — минусы, уберём из рассмотрения</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="12" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 12 · моё — 9&lt;/div&gt;&lt;p&gt;Самая дешёвая машина подборки: 1 380 000 при падении с 1 600 000. Один владелец, дилерская.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 118,8 тыс. пробега, ДТП и всего лишь Respect. Чехлы на сиденьях — почти всегда признак того, что под ними что-то прячут.&lt;/p&gt;"><span class="n">12</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.51.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.51.jpeg" alt="VW Polo 2021 бордовый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.53.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.54.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1132554159-036533ec/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">118 <span class="n">800</span></td>
+  <td class="num" data-sort="1380000"><span class="price">1 380 000</span><div class="was">1 600 000</div></td>
+  <td class="chk" data-sort="-11">
+    <div class="delta good">−11 <span class="n">700</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">дилерский, 1 собственник</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="МИМО чехлы на сиденья, дтп :-(">МИМО чехлы на сиденья, дтп :-(</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank top" data-sort="4" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 4 · моё — 5&lt;/div&gt;&lt;p&gt;Status — то есть с тем же оснащением, что и Polo с 95 тыс., но дешевле, с одним владельцем, без ДТП, у продавца со 154 отзывами и по цене ровно по рынку. По бумагам одна из самых чистых машин списка.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Единственное, но крупное «но» — 126 тыс. пробега. За пять лет вы приедете к 190–200 тысячам, и это прямо спорит с целью «без особых вложений».&lt;/p&gt;"><span class="n">4</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.55.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.55.jpeg" alt="VW Polo 2021 коричневый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.56.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.57.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/moskva/avtomobili/volkswagen_polo_1.6_at_2021_126_000_km_8188069577?hrbkey=4NhGUag3RASYjU2nhnn9WU2hGLnbX9Q4" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Status</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">126 <span class="n">000</span></td>
+  <td class="num" data-sort="1470000"><span class="price">1 470 000</span><div class="was">1 490 000</div></td>
+  <td class="chk" data-sort="-3">
+    <div class="delta good">−3 <span class="n">500</span></div>
+    <span class="tag good">без ДТП</span><span class="tag">салон «Алексей Авто», 154 отзыва</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="внешне никаких проблем, но пробег большой">внешне никаких проблем, но пробег большой</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+
+
+
+<div id="modal"><div class="box">
+  <h3>Мой комментарий</h3>
+  <div class="who" id="m-who"></div>
+  <textarea id="m-text" placeholder="Что думаете об этой машине, что спросить у продавца, что проверить…"></textarea>
+  <div class="btns">
+    <button class="primary" id="m-save">Сохранить</button>
+    <button id="m-cancel">Отмена</button>
+    <span class="sp"></span>
+    <button class="danger" id="m-del">Удалить</button>
+  </div>
+</div></div>
+
+<div class="jsonbox">
+  <h2>JSON: места и комментарии</h2>
+  <div class="hint">Перетаскивайте строки за <b>⠿</b>, комментарий — клик по ячейке в колонке <b>«Мой комментарий»</b>.
+    Всё сохраняется в браузере. Когда закончите — скопируйте этот JSON и пришлите мне, я применю его к странице.</div>
+  <pre id="jsonout"></pre>
+  <div class="btns">
+    <button id="j-copy">Скопировать JSON</button>
+    <button id="j-reset">Сбросить мои правки</button>
+    <span class="ok" id="j-ok"></span>
+  </div>
+</div>
+
+<footer>
+  «Δ к оценке Авито»: минус — цена ниже прогноза Авито, плюс — выше. Пробег указан из объявления; где данные Автотеки отличаются, это отмечено тегом.
+  Все данные распознаны со скриншотов и не проверялись по источникам.
+</footer>
+
+<script>
+(function () {
+  var table = document.getElementById('t');
+  var ths = table.tHead.rows[0].cells;
+  var dir = {};
+  function val(row, i, type) {
+    var cell = row.cells[i];
+    if (type === 'num') {
+      if (cell.dataset.sort !== undefined) return parseFloat(cell.dataset.sort) || 0;
+      var txt = (cell.firstChild && cell.firstChild.nodeType === 3)
+        ? cell.firstChild.nodeValue : cell.textContent;
+      var m = txt.replace(/−/g, '-').replace(/[  \s]/g, '').match(/-?\d+/);
+      return m ? parseFloat(m[0]) || 0 : 0;
+    }
+    return cell.textContent.trim().toLowerCase();
+  }
+  Array.prototype.forEach.call(ths, function (th, i) {
+    th.addEventListener('click', function () {
+      var type = th.dataset.type;
+      dir[i] = dir[i] === 'asc' ? 'desc' : 'asc';
+      var sign = dir[i] === 'asc' ? 1 : -1;
+      var rows = Array.prototype.slice.call(table.tBodies[0].querySelectorAll('tr.car'));
+      rows.sort(function (a, b) {
+        var x = val(a, i, type), y = val(b, i, type);
+        return x < y ? -sign : x > y ? sign : 0;
+      });
+      rows.forEach(function (r) {
+        var c = r.nextElementSibling;
+        table.tBodies[0].appendChild(r);
+        if (c && c.className === 'cmt') table.tBodies[0].appendChild(c);
+      });
+    });
+  });
+  ths[0].click(); // открываем таблицу в порядке рейтинга
+})();
+</script>
+<div id="tip"></div>
+<script>
+(function () {
+  var tip = document.getElementById('tip'), cur = null;
+  function place(e) {
+    var pad = 14, r = tip.getBoundingClientRect();
+    var x = e.clientX + pad, y = e.clientY + pad;
+    if (x + r.width > innerWidth - 8) x = e.clientX - r.width - pad;
+    if (y + r.height > innerHeight - 8) y = Math.max(8, e.clientY - r.height - pad);
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  function show(cell, e) {
+    if (cur === cell) { place(e); return; }
+    cur = cell; tip.innerHTML = cell.dataset.tip; tip.style.display = 'block'; place(e);
+  }
+  function hide() { cur = null; tip.style.display = 'none'; }
+  document.addEventListener('mousemove', function (e) {
+    var cell = e.target.closest ? e.target.closest('td.rank[data-tip]') : null;
+    if (cell) show(cell, e); else if (cur) hide();
+  });
+  document.addEventListener('click', function (e) {   // тач: тап по номеру
+    var cell = e.target.closest && e.target.closest('td.rank[data-tip]');
+    if (cell) { e.preventDefault(); show(cell, e); } else hide();
+  });
+  addEventListener('scroll', hide, true);
+})();
+</script>
+
+<script>
+(function () {
+  var table = document.getElementById('t'), tbody = table.tBodies[0];
+  var KEY = 'cars-rank-v2', sortCol = 0, dragRow = null;
+  var st = { places: {}, comments: {} }, saved = null;
+  try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  if (saved) { st = Object.assign(st, saved); }
+  else {                                   // первый визит — берём комментарии из страницы
+    [].forEach.call(document.querySelectorAll('#t td.mycmt[data-default]'), function (td) {
+      var row = td.closest('tr'), a = row.querySelector('a.name');
+      var m = a && a.getAttribute('href').match(/(\d{9,10})/);
+      if (m && td.dataset.default) st.comments[m[1]] = td.dataset.default;
+    });
+  }
+  function persist() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+
+  var rows = [].slice.call(tbody.querySelectorAll('tr.car'));
+  rows.forEach(function (r) {
+    var a = r.querySelector('a.name'), m = a && a.getAttribute('href').match(/(\d{9,10})/);
+    r.dataset.id = m ? m[1] : 'row' + rows.indexOf(r);
+    var cell = r.cells[0];
+    cell.dataset.tipbase = cell.dataset.tip || '';
+    var tools = document.createElement('div');
+    tools.className = 'rank-tools';
+    tools.innerHTML = '<button class="grip" type="button" title="Перетащить">\u283F</button>';
+    cell.appendChild(tools);
+  });
+
+  // восстанавливаем сохранённый порядок
+  var saved = Object.keys(st.places || {});
+  if (saved.length) {
+    rows.slice().sort(function (a, b) {
+      return (st.places[a.dataset.id] || 99) - (st.places[b.dataset.id] || 99);
+    }).forEach(function (r) { if (!r.classList.contains('excluded')) tbody.appendChild(r); });
+  }
+
+  function esc(t) { return t.replace(/[&<>"]/g, function (c) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]; }); }
+
+  function paint(r) {
+    var cell = r.cells[0], id = r.dataset.id, c = st.comments[id];
+    var mc = r.querySelector('td.mycmt');
+    if (mc) mc.innerHTML = c ? esc(c).replace(/\n/g, '<br>') : '<span class="empty">—</span>';
+    cell.dataset.tip = cell.dataset.tipbase +
+      (c ? '<p class="t-mine"><span>Ваш комментарий:</span> ' + esc(c).replace(/\n/g, '<br>') + '</p>' : '');
+  }
+
+  function renumber() {
+    var vis = [].slice.call(tbody.querySelectorAll('tr.car:not(.excluded)'));
+    st.places = {};
+    vis.forEach(function (r, i) {
+      var n = i + 1, cell = r.cells[0];
+      cell.dataset.sort = n;
+      cell.querySelector('.n').textContent = n;
+      cell.classList.toggle('top', n <= 5);
+      st.places[r.dataset.id] = n;
+      paint(r);
+    });
+    persist(); renderJSON();
+  }
+
+  function renderJSON() {
+    var out = [];
+    [].forEach.call(tbody.querySelectorAll('tr.car'), function (r) {
+      var a = r.querySelector('a.name'), ex = r.classList.contains('excluded');
+      var o = {
+        place: ex ? null : +r.cells[0].dataset.sort,
+        id: r.dataset.id,
+        car: (a ? a.textContent.trim() : '') + ', ' + r.cells[3].textContent.trim(),
+        mileage: r.cells[4].textContent.trim(),
+        price: (r.cells[5].querySelector('.price') || {}).textContent || '',
+        url: a ? a.getAttribute('href') : '',
+        comment: st.comments[r.dataset.id] || ''
+      };
+      if (ex) o.excluded = true;
+      out.push(o);
+    });
+    out.sort(function (a, b) { return (a.place || 99) - (b.place || 99); });
+    document.getElementById('jsonout').textContent = JSON.stringify(out, null, 2);
+  }
+
+  // ---- перетаскивание ----
+  tbody.addEventListener('mousedown', function (e) {
+    var g = e.target.closest && e.target.closest('.grip');
+    if (g && sortCol === 0) g.closest('tr').draggable = true;
+  });
+  tbody.addEventListener('dragstart', function (e) {
+    dragRow = e.target.closest && e.target.closest('tr.car');
+    if (!dragRow) return;
+    dragRow.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    try { e.dataTransfer.setData('text/plain', ''); } catch (x) {}
+  });
+  tbody.addEventListener('dragover', function (e) {
+    if (!dragRow) return;
+    e.preventDefault();
+    var over = e.target.closest && e.target.closest('tr.car');
+    if (!over || over === dragRow || over.classList.contains('excluded')) return;
+    var b = over.getBoundingClientRect();
+    tbody.insertBefore(dragRow, (e.clientY - b.top) > b.height / 2 ? over.nextSibling : over);
+  });
+  tbody.addEventListener('drop', function (e) { e.preventDefault(); });
+  tbody.addEventListener('dragend', function () {
+    if (!dragRow) return;
+    dragRow.classList.remove('dragging');
+    dragRow.draggable = false;
+    dragRow = null;
+    renumber();
+  });
+
+  [].forEach.call(table.tHead.rows[0].cells, function (th, i) {
+    th.addEventListener('click', function () {
+      sortCol = i;
+      document.body.classList.toggle('nodrag', i !== 0);
+      if (i === 0) renderJSON();
+    });
+  });
+
+  // ---- окно комментария ----
+  var modal = document.getElementById('modal'), mText = document.getElementById('m-text'),
+      mWho = document.getElementById('m-who'), target = null;
+  function open(r) {
+    target = r;
+    var a = r.querySelector('a.name');
+    mWho.textContent = '№' + r.cells[0].dataset.sort + ' · ' + (a ? a.textContent.trim() : '') +
+                       ', ' + r.cells[3].textContent.trim() + ', ' + r.cells[4].textContent.trim() + ' км';
+    mText.value = st.comments[r.dataset.id] || '';
+    modal.classList.add('on');
+    mText.focus();
+  }
+  function close() { modal.classList.remove('on'); target = null; }
+  tbody.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('td.mycmt');
+    if (b) { e.preventDefault(); e.stopPropagation(); open(b.closest('tr')); }
+  });
+  document.getElementById('m-save').onclick = function () {
+    var v = mText.value.trim();
+    if (v) st.comments[target.dataset.id] = v; else delete st.comments[target.dataset.id];
+    paint(target); persist(); renderJSON(); close();
+  };
+  document.getElementById('m-del').onclick = function () {
+    delete st.comments[target.dataset.id];
+    paint(target); persist(); renderJSON(); close();
+  };
+  document.getElementById('m-cancel').onclick = close;
+  modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+  addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') close();
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && modal.classList.contains('on'))
+      document.getElementById('m-save').click();
+  });
+
+  // ---- кнопки под JSON ----
+  var ok = document.getElementById('j-ok');
+  document.getElementById('j-copy').onclick = function () {
+    var t = document.getElementById('jsonout'), done = function () {
+      ok.textContent = 'Скопировано'; setTimeout(function () { ok.textContent = ''; }, 2000); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t.textContent).then(done, sel);
+    else sel();
+    function sel() {
+      var rg = document.createRange(); rg.selectNodeContents(t);
+      var s2 = getSelection(); s2.removeAllRanges(); s2.addRange(rg);
+      try { document.execCommand('copy'); done(); } catch (x) { ok.textContent = 'Выделено — Cmd+C'; }
+    }
+  };
+  document.getElementById('j-reset').onclick = function () {
+    if (!confirm('Сбросить ваши места и комментарии?')) return;
+    st = { places: {}, comments: {} }; persist(); location.reload();
+  };
+
+  renumber();
+})();
+</script>
+</body>
+</html>
