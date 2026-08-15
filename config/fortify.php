@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Providers\RouteServiceProvider;
 use Laravel\Fortify\Features;
 
@@ -104,7 +106,6 @@ return [
 
     'limiters' => [
         'login' => 'login',
-        'two-factor' => 'two-factor',
     ],
 
     /*
@@ -137,9 +138,6 @@ return [
         // Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
-        Features::twoFactorAuthentication([
-            'confirmPassword' => true,
-        ]),
     ],
 
 ];

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
 use App\Models\Team;
@@ -8,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
 
-class UserFactory extends Factory
+final class UserFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
@@ -32,7 +34,6 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'profile_photo_path' => null,
             'cached_rating' => null,
-            'two_factor_confirmed_at' => null,
             'is_admin' => false,
             'is_superadmin' => false,
         ];
@@ -41,7 +42,7 @@ class UserFactory extends Factory
     /**
      * Indicate that the model's email address should be unverified.
      *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     * @return Factory
      */
     public function unverified()
     {

@@ -58,6 +58,15 @@
                       class="active"
                     @endif
                   >🦜&nbsp; {{ __('pages.exports.title') }}</a></li>
+                  @auth
+                      @if (app()->isLocale('en'))
+                          <li><a href="{{ route('docs.api') }}"
+                            @if (Request::is('docs/api'))
+                              class="active"
+                            @endif
+                          >🔌&nbsp; API</a></li>
+                      @endif
+                  @endauth
                   {{--@auth
                     @can('admin')--}}
                   @if (app()->isLocale('en'))

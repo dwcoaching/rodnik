@@ -11,17 +11,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @property-read string $profile_photo_url
+ */
 final class User extends Authenticatable implements FilamentUser, HasLocalePreference
 {
     use HasApiTokens;
     use HasFactory;
     use HasProfilePhoto;
     use Notifiable;
-    use TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -42,8 +43,6 @@ final class User extends Authenticatable implements FilamentUser, HasLocalePrefe
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_recovery_codes',
-        'two_factor_secret',
     ];
 
     /**

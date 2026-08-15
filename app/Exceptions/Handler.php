@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
-class Handler extends ExceptionHandler
+final class Handler extends ExceptionHandler
 {
     /**
      * A list of the exception types that are not reported.
@@ -34,6 +36,10 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
+        $this->shouldRenderJsonWhen(
+            fn ($request): bool => $request->is('api/*') || $request->expectsJson(),
+        );
+
         $this->reportable(function (Throwable $e) {
             //
         });
