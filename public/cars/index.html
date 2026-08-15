@@ -85,6 +85,23 @@
   td.rank .n { border-bottom: 2px dotted var(--muted); padding-bottom: 1px; }
   td.rank:hover .n { border-bottom-color: currentColor; }
   tr.excluded { display: none; }  /* моя находка, скрыта — уберите класс, чтобы вернуть */
+
+  /* ---- новые машины (добавлены 15.08.2026) ---- */
+  tr.car.new td { background: color-mix(in srgb, #16a34a 9%, transparent); }
+  tr.car.new td:first-child { box-shadow: inset 4px 0 0 #16a34a; }
+  tr.car.upd td { background: color-mix(in srgb, #d97706 8%, transparent); }
+  tr.car.upd td:first-child { box-shadow: inset 4px 0 0 #d97706; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .04em;
+           padding: 1px 6px; border-radius: 4px; margin-left: 6px; vertical-align: 2px; color: #fff; }
+  .b-new { background: #16a34a; }
+  .b-upd { background: #d97706; }
+  .b-sold { background: #dc2626; }
+  .legend { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px;
+              margin: 0 5px 0 14px; vertical-align: 0; }
+  .legend i:first-child { margin-left: 0; }
+  .legend .l-new { background: #16a34a; }
+  .legend .l-upd { background: #d97706; }
   #tip { position: fixed; z-index: 99; max-width: 420px; display: none;
          background: var(--card); color: var(--fg);
          border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
@@ -158,7 +175,8 @@
 <body>
 <header>
   <h1>Подборка авто — Skoda Rapid / VW Polo, 1.6 AT</h1>
-  <div class="sub">14 объявлений от подборщика · данные со скриншотов от 09.08.2026 · отсортировано по рейтингу. Кликните по заголовку столбца, чтобы отсортировать. Порядок и комментарии — ваши. <b>Наведите на номер</b>, чтобы увидеть мою оценку и моё место.</div>
+  <div class="sub">23 объявления · 14 от 09.08.2026 плюс <b>9 новых от 15.08.2026</b> · порядок — ваш рейтинг от 15.08. Кликните по заголовку столбца, чтобы отсортировать. Порядок и комментарии — ваши. <b>Наведите на номер</b>, чтобы увидеть мою оценку и моё место.</div>
+  <div class="legend"><i class="l-new"></i>зелёные строки с меткой <span class="badge b-new">НОВОЕ</span> — добавлены 15.08<i class="l-upd"></i>оранжевая строка — уже была в списке, обновилась цена</div>
 </header>
 
 
@@ -180,26 +198,208 @@
 </thead>
 <tbody>
 
-<tr class="car excluded">
-  <td class="num rank" data-sort="0" data-tip="&lt;div class=&quot;t-title&quot;&gt;Вне подборки&lt;/div&gt;&lt;p&gt;Моя находка с Авто.ру: Rapid 2021, 58 тыс., Hockey Edition, 1 владелец, без ДТП, 1 445 000. Скрыта, чтобы в таблице остались только машины от подборщика.&lt;/p&gt;"><span class="n">—</span></td>
+<tr class="car new">
+  <td class="num rank top" data-sort="1" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · от подборщика&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Лучший Rapid из новых.&lt;/b&gt; 2022 год при 70 878 км, один владелец, без залога и ограничений, цена на 40 600 ниже прогноза. Ambition, и по расшифровке из объявления там ровно то, что вам нужно: подогрев передних сидений, делимая складная спинка заднего сиденья, круиз-контроль, кондиционер, и стальные диски 15&quot; с шинами 185/60 — то есть высокий профиль, дружелюбный к московским ямам.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Два ремонта по КАСКО — при том, что в ГИБДД записей о ДТП нет: значит, повреждения чинили без оформления, и объём работ виден только в истории страховщика. Запросите, что именно ремонтировали; крашеный задний бампер, скорее всего, оттуда же. Продавец — Европлан, лизинговая компания, отсюда «продажа с НДС» и вопрос реальной цены для физлица. Один владелец — это юрлицо-лизингодатель, машина почти наверняка была в корпоративном парке. Задний бампер окрашен (сказано в объявлении). Парктроников в списке штатного оборудования нет.&lt;/p&gt;"><span class="n">1</span></td>
   <td>
-    <a class="thumb" href="rapid_2021_hockey.jpg" target="_blank"><img class="photo" src="rapid_2021_hockey.jpg" alt="Skoda Rapid 2021 Hockey Edition"></a>
-    <div class="shots"><a href="https://auto.ru/cars/used/sale/skoda/rapid/1133344154-7f232370/" target="_blank" rel="noopener">объявление</a></div>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.54.jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.54.jpeg" alt="Skoda Rapid 2022 салон"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.55.jpeg" target="_blank">Автотека</a></div>
   </td>
-  <td><a class="name" href="https://auto.ru/cars/used/sale/skoda/rapid/1133344154-7f232370/" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 MPI AT, 110 л.с. · II · <span class="trim">Hockey Edition</span></div></td>
-  <td class="num">2021</td>
-  <td class="num">58 000</td>
-  <td class="num" data-sort="1445000"><span class="price">1 445 000</span></td>
-  <td class="chk" data-sort="-178600">
-    <div class="delta good">−178 600</div><div class="note">−11%, оценка Авто.ру</div>
-    <span class="tag good">без ДТП (ГИБДД)</span><span class="tag good">не в розыске</span><span class="tag">ПТС оригинал/электронный</span><span class="tag">4 отметки о пробеге</span>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/skoda/rapid/1133745713-dedb988f/" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-autoru">Авто.ру</span><span class="badge b-new">НОВОЕ</span><div class="note">1.6 AT, 110 л.с. · II · <span class="trim">Ambition</span> · белый · Европлан, Москва</div></td>
+  <td class="num"><span class="n">2022</span></td>
+  <td class="num">70 <span class="n">878</span></td>
+  <td class="num" data-sort="1560000"><span class="price">1 560 000</span></td>
+  <td class="chk" data-sort="-40">
+    <div class="delta good">−40 <span class="n">600</span></div>
+    <span class="tag bad">2 ремонта по КАСКО</span><span class="tag">без ДТП по базе ГИБДД</span><span class="tag good">1 владелец, без ограничений</span><span class="tag">подогрев сидений, спинка 60/40</span><span class="tag">диски R15, высокий профиль</span><span class="tag bad">продажа с НДС, лизинг</span><span class="tag warn">задний бампер окрашен</span>
   </td>
-  <td class="num">1</td>
-  <td class="mycmt" data-default=""><span class="empty">—</span></td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="Вроде бы очень хорошо? -- Но два ремонта по КАСКО">Вроде бы очень хорошо? -- Но два ремонта по КАСКО</td>
+</tr>
+
+<tr class="car new">
+  <td class="num rank top" data-sort="2" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · Авто.ру, ваша находка&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Самая свежая машина списка.&lt;/b&gt; 2022 год при 72,6 тыс. — лучшее сочетание «год/пробег» из всего, что мы смотрели. Цена уже упала с 1 629 000 до 1 490 000, это на 60 200 ниже прогноза.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Главное — «продажа с НДС»: цена «со скидками от 1 210 000» действует только через кредит/трейд-ин, а физлицу вычет по НДС не положен. Спросите цену за наличные без допов, письменно. Отчёт есть только на Авто.ру, независимой Автотеки нет — и по нему два ДТП. 2 владельца, 15 отметок о пробеге, 5 визитов в сервис.&lt;/p&gt;"><span class="n">2</span></td>
+  <td>
+    <a class="thumb" href="new_cars_1/2026-08-15%2018.57.22.jpg" target="_blank"><img src="new_cars_1/2026-08-15%2018.57.22.jpg" alt="VW Polo 2022 белый, Major Expert"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.37.jpeg" target="_blank">карточка</a><a href="new_cars_1/photo_2026-08-15%2018.57.36.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133208794-07ecd00c/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><span class="badge b-new">НОВОЕ</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span> · белый · Major Expert, Москва</div></td>
+  <td class="num"><span class="n">2022</span></td>
+  <td class="num">72 <span class="n">619</span></td>
+  <td class="num" data-sort="1490000"><span class="price">1 490 000</span><div class="was">1 629 000</div></td>
+  <td class="chk" data-sort="-60">
+    <div class="delta good">−60 <span class="n">200</span></div>
+    <span class="tag bad">2 ДТП</span><span class="tag bad">продажа с НДС</span><span class="tag warn">отчёт только на Авто.ру</span><span class="tag">15 отметок о пробеге</span><span class="tag">5 визитов в сервис</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="В целом выглядит неплохо. От юрлица. -- Но два ДТП!">В целом выглядит неплохо. От юрлица. -- Но два ДТП!</td>
+</tr>
+
+<tr class="car new">
+  <td class="num rank top" data-sort="3" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · от подборщика&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Самый чистый отчёт из новых.&lt;/b&gt; 2022 год, без ДТП, залога нет, розыска нет, ограничений нет, реальный пробег, всего 1 размещение на Авито. Цена сползла до 1 450 000 и стоит ровно в рыночном коридоре 1 357 800—1 503 000.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 131 875 км за три с половиной года — это 37 тыс. в год, машина явно ездила много и, скорее всего, по работе. За пять лет владения вы придёте к 300 тысячам. Football Edition — спецсерия на базе среднего уровня, проверьте по списку опций подогревы и раздельную спинку. 2 владельца, продавец профессиональный, хотя представлен как «Андрей».&lt;/p&gt;"><span class="n">3</span></td>
+  <td>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.46%20(1).jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.46%20(1).jpeg" alt="VW Polo 2022 белый, Балашиха"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.47.jpeg" target="_blank">Автотека</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/balashiha/avtomobili/volkswagen_polo_1.6_at_2022_131_875_km_8230939697?hrbkey=4NhGUag3RARd%2FePah3lmZJn9085sS6k3" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><span class="badge b-new">НОВОЕ</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Football Edition</span> · белый · Балашиха</div></td>
+  <td class="num"><span class="n">2022</span></td>
+  <td class="num">131 <span class="n">875</span></td>
+  <td class="num" data-sort="1450000"><span class="price">1 450 000</span><div class="was">1 480 000</div></td>
+  <td class="chk" data-sort="2">
+    <div class="delta bad">+2 <span class="n">100</span></div><div class="note">рынок 1 357 800—1 503 000</div>
+    <span class="tag good">без ДТП</span><span class="tag good">без ограничений и залога</span><span class="tag">оригинал ПТС, реальный пробег</span><span class="tag warn">37 тыс. км в год</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="Пробег большой, возможно неплохо">Пробег большой, возможно неплохо</td>
 </tr>
 
 <tr class="car">
-  <td class="num rank" data-sort="9" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 9 · моё — 14&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Худший вариант подборки.&lt;/b&gt; Style и 53 тыс. пробега — единственные аргументы.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца при таком пробеге, ДТП, +115 000 к оценке, и объявление висит с сентября 2024 года. Почти два года не продаётся — это диагноз.&lt;/p&gt;"><span class="n">9</span></td>
+  <td class="num rank top" data-sort="4" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 4 · моё — 8&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Топовая комплектация Polo.&lt;/b&gt; Exclusive — максимальный уровень, что частично объясняет цену выше оценки. Без ДТП, 2 владельца, проф. продавец, есть видеообзор.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; +48 900 к оценке при 90 тыс. пробега, и цена почти не двигалась (1 600 000 → 1 590 000) — продавец не мотивирован торговаться.&lt;/p&gt;"><span class="n">4</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.38.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.38.jpeg" alt="VW Polo 2020 чёрный"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.39.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.40.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/ramenskoe/avtomobili/volkswagen_polo_1.6_at_2020_90_000_km_8306908805?hrbkey=4NhGUag3RATGqBhzUBZFBtzRn0M3juSl" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Exclusive</span></div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">90 <span class="n">000</span></td>
+  <td class="num" data-sort="1590000"><span class="price">1 590 000</span><div class="was">1 600 000</div></td>
+  <td class="chk" data-sort="48">
+    <div class="delta bad">+48 <span class="n">900</span></div>
+    <span class="tag good">без ДТП</span><span class="tag">в родном окрасе (со слов)</span><span class="tag">видеообзор</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="комплектация хорошая">комплектация хорошая</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank top" data-sort="5" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 5 · моё — 13&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Football Edition — спецсерия с неплохим оснащением, и пробег всего 71 тыс.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца, 4 размещения на Авито, и Автотека не смогла проверить розыск и ограничения. Внешне машина и правда хороша, но юридически это кот в мешке.&lt;/p&gt;"><span class="n">5</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.28.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.28.jpeg" alt="VW Polo 2020 бежевый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.29.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.30.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/moskva/avtomobili/volkswagen_polo_1.6_at_2020_71_000_km_8126761418?hrbkey=4NhGUag3RAR2DzSVHcjBpF2i3RYjbrbb" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Football Edition</span></div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">71 <span class="n">000</span></td>
+  <td class="num" data-sort="1550000"><span class="price">1 550 000</span><div class="was">1 650 000</div></td>
+  <td class="chk" data-sort="0">
+    <div class="delta bad">−<span class="n">400</span></div>
+    <span class="tag good">без ДТП</span><span class="tag warn">розыск/ограничения не проверены</span><span class="tag warn">4 размещения на Авито</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="внешне без проблем">внешне без проблем</td>
+</tr>
+
+<tr class="car upd">
+  <td class="num rank" data-sort="6" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 6 · моё — 5 · цена обновлена 15.08&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Эта ссылка пришла от подборщика повторно — машина уже была в таблице.&lt;/b&gt; С 09.08 продавец скинул ещё 50 000: 1 470 000 → 1 420 000, и теперь это на 67 200 ниже прогноза Авито.&lt;/p&gt;&lt;p&gt;Status — то есть с тем же оснащением, что и Polo с 95 тыс., но дешевле, с одним владельцем, без ДТП, у продавца со 154 отзывами и по цене ровно по рынку. По бумагам одна из самых чистых машин списка.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Единственное, но крупное «но» — 126 тыс. пробега. За пять лет вы приедете к 190–200 тысячам, и это прямо спорит с целью «без особых вложений».&lt;/p&gt;"><span class="n">6</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.55.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.55.jpeg" alt="VW Polo 2021 коричневый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.56.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.57.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/moskva/avtomobili/volkswagen_polo_1.6_at_2021_126_000_km_8188069577?hrbkey=4NhGUag3RASYjU2nhnn9WU2hGLnbX9Q4" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><span class="badge b-upd">ЦЕНА 15.08</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Status</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">126 <span class="n">000</span></td>
+  <td class="num" data-sort="1420000"><span class="price">1 420 000</span><div class="was">1 470 000</div></td>
+  <td class="chk" data-sort="-67">
+    <div class="delta good">−67 <span class="n">200</span></div>
+    <span class="tag good">без ДТП</span><span class="tag good">−50 000 с 09.08</span><span class="tag">салон «Алексей Авто», 154 отзыва</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="внешне никаких проблем, но пробег большой">внешне никаких проблем, но пробег большой</td>
+</tr>
+
+<tr class="car new">
+  <td class="num rank" data-sort="7" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · от подборщика&lt;/div&gt;&lt;p&gt;Частник из Раменского округа, Ambition, один владелец, без ДТП, 22 фотографии и подробное описание — по подаче машина ухоженная.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Цена на 157 000 выше прогноза и на 76 300 выше верхней границы рынка — продавец явно заложил торг и сам пишет «кто гонится за дешевизной, проходите мимо». Плюс 2019 год при 113 тыс. пробега. И расхождение, которое надо снять первым: в объявлении 113 000 км, а Автотека последним показанием даёт 59 870 км — либо база отстала на несколько лет, либо где-то крутили. Требуйте отчёт до осмотра.&lt;/p&gt;"><span class="n">7</span></td>
+  <td>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.56.jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.56.jpeg" alt="Skoda Rapid 2019 бежевый, Дружба"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.57.jpeg" target="_blank">Автотека</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/moskovskaya_oblast_druzhba/avtomobili/skoda_rapid_1.6_at_2019_113_000_km_8231573416?hrbkey=4NhGUag3RARbRGoxiQkQQZo832rxNjfO" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-avito">Авито</span><span class="badge b-new">НОВОЕ</span><div class="note">1.6 MPI AT, 110 л.с. · II (2019—2026) · <span class="trim">Ambition</span> · коричневый · частник, Дружба</div></td>
+  <td class="num"><span class="n">2019</span></td>
+  <td class="num">113 <span class="n">000</span></td>
+  <td class="num" data-sort="1555000"><span class="price">1 555 000</span></td>
+  <td class="chk" data-sort="157">
+    <div class="delta bad">+157 <span class="n">000</span></div><div class="note">выше верха рынка на 76 300</div>
+    <span class="tag good">без ДТП</span><span class="tag good">1 владелец, частник</span><span class="tag bad">Автотека: 59 870 км — расхождение</span><span class="tag warn">2019 год</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="Кажется староват и большой пробег для такой цены">Кажется староват и большой пробег для такой цены</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="8" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 8 · моё — 4&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Нужное оснащение в бюджете.&lt;/b&gt; Status — уровень выше Respect, и именно на нём у Polo уверенно появляется всё, что вам нужно: задние парктроники, подогревы, раздельная спинка. При этом 1 480 000 — внутри бюджета.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 95 тыс. — вход в зону плановых расходов. Плюс 2 владельца, ДТП, цена на 55 800 выше оценки и дубли у автодилеров за 1 529 444: «частник» здесь номинальный. Ваша отметка про 4 ДТП — если это подтверждается отчётом, машину я бы снял с рассмотрения совсем.&lt;/p&gt;"><span class="n">8</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.44.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.44.jpeg" alt="VW Polo 2020 синий"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.45.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.46.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.drom.ru/moscow/volkswagen/polo/564511411.html" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-drom">Дром</span><div class="note">1.6 MPI AT <span class="trim">Status</span> · 6 поколение</div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">95 <span class="n">380</span></td>
+  <td class="num" data-sort="1480000"><span class="price">1 480 000</span><div class="was">1 650 000</div></td>
+  <td class="chk" data-sort="55">
+    <div class="delta bad">+55 <span class="n">800</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">от офиц. дилера (со слов)</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="Комплектация хорошая. 
+4 дтп">Комплектация хорошая. <br>4 дтп</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="9" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 9 · моё — 11&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Ambition — нормальный уровень оснащения, но на этом хорошее заканчивается.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца, ДТП, +113 400 к оценке. И дубль этого же объявления на Авито за 1 525 000 — вам показывают версию на 50 тыс. дороже.&lt;/p&gt;"><span class="n">9</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.34.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.34.jpeg" alt="Skoda Rapid 2020 белый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.35.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.36.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.drom.ru/noginsk/skoda/rapid/127478558.html" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-drom">Дром</span><div class="note">1.6 MPI AT <span class="trim">Ambition</span> · 2 поколение</div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">88 <span class="n">000</span></td>
+  <td class="num" data-sort="1575000"><span class="price">1 575 000</span><div class="was">1 615 000</div></td>
+  <td class="chk" data-sort="113">
+    <div class="delta bad">+113 <span class="n">400</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">дубль на Авито за 1 525 000</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="черные диски, мало фоток :(">черные диски, мало фоток :(</td>
+</tr>
+
+<tr class="car new">
+  <td class="num rank" data-sort="10" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · от подборщика&lt;/div&gt;&lt;p&gt;Дилер режет цену агрессивнее всех: 1 530 000 → 1 400 000 за две с половиной недели, а «со всеми скидками» рисует 1 190 000.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Скидки 210 000 — это трейд-ин плюс кредит, за наличные без сдачи машины вы их не получите. По содержанию слабо: 3 владельца, ДТП, 116 492 км, 3 размещения на Авито и цена всё равно на 50 500 выше прогноза. Комплектация в объявлении вообще не указана — уточняйте по списку опций, есть ли подогревы и парктроники.&lt;/p&gt;"><span class="n">10</span></td>
+  <td>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.58.jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.58.jpeg" alt="Skoda Rapid 2020 белый, Химки"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.59.jpeg" target="_blank">Автотека</a><a href="new_cars_1/photo_2026-08-15%2018.58.00.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/himki/avtomobili/skoda_rapid_1.6_at_2020_116_492_km_8190751395?hrbkey=4NhGUag3RATAyVbHzawOyJ9QjsI0VvaV" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-avito">Авито</span><span class="badge b-new">НОВОЕ</span><div class="note">1.6 MPI AT, 110 л.с. · II (2019—2026) · <span class="trim none">комплектация не указана</span> · белый · автодилер, Химки</div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">116 <span class="n">492</span></td>
+  <td class="num" data-sort="1400000"><span class="price">1 400 000</span><div class="was">1 530 000</div></td>
+  <td class="chk" data-sort="50">
+    <div class="delta bad">+50 <span class="n">500</span></div><div class="note">«со всеми скидками» 1 190 000 — трейд-ин + кредит</div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag bad">3 владельца</span><span class="tag warn">3 размещения на Авито</span><span class="tag">гарантия дилера</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="Похоже тонированные стекла, этот факт не очень нравится. Возраст и километраж тоже довольно большие">Похоже тонированные стекла, этот факт не очень нравится. Возраст и километраж тоже довольно большие</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="11" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 11 · моё — 3&lt;/div&gt;&lt;p&gt;Самая большая скидка к оценке — 65 100. Продавец прошёл путь 1 800 000 → 1 550 000 за 10 шагов, то есть мотивирован. Один владелец.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Та же оговорка по Respect, что и у Polo с 67,6 тыс.: парктроники и раздельную спинку подтверждайте по списку опций. Плюс в объявлении 75 455 км, а Автотека показывает 77 406, есть дубль от автодилера и одно незначительное ДТП.&lt;/p&gt;"><span class="n">11</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.31.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.31.jpeg" alt="VW Polo 2021 красный"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.32.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.33.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133461352-066135c3/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">75 <span class="n">455</span></td>
+  <td class="num" data-sort="1550000"><span class="price">1 550 000</span><div class="was">1 800 000</div></td>
+  <td class="chk" data-sort="-65">
+    <div class="delta good">−65 <span class="n">100</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">Автотека: 77 406 км</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="возможно прокуренный
+красный салон — не очень :(">возможно прокуренный<br>красный салон — не очень :(</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="12" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 12 · моё — 14&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Худший вариант подборки.&lt;/b&gt; Style и 53 тыс. пробега — единственные аргументы.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца при таком пробеге, ДТП, +115 000 к оценке, и объявление висит с сентября 2024 года. Почти два года не продаётся — это диагноз.&lt;/p&gt;"><span class="n">12</span></td>
   <td>
     <a class="thumb" href="photo_2026-08-09%2021.10.17.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.17.jpeg" alt="Skoda Rapid 2019"></a>
     <div class="shots"><a href="photo_2026-08-09%2021.10.18.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.19.jpeg" target="_blank">цены</a></div>
@@ -218,7 +418,7 @@
 </tr>
 
 <tr class="car">
-  <td class="num rank" data-sort="10" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 10 · моё — 1&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Мой выбор.&lt;/b&gt; Ambition — средний, а не базовый уровень Skoda: подогрев передних сидений и раздельная спинка 60/40 здесь есть. Плюс пробег вдвое ниже среднего по подборке, один владелец, без ДТП, оригинал ПТС и цена ниже оценки Авито.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Задние парктроники на Ambition бывают и в базе, и опцией. 53 тыс. за 7 лет подтвердите сервисной книжкой. Продавец — салон: убедитесь, что «1 владелец» это физлицо, а не перепродажа.&lt;/p&gt;"><span class="n">10</span></td>
+  <td class="num rank" data-sort="13" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 13 · моё — 1&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Мой выбор.&lt;/b&gt; Ambition — средний, а не базовый уровень Skoda: подогрев передних сидений и раздельная спинка 60/40 здесь есть. Плюс пробег вдвое ниже среднего по подборке, один владелец, без ДТП, оригинал ПТС и цена ниже оценки Авито.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Задние парктроники на Ambition бывают и в базе, и опцией. 53 тыс. за 7 лет подтвердите сервисной книжкой. Продавец — салон: убедитесь, что «1 владелец» это физлицо, а не перепродажа.&lt;/p&gt;"><span class="n">13</span></td>
   <td>
     <a class="thumb" href="photo_2026-08-09%2021.10.19%20(1).jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.19%20(1).jpeg" alt="Skoda Rapid 2019 белый"></a>
     <div class="shots"><a href="photo_2026-08-09%2021.10.20.jpeg" target="_blank">Автотека</a></div>
@@ -238,7 +438,43 @@
 </tr>
 
 <tr class="car">
-  <td class="num rank" data-sort="13" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 13 · моё — 6&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Только при одном условии.&lt;/b&gt; Рапид, 2021, 67,5 тыс., Ambition, без ДТП, 2 владельца, цена ниже оценки — по содержанию ровно ваш базовый сценарий.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Автотека показывает ограничения на регистрацию: пока их не снимут, машину нельзя поставить на учёт. Дырка в сиденье и чёрный цвет — вкусовое, а вот ограничения объективны.&lt;/p&gt;"><span class="n">13</span></td>
+  <td class="num rank" data-sort="14" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 14 · моё — 10&lt;/div&gt;&lt;p&gt;Один владелец и без ДТП — по бумагам неплохо.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; +96 600 к оценке при 93 тыс. пробега, вмятина на переднем крыле и средний уровень Respect. Мало фотографий — плохой знак для машины, за которую просят выше рынка.&lt;/p&gt;"><span class="n">14</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.41.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.41.jpeg" alt="VW Polo 2021 салон"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.42.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.43.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/himki/avtomobili/volkswagen_polo_1.6_at_2021_93_000_km_8245253431?hrbkey=4NhGUag3RATs%2FhNyuErC17GtS6a5c7eD" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">93 <span class="n">000</span></td>
+  <td class="num" data-sort="1600000"><span class="price">1 600 000</span><div class="was">1 650 000</div></td>
+  <td class="chk" data-sort="96">
+    <div class="delta bad">+96 <span class="n">600</span></div>
+    <span class="tag good">без ДТП</span><span class="tag warn">вмятина на переднем крыле</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="мало фоток, не понятно, темно">мало фоток, не понятно, темно</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="15" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 15 · моё — 9&lt;/div&gt;&lt;p&gt;Самая дешёвая машина подборки: 1 380 000 при падении с 1 600 000. Один владелец, дилерская.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 118,8 тыс. пробега, ДТП и всего лишь Respect. Чехлы на сиденьях — почти всегда признак того, что под ними что-то прячут.&lt;/p&gt;"><span class="n">15</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.51.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.51.jpeg" alt="VW Polo 2021 бордовый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.53.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.54.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1132554159-036533ec/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">118 <span class="n">800</span></td>
+  <td class="num" data-sort="1380000"><span class="price">1 380 000</span><div class="was">1 600 000</div></td>
+  <td class="chk" data-sort="-11">
+    <div class="delta good">−11 <span class="n">700</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">дилерский, 1 собственник</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="МИМО чехлы на сиденья, дтп :-(">МИМО чехлы на сиденья, дтп :-(</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="16" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 16 · моё — 6&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Только при одном условии.&lt;/b&gt; Рапид, 2021, 67,5 тыс., Ambition, без ДТП, 2 владельца, цена ниже оценки — по содержанию ровно ваш базовый сценарий.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Автотека показывает ограничения на регистрацию: пока их не снимут, машину нельзя поставить на учёт. Дырка в сиденье и чёрный цвет — вкусовое, а вот ограничения объективны.&lt;/p&gt;"><span class="n">16</span></td>
   <td>
     <a class="thumb" href="photo_2026-08-09%2021.10.21.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.21.jpeg" alt="Skoda Rapid 2021 чёрный"></a>
     <div class="shots"><a href="photo_2026-08-09%2021.10.22.jpeg" target="_blank">Автотека</a></div>
@@ -257,153 +493,7 @@
 </tr>
 
 <tr class="car">
-  <td class="num rank top" data-sort="1" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 1 · моё — 2&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Лучший из Polo.&lt;/b&gt; 2021 год при 67,6 тыс., один владелец, цена на 52 800 ниже прогноза. Продавец активно скидывает: 1 750 000 → 1 570 000, причём −90 000 за один день — торг до ~1,5 млн вполне реален.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Respect — средний уровень Polo: подогрев передних сидений есть, а задние парктроники чаще идут опцией. Обязательно проверьте раздельную спинку 60/40 — это единственное, что потом не доустановить. Плюс одно ДТП с незначительными повреждениями и царапина на заднем бампере.&lt;/p&gt;"><span class="n">1</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.22%20(1).jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.22%20(1).jpeg" alt="VW Polo 2021 серый"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.23.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.24.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133088448-d139e275/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
-  <td class="num"><span class="n">2021</span></td>
-  <td class="num">67 <span class="n">600</span></td>
-  <td class="num" data-sort="1570000"><span class="price">1 570 000</span><div class="was">1 750 000</div></td>
-  <td class="chk" data-sort="-52">
-    <div class="delta good">−52 <span class="n">800</span></div>
-    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">царапина на заднем бампере</span>
-  </td>
-  <td class="num"><span class="n">1</span></td>
-  <td class="mycmt" data-default="вроде ок, но мало фоток и описание короткое, потенциал есть">вроде ок, но мало фоток и описание короткое, потенциал есть</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank" data-sort="6" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 6 · моё — 12&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Обидный случай: Style, небольшой пробег, ежегодное ТО с отметками в сервисной книжке.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца на пятилетней машине, ДТП и +108 700 к оценке. Внешне без проблем — но история и цена перевешивают.&lt;/p&gt;"><span class="n">6</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.25.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.25.jpeg" alt="Skoda Rapid 2021 коричневый"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.26.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.27.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://auto.ru/cars/used/sale/skoda/rapid/1133303383-ce9e3386/" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · II · <span class="trim">Style</span></div></td>
-  <td class="num"><span class="n">2021</span></td>
-  <td class="num">69 <span class="n">680</span></td>
-  <td class="num" data-sort="1590000"><span class="price">1 590 000</span><div class="was">1 740 000</div></td>
-  <td class="chk" data-sort="108">
-    <div class="delta bad">+108 <span class="n">700</span></div>
-    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">ТО каждый год, сервисная книжка</span>
-  </td>
-  <td class="num"><span class="n">3</span></td>
-  <td class="mycmt" data-default="внешне без проблем">внешне без проблем</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank top" data-sort="3" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 3 · моё — 13&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Football Edition — спецсерия с неплохим оснащением, и пробег всего 71 тыс.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца, 4 размещения на Авито, и Автотека не смогла проверить розыск и ограничения. Внешне машина и правда хороша, но юридически это кот в мешке.&lt;/p&gt;"><span class="n">3</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.28.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.28.jpeg" alt="VW Polo 2020 бежевый"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.29.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.30.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://m.avito.ru/moskva/avtomobili/volkswagen_polo_1.6_at_2020_71_000_km_8126761418?hrbkey=4NhGUag3RAR2DzSVHcjBpF2i3RYjbrbb" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Football Edition</span></div></td>
-  <td class="num"><span class="n">2020</span></td>
-  <td class="num">71 <span class="n">000</span></td>
-  <td class="num" data-sort="1550000"><span class="price">1 550 000</span><div class="was">1 650 000</div></td>
-  <td class="chk" data-sort="0">
-    <div class="delta bad">−<span class="n">400</span></div>
-    <span class="tag good">без ДТП</span><span class="tag warn">розыск/ограничения не проверены</span><span class="tag warn">4 размещения на Авито</span>
-  </td>
-  <td class="num"><span class="n">3</span></td>
-  <td class="mycmt" data-default="внешне без проблем">внешне без проблем</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank" data-sort="8" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 8 · моё — 3&lt;/div&gt;&lt;p&gt;Самая большая скидка к оценке — 65 100. Продавец прошёл путь 1 800 000 → 1 550 000 за 10 шагов, то есть мотивирован. Один владелец.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Та же оговорка по Respect, что и у Polo с 67,6 тыс.: парктроники и раздельную спинку подтверждайте по списку опций. Плюс в объявлении 75 455 км, а Автотека показывает 77 406, есть дубль от автодилера и одно незначительное ДТП.&lt;/p&gt;"><span class="n">8</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.31.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.31.jpeg" alt="VW Polo 2021 красный"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.32.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.33.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133461352-066135c3/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
-  <td class="num"><span class="n">2021</span></td>
-  <td class="num">75 <span class="n">455</span></td>
-  <td class="num" data-sort="1550000"><span class="price">1 550 000</span><div class="was">1 800 000</div></td>
-  <td class="chk" data-sort="-65">
-    <div class="delta good">−65 <span class="n">100</span></div>
-    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">Автотека: 77 406 км</span>
-  </td>
-  <td class="num"><span class="n">1</span></td>
-  <td class="mycmt" data-default="возможно прокуренный
-красный салон — не очень :(">возможно прокуренный<br>красный салон — не очень :(</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank" data-sort="7" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 7 · моё — 11&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Ambition — нормальный уровень оснащения, но на этом хорошее заканчивается.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца, ДТП, +113 400 к оценке. И дубль этого же объявления на Авито за 1 525 000 — вам показывают версию на 50 тыс. дороже.&lt;/p&gt;"><span class="n">7</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.34.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.34.jpeg" alt="Skoda Rapid 2020 белый"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.35.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.36.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://auto.drom.ru/noginsk/skoda/rapid/127478558.html" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-drom">Дром</span><div class="note">1.6 MPI AT <span class="trim">Ambition</span> · 2 поколение</div></td>
-  <td class="num"><span class="n">2020</span></td>
-  <td class="num">88 <span class="n">000</span></td>
-  <td class="num" data-sort="1575000"><span class="price">1 575 000</span><div class="was">1 615 000</div></td>
-  <td class="chk" data-sort="113">
-    <div class="delta bad">+113 <span class="n">400</span></div>
-    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">дубль на Авито за 1 525 000</span>
-  </td>
-  <td class="num"><span class="n">3</span></td>
-  <td class="mycmt" data-default="черные диски, мало фоток :(">черные диски, мало фоток :(</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank top" data-sort="2" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 2 · моё — 8&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Топовая комплектация Polo.&lt;/b&gt; Exclusive — максимальный уровень, что частично объясняет цену выше оценки. Без ДТП, 2 владельца, проф. продавец, есть видеообзор.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; +48 900 к оценке при 90 тыс. пробега, и цена почти не двигалась (1 600 000 → 1 590 000) — продавец не мотивирован торговаться.&lt;/p&gt;"><span class="n">2</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.38.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.38.jpeg" alt="VW Polo 2020 чёрный"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.39.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.40.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://m.avito.ru/ramenskoe/avtomobili/volkswagen_polo_1.6_at_2020_90_000_km_8306908805?hrbkey=4NhGUag3RATGqBhzUBZFBtzRn0M3juSl" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Exclusive</span></div></td>
-  <td class="num"><span class="n">2020</span></td>
-  <td class="num">90 <span class="n">000</span></td>
-  <td class="num" data-sort="1590000"><span class="price">1 590 000</span><div class="was">1 600 000</div></td>
-  <td class="chk" data-sort="48">
-    <div class="delta bad">+48 <span class="n">900</span></div>
-    <span class="tag good">без ДТП</span><span class="tag">в родном окрасе (со слов)</span><span class="tag">видеообзор</span>
-  </td>
-  <td class="num"><span class="n">2</span></td>
-  <td class="mycmt" data-default="комплектация хорошая">комплектация хорошая</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank" data-sort="11" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 11 · моё — 10&lt;/div&gt;&lt;p&gt;Один владелец и без ДТП — по бумагам неплохо.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; +96 600 к оценке при 93 тыс. пробега, вмятина на переднем крыле и средний уровень Respect. Мало фотографий — плохой знак для машины, за которую просят выше рынка.&lt;/p&gt;"><span class="n">11</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.41.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.41.jpeg" alt="VW Polo 2021 салон"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.42.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.43.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://m.avito.ru/himki/avtomobili/volkswagen_polo_1.6_at_2021_93_000_km_8245253431?hrbkey=4NhGUag3RATs%2FhNyuErC17GtS6a5c7eD" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Respect</span></div></td>
-  <td class="num"><span class="n">2021</span></td>
-  <td class="num">93 <span class="n">000</span></td>
-  <td class="num" data-sort="1600000"><span class="price">1 600 000</span><div class="was">1 650 000</div></td>
-  <td class="chk" data-sort="96">
-    <div class="delta bad">+96 <span class="n">600</span></div>
-    <span class="tag good">без ДТП</span><span class="tag warn">вмятина на переднем крыле</span>
-  </td>
-  <td class="num"><span class="n">1</span></td>
-  <td class="mycmt" data-default="мало фоток, не понятно, темно">мало фоток, не понятно, темно</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank top" data-sort="5" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 5 · моё — 4&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Нужное оснащение в бюджете.&lt;/b&gt; Status — уровень выше Respect, и именно на нём у Polo уверенно появляется всё, что вам нужно: задние парктроники, подогревы, раздельная спинка. При этом 1 480 000 — внутри бюджета.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 95 тыс. — вход в зону плановых расходов. Плюс 2 владельца, ДТП, цена на 55 800 выше оценки и дубли у автодилеров за 1 529 444: «частник» здесь номинальный. Ваша отметка про 4 ДТП — если это подтверждается отчётом, машину я бы снял с рассмотрения совсем.&lt;/p&gt;"><span class="n">5</span></td>
-  <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.44.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.44.jpeg" alt="VW Polo 2020 синий"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.45.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.46.jpeg" target="_blank">цены</a></div>
-  </td>
-  <td><a class="name" href="https://auto.drom.ru/moscow/volkswagen/polo/564511411.html" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-drom">Дром</span><div class="note">1.6 MPI AT <span class="trim">Status</span> · 6 поколение</div></td>
-  <td class="num"><span class="n">2020</span></td>
-  <td class="num">95 <span class="n">380</span></td>
-  <td class="num" data-sort="1480000"><span class="price">1 480 000</span><div class="was">1 650 000</div></td>
-  <td class="chk" data-sort="55">
-    <div class="delta bad">+55 <span class="n">800</span></div>
-    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">от офиц. дилера (со слов)</span>
-  </td>
-  <td class="num"><span class="n">2</span></td>
-  <td class="mycmt" data-default="Комплектация хорошая. 
-4 дтп">Комплектация хорошая. <br>4 дтп</td>
-</tr>
-
-<tr class="car">
-  <td class="num rank" data-sort="14" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 14 · моё — 7&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Самая богатая по оснащению.&lt;/b&gt; Style — верхний уровень Skoda: передние и задние парктроники, бесключевой доступ, фары LED Cristal. Без ДТП, 2 владельца, покупалась в Рольфе через специалистов по подбору.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 115 тыс. пробега и +63 700 к оценке. Ваши доводы про чехлы и 17-е диски справедливы: низкий профиль на московских ямах — это расходы на диски и подвеску.&lt;/p&gt;"><span class="n">14</span></td>
+  <td class="num rank" data-sort="17" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 17 · моё — 7&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Самая богатая по оснащению.&lt;/b&gt; Style — верхний уровень Skoda: передние и задние парктроники, бесключевой доступ, фары LED Cristal. Без ДТП, 2 владельца, покупалась в Рольфе через специалистов по подбору.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 115 тыс. пробега и +63 700 к оценке. Ваши доводы про чехлы и 17-е диски справедливы: низкий профиль на московских ямах — это расходы на диски и подвеску.&lt;/p&gt;"><span class="n">17</span></td>
   <td>
     <a class="thumb" href="photo_2026-08-09%2021.10.48.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.48.jpeg" alt="Skoda Rapid 2021 серый"></a>
     <div class="shots"><a href="photo_2026-08-09%2021.10.49.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.50.jpeg" target="_blank">цены</a></div>
@@ -420,40 +510,132 @@
   <td class="mycmt" data-default="МИМО чехлы на сиденья, 17-е диски (низкий профиль / ямы) — минусы, уберём из рассмотрения">МИМО чехлы на сиденья, 17-е диски (низкий профиль / ямы) — минусы, уберём из рассмотрения</td>
 </tr>
 
-<tr class="car">
-  <td class="num rank" data-sort="12" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 12 · моё — 9&lt;/div&gt;&lt;p&gt;Самая дешёвая машина подборки: 1 380 000 при падении с 1 600 000. Один владелец, дилерская.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 118,8 тыс. пробега, ДТП и всего лишь Respect. Чехлы на сиденьях — почти всегда признак того, что под ними что-то прячут.&lt;/p&gt;"><span class="n">12</span></td>
+<tr class="car new">
+  <td class="num rank" data-sort="18" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · Авто.ру, ваша находка&lt;/div&gt;&lt;p&gt;Один владелец, оригинал ПТС, реальный пробег, ограничений нет. Цена активно едет вниз: 1 525 000 → 1 425 000 за 11 дней.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Машина в Архангельске — это 1 200 км от Москвы, то есть перегон, командировка на осмотр и невозможность быстро вернуться к продавцу, если что-то всплывёт. Плюс снова «продажа с НДС» и Автотека показывает не менее 2 ДТП с незначительными повреждениями.&lt;/p&gt;"><span class="n">18</span></td>
   <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.51.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.51.jpeg" alt="VW Polo 2021 бордовый"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.53.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.54.jpeg" target="_blank">цены</a></div>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.39.jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.39.jpeg" alt="VW Polo 2021 белый, Архангельск"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.40.jpeg" target="_blank">Автотека</a><a href="new_cars_1/photo_2026-08-15%2018.57.41.jpeg" target="_blank">цены</a></div>
   </td>
-  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1132554159-036533ec/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133635072-15ef93e4/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><span class="badge b-new">НОВОЕ</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span> · белый · Автомир, <b>Архангельск</b></div></td>
   <td class="num"><span class="n">2021</span></td>
-  <td class="num">118 <span class="n">800</span></td>
-  <td class="num" data-sort="1380000"><span class="price">1 380 000</span><div class="was">1 600 000</div></td>
-  <td class="chk" data-sort="-11">
-    <div class="delta good">−11 <span class="n">700</span></div>
-    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">дилерский, 1 собственник</span>
+  <td class="num">78 <span class="n">981</span></td>
+  <td class="num" data-sort="1425000"><span class="price">1 425 000</span><div class="was">1 525 000</div></td>
+  <td class="chk" data-sort="-89">
+    <div class="delta good">−89 <span class="n">000</span></div><div class="note">к прогнозу Авито 1 514 000</div>
+    <span class="tag bad">Архангельск, 1 200 км</span><span class="tag warn">≥2 ДТП, незнач.</span><span class="tag bad">продажа с НДС</span><span class="tag good">1 владелец</span><span class="tag">оригинал ПТС, без ограничений</span>
   </td>
   <td class="num"><span class="n">1</span></td>
-  <td class="mycmt" data-default="МИМО чехлы на сиденья, дтп :-(">МИМО чехлы на сиденья, дтп :-(</td>
+  <td class="mycmt" data-default="МИМО Архангельск">МИМО Архангельск</td>
+</tr>
+
+<tr class="car new">
+  <td class="num rank" data-sort="19" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · Авто.ру, ваша находка&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Уникальный пробег.&lt;/b&gt; 31 058 км на пятилетней машине — вчетверо меньше среднего по подборке (89 537 км). Один владелец, ДТП по данным ГИБДД не было, цена на 182 400 ниже прогноза Авито.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Абакан — это Хакасия, около 3 800 км от Москвы, авиабилет плюс перегон или автовоз. И тревожный сигнал: всего 1 отметка о пробеге в базах, то есть подтвердить эти 31 тысячу почти нечем. Объявление висит с 7 января 2026 — больше семи месяцев на такую «конфетку» никто не позарился, стоит понять почему. Машина куплена на юрлицо продавца.&lt;/p&gt;"><span class="n">19</span></td>
+  <td>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.42.jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.42.jpeg" alt="VW Polo 2021 белый, Абакан"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.44.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1128229654-0f7315ab/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><span class="badge b-new">НОВОЕ</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span> · белый · частник, <b>Абакан</b></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">31 <span class="n">058</span></td>
+  <td class="num" data-sort="1570000"><span class="price">1 570 000</span><div class="was">1 690 000</div></td>
+  <td class="chk" data-sort="-182">
+    <div class="delta good">−182 <span class="n">400</span></div>
+    <span class="tag bad">Абакан, ~3 800 км</span><span class="tag good">без ДТП (ГИБДД)</span><span class="tag warn">всего 1 отметка о пробеге</span><span class="tag warn">висит с 07.01.2026</span><span class="tag">куплена на юрлицо</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="МИМО Абакан">МИМО Абакан</td>
+</tr>
+
+<tr class="car new">
+  <td class="num rank" data-sort="20" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · от подборщика&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Объявление закрыто.&lt;/b&gt; Проверено 15.08.2026: Авито отдаёт «Объявление закрыто» — машина снята или продана.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Для истории:&lt;/span&gt; частник из Люберец, 1 440 000 при прогнозе 1 374 900, то есть на 65 100 выше рынка. Одно ДТП, треснутое лобовое от камня и притёртости по кузову — по описанию самого продавца.&lt;/p&gt;"><span class="n">20</span></td>
+  <td>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.45.jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.45.jpeg" alt="VW Polo 2020 серебристый, Люберцы"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.46.jpeg" target="_blank">Автотека</a></div>
+  </td>
+  <td><a class="name" href="https://m.avito.ru/lyubertsy/avtomobili/volkswagen_polo_1.6_at_2020_123_000_km_8279915892?hrbkey=4NhGUag3RAS7QrEcF%2BaFCz2YQ7i5oPlw" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><span class="badge b-new">НОВОЕ</span><span class="badge b-sold">СНЯТО</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim none">комплектация не указана</span> · частник, Люберцы</div></td>
+  <td class="num"><span class="n">2020</span></td>
+  <td class="num">123 <span class="n">000</span></td>
+  <td class="num" data-sort="1440000"><span class="price">1 440 000</span></td>
+  <td class="chk" data-sort="65">
+    <div class="delta bad">+65 <span class="n">100</span></div>
+    <span class="tag bad">объявление закрыто (15.08)</span><span class="tag warn">≥1 ДТП, незнач.</span><span class="tag warn">лобовое треснуто</span><span class="tag warn">притёртости по кузову</span>
+  </td>
+  <td class="num"><span class="n">1</span></td>
+  <td class="mycmt" data-default="МИМО Снято">МИМО Снято</td>
+</tr>
+
+<tr class="car new">
+  <td class="num rank" data-sort="21" data-tip="&lt;div class=&quot;t-title&quot;&gt;Новая · от подборщика&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Уже продана.&lt;/b&gt; Авто.ру на 15.08.2026 пишет «Этот автомобиль уже продан».&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Для истории:&lt;/span&gt; и правильно, что не успели: 158 611 км, 2 владельца, ДТП, 3 размещения на Авито и цена на 119 800 выше прогноза. Автомир сбрасывал 1 459 000 → 1 389 000 за пять дней.&lt;/p&gt;"><span class="n">21</span></td>
+  <td>
+    <a class="thumb" href="new_cars_1/photo_2026-08-15%2018.57.51.jpeg" target="_blank"><img src="new_cars_1/photo_2026-08-15%2018.57.51.jpeg" alt="VW Polo 2021 коричневый, Автомир"></a>
+    <div class="shots"><a href="new_cars_1/photo_2026-08-15%2018.57.52.jpeg" target="_blank">Автотека</a><a href="new_cars_1/photo_2026-08-15%2018.57.53.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133699271-0674b63c/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><span class="badge b-new">НОВОЕ</span><span class="badge b-sold">ПРОДАН</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim none">16 опций, уровень не указан</span> · коричневый · Автомир, Москва</div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">158 <span class="n">611</span></td>
+  <td class="num" data-sort="1389000"><span class="price">1 389 000</span><div class="was">1 459 000</div></td>
+  <td class="chk" data-sort="119">
+    <div class="delta bad">+119 <span class="n">800</span></div>
+    <span class="tag bad">продан (15.08)</span><span class="tag warn">≥1 ДТП, незнач.</span><span class="tag warn">158 611 км</span><span class="tag warn">3 размещения на Авито</span>
+  </td>
+  <td class="num"><span class="n">2</span></td>
+  <td class="mycmt" data-default="МИМО Продан">МИМО Продан</td>
 </tr>
 
 <tr class="car">
-  <td class="num rank top" data-sort="4" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 4 · моё — 5&lt;/div&gt;&lt;p&gt;Status — то есть с тем же оснащением, что и Polo с 95 тыс., но дешевле, с одним владельцем, без ДТП, у продавца со 154 отзывами и по цене ровно по рынку. По бумагам одна из самых чистых машин списка.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Единственное, но крупное «но» — 126 тыс. пробега. За пять лет вы приедете к 190–200 тысячам, и это прямо спорит с целью «без особых вложений».&lt;/p&gt;"><span class="n">4</span></td>
+  <td class="num rank" data-sort="22" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 22 · моё — 12&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head t-bad&quot;&gt;Я бы вычеркнул.&lt;/b&gt; Обидный случай: Style, небольшой пробег, ежегодное ТО с отметками в сервисной книжке.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; 3 владельца на пятилетней машине, ДТП и +108 700 к оценке. Внешне без проблем — но история и цена перевешивают.&lt;/p&gt;"><span class="n">22</span></td>
   <td>
-    <a class="thumb" href="photo_2026-08-09%2021.10.55.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.55.jpeg" alt="VW Polo 2021 коричневый"></a>
-    <div class="shots"><a href="photo_2026-08-09%2021.10.56.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.57.jpeg" target="_blank">цены</a></div>
+    <a class="thumb" href="photo_2026-08-09%2021.10.25.jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.25.jpeg" alt="Skoda Rapid 2021 коричневый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.26.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.27.jpeg" target="_blank">цены</a></div>
   </td>
-  <td><a class="name" href="https://m.avito.ru/moskva/avtomobili/volkswagen_polo_1.6_at_2021_126_000_km_8188069577?hrbkey=4NhGUag3RASYjU2nhnn9WU2hGLnbX9Q4" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-avito">Авито</span><div class="note">1.6 MPI AT, 110 л.с. · VI (2020—2023) · <span class="trim">Status</span></div></td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/skoda/rapid/1133303383-ce9e3386/" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · II · <span class="trim">Style</span></div></td>
   <td class="num"><span class="n">2021</span></td>
-  <td class="num">126 <span class="n">000</span></td>
-  <td class="num" data-sort="1470000"><span class="price">1 470 000</span><div class="was">1 490 000</div></td>
-  <td class="chk" data-sort="-3">
-    <div class="delta good">−3 <span class="n">500</span></div>
-    <span class="tag good">без ДТП</span><span class="tag">салон «Алексей Авто», 154 отзыва</span>
+  <td class="num">69 <span class="n">680</span></td>
+  <td class="num" data-sort="1590000"><span class="price">1 590 000</span><div class="was">1 740 000</div></td>
+  <td class="chk" data-sort="108">
+    <div class="delta bad">+108 <span class="n">700</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">ТО каждый год, сервисная книжка</span>
+  </td>
+  <td class="num"><span class="n">3</span></td>
+  <td class="mycmt" data-default="МИМО -- продан 
+
+внешне без проблем">МИМО -- продан <br><br>внешне без проблем</td>
+</tr>
+
+<tr class="car">
+  <td class="num rank" data-sort="23" data-tip="&lt;div class=&quot;t-title&quot;&gt;Ваше место 23 · моё — 2&lt;/div&gt;&lt;p&gt;&lt;b class=&quot;t-head&quot;&gt;Лучший из Polo.&lt;/b&gt; 2021 год при 67,6 тыс., один владелец, цена на 52 800 ниже прогноза. Продавец активно скидывает: 1 750 000 → 1 570 000, причём −90 000 за один день — торг до ~1,5 млн вполне реален.&lt;/p&gt;&lt;p class=&quot;t-check&quot;&gt;&lt;span&gt;Проверить / минусы:&lt;/span&gt; Respect — средний уровень Polo: подогрев передних сидений есть, а задние парктроники чаще идут опцией. Обязательно проверьте раздельную спинку 60/40 — это единственное, что потом не доустановить. Плюс одно ДТП с незначительными повреждениями и царапина на заднем бампере.&lt;/p&gt;"><span class="n">23</span></td>
+  <td>
+    <a class="thumb" href="photo_2026-08-09%2021.10.22%20(1).jpeg" target="_blank"><img src="photo_2026-08-09%2021.10.22%20(1).jpeg" alt="VW Polo 2021 серый"></a>
+    <div class="shots"><a href="photo_2026-08-09%2021.10.23.jpeg" target="_blank">Автотека</a><a href="photo_2026-08-09%2021.10.24.jpeg" target="_blank">цены</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/volkswagen/polo/1133088448-d139e275/" target="_blank" rel="noopener">Volkswagen Polo</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 AT, 110 л.с. · VI · <span class="trim">Respect</span></div></td>
+  <td class="num"><span class="n">2021</span></td>
+  <td class="num">67 <span class="n">600</span></td>
+  <td class="num" data-sort="1570000"><span class="price">1 570 000</span><div class="was">1 750 000</div></td>
+  <td class="chk" data-sort="-52">
+    <div class="delta good">−52 <span class="n">800</span></div>
+    <span class="tag warn">≥1 ДТП, незнач.</span><span class="tag">царапина на заднем бампере</span>
   </td>
   <td class="num"><span class="n">1</span></td>
-  <td class="mycmt" data-default="внешне никаких проблем, но пробег большой">внешне никаких проблем, но пробег большой</td>
+  <td class="mycmt" data-default="МИМО -- продан -- вроде ок, но мало фоток и описание короткое, потенциал есть">МИМО -- продан -- вроде ок, но мало фоток и описание короткое, потенциал есть</td>
+</tr>
+
+<tr class="car excluded">
+  <td class="num rank" data-sort="0" data-tip="&lt;div class=&quot;t-title&quot;&gt;Вне подборки&lt;/div&gt;&lt;p&gt;Моя находка с Авто.ру: Rapid 2021, 58 тыс., Hockey Edition, 1 владелец, без ДТП, 1 445 000. Скрыта, чтобы в таблице остались только машины от подборщика.&lt;/p&gt;"><span class="n">—</span></td>
+  <td>
+    <a class="thumb" href="rapid_2021_hockey.jpg" target="_blank"><img class="photo" src="rapid_2021_hockey.jpg" alt="Skoda Rapid 2021 Hockey Edition"></a>
+    <div class="shots"><a href="https://auto.ru/cars/used/sale/skoda/rapid/1133344154-7f232370/" target="_blank" rel="noopener">объявление</a></div>
+  </td>
+  <td><a class="name" href="https://auto.ru/cars/used/sale/skoda/rapid/1133344154-7f232370/" target="_blank" rel="noopener">Skoda Rapid</a><span class="src src-autoru">Авто.ру</span><div class="note">1.6 MPI AT, 110 л.с. · II · <span class="trim">Hockey Edition</span></div></td>
+  <td class="num">2021</td>
+  <td class="num">58 000</td>
+  <td class="num" data-sort="1445000"><span class="price">1 445 000</span></td>
+  <td class="chk" data-sort="-178600">
+    <div class="delta good">−178 600</div><div class="note">−11%, оценка Авто.ру</div>
+    <span class="tag good">без ДТП (ГИБДД)</span><span class="tag good">не в розыске</span><span class="tag">ПТС оригинал/электронный</span><span class="tag">4 отметки о пробеге</span>
+  </td>
+  <td class="num">1</td>
+  <td class="mycmt" data-default=""><span class="empty">—</span></td>
 </tr>
 
 </tbody>
@@ -489,7 +671,7 @@
 
 <footer>
   «Δ к оценке Авито»: минус — цена ниже прогноза Авито, плюс — выше. Пробег указан из объявления; где данные Автотеки отличаются, это отмечено тегом.
-  Все данные распознаны со скриншотов и не проверялись по источникам.
+  Данные по 14 старым позициям распознаны со скриншотов от 09.08.2026. По девяти новым позициям цены, пробеги, комплектации и статус объявления сверены напрямую с Авто.ру и Авито 15.08.2026 — там, где текущая цена разошлась со скриншотом, в таблице стоит актуальная.
 </footer>
 
 <script>
