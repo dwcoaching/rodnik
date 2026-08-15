@@ -52,6 +52,73 @@ name('docs.api');
             </table>
         </div>
 
+        <h2 id="recommended-save-workflow">Recommended save workflow</h2>
+        <p>
+            Create the report before uploading photos. A report is the owning server resource; photos cannot exist in the mobile API without its ID.
+            Keep the form and selected images as a local draft until the report request succeeds.
+        </p>
+        <ol>
+            <li>
+                <strong>Prepare a local draft.</strong>
+                Store the report fields and local image references on the device. Do not upload temporary photos and do not include images in <code>POST /reports</code>.
+            </li>
+            <li>
+                <strong>Create the report.</strong>
+                Send <code>POST /reports</code> as JSON. Disable duplicate submit actions while this request is in progress.
+            </li>
+            <li>
+                <strong>Persist the returned report ID.</strong>
+                After <code>201 Created</code>, immediately save <code>data.id</code> in the local draft before starting any upload.
+                From this point onward, resume the existing server report; do not create another report when a photo fails.
+            </li>
+            <li>
+                <strong>Upload photos sequentially in the desired display order.</strong>
+                Send one multipart request to <code>POST /reports/{report}/photos</code> at a time.
+                The server assigns photo order by successful arrival, so parallel uploads may produce a different order.
+            </li>
+            <li>
+                <strong>Persist each returned photo ID.</strong>
+                Mark a local image as uploaded only after its <code>201 Created</code> response and store <code>data.id</code> for deletion or reconciliation.
+            </li>
+            <li>
+                <strong>Complete and refresh.</strong>
+                When no local photos remain pending, request <code>GET /springs/{spring}</code> and replace local server-derived data with the response.
+            </li>
+        </ol>
+
+        <h3 id="client-state-model">Client state model</h3>
+        <div class="overflow-x-auto">
+            <table>
+                <thead><tr><th>State</th><th>Stored locally</th><th>Next action</th></tr></thead>
+                <tbody>
+                    <tr><td><code>local_draft</code></td><td>Fields and local image references</td><td><code>POST /reports</code></td></tr>
+                    <tr><td><code>report_created</code></td><td>Report ID and pending images</td><td>Upload the first pending photo</td></tr>
+                    <tr><td><code>uploading_photos</code></td><td>Report ID, uploaded photo IDs, pending images</td><td>Continue sequential uploads</td></tr>
+                    <tr><td><code>needs_attention</code></td><td>All identifiers and the last error</td><td>Correct, reconcile, or retry</td></tr>
+                    <tr><td><code>complete</code></td><td>Report ID and photo IDs</td><td>Refresh the spring and clear temporary files</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>
+            Persist this state across app restarts. If the app closes after the report is created, resume photo uploads using the saved report ID.
+            If the user cancels after creation, call <code>DELETE /reports/{report}</code> to hide the incomplete report.
+        </p>
+
+        <h3 id="partial-success">Partial success and recovery</h3>
+        <ul>
+            <li>A failed report request leaves the local draft unchanged.</li>
+            <li>A failed photo request does not roll back the report or photos that were already uploaded.</li>
+            <li>For <code>422</code>, correct the indicated fields or image; repeating the same request will fail again.</li>
+            <li>For <code>401</code>, stop the queue, remove the rejected local token, and ask the user to log in again.</li>
+            <li>For <code>403</code> or <code>404</code>, stop automatic retries and refresh the spring because ownership or visibility may have changed.</li>
+            <li>For <code>429</code>, honor the <code>Retry-After</code> header before continuing the queue.</li>
+            <li>For an offline error, retain the draft and pending queue and resume when connectivity returns.</li>
+        </ul>
+        <p>
+            Version 1 has no idempotency key. If a connection drops after a <code>POST</code> may have reached the server, do not retry it blindly.
+            First refresh <code>GET /springs/{spring}</code> and reconcile the report or photo with server state; otherwise a retry may create a duplicate.
+        </p>
+
         <h2 id="authentication">Authentication</h2>
         <h3 id="create-token">Create a token</h3>
         <pre><code>curl -X POST '{{ $apiBaseUrl }}/auth/token' \
@@ -194,7 +261,10 @@ name('docs.api');
         </ul>
 
         <h2 id="photos">Photos</h2>
-        <p>Create the report first, then upload each photo separately. This allows independent progress and retries and prevents orphaned temporary uploads.</p>
+        <p>
+            Follow the <a href="#recommended-save-workflow">recommended save workflow</a>: create the report first, persist its ID,
+            then upload each photo separately and sequentially. This provides independent progress and recovery without temporary server uploads.
+        </p>
         <pre><code>curl -X POST '{{ $apiBaseUrl }}/reports/456/photos' \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer TOKEN' \
@@ -228,5 +298,18 @@ name('docs.api');
   }
 }</code></pre>
         <p>Clients should use the HTTP status and field keys, not parse human-readable message text.</p>
+
+        <h2 id="client-best-practices">API client best practices</h2>
+        <ul>
+            <li><strong>Secure tokens:</strong> keep tokens only in Keychain or Keystore, never application logs, analytics, URLs, or ordinary preferences.</li>
+            <li><strong>One token per installation:</strong> use a recognizable <code>device_name</code>; revoke the current token during logout before deleting it locally.</li>
+            <li><strong>Explicit JSON:</strong> always send <code>Accept: application/json</code> and use the HTTP status plus stable field keys for decisions.</li>
+            <li><strong>Server authority:</strong> after a successful mutation, use the returned resource and later spring response instead of assuming the server stored the submitted values unchanged.</li>
+            <li><strong>Normalization:</strong> expect the server to clear incompatible quality and problem fields for <code>dry</code> and <code>notfound</code>.</li>
+            <li><strong>Dates:</strong> send the user's current IANA timezone with <code>visited_at</code> so date validation follows the user's local day.</li>
+            <li><strong>Images:</strong> resize or compress large images before upload to reduce mobile bandwidth, but still handle server-side conversion and returned dimensions.</li>
+            <li><strong>Local cleanup:</strong> delete temporary local image copies only after their photo IDs have been persisted or the user deliberately discards the draft.</li>
+            <li><strong>Redirects:</strong> when a spring response is <code>308</code>, persist and use the canonical spring ID from the <code>Location</code> URL.</li>
+        </ul>
     </article>
 @endsection

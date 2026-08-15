@@ -741,9 +741,14 @@
 <script>
 (function () {
   var table = document.getElementById('t'), tbody = table.tBodies[0];
-  var KEY = 'cars-rank-v2', sortCol = 0, dragRow = null;
+  var KEY = 'cars-rank-v4';   // ← поднимайте версию, когда правите места/комментарии в HTML:
+                              //   старые сохранения в браузере перестают перекрывать разметку
+  var sortCol = 0, dragRow = null;
   var st = { places: {}, comments: {} }, saved = null;
-  try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  try {
+    ['cars-rank-v2', 'cars-rank-v3'].forEach(function (k) { localStorage.removeItem(k); });
+    saved = JSON.parse(localStorage.getItem(KEY));
+  } catch (e) {}
   if (saved) { st = Object.assign(st, saved); }
   else {                                   // первый визит — берём комментарии из страницы
     [].forEach.call(document.querySelectorAll('#t td.mycmt[data-default]'), function (td) {

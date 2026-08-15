@@ -34,5 +34,14 @@ test('any authenticated user can see the api documentation and its menu item', f
         ->assertSee('/springs/{spring}')
         ->assertSee('/reports/{report}/photos')
         ->assertSee('/photos/{photo}')
+        ->assertSee('Recommended save workflow')
+        ->assertSee('Create the report before uploading photos')
+        ->assertSee('Persist the returned report ID')
+        ->assertSee('Upload photos sequentially in the desired display order')
+        ->assertSee('Client state model')
+        ->assertSee('Partial success and recovery')
+        ->assertSee('do not retry it blindly')
+        ->assertSee('Retry-After')
+        ->assertSee('API client best practices')
         ->assertSee('noindex, nofollow', false);
 });
