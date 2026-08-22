@@ -331,6 +331,23 @@ test('editing report attaches newly uploaded unattached photos', function () {
         ->and($uploaded->fresh()->order)->toBe(2);
 });
 
+test('edit form provides every existing photo to the Alpine photo list', function () {
+    Storage::fake('photos');
+
+    $user = User::factory()->create();
+    $report = Report::factory()->create(['user_id' => $user->id]);
+    $first = Photo::factory()->create(['report_id' => $report->id, 'order' => 1]);
+    $second = Photo::factory()->create(['report_id' => $report->id, 'order' => 2]);
+
+    $html = Livewire::actingAs($user)
+        ->test(CreateReport::class, ['springId' => $report->spring_id, 'reportId' => $report->id])
+        ->html();
+
+    expect($html)
+        ->toContain("\\u0022id\\u0022:{$first->id}")
+        ->toContain("\\u0022id\\u0022:{$second->id}");
+});
+
 test('editing report detaches removed photos', function () {
     Storage::fake('photos');
     fakeReportSideEffects();

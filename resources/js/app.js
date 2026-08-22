@@ -40,19 +40,25 @@ window.convertHeicToJpeg = function(file) {
 };
 
 window.reportCreateForm = function(config) {
+    const wire = config.wire;
+
     return {
-        visited_at: config.wire.$entangle('visited_at'),
-        state: config.wire.$entangle('state'),
-        quality: config.wire.$entangle('quality'),
+        visited_at: wire.$entangle('visited_at'),
+        state: wire.$entangle('state'),
+        quality: wire.$entangle('quality'),
 
-        access_limited: config.wire.$entangle('access_limited'),
-        littered: config.wire.$entangle('littered'),
-        broken: config.wire.$entangle('broken'),
+        access_limited: wire.$entangle('access_limited'),
+        littered: wire.$entangle('littered'),
+        broken: wire.$entangle('broken'),
 
-        wire: null,
-        sortablePhotos: config.wire.$entangle('sortablePhotos'),
+        sortablePhotos: wire.$entangle('sortablePhotos'),
         dragover: false,
-        photoItems: [],
+        photoItems: (Array.isArray(config.initialPhotos) ? config.initialPhotos : []).map((photo) => ({
+            ...photo,
+            key: `photo-${photo.id}`,
+            status: 'uploaded',
+            progress: 100,
+        })),
         activeUploads: 0,
         maxActiveUploads: 2,
         withDate: true,
@@ -60,19 +66,11 @@ window.reportCreateForm = function(config) {
         today: '',
 
         init() {
-            this.wire = config.wire;
-            this.today = this.localDate(new Date());
+            this.refreshToday();
             if (! config.reportId) {
                 this.visited_at = this.today;
             }
-            this.wire.set('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
             this.withDate = !! this.visited_at;
-            this.photoItems = (config.initialPhotos || []).map((photo) => ({
-                ...photo,
-                key: `photo-${photo.id}`,
-                status: 'uploaded',
-                progress: 100,
-            }));
 
             this.$watch('state', (value) => {
                 if (value === 'notfound') {
@@ -82,6 +80,8 @@ window.reportCreateForm = function(config) {
                     this.broken = false;
                 }
             });
+
+            this.syncTimezone();
         },
 
         localDate(date) {
@@ -90,6 +90,23 @@ window.reportCreateForm = function(config) {
             const day = String(date.getDate()).padStart(2, '0');
 
             return `${year}-${month}-${day}`;
+        },
+
+        refreshToday() {
+            this.today = this.localDate(new Date());
+        },
+
+        syncTimezone() {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+            if (timezone) {
+                wire.$set('timezone', timezone, false);
+            }
+        },
+
+        syncDateContext() {
+            this.refreshToday();
+            this.syncTimezone();
         },
 
         toggleDate() {
@@ -121,6 +138,8 @@ window.reportCreateForm = function(config) {
         },
 
         async submitReport() {
+            this.syncDateContext();
+
             const sortablePhotos = this.buildSortablePhotos();
 
             this.sortablePhotos = sortablePhotos;

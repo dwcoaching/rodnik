@@ -83,6 +83,8 @@
             x-show="withDate"
             x-model="visited_at"
             x-bind:max="today"
+            x-on:focus="syncDateContext()"
+            x-on:change.capture="syncDateContext()"
             wire:model.change.live="visited_at"
             type="date"
             name="date"

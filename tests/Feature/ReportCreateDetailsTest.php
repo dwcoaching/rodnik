@@ -288,11 +288,28 @@ test('report visit date allows the visitors current date across the UTC date bou
     expect($spring->reports()->sole()->visited_at->toDateString())->toBe('2026-08-09');
 });
 
+test('report visit date allows the current date in Moscow after the UTC date boundary', function () {
+    fakeReportStoreSideEffects();
+    $this->travelTo(CarbonImmutable::parse('2026-08-08 21:30:00 UTC'));
+
+    $spring = Spring::factory()->create();
+
+    Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
+        ->set('timezone', 'Europe/Moscow')
+        ->set('visited_at', '2026-08-09')
+        ->call('store')
+        ->assertHasNoErrors();
+
+    expect($spring->reports()->sole()->visited_at->toDateString())->toBe('2026-08-09');
+});
+
 test('report date field provides local-date constraints and accessible feedback', function () {
     $spring = Spring::factory()->create();
 
     Livewire::test(CreateReport::class, ['springId' => $spring->id, 'reportId' => null])
         ->assertDontSee('Choose today or an earlier date.')
         ->assertSeeHtml('x-bind:max="today"')
+        ->assertSeeHtml('x-on:focus="syncDateContext()"')
+        ->assertSeeHtml('x-on:change.capture="syncDateContext()"')
         ->assertSeeHtml('wire:model.change.live="visited_at"');
 });
