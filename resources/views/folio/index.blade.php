@@ -24,35 +24,45 @@
             <div class="drawer lg:drawer-open">
               <input id="my-drawer" type="checkbox" class="drawer-toggle" />
               <div class="drawer-content min-w-0 max-w-full overflow-x-hidden">
-                <div class="lg:hidden navbar bg-base-200">
-                  <div class="flex-1 items-stretch">
-                    <label for="my-drawer" class="btn btn-ghost flex items-center">
+                <header class="navbar flex-nowrap gap-2 bg-base-200 px-3 lg:hidden">
+                    <label for="my-drawer" class="btn btn-square btn-ghost shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </label>
-                    <a href="{{ localized_public_path() }}" class="btn btn-ghost flex items-center">
-                      <img src="/rodnik-nunito-logo.svg" class="h-6 mt-0.5 " />
+                    <a href="{{ localized_public_path() }}" class="flex shrink-0 items-center">
+                      <img src="/rodnik-nunito-logo.svg" alt="Rodnik.today" class="h-6 w-auto" />
                     </a>
-
-                  </div>
-                </div>
+                    <x-language-switcher class="ml-auto shrink-0" />
+                </header>
                 <div class="p-8 min-w-0 max-w-full">
                     @yield('content')
                 </div>
               </div>
               <div class="drawer-side">
                 <label for="my-drawer" aria-label="{{ __('ui.common.close') }}" class="drawer-overlay"></label>
-                <ul data-theme="light" class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-                  <!-- Sidebar content here -->
-                  <li class="mb-2"><a href="{{ localized_public_path() }}">
-                      <img src="/rodnik-nunito-logo.svg" class="h-6 mt-0.5" />
-                  </a></li>
-                  <li class="mb-2"><x-language-switcher align="left" /></li>
+                <div data-theme="light" class="w-80 min-h-full bg-base-200 p-4 text-base-content">
+                  <div class="mb-4 flex flex-nowrap items-center justify-between gap-3 px-2">
+                    <a href="{{ localized_public_path() }}" class="flex shrink-0 items-center">
+                      <img src="/rodnik-nunito-logo.svg" alt="Rodnik.today" class="h-6 w-auto" />
+                    </a>
+                    <x-language-switcher class="hidden shrink-0 lg:block" />
+                  </div>
+                  <ul class="menu w-full p-0">
                   {{--<li><a href="/">🌍&nbsp; Map</a></li>--}}
                   <li><a href="{{ localized_public_path('/docs/about') }}"
                     @if (Request::is('docs/about', 'ru/docs/about'))
                       class="active"
                     @endif
                   >😀&nbsp; {{ __('ui.common.about') }}</a></li>
+                  <li><a href="{{ route(app()->isLocale('ru') ? 'ru.docs.users' : 'docs.users') }}"
+                    @if (Request::is('docs/users', 'ru/docs/users'))
+                      class="active"
+                    @endif
+                  >💧&nbsp; {{ __('pages.users.title') }}</a></li>
+                  <li><a href="{{ localized_public_path('/docs/legend') }}"
+                    @if (Request::is('docs/legend', 'ru/docs/legend'))
+                      class="active"
+                    @endif
+                  >🗺️&nbsp; {{ __('ui.home.map_legend.title') }}</a></li>
                   <li><a href="{{ localized_public_path('/docs/exports') }}"
                     @if (Request::is('docs/exports', 'ru/docs/exports'))
                       class="active"
@@ -93,7 +103,8 @@
                       class="active"
                     @endif
                   >💬&nbsp; {{ __('pages.contact.title') }}</a></li>
-                </ul>
+                  </ul>
+                </div>
               </div>
             </div>
         </div>

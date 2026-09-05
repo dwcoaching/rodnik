@@ -26,6 +26,7 @@ final class SitemapController extends Controller
         $paths = [
             '/',
             '/docs/about',
+            '/docs/legend',
             '/docs/contact-us',
             '/docs/exports',
             '/docs/coll-de-sa-batalla',

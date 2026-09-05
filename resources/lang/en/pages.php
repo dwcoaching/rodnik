@@ -30,6 +30,15 @@ return [
         'chat' => 'Chat',
         'notifications_channel' => 'Notifications Channel',
     ],
+    'users' => [
+        'title' => 'Spring explorers',
+        'description' => 'Meet the community members who explore water sources and share their observations.',
+        'map_hint' => 'Select a user to see their water sources on the map.',
+        'user' => 'User',
+        'reports' => 'Reports',
+        'springs' => 'Unique water sources',
+        'empty' => 'No reports yet.',
+    ],
     'contact' => [
         'title' => 'Contact Us',
         'seo_description' => 'Contact the Rodnik.today community through Telegram or email.',

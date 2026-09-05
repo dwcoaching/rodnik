@@ -37,6 +37,9 @@ name('docs.about');
         <div class="mt-3">
             {{ __('pages.about.authors.description') }} <b>{{ __('pages.about.authors.invitation') }}</b>
         </div>
+        <div class="mt-3">
+            <a href="{{ route(app()->isLocale('ru') ? 'ru.docs.users' : 'docs.users') }}" class="text-blue-600 hover:text-blue-800">{{ __('pages.users.title') }}</a>
+        </div>
 
         <div class="mt-9 font-black text-xl">
             {{ __('pages.about.more_information.title') }}

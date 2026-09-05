@@ -56,7 +56,7 @@
     <div class="grow">
         <div class="h-full">
             @if (! $page['spring'] && ! $page['location'])
-                <livewire:duo.reports.index :userId="$page['user']" />
+                <livewire:duo.reports.index :userId="$page['user']" :key="'reports-'.$page['user']" />
             @endif
             @if ($page['spring'] && ! $page['location'])
                 <livewire:duo.springs.show :springId="$page['spring']" :userId="$page['user']" />

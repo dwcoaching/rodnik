@@ -1,10 +1,6 @@
-<div class="h-full" x-data="{
-        showLegendModal: false
-    }">
-    <div wire:loading.delay.long.flex class="grow hidden w-full h-full flex justify-center items-center">
-        <div class="animate-spin w-6 h-6 border border-4 rounded-full border-stone-400 border-t-transparent"></div>
-    </div>
-    <div wire:loading.remove>
+<div class="h-full" x-data="mapReports" @map-viewport-changed.window.debounce.250ms="refresh()"
+    @scroll.window="busy && positionLoader()" @resize.window="busy && positionLoader()">
+    <div>
         @if ($userId)
             <div class="px-4 flex items-stretch">
                 <div
@@ -42,12 +38,24 @@
             <div class="mt-2 px-4 mb-3 text-sm font-medium">
                 {!! trans_choice('ui.home.water_sources_count', $springsCount, ['count' => '<span class="px-1.5 py-0 rounded-full bg-[#33A9FF]/10 border border-[#33A9FF]">' . number_format($springsCount, 0, ',', ' ') . '</span>']) !!}
                 {!! trans_choice('ui.home.with_reports_count', $reportsCount, ['count' => '<span class="ml-0 px-1.5 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">' . number_format($reportsCount, 0, ',', ' ') . '</span>']) !!}.
-                <button @click="showLegendModal = true" class="text-blue-600 hover:text-blue-700 hover:underline cursor-pointer">
-                    {{ __('ui.home.show_map_legend') }}
-                </button>.
             </div>
         @endif
-        <ul x-cloak role="list" class="grid grid-cols-2 lg:grid-cols-3 mt-2 md:px-4
+    </div>
+    <section :aria-busy="busy">
+        @if (! $userId)
+            <div class="px-4 mt-4 mb-2">
+                <h2 class="font-semibold">{{ __('ui.home.reports_in_area') }}</h2>
+                <div x-cloak x-show="loaderTop !== null && (busy || (! $wire.bounds && ! failed))" role="status"
+                    class="pointer-events-none fixed inset-x-0 z-20 flex items-center justify-center overflow-hidden bg-stone-100/80 sm:bottom-0 sm:left-1/2"
+                    :style="{ top: loaderTop + 'px' }"
+                    :class="{ 'bottom-10': minimized, 'bottom-[50vh]': ! minimized }">
+                    <div aria-hidden="true" class="animate-spin w-6 h-6 border-4 rounded-full border-stone-400 border-t-transparent"></div>
+                    <span class="sr-only">{{ __('ui.home.loading_reports') }}</span>
+                </div>
+                <button x-cloak x-show="failed" @click="refresh(retryMore)" type="button" class="mt-1 text-sm text-blue-600 hover:underline">{{ __('ui.home.retry_reports') }}</button>
+            </div>
+        @endif
+        <ul x-ref="reportsList" x-cloak role="list" class="grid grid-cols-2 lg:grid-cols-3 mt-2 md:px-4
             bg-stone-200
             border-t
             border-b
@@ -55,12 +63,19 @@
             gap-px
             md:bg-inherit
             md:border-0
-            md:gap-4 items-stretch md:items-start" wire:key="reports">
+            md:gap-4 items-stretch md:items-start" wire:key="reports" :class="{ 'opacity-50': busy || failed }" :inert="busy || failed">
             @foreach ($lastReports as $report)
                 <x-last-reports.teaser :report="$report" />
             @endforeach
         </ul>
-        @if (count($lastReports) == $limit)
+        @if (! $userId && $bounds && $lastReports->isEmpty())
+            <p x-show="! busy && ! failed" role="status" class="px-4 py-8 text-sm text-gray-600">{{ __('ui.home.no_reports_in_area') }}</p>
+        @endif
+        @if (! $userId && $hasMore)
+            <div class="px-4 pb-6">
+                <button @click="refresh(true)" :disabled="busy || failed" type="button" class="w-full p-3 bg-stone-200 rounded-xl mt-4 text-sm disabled:opacity-50">{{ __('ui.home.show_more_area_reports') }}</button>
+            </div>
+        @elseif ($userId && count($lastReports) == $limit)
             <livewire:duo.components.show-more-reports
                 user-id="{{ $userId }}"
                 skip="{{ $limit }}"
@@ -68,103 +83,5 @@
                 key="show-more-reports-user-{{ $userId }}-skip-{{ $limit }}-take-{{ $limit }}"
                 />
         @endif
-    </div>
-
-    <!-- Map Legend Modal -->
-    <div x-show="showLegendModal" 
-        role="dialog"
-        aria-modal="true"
-         x-cloak
-         @click="showLegendModal = false"
-         @keydown.escape.window="showLegendModal = false"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
-         x-transition:enter="ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0">
-        
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
-             role="dialog"
-             x-trap.noscroll.inert="showLegendModal"
-             @click.stop
-             x-transition:enter="ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-95"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="ease-in duration-200"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-95">
-            
-            <!-- Modal Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">{{ __('ui.home.map_legend.title') }}</h3>
-                <button @click="showLegendModal = false" 
-                        class="text-gray-400 hover:text-gray-600 focus:outline-hidden focus:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- Modal Body -->
-            <div class="p-6">
-                <div class="space-y-4">
-                    <!-- Default/Unreported Sources -->
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#33A9FF] bg-[#33A9FF]/10 shrink-0"></div>
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.no_reports') }}</div>
-                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.no_reports_description') }}</div>
-                        </div>
-                    </div>
-
-                    <!-- Good Water Quality -->
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#006600] bg-[#009900]/50 shrink-0"></div>
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.good_water') }}</div>
-                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.good_water_description') }}</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Bad Water Quality -->
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#FF0000] bg-[#FF0000]/50 shrink-0"></div>
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.poor_water') }}</div>
-                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.poor_water_description') }}</div>
-                        </div>
-                    </div>
-
-                    <!-- Sources with Reports -->
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-[#ff9900] bg-[#FFB400]/80 shrink-0"></div>
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.unsure') }}</div>
-                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.unsure_description') }}</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Not Found Sources -->
-                    <div class="flex items-center space-x-3">
-                        <div class="w-6 h-6 rounded-full border border-red-500 shrink-0 flex items-center justify-center">
-                            <span class="text-red-500 font-bold text-sm">✕</span>
-                        </div>
-                        <div class="flex-1">
-                            <div class="font-medium text-gray-900">{{ __('ui.home.map_legend.not_found') }}</div>
-                            <div class="text-sm text-gray-600">{{ __('ui.home.map_legend.not_found_description') }}</div>
-                        </div>
-                    </div>
-                    
-                    <!-- Additional Info -->
-                    <div class="mt-6 p-4 bg-gray-100 rounded-lg">
-                        <div class="text-sm text-gray-800">
-                            {!! __('ui.home.map_legend.marker_numbers') !!}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </section>
 </div>

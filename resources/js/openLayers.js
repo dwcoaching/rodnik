@@ -154,6 +154,7 @@ export default class OpenLayersMap {
 
             saveLastCenter(this.map.getView().getCenter());
             saveLastZoom(this.map.getView().getZoom());
+            window.dispatchEvent(new CustomEvent('map-viewport-changed'));
         });
 
         this.map.on('click', (e) => {
@@ -281,6 +282,24 @@ export default class OpenLayersMap {
         coordinates[0] = coordinates[0].toFixed(6);
         coordinates[1] = coordinates[1].toFixed(6);
         return coordinates.reverse().join(', ');
+    }
+
+    getViewportBounds() {
+        const size = this.map.getSize();
+        if (!size || !size[0] || !size[1]) return null;
+
+        const extent = this.view.calculateExtent(size);
+        const [west, south] = toLonLat(extent.slice(0, 2));
+        const [east, north] = toLonLat(extent.slice(2, 4));
+        const world = this.view.getProjection().getExtent();
+        const wholeWorld = extent[2] - extent[0] >= world[2] - world[0];
+
+        return {
+            west: wholeWorld ? -180 : west,
+            south: Math.max(-90, south),
+            east: wholeWorld ? 180 : east,
+            north: Math.min(90, north),
+        };
     }
 
     featuresLoadEnd() {

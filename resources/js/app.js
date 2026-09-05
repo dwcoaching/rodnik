@@ -4,6 +4,7 @@ import { v1 as uuidv1 } from 'uuid';
 import { gps as exifrGPS } from 'exifr';
 import { resizeImage } from '@/utils/imageResize/resizeImage';
 import OpenLayersMap from './openLayers.js';
+import mapReports from './mapReports.js';
 import OpenHelper from './openHelper.js';
 import OpenDiffer from './openDiffer.js';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
@@ -16,6 +17,7 @@ import trans from '@/i18n';
 
 Alpine.plugin(Clipboard);
 Alpine.plugin(sort);
+Alpine.data('mapReports', mapReports);
 
 window.Alpine = Alpine;
 window.resizeImage = resizeImage;

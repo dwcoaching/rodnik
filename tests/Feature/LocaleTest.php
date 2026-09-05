@@ -233,6 +233,27 @@ test('Folio pages have stable English and Russian URLs and content', function ()
         ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/docs/about').'">', false);
 });
 
+test('the map legend has a localized standalone page linked from About', function (string $locale, string $prefix, string $label) {
+    $this->get($prefix.'/docs/legend')
+        ->assertSuccessful()
+        ->assertSee('<html lang="'.$locale.'">', false)
+        ->assertSee('id="map-legend"', false)
+        ->assertSee($label)
+        ->assertSee('<link rel="canonical" href="'.url($prefix.'/docs/legend').'">', false)
+        ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/docs/legend').'">', false)
+        ->assertSee('<link rel="alternate" hreflang="ru" href="'.url('/ru/docs/legend').'">', false)
+        ->assertSee('<link rel="alternate" hreflang="x-default" href="'.url('/docs/legend').'">', false)
+        ->assertDontSee('name="robots" content="noindex, nofollow"', false);
+
+    $this->get($prefix.'/docs/about')
+        ->assertSuccessful()
+        ->assertSee('href="'.$prefix.'/docs/legend"', false)
+        ->assertDontSee('id="map-legend"', false);
+})->with([
+    'English' => ['en', '', 'No user reports'],
+    'Russian' => ['ru', '/ru', 'Нет отчётов пользователей'],
+]);
+
 test('report enums and custom rules use the active locale', function () {
     App::setLocale('en');
 
@@ -277,6 +298,8 @@ test('the sitemap index and static sitemap include both locales', function () {
         ->assertHeader('Content-Type', 'application/xml; charset=UTF-8')
         ->assertSee('<loc>'.url('/').'</loc>', false)
         ->assertSee('<loc>'.url('/ru').'</loc>', false)
+        ->assertSee('<loc>'.url('/docs/legend').'</loc>', false)
+        ->assertSee('<loc>'.url('/ru/docs/legend').'</loc>', false)
         ->assertSee('hreflang="en" href="'.url('/docs/about').'"', false)
         ->assertSee('hreflang="ru" href="'.url('/ru/docs/about').'"', false)
         ->assertSee('hreflang="x-default" href="'.url('/docs/about').'"', false);

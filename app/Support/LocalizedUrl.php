@@ -92,10 +92,12 @@ final class LocalizedUrl
 
         return $request->is(
             'docs/about',
+            'docs/legend',
             'docs/contact-us',
             'docs/exports',
             'docs/coll-de-sa-batalla',
             'ru/docs/about',
+            'ru/docs/legend',
             'ru/docs/contact-us',
             'ru/docs/exports',
             'ru/docs/coll-de-sa-batalla',

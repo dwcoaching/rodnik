@@ -1,6 +1,6 @@
 @props(['report'])
 
-<li class="bg-white md:rounded-lg md:shadow-sm overflow-hidden">
+<li wire:key="report-{{ $report->id }}" class="bg-white md:rounded-lg md:shadow-sm overflow-hidden">
     <div class="">
         @if (! $report->hidden_at)
             <div>
