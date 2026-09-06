@@ -2,7 +2,7 @@ import { Circle as CircleStyle, Stroke, Style } from 'ol/style';
 import finalStyleFunction from './final.js';
 
 // Create a red stroke style that will be applied to all variants
-const selectedStyle = new Style({
+export const selectedStyle = new Style({
     image: new CircleStyle({
         radius: 12,
         stroke: new Stroke({

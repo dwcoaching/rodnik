@@ -1,4 +1,4 @@
-@props(['report'])
+@props(['report', 'preserveMapView' => false])
 
 <li wire:key="report-{{ $report->id }}" class="bg-white md:rounded-lg md:shadow-sm overflow-hidden">
     <div class="">
@@ -12,6 +12,7 @@
                                     detail: {
                                         user: new URLSearchParams(window.location.search).get('page[user]'),
                                         spring: {{ intval($report->spring->id )}},
+                                        preserveMapView: @js($preserveMapView),
                                         coordinates: {{ json_encode([
                                             floatval($report->spring->longitude),
                                             floatval($report->spring->latitude)

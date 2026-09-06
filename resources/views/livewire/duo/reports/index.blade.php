@@ -65,7 +65,7 @@
             md:border-0
             md:gap-4 items-stretch md:items-start" wire:key="reports" :class="{ 'opacity-50': busy || failed }" :inert="busy || failed">
             @foreach ($lastReports as $report)
-                <x-last-reports.teaser :report="$report" />
+                <x-last-reports.teaser :report="$report" :preserve-map-view="! $userId" />
             @endforeach
         </ul>
         @if (! $userId && $bounds && $lastReports->isEmpty())

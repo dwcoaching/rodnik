@@ -8,6 +8,7 @@ use App\Models\Spring;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Blade;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -63,6 +64,25 @@ test('map reports exclude hidden reports hidden springs OSM imports and merged s
         ->call('updateBounds', $this->bounds)
         ->assertViewHas('lastReports', fn ($reports) => $reports->modelKeys() === [$visible->id])
         ->assertViewHas('hasMore', false);
+});
+
+test('only area report cards preserve the map view when opening a spring', function () {
+    $report = Report::factory()->for(Spring::factory()->state([
+        'longitude' => 15, 'latitude' => 45,
+    ]))->create();
+
+    Livewire::test(Index::class)
+        ->call('updateBounds', $this->bounds)
+        ->assertSeeHtml('preserveMapView: true');
+
+    Livewire::test(Index::class, ['userId' => $report->user_id])
+        ->assertSeeHtml('preserveMapView: false');
+
+    $teaser = Blade::render('<x-last-reports.teaser :report="$report" />', [
+        'report' => $report->load(['spring', 'user', 'photos']),
+    ]);
+
+    expect($teaser)->toContain('preserveMapView: false');
 });
 
 test('map reports support the date line and the whole world', function (array $bounds, array $visibleLongitudes) {

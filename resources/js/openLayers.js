@@ -37,7 +37,7 @@ import StravaPublicLayer from '@/layers/stravaPublic';
 import OSMTracesLayer from '@/layers/osmTraces';
 
 import finalStyle from '@/styles/final';
-import selectedStyle from '@/styles/selected';
+import selectedStyle, { selectedStyle as selectionOutline } from '@/styles/selected';
 import { getInitialCenter, getInitialZoom, getInitialSourceName, saveLastCenter, saveLastZoom, saveLastSourceName } from '@/initial';
 
 import GeolocationLayer from '@/layers/geolocation';
@@ -89,6 +89,14 @@ export default class OpenLayersMap {
         this.currentLayer = this.osmLayer;
 
         this.springsFinalLayer = new SpringsFinalLayer();
+        this.reportCoordinates = {};
+        this.reportSelectionFeature = new Feature();
+        this.reportSelectionLayer = new VectorLayer({
+            source: new VectorSource({ features: [this.reportSelectionFeature] }),
+            style: selectionOutline,
+            maxZoom: this.finalZoom,
+            zIndex: 1000,
+        });
         this.springsApproximatedLayer = new SpringsApproximatedLayer();
         this.springsDistantLayer = new SpringsDistantLayer();
         this.wateredSpringsApproximatedLayer = new WateredSpringsApproximatedLayer();
@@ -137,6 +145,7 @@ export default class OpenLayersMap {
                 this.springsDistantLayer,
                 this.springsApproximatedLayer,
                 this.springsFinalLayer,
+                this.reportSelectionLayer,
                 this.trackLayer,
                 this.bufferLayer,
                 this.trackSimplifiedLayer,
@@ -164,8 +173,8 @@ export default class OpenLayersMap {
 
             let features = this.map.getFeaturesAtPixel(e.pixel, {
                 hitTolerance: 2,
-                layerFilter: function(candidate) {
-                    return candidate instanceof SpringsFinalLayer;
+                layerFilter: (candidate) => {
+                    return candidate instanceof SpringsFinalLayer || candidate === this.reportSelectionLayer;
                 }
             });
 
@@ -211,6 +220,13 @@ export default class OpenLayersMap {
             this.queryParameters
 
             this.springsSource(this.queryParameters.user)
+
+            const reportCoordinates = this.reportCoordinates[this.queryParameters.spring];
+            this.reportSelectionLayer.setVisible(!this.queryParameters.user);
+            this.reportSelectionFeature.setProperties({
+                id: this.queryParameters.spring,
+                geometry: reportCoordinates ? new Point(fromLonLat(reportCoordinates)) : null,
+            });
 
             if (this.queryParameters.spring > 0) {
                 this.highlightFeatureById(this.queryParameters.spring)
@@ -532,10 +548,9 @@ export default class OpenLayersMap {
 
     highlightFeatureById(id) {
         let feature = window.rodnikMap.springsFinalLayer.getSource().getFeatureById(id);
+        this.featureIdToBeSelected = feature ? null : id;
         if (feature) {
             this.highlightFeature(feature);
-        } else {
-            this.featureIdToBeSelected = id;
         }
     }
 
@@ -638,6 +653,7 @@ export default class OpenLayersMap {
     }
 
     dehighlightFeature() {
+        this.featureIdToBeSelected = null;
         if (this.previouslyHighlightedFeature) {
             this.previouslyHighlightedFeature.setStyle(finalStyle);
             this.previouslyHighlightedFeature = null;
@@ -702,7 +718,13 @@ export default class OpenLayersMap {
         window.dispatchEvent(event);
     }
 
-    duoVisit(queryParameters) {
+    duoVisit({ preserveMapView = false, ...queryParameters }) {
+        if (preserveMapView) {
+            this.setFullscreen(false);
+            this.reportCoordinates[queryParameters.spring] = queryParameters.coordinates;
+            queryParameters.coordinates = null;
+        }
+
         this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
         Object.assign(this.queryParameters, queryParameters);
     }
