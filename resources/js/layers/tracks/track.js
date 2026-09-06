@@ -27,6 +27,7 @@ export default class TrackLayer extends VectorLayer {
 
     clear() {
         this.getSource().clear()
+        window.rodnikMap.buffer.clear()
         this.clearFromLocalStorage()
         this.isUploaded.value = false
     }
@@ -44,8 +45,17 @@ export default class TrackLayer extends VectorLayer {
 
             // window.rodnikMap.filters.along = true
 
-            localStorage.setItem('uploadedGPXTrack', content)
             this.isUploaded.value = true
+
+            try {
+                localStorage.setItem('uploadedGPXTrack', content)
+            } catch (error) {
+                if (error.name !== 'QuotaExceededError') {
+                    throw error
+                }
+
+                this.clearFromLocalStorage()
+            }
         } else {
             // this.clear();
         }

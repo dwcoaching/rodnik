@@ -1,4 +1,5 @@
 <div class="h-full" x-data="mapReports" @map-viewport-changed.window.debounce.250ms="refresh()"
+    @map-filters-changed.window="refresh()" @map-track-changed.window="refresh()"
     @scroll.window="busy && positionLoader()" @resize.window="busy && positionLoader()">
     <div>
         @if ($userId)

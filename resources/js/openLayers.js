@@ -520,6 +520,21 @@ export default class OpenLayersMap {
         saveLastSourceName(name)
     }
 
+    updateFilterStyles() {
+        [
+            this.springsFinalLayer,
+            this.springsApproximatedLayer,
+            this.springsDistantLayer,
+            this.wateredSpringsApproximatedLayer,
+            this.wateredSpringsDistantLayer,
+        ].forEach((layer) => layer.changed());
+    }
+
+    updateFilters() {
+        this.updateFilterStyles();
+        window.dispatchEvent(new CustomEvent('map-filters-changed'));
+    }
+
     updateOverlays() {
         if (this.overlays.stravaPublic) {
             if (! this.currentOverlays.stravaPublic) {

@@ -1,19 +1,27 @@
-import { buffer, simplify, featureCollection, union } from '@turf/turf';
+import { bbox, buffer, simplify, featureCollection, union } from '@turf/turf';
 import GeoJSON from 'ol/format/GeoJSON';
+import TrackPolygons from './trackPolygons.js';
 
 export default class Buffer {
     constructor() {
-        this.clear()
+        this.trackPolygon = new TrackPolygons()
+        this.revision = 0
+        this.clear(false)
     }
 
-    clear() {
+    clear(notify = true) {
+        this.revision++
+        this.trackPolygon.clear()
+        this.persistencePromise = null
         this.track = featureCollection([])
         this.trackSimplified = featureCollection([])
         this.buffer = null
+
+        if (notify) this.notifyTrackChange()
     }
 
     setTrack(features) {
-        this.clear()
+        this.clear(false)
 
         this.track = (new GeoJSON()).writeFeaturesObject(window.rodnikMap.trackLayer.getSource().getFeatures(), {
             dataProjection: 'EPSG:4326',
@@ -22,11 +30,37 @@ export default class Buffer {
 
         this.makeSimplifiedTrack()
         this.makeBuffer()
+        this.saveTrackPolygon()
+        this.notifyTrackChange()
 
         if (window.rodnikMap.debug) {
             window.rodnikMap.trackSimplifiedLayer.getSource().setFromTurf(this.trackSimplified)
             window.rodnikMap.bufferLayer.getSource().setFromTurf(this.buffer)
         }
+    }
+
+    saveTrackPolygon() {
+        if (!this.buffer?.geometry) {
+            this.trackPolygon.clear()
+            return Promise.resolve(null)
+        }
+
+        const pending = this.trackPolygon.save(this.buffer)
+
+        if (pending !== this.persistencePromise) {
+            const revision = this.revision
+            this.persistencePromise = pending
+            pending.then((record) => {
+                if (record && revision === this.revision) this.notifyTrackChange()
+            })
+        }
+
+        return pending
+    }
+
+    notifyTrackChange() {
+        window.rodnikMap.updateFilterStyles?.()
+        window.dispatchEvent(new CustomEvent('map-track-changed'))
     }
 
     filterOutPoints(track) {
@@ -63,6 +97,9 @@ export default class Buffer {
             this.buffer = this.buffer.features.reduce((joined, feature) => {
                 return union(joined, feature)
             })
+
+            // Turf rejects points outside this cached bbox before scanning polygon rings.
+            this.buffer.bbox = bbox(this.buffer)
         }
     }
 }

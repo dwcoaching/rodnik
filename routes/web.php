@@ -15,6 +15,7 @@ use App\Http\Controllers\SpringLocationController;
 use App\Http\Controllers\SpringTileJsonController;
 use App\Http\Controllers\Stats\MoscowStatsController;
 use App\Http\Controllers\Tools\EnrichedGPXController;
+use App\Http\Controllers\TrackPolygonController;
 use App\Http\Controllers\UserPhotoController;
 use App\Http\Controllers\UserSpringsJsonController;
 use App\Http\Controllers\WateredSpringTileJsonController;
@@ -72,6 +73,14 @@ Route::get('heatmap', [HeatmapController::class, 'index'])->name('heatmap');
 
 Route::post('photos/uploads', [PhotoUploadController::class, 'store'])->name('photos.uploads.store');
 Route::delete('photos/uploads/{photo}', [PhotoUploadController::class, 'destroy'])->name('photos.uploads.destroy');
+
+Route::get('track-polygons/{hash}', [TrackPolygonController::class, 'show'])
+    ->where('hash', '[a-f0-9]{64}')
+    ->middleware('throttle:120,1,track-polygons-lookup')
+    ->name('track-polygons.show');
+Route::post('track-polygons', [TrackPolygonController::class, 'store'])
+    ->middleware('throttle:30,1,track-polygons-upload')
+    ->name('track-polygons.store');
 
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
 Route::get('tiles/{z}/{x}/{y}.json', [SpringTileJsonController::class, 'show']);
