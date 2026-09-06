@@ -25,7 +25,17 @@ function setup(t, { userId = null, bounds = null, viewport = area(0), filters = 
             buffer: {
                 revision: 0,
                 buffer: null,
-                trackPolygon: { clear: () => { polygonClears++; } },
+                trackPolygon: {
+                    status: 'idle',
+                    hash: null,
+                    clear() { polygonClears++; this.status = 'idle'; this.hash = null; },
+                },
+                saveTrackPolygon() {
+                    polygonSaves++;
+                    this.trackPolygon.status = 'saving';
+                    this.trackPolygon.hash = null;
+                    return new Promise(() => {});
+                },
             },
         },
         scrollTo: (options) => scrolls.push(options),
@@ -67,12 +77,14 @@ function setup(t, { userId = null, bounds = null, viewport = area(0), filters = 
         move: (bounds) => { viewport = bounds; },
         maxActive: () => maxActive,
         filter: (filters) => Object.assign(window.rodnikMap.filters, filters),
-        track: (promise) => {
+        track: (hash = undefined) => {
             const buffer = window.rodnikMap.buffer;
             buffer.revision++;
-            buffer.buffer = promise ? { geometry: { type: 'Polygon' } } : null;
-            buffer.saveTrackPolygon = () => { polygonSaves++; return promise; };
+            buffer.buffer = hash !== null ? { geometry: { type: 'Polygon' } } : null;
+            buffer.trackPolygon.status = hash === null ? 'idle' : (hash ? 'saved' : 'saving');
+            buffer.trackPolygon.hash = hash ?? null;
         },
+        polygonState: (status, hash = null) => Object.assign(window.rodnikMap.buffer.trackPolygon, { status, hash }),
         polygonClears: () => polygonClears,
         polygonSaves: () => polygonSaves,
     };
@@ -173,7 +185,7 @@ test('retrying failed pagination loads more reports again', async (t) => {
     await failed;
     assert.equal(component.failed, true);
     assert.equal(component.retryMore, true);
-    const retried = component.refresh(component.retryMore);
+    const retried = component.retry();
     assert.deepEqual(requests.map((request) => request.kind), ['more', 'more']);
     requests[1].resolve();
     await retried;
@@ -233,41 +245,49 @@ test('all map conditions collapse to the latest snapshot during a report request
     assert.equal(maxActive(), 1);
 });
 
-test('along-track loading waits for polygon persistence and readiness storms do not duplicate reports', async (t) => {
-    const { component, requests, track, maxActive } = setup(t, { filters: { along: true } });
-    const polygon = Promise.withResolvers();
-    track(polygon.promise);
-    const pending = component.refresh();
+test('polygon upload does not keep refresh pending or mark the Livewire request busy', async (t) => {
+    const { component, requests, track, polygonSaves } = setup(t, { filters: { along: true } });
+    track();
     await component.refresh();
-    assert.equal(component.busy, true);
+    await component.refresh();
+    assert.equal(component.waitingForPolygon, true);
+    assert.equal(component.busy, false);
+    assert.equal(component.failed, false);
     assert.equal(requests.length, 0);
+    assert.equal(polygonSaves(), 0);
+});
 
-    polygon.resolve({ hash: 'a'.repeat(64) });
-    await tick();
+test('polygon ready events load reports once and never restart persistence', async (t) => {
+    const { component, requests, track, polygonState, polygonSaves, maxActive } = setup(t, { filters: { along: true } });
+    track();
+    await component.refresh();
+    polygonState('saved', 'a'.repeat(64));
+    const pending = component.refresh();
     await component.refresh();
     assert.equal(requests.length, 1);
     assert.equal(requests[0].trackPolygonHash, 'a'.repeat(64));
+    assert.equal(component.waitingForPolygon, false);
+    assert.equal(component.busy, true);
     requests[0].resolve();
     await pending;
     await component.refresh();
     assert.equal(requests.length, 1);
+    assert.equal(polygonSaves(), 0);
     assert.equal(maxActive(), 1);
 });
 
-test('changes during polygon persistence submit the latest bounds and filters without paginating', async (t) => {
+test('changes while uploading apply only the latest bounds and filters without paginating', async (t) => {
     const hash = 'a'.repeat(64);
-    const { component, requests, track, filter, move } = setup(t, {
+    const { component, requests, track, polygonState, filter, move } = setup(t, {
         bounds: area(0), filters: { along: true }, trackPolygonHash: hash,
     });
-    const polygon = Promise.withResolvers();
-    track(polygon.promise);
-    const pending = component.refresh(true);
+    track();
+    await component.refresh(true);
     move(area(30));
     filter({ confirmed: true });
     await component.refresh();
-    polygon.resolve({ hash });
-    await tick();
-
+    polygonState('saved', hash);
+    const pending = component.refresh();
     assert.equal(requests.length, 1);
     assert.equal(requests[0].kind, 'map');
     assert.deepEqual(requests[0].bounds, area(30));
@@ -275,106 +295,109 @@ test('changes during polygon persistence submit the latest bounds and filters wi
     assert.equal(requests[0].trackPolygonHash, hash);
     requests[0].resolve();
     await pending;
+    assert.equal(component.retryMore, false);
 });
 
-test('changing filters away and back during polygon persistence discards show-more intent', async (t) => {
+test('reloading the same polygon does not retain show-more intent or duplicate reports', async (t) => {
     const hash = 'a'.repeat(64);
-    const { component, requests, track, filter } = setup(t, {
+    const { component, requests, track, polygonState, filter } = setup(t, {
         bounds: area(0), filters: { along: true }, trackPolygonHash: hash,
     });
-    const polygon = Promise.withResolvers();
-    track(polygon.promise);
-    const pending = component.refresh(true);
+    track();
+    await component.refresh(true);
     filter({ confirmed: true });
     await component.refresh();
     filter({ confirmed: false });
     await component.refresh();
-    polygon.resolve({ hash });
-    await pending;
-
+    polygonState('saved', hash);
+    await component.refresh();
     assert.equal(requests.length, 0);
     assert.equal(component.failed, false);
     assert.equal(component.retryMore, false);
+    assert.equal(component.waitingForPolygon, false);
 });
 
-test('replacing a pending track uses the new hash without waiting for the old upload', async (t) => {
+test('replacing an uploading track uses the current saved hash', async (t) => {
     const { component, requests, track } = setup(t, { filters: { along: true } });
-    const previous = Promise.withResolvers();
-    track(previous.promise);
-    const pending = component.refresh();
-    track(Promise.resolve({ hash: 'b'.repeat(64) }));
+    track();
     await component.refresh();
-    await tick();
-
+    track('b'.repeat(64));
+    const pending = component.refresh();
     assert.equal(requests.length, 1);
     assert.equal(requests[0].trackPolygonHash, 'b'.repeat(64));
     requests[0].resolve();
     await pending;
-    previous.resolve({ hash: 'a'.repeat(64) });
-    await tick();
+    await component.refresh();
     assert.equal(requests.length, 1);
 });
 
-test('clearing the track during upload immediately applies along with no hash', async (t) => {
+test('clearing an uploading track applies along with no hash and releases the waiting state', async (t) => {
     const { component, requests, track } = setup(t, { filters: { along: true } });
-    const polygon = Promise.withResolvers();
-    track(polygon.promise);
-    const pending = component.refresh();
-    track(null);
+    track();
     await component.refresh();
-    await tick();
-
+    track(null);
+    const pending = component.refresh();
     assert.equal(requests.length, 1);
     assert.equal(requests[0].filters.along, true);
     assert.equal(requests[0].trackPolygonHash, null);
+    assert.equal(component.waitingForPolygon, false);
     requests[0].resolve();
     await pending;
-    polygon.resolve({ hash: 'a'.repeat(64) });
-    await tick();
     await component.refresh();
     assert.equal(requests.length, 1);
 });
 
-test('turning along off does not wait for or transmit a pending polygon', async (t) => {
-    const { component, requests, track, filter } = setup(t, { filters: { along: true } });
-    const polygon = Promise.withResolvers();
-    track(polygon.promise);
-    const pending = component.refresh();
-    filter({ along: false });
+test('turning along off loads reports independently while the polygon is still uploading', async (t) => {
+    const { component, requests, track, filter, polygonState } = setup(t, { filters: { along: true } });
+    track();
     await component.refresh();
-    await tick();
-
+    filter({ along: false });
+    const pending = component.refresh();
     assert.equal(requests.length, 1);
     assert.equal(requests[0].filters.along, false);
     assert.equal(requests[0].trackPolygonHash, null);
+    assert.equal(component.waitingForPolygon, false);
     requests[0].resolve();
     await pending;
-    polygon.resolve(null);
-    await tick();
+    polygonState('failed');
+    await component.refresh();
     assert.equal(component.failed, false);
+    assert.equal(requests.length, 1);
 });
 
-test('failed polygon persistence cannot load unfiltered reports and can be retried', async (t) => {
-    const { component, requests, track } = setup(t, { filters: { along: true } });
-    track(Promise.resolve(null));
+test('failed polygon events never send an unfiltered query or automatically retry', async (t) => {
+    const { component, requests, track, polygonState, polygonSaves } = setup(t, { filters: { along: true } });
+    track();
+    await component.refresh();
+    polygonState('failed');
+    await component.refresh();
     await component.refresh();
     assert.equal(requests.length, 0);
+    assert.equal(polygonSaves(), 0);
     assert.equal(component.failed, true);
+    assert.equal(component.waitingForPolygon, false);
     assert.equal(component.busy, false);
 
-    window.rodnikMap.buffer.saveTrackPolygon = () => Promise.resolve({ hash: 'a'.repeat(64) });
-    const retried = component.refresh(component.retryMore);
-    await tick();
-    assert.equal(requests.length, 1);
+    await component.retry();
+    assert.equal(polygonSaves(), 1);
+    assert.equal(component.failed, false);
+    assert.equal(component.waitingForPolygon, true);
+    assert.equal(component.busy, false);
+    await component.refresh();
+    await component.retry();
+    assert.equal(polygonSaves(), 1);
+
+    polygonState('saved', 'a'.repeat(64));
+    const pending = component.refresh();
     assert.equal(requests[0].trackPolygonHash, 'a'.repeat(64));
     requests[0].resolve();
-    await retried;
+    await pending;
     assert.equal(component.failed, false);
 });
 
 test('track creation and clearing do not refresh reports when along is disabled', async (t) => {
     const { component, requests, track, polygonSaves } = setup(t, { bounds: area(0) });
-    track(Promise.resolve({ hash: 'a'.repeat(64) }));
+    track('a'.repeat(64));
     await component.refresh();
     track(null);
     await component.refresh();
@@ -382,13 +405,12 @@ test('track creation and clearing do not refresh reports when along is disabled'
     assert.equal(polygonSaves(), 0);
 });
 
-test('a replaced saved track resets the report query at identical bounds and filters', async (t) => {
+test('a replaced saved track resets the query at identical bounds and filters', async (t) => {
     const { component, requests, track } = setup(t, {
         bounds: area(0), filters: { along: true }, trackPolygonHash: 'a'.repeat(64),
     });
-    track(Promise.resolve({ hash: 'b'.repeat(64) }));
+    track('b'.repeat(64));
     const pending = component.refresh(true);
-    await tick();
     assert.equal(requests[0].kind, 'map');
     assert.equal(requests[0].trackPolygonHash, 'b'.repeat(64));
     requests[0].resolve();
@@ -396,26 +418,75 @@ test('a replaced saved track resets the report query at identical bounds and fil
     assert.equal(requests.length, 1);
 });
 
-test('server validation that resolves without applying filters stays failed and rechecks the polygon on retry', async (t) => {
-    const { component, requests, track, polygonClears, scrolls } = setup(t, { filters: { along: true } });
-    track(Promise.resolve({ hash: 'a'.repeat(64) }));
+test('server validation failure invalidates the saved hash and explicit retry rechecks persistence', async (t) => {
+    const { component, requests, track, polygonState, polygonClears, polygonSaves, scrolls } = setup(t, {
+        filters: { along: true },
+    });
+    track('a'.repeat(64));
     const failed = component.refresh();
-    await tick();
     requests[0].accept = false;
     requests[0].resolve();
     await failed;
-
     assert.equal(component.failed, true);
     assert.equal(polygonClears(), 1);
     assert.equal(scrolls.length, 0);
+
+    await component.refresh();
+    assert.equal(component.failed, true);
+    assert.equal(polygonSaves(), 0);
+    await component.retry();
+    assert.equal(polygonSaves(), 1);
+    assert.equal(component.waitingForPolygon, true);
+    assert.equal(component.busy, false);
+    polygonState('saved', 'a'.repeat(64));
     const retried = component.refresh();
-    await tick();
     requests[1].resolve();
     await retried;
     assert.equal(component.failed, false);
 });
 
-test('failure of an obsolete report request still processes the latest filters', async (t) => {
+test('an older Livewire response cannot release waiting for a newly uploading track', async (t) => {
+    const { component, requests, track, polygonState, maxActive } = setup(t, { filters: { along: true } });
+    track('a'.repeat(64));
+    const pending = component.refresh();
+    track();
+    await component.refresh();
+    assert.equal(component.waitingForPolygon, true);
+    requests[0].resolve();
+    await pending;
+    assert.equal(component.busy, false);
+    assert.equal(component.waitingForPolygon, true);
+    assert.equal(requests.length, 1);
+
+    polygonState('saved', 'b'.repeat(64));
+    const current = component.refresh();
+    assert.equal(requests[1].trackPolygonHash, 'b'.repeat(64));
+    requests[1].resolve();
+    await current;
+    assert.equal(component.waitingForPolygon, false);
+    assert.equal(maxActive(), 1);
+});
+
+test('ready events during another Livewire request queue the newest polygon once', async (t) => {
+    const { component, requests, track, polygonState, maxActive } = setup(t, { filters: { along: true } });
+    track('a'.repeat(64));
+    const pending = component.refresh();
+    track();
+    await component.refresh();
+    polygonState('saved', 'b'.repeat(64));
+    await component.refresh();
+    await component.refresh();
+    assert.equal(requests.length, 1);
+    requests[0].resolve();
+    await tick();
+    assert.equal(requests.length, 2);
+    assert.equal(requests[1].trackPolygonHash, 'b'.repeat(64));
+    requests[1].resolve();
+    await pending;
+    assert.equal(maxActive(), 1);
+});
+
+test('failure of an obsolete request still processes the latest filters', async (t) => {
     const { component, filter, requests } = setup(t);
     const pending = component.refresh();
     filter({ confirmed: true });
@@ -427,4 +498,18 @@ test('failure of an obsolete report request still processes the latest filters',
     requests[1].resolve();
     await pending;
     assert.equal(component.failed, false);
+});
+
+test('detached components and user feeds do not retry polygon persistence', async (t) => {
+    const { component, track, polygonState, polygonSaves, requests, wire } = setup(t, {
+        filters: { along: true }, userId: 12,
+    });
+    track();
+    polygonState('failed');
+    await component.retry();
+    wire.userId = null;
+    component.$el.isConnected = false;
+    await component.retry();
+    assert.equal(polygonSaves(), 0);
+    assert.equal(requests.length, 0);
 });

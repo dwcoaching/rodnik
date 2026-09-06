@@ -29,6 +29,7 @@ return [
         'show_more_reports' => 'Show :count more',
         'reports_in_area' => 'Latest reports in this area',
         'loading_reports' => 'Loading reports…',
+        'waiting_for_track' => 'Uploading the track area… Reports will update when it is ready.',
         'retry_reports' => 'Could not load reports. Try again',
         'no_reports_in_area' => 'No reports in this area yet. Move the map or zoom out to see more.',
         'show_more_area_reports' => 'Show more reports',

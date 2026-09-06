@@ -4,6 +4,7 @@ import { registerHooks } from 'node:module';
 import test from 'node:test';
 import { featureCollection, lineString } from '@turf/turf';
 import TrackPolygons, { serializeTrackPolygon } from '../../resources/js/trackPolygons.js';
+import mapReports from '../../resources/js/mapReports.js';
 
 const browserImports = registerHooks({
     resolve(specifier, context, nextResolve) {
@@ -230,33 +231,122 @@ test('buffer construction starts persistence and clearing removes the saved refe
     buffer.makeSimplifiedTrack = () => {};
     buffer.makeBuffer = () => { buffer.buffer = { type: 'Feature', geometry: polygon() }; };
     const events = [];
+    const states = [];
     let restyles = 0;
     globals(t, { window: {
         rodnikMap: {
             trackLayer: { getSource: () => ({ getFeatures: () => [] }) },
             updateFilterStyles: () => restyles++,
         },
-        dispatchEvent: (event) => events.push(event.type),
+        dispatchEvent: (event) => {
+            events.push(event.type);
+            if (event.detail) states.push(event.detail);
+        },
     } });
 
     const revision = buffer.revision;
     buffer.setTrack([]);
     assert.equal(buffer.revision, revision + 1);
-    assert.deepEqual(events, ['map-track-changed']);
+    assert.deepEqual(events, ['map-track-polygon-state-changed', 'map-track-changed']);
     await buffer.trackPolygon.promise;
     assert.equal(requests.length, 1);
     assert.equal(buffer.trackPolygon.id, 12);
-    assert.equal(events.length, 2);
+    assert.equal(events.length, 3);
     await buffer.saveTrackPolygon();
-    assert.equal(events.length, 2);
+    assert.equal(events.length, 3);
     buffer.clear();
     assert.equal(buffer.trackPolygon.id, null);
     assert.equal(buffer.buffer, null);
     assert.equal(buffer.revision, revision + 2);
     await buffer.saveTrackPolygon();
     assert.equal(requests.length, 1);
-    assert.deepEqual(events, Array(3).fill('map-track-changed'));
-    assert.equal(restyles, 3);
+    assert.deepEqual(events, [
+        'map-track-polygon-state-changed', 'map-track-changed',
+        'map-track-polygon-state-changed', 'map-track-changed',
+    ]);
+    assert.deepEqual(states, [
+        { revision: revision + 1, status: 'saving', hash: null },
+        { revision: revision + 1, status: 'saved', hash: hashOf(polygon()) },
+    ]);
+    assert.equal(restyles, 2);
+});
+
+test('polygon lookup and upload run while an earlier Livewire report request remains unresolved', async (t) => {
+    const lookupStarted = Promise.withResolvers();
+    const lookup = Promise.withResolvers();
+    const uploadStarted = Promise.withResolvers();
+    const upload = Promise.withResolvers();
+    const { persistence, requests } = setup((url, options) => {
+        if (options.method === 'POST') {
+            uploadStarted.resolve();
+            return upload.promise;
+        }
+
+        lookupStarted.resolve();
+        return lookup.promise;
+    });
+    const buffer = new TrackBuffer();
+    buffer.trackPolygon = persistence;
+    buffer.makeSimplifiedTrack = () => {};
+    buffer.makeBuffer = () => { buffer.buffer = { type: 'Feature', geometry: polygon() }; };
+    const wireRequests = [];
+    let restyles = 0;
+    let component;
+    const wire = {
+        userId: null,
+        bounds: null,
+        async updateMap(bounds, filters, trackPolygonHash) {
+            const deferred = Promise.withResolvers();
+            wireRequests.push({ bounds, filters, trackPolygonHash, ...deferred });
+            await deferred.promise;
+            Object.assign(wire, { bounds, filters, trackPolygonHash });
+        },
+    };
+    globals(t, { window: {
+        rodnikMap: {
+            filters: { along: false },
+            getViewportBounds: () => ({ west: 0, south: 0, east: 10, north: 10 }),
+            buffer,
+            trackLayer: { getSource: () => ({ getFeatures: () => [] }) },
+            updateFilterStyles: () => restyles++,
+        },
+        dispatchEvent: () => component.refresh(),
+        scrollTo: () => {},
+    } });
+    component = Object.assign(mapReports(), {
+        $wire: wire,
+        $el: { isConnected: true },
+        $refs: { reportsList: { getBoundingClientRect: () => ({ top: 120 }) } },
+    });
+
+    const reports = component.refresh();
+    assert.equal(wireRequests.length, 1);
+    assert.equal(component.busy, true);
+    window.rodnikMap.filters.along = true;
+    buffer.setTrack([]);
+    await lookupStarted.promise;
+    assert.equal(wireRequests.length, 1);
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].url, `/track-polygons/${hashOf(polygon())}`);
+    assert.equal(component.waitingForPolygon, true);
+
+    lookup.resolve(new Response(null, { status: 404 }));
+    await uploadStarted.promise;
+    assert.equal(requests[1].method, 'POST');
+    assert.equal(wireRequests.length, 1);
+    upload.resolve(response(hashOf(polygon()), 12, 201));
+    await buffer.trackPolygon.promise;
+    assert.equal(restyles, 1);
+    assert.equal(wireRequests.length, 1);
+
+    wireRequests[0].resolve();
+    await new Promise(setImmediate);
+    assert.equal(wireRequests.length, 2);
+    assert.equal(wireRequests[1].trackPolygonHash, hashOf(polygon()));
+    wireRequests[1].resolve();
+    await reports;
+    assert.equal(component.busy, false);
+    assert.equal(component.waitingForPolygon, false);
 });
 
 test('a cleared buffer does not emit a readiness event when its previous upload completes', async (t) => {
@@ -283,16 +373,16 @@ test('a cleared buffer does not emit a readiness event when its previous upload 
     await pending;
 
     assert.equal(requests.length, 1);
-    assert.deepEqual(events, ['map-track-changed']);
+    assert.deepEqual(events, ['map-track-polygon-state-changed', 'map-track-changed']);
     assert.equal(buffer.trackPolygon.hash, null);
 });
 
-test('failed buffer persistence emits no automatic retry events', async (t) => {
+test('failed buffer persistence emits its status without automatically retrying or restyling', async (t) => {
     const { persistence, requests } = setup(() => new Response(null, { status: 503 }));
     const events = [];
     globals(t, { window: {
         rodnikMap: {},
-        dispatchEvent: (event) => events.push(event.type),
+        dispatchEvent: (event) => events.push([event.type, event.detail.status]),
     } });
     const buffer = new TrackBuffer();
     buffer.trackPolygon = persistence;
@@ -301,7 +391,51 @@ test('failed buffer persistence emits no automatic retry events', async (t) => {
 
     assert.equal(requests.length, 1);
     assert.equal(buffer.trackPolygon.status, 'failed');
-    assert.deepEqual(events, []);
+    assert.deepEqual(events, [
+        ['map-track-polygon-state-changed', 'saving'],
+        ['map-track-polygon-state-changed', 'failed'],
+    ]);
+});
+
+test('invalidating persistence without changing the track suppresses an obsolete completion event', async (t) => {
+    const started = Promise.withResolvers();
+    const upload = Promise.withResolvers();
+    const { persistence } = setup(() => {
+        started.resolve();
+        return upload.promise;
+    });
+    const events = [];
+    globals(t, { window: {
+        rodnikMap: {},
+        dispatchEvent: (event) => events.push(event.detail.status),
+    } });
+    const buffer = new TrackBuffer();
+    buffer.trackPolygon = persistence;
+    buffer.buffer = { type: 'Feature', geometry: polygon() };
+    const pending = buffer.saveTrackPolygon();
+    await started.promise;
+    persistence.clear();
+    upload.resolve(response(hashOf(polygon())));
+    await pending;
+
+    assert.deepEqual(events, ['saving']);
+    assert.equal(persistence.hash, null);
+});
+
+test('invalid geometry emits one failed state without starting a request', async (t) => {
+    const { persistence, requests } = setup(() => { throw new Error('Unexpected request'); });
+    const events = [];
+    globals(t, { window: {
+        rodnikMap: {},
+        dispatchEvent: (event) => events.push(event.detail.status),
+    } });
+    const buffer = new TrackBuffer();
+    buffer.trackPolygon = persistence;
+    buffer.buffer = { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] } };
+    await buffer.saveTrackPolygon();
+
+    assert.deepEqual(events, ['failed']);
+    assert.equal(requests.length, 0);
 });
 
 test('track buffers cache bounds for all polygon parts and replace them when rebuilt or cleared', () => {

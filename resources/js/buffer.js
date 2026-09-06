@@ -49,9 +49,16 @@ export default class Buffer {
 
         if (pending !== this.persistencePromise) {
             const revision = this.revision
+            const status = this.trackPolygon.status
             this.persistencePromise = pending
-            pending.then((record) => {
-                if (record && revision === this.revision) this.notifyTrackChange()
+            this.notifyPolygonStateChange()
+            pending.then(() => {
+                if (status === 'saving'
+                    && revision === this.revision
+                    && pending === this.persistencePromise
+                    && pending === this.trackPolygon.promise) {
+                    this.notifyPolygonStateChange()
+                }
             })
         }
 
@@ -61,6 +68,16 @@ export default class Buffer {
     notifyTrackChange() {
         window.rodnikMap.updateFilterStyles?.()
         window.dispatchEvent(new CustomEvent('map-track-changed'))
+    }
+
+    notifyPolygonStateChange() {
+        window.dispatchEvent(new CustomEvent('map-track-polygon-state-changed', {
+            detail: {
+                revision: this.revision,
+                status: this.trackPolygon.status,
+                hash: this.trackPolygon.hash,
+            },
+        }))
     }
 
     filterOutPoints(track) {

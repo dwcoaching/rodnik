@@ -12,15 +12,14 @@ const defaultFilters = {
 const normalizeFilters = (filters) => Object.fromEntries(
     Object.entries(defaultFilters).map(([key, value]) => [key, Boolean(filters?.[key] ?? value)]),
 );
-const mapChanged = Symbol('mapChanged');
 
 export default () => ({
     busy: false,
+    waitingForPolygon: false,
     failed: false,
     retryMore: false,
     pendingState: null,
     activeState: null,
-    interruptPolygonWait: null,
     loaderTop: null,
 
     init() {
@@ -42,11 +41,15 @@ export default () => ({
         if (!bounds) return null;
 
         const filters = normalizeFilters(map.filters);
+        const hasPolygon = filters.along && Boolean(map.buffer?.buffer?.geometry);
+        const polygonStatus = hasPolygon ? map.buffer.trackPolygon.status : null;
         const state = {
             bounds,
             filters,
             trackRevision: filters.along ? map.buffer?.revision ?? 0 : null,
-            hasPolygon: filters.along && Boolean(map.buffer?.buffer?.geometry),
+            hasPolygon,
+            polygonStatus,
+            trackPolygonHash: polygonStatus === 'saved' ? map.buffer.trackPolygon.hash : null,
         };
 
         return { ...state, key: JSON.stringify(state) };
@@ -60,6 +63,28 @@ export default () => ({
         });
     },
 
+    needsPolygon(state) {
+        return state.hasPolygon && (state.polygonStatus !== 'saved' || !state.trackPolygonHash);
+    },
+
+    updatePolygonState(state) {
+        const needsPolygon = this.needsPolygon(state);
+        this.waitingForPolygon = needsPolygon && state.polygonStatus === 'saving';
+        this.failed = needsPolygon && !this.waitingForPolygon;
+        if (needsPolygon) this.retryMore = false;
+    },
+
+    retry() {
+        if (!this.$el.isConnected || this.$wire.userId) return;
+
+        const state = this.readMapState();
+        if (state && this.needsPolygon(state) && state.polygonStatus !== 'saving') {
+            window.rodnikMap.buffer.saveTrackPolygon();
+        }
+
+        return this.refresh(this.retryMore);
+    },
+
     async refresh(more = false) {
         if (!this.$el.isConnected || this.$wire.userId) return;
 
@@ -67,53 +92,30 @@ export default () => ({
         if (!latest) return;
 
         this.pendingState = latest;
+        this.updatePolygonState(latest);
         if (this.busy) {
             if (latest.key !== this.activeState?.key) {
                 this.retryMore = false;
-                this.interruptPolygonWait?.();
             }
             return;
         }
 
-        this.positionLoader();
-        this.busy = true;
-        this.failed = false;
         this.retryMore = false;
         try {
             while (this.pendingState && this.$el.isConnected) {
                 const state = this.pendingState;
                 this.pendingState = null;
                 this.activeState = state;
+                this.updatePolygonState(state);
+                if (this.needsPolygon(state)) return;
 
                 try {
-                    let trackPolygonHash = null;
-
-                    if (state.hasPolygon) {
-                        const changed = new Promise((resolve) => {
-                            this.interruptPolygonWait = () => resolve(mapChanged);
-                        });
-                        const record = await Promise.race([
-                            window.rodnikMap.buffer.saveTrackPolygon(),
-                            changed,
-                        ]);
-                        this.interruptPolygonWait = null;
-                        if (!this.$el.isConnected) return;
-
-                        const current = this.readMapState();
-                        if (record === mapChanged || current?.key !== state.key) {
-                            this.pendingState = current;
-                            more = false;
-                            this.retryMore = false;
-                            continue;
-                        }
-
-                        if (!record?.hash) throw new Error('The track polygon could not be saved.');
-                        trackPolygonHash = record.hash;
-                    }
-
+                    const trackPolygonHash = state.trackPolygonHash;
                     const requested = JSON.stringify({ bounds: state.bounds, filters: state.filters, trackPolygonHash });
 
                     if (requested !== this.loadedState()) {
+                        this.positionLoader();
+                        this.busy = true;
                         this.retryMore = false;
                         await this.$wire.updateMap(state.bounds, state.filters, trackPolygonHash);
                         if (!this.$el.isConnected) return;
@@ -127,6 +129,8 @@ export default () => ({
 
                         window.scrollTo({ top: 0, behavior: 'instant' });
                     } else if (more) {
+                        this.positionLoader();
+                        this.busy = true;
                         this.retryMore = true;
                         await this.$wire.showMore();
                     }
@@ -142,7 +146,6 @@ export default () => ({
                 more = false;
             }
         } finally {
-            this.interruptPolygonWait = null;
             this.activeState = null;
             this.busy = false;
         }

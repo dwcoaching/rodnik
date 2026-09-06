@@ -1,5 +1,6 @@
 <div class="h-full" x-data="mapReports" @map-viewport-changed.window.debounce.250ms="refresh()"
     @map-filters-changed.window="refresh()" @map-track-changed.window="refresh()"
+    @map-track-polygon-state-changed.window="refresh()"
     @scroll.window="busy && positionLoader()" @resize.window="busy && positionLoader()">
     <div>
         @if ($userId)
@@ -42,18 +43,19 @@
             </div>
         @endif
     </div>
-    <section :aria-busy="busy">
+    <section :aria-busy="busy || waitingForPolygon">
         @if (! $userId)
             <div class="px-4 mt-4 mb-2">
                 <h2 class="font-semibold">{{ __('ui.home.reports_in_area') }}</h2>
-                <div x-cloak x-show="loaderTop !== null && (busy || (! $wire.bounds && ! failed))" role="status"
+                <div x-cloak x-show="! waitingForPolygon && loaderTop !== null && (busy || (! $wire.bounds && ! failed))" role="status"
                     class="pointer-events-none fixed inset-x-0 z-20 flex items-center justify-center overflow-hidden bg-stone-100/80 sm:bottom-0 sm:left-1/2"
                     :style="{ top: loaderTop + 'px' }"
                     :class="{ 'bottom-10': minimized, 'bottom-[50vh]': ! minimized }">
                     <div aria-hidden="true" class="animate-spin w-6 h-6 border-4 rounded-full border-stone-400 border-t-transparent"></div>
                     <span class="sr-only">{{ __('ui.home.loading_reports') }}</span>
                 </div>
-                <button x-cloak x-show="failed" @click="refresh(retryMore)" type="button" class="mt-1 text-sm text-blue-600 hover:underline">{{ __('ui.home.retry_reports') }}</button>
+                <p x-cloak x-show="waitingForPolygon" role="status" class="mt-1 text-sm text-gray-600">{{ __('ui.home.waiting_for_track') }}</p>
+                <button x-cloak x-show="failed" @click="retry()" type="button" class="mt-1 text-sm text-blue-600 hover:underline">{{ __('ui.home.retry_reports') }}</button>
             </div>
         @endif
         <ul x-ref="reportsList" x-cloak role="list" class="grid grid-cols-2 lg:grid-cols-3 mt-2 md:px-4
@@ -64,17 +66,17 @@
             gap-px
             md:bg-inherit
             md:border-0
-            md:gap-4 items-stretch md:items-start" wire:key="reports" :class="{ 'opacity-50': busy || failed }" :inert="busy || failed">
+            md:gap-4 items-stretch md:items-start" wire:key="reports" :class="{ 'opacity-50': busy || failed || waitingForPolygon }" :inert="busy || failed || waitingForPolygon">
             @foreach ($lastReports as $report)
                 <x-last-reports.teaser :report="$report" :preserve-map-view="! $userId" />
             @endforeach
         </ul>
         @if (! $userId && $bounds && $lastReports->isEmpty())
-            <p x-show="! busy && ! failed" role="status" class="px-4 py-8 text-sm text-gray-600">{{ __('ui.home.no_reports_in_area') }}</p>
+            <p x-show="! busy && ! failed && ! waitingForPolygon" role="status" class="px-4 py-8 text-sm text-gray-600">{{ __('ui.home.no_reports_in_area') }}</p>
         @endif
         @if (! $userId && $hasMore)
             <div class="px-4 pb-6">
-                <button @click="refresh(true)" :disabled="busy || failed" type="button" class="w-full p-3 bg-stone-200 rounded-xl mt-4 text-sm disabled:opacity-50">{{ __('ui.home.show_more_area_reports') }}</button>
+                <button @click="refresh(true)" :disabled="busy || failed || waitingForPolygon" type="button" class="w-full p-3 bg-stone-200 rounded-xl mt-4 text-sm disabled:opacity-50">{{ __('ui.home.show_more_area_reports') }}</button>
             </div>
         @elseif ($userId && count($lastReports) == $limit)
             <livewire:duo.components.show-more-reports
