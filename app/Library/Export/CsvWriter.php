@@ -1,30 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library\Export;
 
-use App\Models\User;
-use OpenSpout\Common\Entity\Row;
-use OpenSpout\Writer\AbstractWriter;
-use App\Library\Export\CsvTransformer;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\AbstractWriter;
 use OpenSpout\Writer\CSV\Writer as OpenSpoutCsvWriter;
 
-class CsvWriter
+final class CsvWriter extends Writer
 {
-    public ?User $user = null;
-    public function __construct(
-        public Builder $query
-    ) {}
-
-    public function forUser(?User $user = null): static
+    public function getOpenSpoutWriter(): AbstractWriter
     {
-        $this->user = $user;
-        return $this;
+        return new OpenSpoutCsvWriter();
     }
 
-    public function save(): string
+    public function zip(string $springsFilePath, string $reportsFilePath, string $editsFilePath, string $photosFilePath): string
+    {
+        $timestamp = now()->format('Y-m-d_H-i-s');
+
+        $exportDir = Storage::disk('public')->path('exports/'
+        .($this->user ? 'users/' : ''));
+
+        $filename = 'rodnik'
+            .($this->user ? '-user-'.$this->user->id : '')
+            .'-from-'.$timestamp.'.zip';
+
+        $filePath = $exportDir.$filename;
+
+        Process::path($exportDir)
+            ->run([
+                'zip',
+                '-j',  // junk paths (don't store directory structure)
+                '-6',  // compression level (1=fastest, 9=best compression, 6=default)
+                $filePath,
+                $springsFilePath,
+                $reportsFilePath,
+                $editsFilePath,
+                $photosFilePath,
+            ]);
+
+        return $filename;
+    }
+
+    public function deleteFiles(string $springsFilePath, string $reportsFilePath, string $editsFilePath, string $photosFilePath): void
+    {
+        unlink($springsFilePath);
+        unlink($reportsFilePath);
+        unlink($editsFilePath);
+        unlink($photosFilePath);
+    }
+
+    protected function write(): string
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
 
@@ -76,12 +105,7 @@ class CsvWriter
         return $filename;
     }
 
-    public function getOpenSpoutWriter(): AbstractWriter
-    {
-        return new OpenSpoutCsvWriter();
-    }
-
-    protected function appendRows(AbstractWriter $writer, array $rows): void
+    private function appendRows(AbstractWriter $writer, array $rows): void
     {
         if (empty($rows)) {
             return;
@@ -90,48 +114,12 @@ class CsvWriter
         $writer->addRows(array_map(fn ($row) => Row::fromValues($row), $rows));
     }
 
-    protected function buildFilePath(string $prefix, string $timestamp): string
+    private function buildFilePath(string $prefix, string $timestamp): string
     {
         return Storage::disk('public')->path('exports/'
-            . ($this->user ? 'users/' : '')
-            . $prefix
-            . ($this->user ? '-user-' . $this->user->id : '')
-            . '-from-' . $timestamp . '.csv');
-    }
-
-    public function zip(string $springsFilePath, string $reportsFilePath, string $editsFilePath, string $photosFilePath): string
-    {
-        $timestamp = now()->format('Y-m-d_H-i-s');
-
-        $exportDir = Storage::disk('public')->path('exports/'
-        . ($this->user ? 'users/' : ''));
-
-        $filename = 'rodnik'
-            . ($this->user ? '-user-' . $this->user->id : '')
-            . '-from-' . $timestamp . '.zip';
-
-        $filePath = $exportDir . $filename;
-
-        Process::path($exportDir)
-            ->run([
-                'zip',
-                '-j',  // junk paths (don't store directory structure)
-                '-6',  // compression level (1=fastest, 9=best compression, 6=default)
-                $filePath,
-                $springsFilePath,
-                $reportsFilePath,
-                $editsFilePath,
-                $photosFilePath
-            ]);
-
-        return $filename;
-    }
-
-    public function deleteFiles(string $springsFilePath, string $reportsFilePath, string $editsFilePath, string $photosFilePath): void
-    {
-        unlink($springsFilePath);
-        unlink($reportsFilePath);
-        unlink($editsFilePath);
-        unlink($photosFilePath);
+            .($this->user ? 'users/' : '')
+            .$prefix
+            .($this->user ? '-user-'.$this->user->id : '')
+            .'-from-'.$timestamp.'.csv');
     }
 }

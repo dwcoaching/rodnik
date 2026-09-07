@@ -104,6 +104,19 @@
                     @endif
                   >💬&nbsp; {{ __('pages.contact.title') }}</a></li>
                   </ul>
+                  <ul class="menu mt-4 w-full p-0" aria-labelledby="docs-legal">
+                  <li class="menu-title" id="docs-legal">⚖️&nbsp; {{ __('privacy.legal') }}</li>
+                  <li><a href="{{ route(app()->isLocale('ru') ? 'ru.docs.privacy' : 'docs.privacy') }}"
+                    @if (Request::is('docs/privacy', 'ru/docs/privacy'))
+                      class="active"
+                    @endif
+                  >🔒&nbsp; {{ __('privacy.title') }}</a></li>
+                  <li><a href="{{ route(app()->isLocale('ru') ? 'ru.docs.delete-account' : 'docs.delete-account') }}"
+                    @if (Request::is('docs/delete-account', 'ru/docs/delete-account'))
+                      class="active"
+                    @endif
+                  >🗑️&nbsp; {{ __('privacy.deletion.title') }}</a></li>
+                  </ul>
                 </div>
               </div>
             </div>

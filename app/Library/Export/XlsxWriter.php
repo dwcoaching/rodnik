@@ -10,37 +10,8 @@ use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Writer as OpenSpoutXlsxWriter;
 
-final class XlsxWriter extends CsvWriter
+final class XlsxWriter extends Writer
 {
-    public function save(): string
-    {
-        $allSprings = [];
-        $allReports = [];
-        $allEdits = [];
-        $allPhotos = [];
-
-        $firstRun = true;
-
-        $this->query->chunk(500, function ($springs) use (&$allSprings, &$allReports, &$allEdits, &$allPhotos, &$firstRun) {
-            $csvTransformer = (new CsvTransformer($springs))->forUser($this->user);
-
-            if ($firstRun) {
-                $allSprings[] = $csvTransformer->getHeadersForSprings();
-                $allReports[] = $csvTransformer->getHeadersForReports();
-                $allEdits[] = $csvTransformer->getHeadersForEdits();
-                $allPhotos[] = $csvTransformer->getHeadersForPhotos();
-                $firstRun = false;
-            }
-
-            $allSprings = array_merge($allSprings, $csvTransformer->transformSprings());
-            $allReports = array_merge($allReports, $csvTransformer->transformReports());
-            $allEdits = array_merge($allEdits, $csvTransformer->transformEdits());
-            $allPhotos = array_merge($allPhotos, $csvTransformer->transformPhotos());
-        });
-
-        return $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
-    }
-
     public function getOpenSpoutWriter(): OpenSpoutXlsxWriter
     {
         return new OpenSpoutXlsxWriter();
@@ -132,6 +103,35 @@ final class XlsxWriter extends CsvWriter
         $writer->close();
 
         return $filename;
+    }
+
+    protected function write(): string
+    {
+        $allSprings = [];
+        $allReports = [];
+        $allEdits = [];
+        $allPhotos = [];
+
+        $firstRun = true;
+
+        $this->query->chunk(500, function ($springs) use (&$allSprings, &$allReports, &$allEdits, &$allPhotos, &$firstRun) {
+            $csvTransformer = (new CsvTransformer($springs))->forUser($this->user);
+
+            if ($firstRun) {
+                $allSprings[] = $csvTransformer->getHeadersForSprings();
+                $allReports[] = $csvTransformer->getHeadersForReports();
+                $allEdits[] = $csvTransformer->getHeadersForEdits();
+                $allPhotos[] = $csvTransformer->getHeadersForPhotos();
+                $firstRun = false;
+            }
+
+            $allSprings = array_merge($allSprings, $csvTransformer->transformSprings());
+            $allReports = array_merge($allReports, $csvTransformer->transformReports());
+            $allEdits = array_merge($allEdits, $csvTransformer->transformEdits());
+            $allPhotos = array_merge($allPhotos, $csvTransformer->transformPhotos());
+        });
+
+        return $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
     }
 
     private function styleSheet($writer, $sheet, array $data, Style $headerStyle, Style $defaultStyle, array $columnWidths): void

@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Spring;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class SpringHistoryController extends Controller
+final class SpringHistoryController extends Controller
 {
     public function index(Spring $spring)
     {
@@ -17,7 +18,7 @@ class SpringHistoryController extends Controller
         $springRevisions = $spring->springRevisions;
         $reports = $spring->reports;
 
-        $events = $springRevisions->merge($reports)
+        $events = $springRevisions->concat($reports)
             ->sortByDesc(function ($item) {
                 return $item->created_at;
             });

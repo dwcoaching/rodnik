@@ -95,11 +95,15 @@ final class LocalizedUrl
             'docs/legend',
             'docs/contact-us',
             'docs/exports',
+            'docs/privacy',
+            'docs/delete-account',
             'docs/coll-de-sa-batalla',
             'ru/docs/about',
             'ru/docs/legend',
             'ru/docs/contact-us',
             'ru/docs/exports',
+            'ru/docs/privacy',
+            'ru/docs/delete-account',
             'ru/docs/coll-de-sa-batalla',
         );
     }

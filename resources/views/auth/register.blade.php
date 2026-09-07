@@ -41,6 +41,8 @@
                 <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
             </div>
 
+            <p class="mt-4 text-sm text-gray-600">{{ __('privacy.registration_hint') }}</p>
+
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                 <div class="mt-4">
                     <x-label for="terms">
@@ -71,4 +73,4 @@
             </div>
         </form>
     </x-authentication-card>
-</x-guest-layout>
+</x-app-layout>

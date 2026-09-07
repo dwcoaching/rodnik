@@ -1,29 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Library\Export;
 
-use App\Models\User;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
 
-class JsonWriter
+final class JsonWriter extends Writer
 {
-    public ?User $user = null;
-
-    public function __construct(
-        public Builder $query
-    ) {}
-
-    public function forUser(?User $user = null): static
-    {
-        $this->user = $user;
-        return $this;
-    }
-
-    public function save(): string
+    protected function write(): string
     {
         $allSprings = [];
-        
+
         $this->query->chunk(500, function ($springs) use (&$allSprings) {
             $processedSprings = (new JsonTransformer($springs))->forUser($this->user)->transform();
             $allSprings = array_merge($allSprings, $processedSprings);
@@ -36,12 +24,12 @@ class JsonWriter
         $directory = $this->user ? 'users/' : '';
 
         if ($this->user) {
-            $filename = 'rodnik-user-' . $this->user->id . '-from-' . $timestamp . '.json';
+            $filename = 'rodnik-user-'.$this->user->id.'-from-'.$timestamp.'.json';
         } else {
-            $filename = 'rodnik-from-' . $timestamp . '.json';
+            $filename = 'rodnik-from-'.$timestamp.'.json';
         }
-        
-        Storage::disk('public')->put('exports/' . $directory . $filename, $finalJson);   
+
+        Storage::disk('public')->put('exports/'.$directory.$filename, $finalJson);
 
         return $filename;
     }

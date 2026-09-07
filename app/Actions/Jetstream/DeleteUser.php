@@ -1,21 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Jetstream;
 
+use App\Actions\DeleteAccountAction;
+use App\Models\User;
+use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Contracts\DeletesUsers;
+use League\Flysystem\FilesystemException;
+use RuntimeException;
 
-class DeleteUser implements DeletesUsers
+final class DeleteUser implements DeletesUsers
 {
-    /**
-     * Delete the given user.
-     *
-     * @param  mixed  $user
-     * @return void
-     */
-    public function delete($user)
+    public function __construct(private DeleteAccountAction $deleteAccount) {}
+
+    public function delete(User $user): void
     {
-        $user->deleteProfilePhoto();
-        $user->tokens->each->delete();
-        $user->delete();
+        try {
+            ($this->deleteAccount)($user);
+        } catch (LockTimeoutException|RuntimeException|FilesystemException $exception) {
+            report($exception);
+
+            throw ValidationException::withMessages([
+                'accountDeletion' => [__('privacy.deletion.retry')],
+            ])->errorBag('deleteUser');
+        }
     }
 }
