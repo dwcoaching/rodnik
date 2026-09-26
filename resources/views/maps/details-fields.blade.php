@@ -27,6 +27,6 @@
         <p id="{{ $fieldPrefix }}-slug-status" x-cloak x-show="(slugStatus === 'invalid' || slugStatus === 'failed') && slugNotice && !fieldErrors.slug" x-text="slugNotice" role="status" aria-live="polite" class="text-xs leading-5 text-[#dc3545]"></p>
         <button type="button" x-cloak x-show="slugStatus === 'failed'" @click="validateSlug()" :disabled="busy" class="min-h-8 justify-self-start rounded-sm text-xs font-semibold text-blue-700 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-blue-600">{{ __('ui.maps.retry') }}</button>
         <p id="{{ $fieldPrefix }}-slug-error" x-cloak x-show="fieldErrors.slug" x-text="fieldErrors.slug?.[0]" role="alert" class="text-sm text-[#dc3545]"></p>
-        <p x-cloak x-show="slugToken && draftSlug.trim() !== slugOriginal" class="text-xs leading-5 text-zinc-500">{{ __('ui.maps.custom_link_change_help') }}</p>
+        <p x-cloak x-show="slugMapId && draftSlug.trim() !== slugOriginal" class="text-xs leading-5 text-zinc-500">{{ __('ui.maps.custom_link_change_help') }}</p>
     </div>
 </div>

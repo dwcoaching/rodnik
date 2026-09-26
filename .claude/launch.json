@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "laravel",
+      "runtimeExecutable": "herd",
+      "runtimeArgs": ["php", "artisan", "serve", "--port=8001"],
+      "port": 8001
     }
   ]
 }
