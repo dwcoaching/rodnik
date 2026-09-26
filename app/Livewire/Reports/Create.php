@@ -145,7 +145,7 @@ final class Create extends Component
 
         SendReportNotification::dispatch($this->report);
 
-        return $this->redirect(duo_route(['spring' => $this->springId]));
+        return $this->redirect(duo_route(['spring' => $this->springId]), navigate: true);
     }
 
     public function updatedVisitedAt(): void

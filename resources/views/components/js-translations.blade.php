@@ -1,7 +1,14 @@
-<script>
-    window.rodnikLocale = @js(app()->getLocale());
-    window.rodnikPublicBaseUrl = @js(rtrim(url(localized_public_path()), '/'));
-    window.rodnikTranslations = @js([
+<script id="rodnik-translations" type="application/json">{!! json_encode([
+    'locale' => app()->getLocale(),
+    'ownerId' => auth()->id(),
+    'publicBaseUrl' => rtrim(url(localized_public_path()), '/'),
+    'mapTranslations' => __('ui.map'),
+    'translations' => [
+        'shared_track_deleted' => __('ui.javascript.shared_track_deleted'),
+        'shared_track_failed' => __('ui.javascript.shared_track_failed'),
+        'shared_track_timed_out' => __('ui.javascript.shared_track_timed_out'),
+        'shared_track_too_large' => __('ui.javascript.shared_track_too_large'),
+        'shared_track_too_complex' => __('ui.javascript.shared_track_too_complex'),
         'upload_failed' => __('ui.javascript.upload_failed'),
         'upload_timed_out' => __('ui.javascript.upload_timed_out'),
         'network_error' => __('ui.javascript.network_error'),
@@ -18,5 +25,5 @@
         'photo_previous' => __('ui.javascript.photo_previous'),
         'photo_next' => __('ui.javascript.photo_next'),
         'photo_load_error' => __('ui.javascript.photo_load_error'),
-    ]);
-</script>
+    ],
+], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>

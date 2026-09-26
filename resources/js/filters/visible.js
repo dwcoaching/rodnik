@@ -1,7 +1,5 @@
-import { pointToLineDistance, booleanPointInPolygon } from '@turf/turf';
-import { point, lineString, multiLineString } from '@turf/helpers';
-import GeoJSON from 'ol/format/GeoJSON';
-import { transform } from 'ol/proj';
+import { booleanPointInPolygon } from '@turf/turf';
+import { point } from '@turf/helpers';
 
 export default (feature) => {
     if (! window.rodnikMap.filters.spring && feature.get('type') == 'Spring') {
@@ -28,7 +26,7 @@ export default (feature) => {
         return false
     }
 
-    if (window.rodnikMap.filters.confirmed && ! feature.get('waterConfirmed')) {
+    if (window.rodnikMap.filters.with_reports && !(feature.get('hasReports') > 0)) {
         return false
     }
 

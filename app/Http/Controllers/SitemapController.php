@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Spring;
+use App\Support\DuoUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 
@@ -56,9 +57,7 @@ final class SitemapController extends Controller
         $entries = $springIds->map(fn (int $springId): array => [
             'urls' => collect(array_keys(config('localization.supported')))
                 ->mapWithKeys(fn (string $locale): array => [
-                    $locale => route(localized_route_name('duo', $locale), [
-                        'page' => ['spring' => $springId],
-                    ]),
+                    $locale => app(DuoUrl::class)->absolute(['spring' => $springId], $locale, canonical: true),
                 ])
                 ->all(),
         ]);

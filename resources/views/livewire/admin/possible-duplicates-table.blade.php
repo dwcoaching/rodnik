@@ -35,7 +35,7 @@
                                 {{ number_format((float) $duplicate['distance_meters'], 1) }} m
                             </td>
                             <td>
-                                <a href="{{ route('springs.show', $duplicate['rodnik_id']) }}" class="font-semibold text-blue-600 no-underline hover:underline">
+                                <a data-rodnik-navigate href="{{ route('springs.show', $duplicate['rodnik_id']) }}" class="font-semibold text-blue-600 no-underline hover:underline">
                                     #{{ $duplicate['rodnik_id'] }} {{ $springLabel($duplicate['rodnik_name'], $duplicate['rodnik_type']) }}
                                 </a>
                                 <div class="text-xs text-gray-500 font-mono mt-1">
@@ -46,7 +46,7 @@
                                 @endif
                             </td>
                             <td>
-                                <a href="{{ route('springs.show', $duplicate['osm_id']) }}" class="font-semibold text-blue-600 no-underline hover:underline">
+                                <a data-rodnik-navigate href="{{ route('springs.show', $duplicate['osm_id']) }}" class="font-semibold text-blue-600 no-underline hover:underline">
                                     #{{ $duplicate['osm_id'] }} {{ $springLabel($duplicate['osm_name'], $duplicate['osm_type']) }}
                                 </a>
                                 <div class="text-xs text-gray-500 font-mono mt-1">

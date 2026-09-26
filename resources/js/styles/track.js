@@ -19,7 +19,7 @@ export default function(feature) {
             })
         }),
         text: new Text({
-            text: label,
+            text: label == null ? '' : String(label),
             font: 'bold 12px sans-serif',
             offsetY: -10,
             fill: new Fill({

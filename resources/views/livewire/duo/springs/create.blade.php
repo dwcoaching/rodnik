@@ -215,7 +215,7 @@
                                 </button>
                             @else
                                 <div class="bg-yellow-100 text-center text-base px-4 py-3 rounded-lg border border-yellow-400 w-full">
-                                    {!! __('ui.spring.login_to_edit_location', ['login' => '<a href="' . e(route('login')) . '" class="font-bold underline text-blue-600 hover:text-blue-700">' . e(__('ui.common.log_in')) . '</a>']) !!}
+                                    {!! __('ui.spring.login_to_edit_location', ['login' => '<a href="' . e(route('login')) . '" data-rodnik-navigate class="font-bold underline text-blue-600 hover:text-blue-700">' . e(__('ui.common.log_in')) . '</a>']) !!}
                                 </div>
                             @endcan
                         @else
@@ -233,7 +233,7 @@
                                 </button>
                             @else
                                 <div class="bg-yellow-100 text-center text-base px-4 py-3 rounded-lg border border-yellow-400 w-full">
-                                    {!! __('ui.spring.login_to_add', ['login' => '<a href="' . e(route('login')) . '" class="font-bold underline text-blue-600 hover:text-blue-700">' . e(__('ui.common.log_in')) . '</a>']) !!}
+                                    {!! __('ui.spring.login_to_add', ['login' => '<a href="' . e(route('login')) . '" data-rodnik-navigate class="font-bold underline text-blue-600 hover:text-blue-700">' . e(__('ui.common.log_in')) . '</a>']) !!}
                                 </div>
                             @endcan
                         @endif

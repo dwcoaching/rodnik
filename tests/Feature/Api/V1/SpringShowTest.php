@@ -46,6 +46,7 @@ test('a public spring response nests visible reports and ordered photo resources
         ->assertJsonPath('data.latitude', 55.7558)
         ->assertJsonPath('data.longitude', 37.6173)
         ->assertJsonPath('data.reports_count', 2)
+        ->assertJsonMissingPath('data.water_confirmed')
         ->assertJsonPath('data.reports.0.id', $newer->id)
         ->assertJsonPath('data.reports.0.author.id', $user->id)
         ->assertJsonPath('data.reports.0.photos.0.id', $firstPhoto->id)

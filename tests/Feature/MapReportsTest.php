@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Livewire\Duo\Components\ShowMoreReports;
 use App\Livewire\Duo\Reports\Index;
 use App\Models\Report;
 use App\Models\Spring;
 use App\Models\User;
+use Dom\HTMLDocument;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Blade;
@@ -66,23 +68,49 @@ test('map reports exclude hidden reports hidden springs OSM imports and merged s
         ->assertViewHas('hasMore', false);
 });
 
-test('only area report cards preserve the map view when opening a spring', function () {
+test('area and user report cards preserve the map view when opening a spring', function () {
     $report = Report::factory()->for(Spring::factory()->state([
         'longitude' => 15, 'latitude' => 45,
     ]))->create();
 
     Livewire::test(Index::class)
         ->call('updateBounds', $this->bounds)
-        ->assertSeeHtml('preserveMapView: true');
+        ->assertSeeHtml('data-rodnik-preserve-map');
 
-    Livewire::test(Index::class, ['userId' => $report->user_id])
-        ->assertSeeHtml('preserveMapView: false');
+    $userReports = Livewire::test(Index::class, ['userId' => $report->user_id]);
+    $document = HTMLDocument::createFromString($userReports->html(false), LIBXML_NOERROR);
+    $link = $document->querySelector('a[href="'.duo_route(['spring' => $report->spring_id, 'user' => $report->user_id]).'"]');
+
+    expect($link)->not->toBeNull()
+        ->and($link->hasAttribute('data-rodnik-navigate'))->toBeTrue()
+        ->and($link->hasAttribute('data-rodnik-preserve-map'))->toBeTrue();
 
     $teaser = Blade::render('<x-last-reports.teaser :report="$report" />', [
         'report' => $report->load(['spring', 'user', 'photos']),
     ]);
 
-    expect($teaser)->toContain('preserveMapView: false');
+    expect($teaser)->toContain('data-rodnik-navigate')
+        ->not->toContain('data-rodnik-preserve-map');
+});
+
+test('additional user report cards retain the selected user and preserve the map view', function () {
+    $user = User::factory()->create();
+    $older = Report::factory()->for($user)->for(Spring::factory()->state([
+        'longitude' => 15, 'latitude' => 45,
+    ]))->create(['created_at' => now()->subDay()]);
+    Report::factory()->for($user)->for(Spring::factory()->state([
+        'longitude' => 16, 'latitude' => 46,
+    ]))->create();
+
+    $component = Livewire::test(ShowMoreReports::class, ['userId' => $user->id, 'skip' => 1, 'take' => 1])
+        ->call('show')
+        ->assertViewHas('reports', fn ($reports) => $reports->modelKeys() === [$older->id]);
+    $document = HTMLDocument::createFromString($component->html(false), LIBXML_NOERROR);
+    $link = $document->querySelector('a[href="'.duo_route(['spring' => $older->spring_id, 'user' => $user->id]).'"]');
+
+    expect($link)->not->toBeNull()
+        ->and($link->hasAttribute('data-rodnik-navigate'))->toBeTrue()
+        ->and($link->hasAttribute('data-rodnik-preserve-map'))->toBeTrue();
 });
 
 test('map reports support the date line and the whole world', function (array $bounds, array $visibleLongitudes) {

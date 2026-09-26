@@ -58,7 +58,7 @@ render(function (View $view): View {
                     <article class="grid gap-4 p-4 lg:grid-cols-[minmax(12rem,20rem)_minmax(0,1fr)] lg:p-5">
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
-                                <a
+                                <a data-rodnik-navigate
                                     href="{{ route('springs.show', ['springId' => $spring->id]) }}"
                                     class="font-semibold text-blue-700 hover:text-blue-900 hover:underline"
                                 >
@@ -139,7 +139,7 @@ render(function (View $view): View {
             </div>
         </div>
 
-        <div class="mt-6">
+        <div data-rodnik-pagination class="mt-6">
             {{ $springs->links() }}
         </div>
     </div>

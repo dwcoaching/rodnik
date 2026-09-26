@@ -10,6 +10,7 @@
     string and fragment are re-read from the browser on submit.
 --}}
 <form
+    data-rodnik-locale="{{ $locale }}"
     method="POST"
     action="{{ route('locale.update', ['locale' => $locale]) }}"
     x-data

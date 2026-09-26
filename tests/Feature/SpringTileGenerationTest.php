@@ -76,7 +76,32 @@ test('spring and watered tiles use visible reports for score and not found', fun
                 'score' => 0.0,
                 'notFound' => false,
             ])
+            ->not->toHaveKey('waterConfirmed')
             ->and($feature['properties']['notFound'])->toBeBool();
+    }
+});
+
+test('tiles with reports include every report quality and exclude sources without visible reports', function () {
+    $coordinates = ['latitude' => 10.111111, 'longitude' => 20.222222];
+    $visible = collect([ReportQuality::Good, ReportQuality::Uncertain, ReportQuality::Bad, null])
+        ->map(function (?ReportQuality $quality) use ($coordinates): Spring {
+            $spring = Spring::factory()->create($coordinates);
+            Report::factory()->for($spring)->create(['quality' => $quality, 'state' => null]);
+
+            return $spring;
+        });
+    Spring::factory()->create($coordinates);
+    Report::factory()->for(Spring::factory()->state($coordinates))->create(['hidden_at' => now()]);
+    Report::factory()->for(Spring::factory()->state($coordinates))->create(['from_osm' => true]);
+
+    foreach ([
+        WateredSpringTile::fromXYZ(0, 0, 0),
+        WateredSpringTile::fromCoordinates($coordinates['longitude'], $coordinates['latitude'])->firstWhere('z', 5),
+    ] as $tile) {
+        $features = collect(json_decode($tile->geoJSON(), true)['features']);
+
+        expect($features->pluck('id')->all())->toEqualCanonicalizing($visible->pluck('id')->all())
+            ->and($features->pluck('properties.hasReports')->all())->toBe([1, 1, 1, 1]);
     }
 });
 

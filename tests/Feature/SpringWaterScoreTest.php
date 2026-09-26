@@ -98,7 +98,7 @@ test('water score ignores hidden and osm reports', function () {
     expect($spring->fresh()->getWaterScore())->toBe(1.0);
 });
 
-test('good quality confirms water without requiring a running state', function () {
+test('good quality contributes a positive score without requiring a running state', function () {
     $spring = Spring::factory()->create();
 
     Report::factory()->for($spring)->create([
@@ -106,10 +106,10 @@ test('good quality confirms water without requiring a running state', function (
         'quality' => ReportQuality::Good,
     ]);
 
-    expect($spring->fresh()->waterConfirmed())->toBeTrue();
+    expect($spring->fresh()->getWaterScore())->toBe(1.0);
 });
 
-test('confirmation is decided by the majority of visible quality reports', function () {
+test('dry reports lower the water score even when their quality is good', function () {
     $spring = Spring::factory()->create();
 
     foreach ([
@@ -127,7 +127,7 @@ test('confirmation is decided by the majority of visible quality reports', funct
         'hidden_at' => now(),
     ]);
 
-    expect($spring->fresh()->waterConfirmed())->toBeTrue();
+    expect($spring->fresh()->getWaterScore())->toBe(-0.5);
 });
 
 test('backend decides whether a spring is not found from visible reports', function () {

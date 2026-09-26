@@ -10,11 +10,48 @@ use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
 use App\Rules\SpringTypeRule;
 use Carbon\Carbon;
+use Dom\HTMLDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\App;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+test('each application layout loads the menu plugin before Alpine and provides current body translations', function (string $prefix, string $locale) {
+    $user = User::factory()->create(['locale' => $locale]);
+    $spring = Spring::factory()->create(['latitude' => 55.75, 'longitude' => 37.62]);
+    $this->actingAs($user);
+
+    $paths = [
+        $prefix ?: '/',
+        $prefix.'/user/maps',
+        $prefix.'/'.$spring->id.'/history',
+        $prefix.'/docs/about',
+        $prefix.'/moscow-stats',
+        $prefix.'/moscow-stats?area=mkad',
+    ];
+
+    foreach ($paths as $path) {
+        $response = $this->withHeader('X-Livewire-Navigate', 'true')->get($path)->assertOk();
+        $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
+
+        expect($document->querySelectorAll('head script[src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"]')->length, $path)->toBe(1)
+            ->and($document->querySelector('head script[src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"]')->hasAttribute('defer'))->toBeTrue()
+            ->and($document->querySelectorAll('head script[src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"] ~ script[type="module"]')->length)->toBeGreaterThan(0)
+            ->and($document->querySelectorAll('#rodnik-translations')->length)->toBe(1)
+            ->and($document->querySelectorAll('body > script#rodnik-translations')->length)->toBe(1)
+            ->and($document->querySelector('head #rodnik-translations'))->toBeNull();
+
+        $payload = json_decode($document->querySelector('body > script#rodnik-translations')->textContent, true, flags: JSON_THROW_ON_ERROR);
+
+        expect($payload['locale'])->toBe($locale)
+            ->and($payload['mapTranslations']['upload_track'])->toBe(trans('ui.map.upload_track', locale: $locale))
+            ->and($document->documentElement->getAttribute('lang'))->toBe($locale);
+    }
+})->with([
+    'English' => ['', 'en'],
+    'Russian' => ['/ru', 'ru'],
+]);
 
 test('the English and Russian public roots render deterministic locales', function () {
     $this->withHeader('Accept-Language', 'ru-RU,ru;q=0.9,en;q=0.5')
@@ -22,13 +59,13 @@ test('the English and Russian public roots render deterministic locales', functi
         ->assertSuccessful()
         ->assertSee('<html lang="en">', false)
         ->assertSee('Map of public water sources with user reports in cities and wild places')
-        ->assertDontSee('Карта общедоступных источников воды с отчётами пользователей в городах и на природе');
+        ->assertDontSee('Карта источников воды с реальными отчётами в городах и диких местах');
 
     $this->withHeader('Accept-Language', 'ru-RU,ru;q=0.9,en;q=0.5')
         ->get('/ru')
         ->assertSuccessful()
         ->assertSee('<html lang="ru">', false)
-        ->assertSee('Карта общедоступных источников воды с отчётами пользователей в городах и на природе')
+        ->assertSee('Карта источников воды с реальными отчётами в городах и диких местах')
         ->assertDontSee('Map of public water sources with user reports in cities and wild places')
         ->assertDontSee('Russian version is available.');
 });
@@ -45,23 +82,23 @@ test('existing English route names and paths remain compatible while Russian rou
 
     expect(localized_route_name('duo'))->toBe('ru.duo')
         ->and(localized_route('duo', absolute: false))->toBe('/ru')
-        ->and(duo_route(['spring' => 42]))->toBe(url('/ru').'?page[spring]=42');
+        ->and(duo_route(['spring' => 42]))->toBe(url('/ru').'/42/');
 });
 
 test('indexable localized pages publish canonical and alternate language URLs', function () {
     $this->get('/ru')
         ->assertSuccessful()
         ->assertSee('<link rel="canonical" href="'.url('/ru').'">', false)
-        ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/').'">', false)
+        ->assertSee('<link rel="alternate" hreflang="en" href="'.url('/').'/">', false)
         ->assertSee('<link rel="alternate" hreflang="ru" href="'.url('/ru').'">', false)
-        ->assertSee('<link rel="alternate" hreflang="x-default" href="'.url('/').'">', false)
+        ->assertSee('<link rel="alternate" hreflang="x-default" href="'.url('/').'/">', false)
         ->assertDontSee('name="robots" content="noindex, nofollow"', false);
 });
 
 test('map location state is not indexable and tracking parameters are removed from canonical URLs', function () {
-    $this->get('/ru?page[location]=1&utm_source=locale-test&gclid=tracking')
+    $this->get('/ru?location=1&utm_source=locale-test&gclid=tracking')
         ->assertSuccessful()
-        ->assertSee('<link rel="canonical" href="'.url('/ru?page[location]=1').'">', false)
+        ->assertSee('<link rel="canonical" href="'.url('/ru').'">', false)
         ->assertSee('<meta name="robots" content="noindex, nofollow">', false)
         ->assertDontSee('<link rel="alternate"', false);
 });
@@ -69,9 +106,9 @@ test('map location state is not indexable and tracking parameters are removed fr
 test('redirect bypass state is noindex and omitted from canonical URLs', function () {
     $spring = Spring::factory()->create();
 
-    $this->get('/ru?page[spring]='.$spring->id.'&redirect=false&utm_source=locale-test')
+    $this->get('/ru/'.$spring->id.'/?redirect=false&utm_source=locale-test')
         ->assertSuccessful()
-        ->assertSee('<link rel="canonical" href="'.url('/ru?page[spring]='.$spring->id).'">', false)
+        ->assertSee('<link rel="canonical" href="'.url('/ru').'/'.$spring->id.'/">', false)
         ->assertSee('<meta name="robots" content="noindex, nofollow">', false)
         ->assertDontSee('<link rel="alternate"', false);
 });
@@ -105,9 +142,9 @@ test('the language switcher is a dropdown naming the current language and offeri
 test('the language switcher returns to the current page with its query string intact', function () {
     $spring = Spring::factory()->create();
 
-    $this->get('/?page[spring]='.$spring->id.'&redirect=false')
+    $this->get('/'.$spring->id.'/?redirect=false')
         ->assertSuccessful()
-        ->assertSee('value="/ru?page[spring]='.$spring->id.'&amp;redirect=false"', false);
+        ->assertSee('value="/ru/'.$spring->id.'/?redirect=false"', false);
 
     $this->get('/ru/docs/about?utm_source=newsletter')
         ->assertSuccessful()
@@ -156,8 +193,8 @@ test('the navbar keeps the language switcher on the same row as the guest links'
 
     $this->get('/')
         ->assertSuccessful()
-        ->assertSee('<a href="'.route('login').'" class="block text-sm text-gray-500">', false)
-        ->assertSee('<a href="'.route('register').'" class="block text-sm text-gray-500">', false);
+        ->assertSee('<a href="'.route('login').'" data-rodnik-navigate class="block text-sm text-gray-500">', false)
+        ->assertSee('<a href="'.route('register').'" data-rodnik-navigate class="block text-sm text-gray-500">', false);
 });
 
 test('the navbar shows the language switcher next to the avatar for signed in users', function () {
@@ -310,8 +347,8 @@ test('spring sitemaps include only visible canonical springs in both locales', f
     $hiddenSpring = Spring::factory()->create(['hidden_at' => now()]);
     $redirectedSpring = Spring::factory()->create(['redirect_to_spring_id' => $visibleSpring->id]);
 
-    $englishUrl = route('duo', ['page' => ['spring' => $visibleSpring->id]]);
-    $russianUrl = route('ru.duo', ['page' => ['spring' => $visibleSpring->id]]);
+    $englishUrl = url('/').'/'.$visibleSpring->id.'/';
+    $russianUrl = url('/ru').'/'.$visibleSpring->id.'/';
 
     $this->get('/sitemaps/springs-1.xml')
         ->assertSuccessful()
@@ -320,8 +357,8 @@ test('spring sitemaps include only visible canonical springs in both locales', f
         ->assertSee('<loc>'.$russianUrl.'</loc>', false)
         ->assertSee('hreflang="en" href="'.$englishUrl.'"', false)
         ->assertSee('hreflang="ru" href="'.$russianUrl.'"', false)
-        ->assertDontSee('page%5Bspring%5D='.$hiddenSpring->id, false)
-        ->assertDontSee('page%5Bspring%5D='.$redirectedSpring->id, false);
+        ->assertDontSee('/'.$hiddenSpring->id.'/</loc>', false)
+        ->assertDontSee('/'.$redirectedSpring->id.'/</loc>', false);
 
     $this->get('/sitemaps/springs-2.xml')->assertNotFound();
 });

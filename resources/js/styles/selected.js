@@ -1,5 +1,6 @@
 import { Circle as CircleStyle, Stroke, Style } from 'ol/style';
 import finalStyleFunction from './final.js';
+import visible from '@/filters/visible.js';
 
 // Create a red stroke style that will be applied to all variants
 export const selectedStyle = new Style({
@@ -15,6 +16,10 @@ export const selectedStyle = new Style({
 
 export default (feature) => {
     const baseStyles = finalStyleFunction(feature);
+
+    if (!visible(feature)) {
+        return baseStyles;
+    }
     
     // If baseStyles is an array, add the red stroke to it
     if (Array.isArray(baseStyles)) {

@@ -47,24 +47,10 @@ function without_http($string)
     return preg_replace('/https?:\/\/(www\.)?/', '', $string);
 }
 
-function duo_route($parameters = [])
+/** @param array<string, mixed> $parameters */
+function duo_route(array $parameters = []): string
 {
-    $baseUrl = localized_route('duo');
-
-    if (empty($parameters)) {
-        return $baseUrl;
-    }
-
-    // Only include parameters that differ from defaults
-    $defaults = config('duo.url_defaults');
-    $pageParams = array_filter($parameters, function ($value, $key) use ($defaults) {
-        return ! isset($defaults[$key]) || $defaults[$key] !== $value;
-    }, ARRAY_FILTER_USE_BOTH);
-
-    $queryString = http_build_query(['page' => $pageParams], '', '&', PHP_QUERY_RFC1738);
-    $queryString = urldecode($queryString);
-
-    return $baseUrl.'?'.$queryString;
+    return app(App\Support\DuoUrl::class)->absolute($parameters);
 }
 
 function localized_url(string $locale, bool $canonical = false): string
@@ -87,6 +73,18 @@ function localized_route_name(string $name, ?string $locale = null): string
 
 function localized_route(string $name, mixed $parameters = [], bool $absolute = true): string
 {
+    if (in_array($name, ['springs.show', 'users.show'], true)) {
+        $key = $name === 'springs.show' ? 'spring' : 'user';
+        $routeKey = $key.'Id';
+        $parameters = is_array($parameters) ? $parameters : [$routeKey => $parameters];
+        $parameters[$key] = $parameters[$routeKey] ?? $parameters[$key] ?? $parameters[0] ?? null;
+        unset($parameters[$routeKey], $parameters[0]);
+
+        $duoUrl = app(App\Support\DuoUrl::class);
+
+        return $absolute ? $duoUrl->absolute($parameters) : $duoUrl->relative($parameters);
+    }
+
     return route(localized_route_name($name), $parameters, $absolute);
 }
 

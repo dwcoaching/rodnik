@@ -29,7 +29,6 @@ final class SpringResource extends JsonResource
             'longitude' => $spring->longitude !== null ? (float) $spring->longitude : null,
             'intermittent' => $spring->intermittent,
             'water_score' => $spring->getWaterScore(),
-            'water_confirmed' => $spring->waterConfirmed(),
             'not_found' => $spring->isNotFound(),
             'reports_count' => $this->whenLoaded('visibleReports', fn (): int => $spring->visibleReports->count()),
             'reports' => ReportResource::collection($this->whenLoaded('visibleReports')),

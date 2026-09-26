@@ -31,7 +31,7 @@ name('docs.privacy');
                     </p>
                 @endif
                 @if ($key === 'deletion')
-                    <p><a href="{{ route(app()->isLocale('ru') ? 'ru.docs.delete-account' : 'docs.delete-account') }}">{{ __('privacy.deletion.title') }}</a></p>
+                    <p><a data-rodnik-navigate href="{{ route(app()->isLocale('ru') ? 'ru.docs.delete-account' : 'docs.delete-account') }}">{{ __('privacy.deletion.title') }}</a></p>
                 @endif
             </section>
         @endforeach

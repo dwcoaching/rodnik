@@ -1,19 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Duo\Springs;
 
-use App\Models\Spring;
-use Livewire\Component;
-use Livewire\Attributes\On;
+use App\Actions\Springs\MergeSpringsAction;
 use App\Library\HaversineDistance;
+use App\Models\Spring;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
-use App\Actions\Springs\MergeSpringsAction;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
-class MergeModal extends Component
+final class MergeModal extends Component
 {
     public ?int $springId = null;
+
     public ?int $targetSpringId = null;
+
     public bool $open = false;
 
     #[On('open-merge-modal')]
@@ -53,7 +57,7 @@ class MergeModal extends Component
 
         $this->close();
 
-        return $this->redirect(duo_route(['spring' => $source->id]) . '&redirect=false');
+        return $this->redirect(duo_route(['spring' => $source->id, 'redirect' => 'false']), navigate: true);
     }
 
     public function render()

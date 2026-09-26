@@ -14,30 +14,32 @@ export default class TrackLayer extends VectorLayer {
     }
 
     restoreFromLocalStorage() {
-        const content = localStorage.getItem('uploadedGPXTrack')
+        let content;
+        try { content = localStorage.getItem('uploadedGPXTrack'); } catch { return; }
         if (content) {
-            this.getSource().setFromGPXString(content)
-            this.isUploaded.value = true
+            this.isUploaded.value = this.getSource().setFromGPXString(content) !== false;
         }
     }
 
     clearFromLocalStorage() {
-        localStorage.removeItem('uploadedGPXTrack')
+        try { localStorage.removeItem('uploadedGPXTrack'); } catch { /* Storage may be unavailable. */ }
     }
 
-    clear() {
+    clear({ persist = true } = {}) {
         this.getSource().clear()
+        window.rodnikMap.tracks?.clear();
         window.rodnikMap.buffer.clear()
-        this.clearFromLocalStorage()
+        if (persist) this.clearFromLocalStorage()
         this.isUploaded.value = false
+        window.rodnikMap.notifySharedStateChange?.();
     }
 
     isUploaded() {
         return this.getSource().getFeatures().length > 0
     }
 
-    load(content) {
-        this.getSource().setFromGPXString(content)
+    load(content, { name = null } = {}) {
+        if (this.getSource().setFromGPXString(content, { name }) === false) return;
 
         if (this.getSource().getFeatures().length) {
             window.rodnikMap.view.fit(this.getSource().getExtent())
@@ -50,10 +52,6 @@ export default class TrackLayer extends VectorLayer {
             try {
                 localStorage.setItem('uploadedGPXTrack', content)
             } catch (error) {
-                if (error.name !== 'QuotaExceededError') {
-                    throw error
-                }
-
                 this.clearFromLocalStorage()
             }
         } else {

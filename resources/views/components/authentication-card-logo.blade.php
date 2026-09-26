@@ -1,4 +1,4 @@
-<a href="{{ localized_public_path() }}" aria-label="Rodnik.today">
+<a data-rodnik-navigate href="{{ localized_public_path() }}" aria-label="Rodnik.today">
     <svg aria-hidden="true" focusable="false" class="w-16 h-16" width="387px" height="380px" viewBox="0 0 387 380" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <!-- Generator: Sketch 57.1 (83088) - https://sketch.com -->
         <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

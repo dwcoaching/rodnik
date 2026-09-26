@@ -5,7 +5,7 @@ import mapReports from '../../resources/js/mapReports.js';
 const area = (west) => ({ west, south: 0, east: west + 10, north: 10 });
 const defaultFilters = {
     spring: true, water_well: true, water_tap: true, drinking_water: true,
-    fountain: true, other: true, confirmed: false, along: false,
+    fountain: true, other: true, with_reports: false, along: false,
 };
 const tick = () => new Promise(setImmediate);
 
@@ -18,7 +18,11 @@ function setup(t, { userId = null, bounds = null, viewport = area(0), filters = 
     let maxActive = 0;
 
     t.after(() => { globalThis.window = originalWindow; });
+    const storage = new Map();
     globalThis.window = {
+        location: { href: 'https://rodnik.test/' },
+        localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
+        history: { state: { retained: true }, replaceState(state, unused, url) { window.location.href = url.href; } },
         rodnikMap: {
             getViewportBounds: () => viewport,
             filters: { ...defaultFilters, ...filters },
@@ -113,6 +117,58 @@ test('user feeds and maps without a viewport do not request reports', async (t) 
     await component.refresh();
     assert.equal(requests.length, 0);
     assert.equal(component.busy, false);
+});
+
+test('shared reports wait for restored camera and filters before requesting a viewport', async (t) => {
+    const { component, requests, nextTicks, move } = setup(t);
+    const ready = Promise.withResolvers();
+    Object.assign(window.rodnikMap, { initialSharedState: {}, ready: ready.promise });
+    component.init();
+    const initialization = nextTicks.shift()();
+    await component.refresh();
+    assert.equal(requests.length, 0);
+    move(area(40));
+    ready.resolve();
+    await tick();
+    assert.deepEqual(requests[0].bounds, area(40));
+    requests[0].resolve();
+    await initialization;
+});
+
+test('along-track reports wait for a shared track and its persisted polygon', async (t) => {
+    const { component, requests, track } = setup(t, { filters: { along: true } });
+    window.rodnikMap.sharedTrack = { status: 'loading', token: 'AbCd123456' };
+    await component.refresh();
+    assert.equal(requests.length, 0);
+    assert.equal(component.waitingForPolygon, true);
+    track();
+    window.rodnikMap.sharedTrack.status = 'saved';
+    await component.refresh();
+    assert.equal(requests.length, 0);
+    track('polygon-hash');
+    const pending = component.refresh();
+    assert.equal(requests[0].trackPolygonHash, 'polygon-hash');
+    requests[0].resolve();
+    await pending;
+});
+
+test('a failed shared download never sends unfiltered reports and retries only explicitly', async (t) => {
+    const { component, requests, polygonSaves } = setup(t, { filters: { along: true } });
+    window.rodnikMap.sharedTrack = { status: 'failed', token: 'AbCd123456' };
+    let retries = 0;
+    window.rodnikMap.retrySharedTrack = () => {
+        retries++;
+        window.rodnikMap.sharedTrack.status = 'loading';
+    };
+    await component.refresh();
+    assert.equal(component.failed, true);
+    assert.equal(requests.length, 0);
+    assert.equal(retries, 0);
+    await component.retry();
+    assert.equal(retries, 1);
+    assert.equal(polygonSaves(), 0);
+    assert.equal(component.waitingForPolygon, true);
+    assert.equal(requests.length, 0);
 });
 
 test('viewport changes collapse to the latest bounds with one request at a time', async (t) => {
@@ -210,12 +266,12 @@ test('detached components discard queued work and cannot request or scroll again
     assert.equal(component.busy, false);
 });
 
-test('source types and confirmation refresh at unchanged bounds and ignore the all checkbox', async (t) => {
+test('source types and report presence refresh at unchanged bounds and ignore the all checkbox', async (t) => {
     const { component, filter, requests } = setup(t, { bounds: area(0) });
-    filter({ spring: false, confirmed: true, all: false });
+    filter({ spring: false, with_reports: true, all: false });
     const pending = component.refresh();
 
-    assert.deepEqual(requests[0].filters, { ...defaultFilters, spring: false, confirmed: true });
+    assert.deepEqual(requests[0].filters, { ...defaultFilters, spring: false, with_reports: true });
     assert.equal(requests[0].trackPolygonHash, null);
     requests[0].resolve();
     await pending;
@@ -224,13 +280,23 @@ test('source types and confirmation refresh at unchanged bounds and ignore the a
     assert.equal(requests.length, 1);
 });
 
+test('obsolete saved filters cannot enter report request payloads', async (t) => {
+    const { component, requests } = setup(t, { filters: { confirmed: true } });
+    const pending = component.refresh();
+
+    assert.deepEqual(requests[0].filters, defaultFilters);
+    assert.equal(Object.hasOwn(requests[0].filters, 'confirmed'), false);
+    requests[0].resolve();
+    await pending;
+});
+
 test('all map conditions collapse to the latest snapshot during a report request', async (t) => {
     const { component, filter, move, requests, maxActive } = setup(t);
     const pending = component.refresh();
     filter({ spring: false });
     await component.refresh();
     move(area(40));
-    filter({ water_well: false, confirmed: true });
+    filter({ water_well: false, with_reports: true });
     await component.refresh();
     requests[0].resolve();
     await tick();
@@ -238,7 +304,7 @@ test('all map conditions collapse to the latest snapshot during a report request
     assert.equal(requests.length, 2);
     assert.deepEqual(requests[1].bounds, area(40));
     assert.deepEqual(requests[1].filters, {
-        ...defaultFilters, spring: false, water_well: false, confirmed: true,
+        ...defaultFilters, spring: false, water_well: false, with_reports: true,
     });
     requests[1].resolve();
     await pending;
@@ -284,14 +350,14 @@ test('changes while uploading apply only the latest bounds and filters without p
     track();
     await component.refresh(true);
     move(area(30));
-    filter({ confirmed: true });
+    filter({ with_reports: true });
     await component.refresh();
     polygonState('saved', hash);
     const pending = component.refresh();
     assert.equal(requests.length, 1);
     assert.equal(requests[0].kind, 'map');
     assert.deepEqual(requests[0].bounds, area(30));
-    assert.equal(requests[0].filters.confirmed, true);
+    assert.equal(requests[0].filters.with_reports, true);
     assert.equal(requests[0].trackPolygonHash, hash);
     requests[0].resolve();
     await pending;
@@ -305,9 +371,9 @@ test('reloading the same polygon does not retain show-more intent or duplicate r
     });
     track();
     await component.refresh(true);
-    filter({ confirmed: true });
+    filter({ with_reports: true });
     await component.refresh();
-    filter({ confirmed: false });
+    filter({ with_reports: false });
     await component.refresh();
     polygonState('saved', hash);
     await component.refresh();
@@ -489,12 +555,12 @@ test('ready events during another Livewire request queue the newest polygon once
 test('failure of an obsolete request still processes the latest filters', async (t) => {
     const { component, filter, requests } = setup(t);
     const pending = component.refresh();
-    filter({ confirmed: true });
+    filter({ with_reports: true });
     await component.refresh();
     requests[0].reject(new Error('Unavailable'));
     await tick();
     assert.equal(requests.length, 2);
-    assert.equal(requests[1].filters.confirmed, true);
+    assert.equal(requests[1].filters.with_reports, true);
     requests[1].resolve();
     await pending;
     assert.equal(component.failed, false);
@@ -512,4 +578,70 @@ test('detached components and user feeds do not retry polygon persistence', asyn
     await component.retry();
     assert.equal(polygonSaves(), 0);
     assert.equal(requests.length, 0);
+});
+
+
+test('scope defaults to area and persists explicit choices in URL and storage', (t) => {
+    const { component } = setup(t);
+    component.restoreScope();
+    assert.equal(component.inMapArea, true);
+    assert.equal(new URL(window.location.href).searchParams.get('w'), null);
+    window.location.href = 'https://rodnik.test/?whole_world=1#map=5/0/0';
+    component.restoreScope();
+    assert.equal(component.inMapArea, false);
+    window.location.href = 'https://rodnik.test/ru';
+    component.restoreScope();
+    assert.equal(component.inMapArea, false);
+    assert.equal(new URL(window.location.href).searchParams.get('w'), '1');
+    window.location.href = 'https://rodnik.test/?whole_world=0';
+    component.restoreScope();
+    assert.equal(component.inMapArea, true);
+});
+
+test('global scope ignores map filters and pending tracks and returns to current viewport', async (t) => {
+    const { component, requests, move } = setup(t, { filters: { spring: false, along: true } });
+    const pending = component.toggleScope();
+    assert.deepEqual(requests[0].bounds, { west: -180, south: -90, east: 180, north: 90 });
+    assert.deepEqual(requests[0].filters, defaultFilters);
+    requests[0].resolve();
+    await pending;
+    move(area(40));
+    await component.refresh();
+    assert.equal(requests.length, 1);
+    const more = component.refresh(true);
+    assert.equal(requests[1].kind, 'more');
+    requests[1].resolve();
+    await more;
+    window.rodnikMap.filters = defaultFilters;
+    const areaPending = component.toggleScope();
+    assert.equal(new URL(window.location.href).searchParams.has('w'), false);
+    assert.deepEqual(requests[2].bounds, area(40));
+    requests[2].resolve();
+    await areaPending;
+});
+
+
+test('area scope removes its URL flag without changing other URL state', (t) => {
+    const { component } = setup(t);
+    window.location.href = 'https://rodnik.test/?whole_world=1&report_area=0&q=water#map=5/0/0';
+    component.inMapArea = true;
+    component.persistScope();
+    assert.equal(window.location.href, 'https://rodnik.test/?q=water#map=5/0/0');
+    component.restoreScope();
+    assert.equal(component.inMapArea, true);
+    assert.deepEqual(window.history.state, { retained: true });
+});
+
+
+test('short report scope query takes precedence and old links canonicalize to w', t => {
+    const { component } = setup(t);
+    window.location.href = 'https://rodnik.test/?w=0&whole_world=1#map=5/0/0';
+    component.restoreScope();
+    assert.equal(component.inMapArea, true);
+    assert.equal(new URL(window.location.href).searchParams.has('whole_world'), false);
+    assert.equal(new URL(window.location.href).searchParams.has('w'), false);
+    window.location.href = 'https://rodnik.test/?whole_world=1#map=5/0/0';
+    component.restoreScope();
+    assert.equal(component.inMapArea, false);
+    assert.equal(window.location.href, 'https://rodnik.test/?w=1#map=5/0/0');
 });

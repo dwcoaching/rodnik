@@ -5,6 +5,14 @@ import { gps as exifrGPS } from 'exifr';
 import { resizeImage } from '@/utils/imageResize/resizeImage';
 import OpenLayersMap from './openLayers.js';
 import mapReports from './mapReports.js';
+import maps from './maps.js';
+import mapTitles from './mapTitles.js';
+import mapLibrary from './mapLibrary.js';
+import trackLibrary from './trackLibrary.js';
+import trackNotice from './trackNotice.js';
+import { installNavigation } from './navigation.js';
+import { initialMapConfiguration } from './mapUrlState.js';
+import { readLocalTrackHistory } from './localTrackHistory.js';
 import OpenHelper from './openHelper.js';
 import OpenDiffer from './openDiffer.js';
 import PhotoSwipeLightbox from 'photoswipe/lightbox';
@@ -18,11 +26,48 @@ import trans from '@/i18n';
 Alpine.plugin(Clipboard);
 Alpine.plugin(sort);
 Alpine.data('mapReports', mapReports);
+Alpine.data('maps', maps);
+Alpine.data('mapTitles', mapTitles);
+Alpine.data('mapLibrary', mapLibrary);
+Alpine.data('trackLibrary', trackLibrary);
+Alpine.data('trackNotice', trackNotice);
 
 window.Alpine = Alpine;
 window.resizeImage = resizeImage;
 window.locateByPhoto = locateByPhoto;
 window.uuidv1 = uuidv1;
+
+Alpine.store('mapLayout', { fullscreen: false, minimized: false });
+const mapLayout = () => ({
+    get fullscreen() { return Alpine.store('mapLayout').fullscreen; },
+    set fullscreen(value) { Alpine.store('mapLayout').fullscreen = value; },
+    get minimized() { return Alpine.store('mapLayout').minimized; },
+    set minimized(value) { Alpine.store('mapLayout').minimized = value; },
+    toggleFullscreen() {
+        this.fullscreen = !this.fullscreen;
+        this.minimized = false;
+        this.updateMapSize();
+    },
+    toggleMinimized() {
+        this.minimized = !this.minimized;
+        this.updateMapSize();
+    },
+    updateMapSize() {
+        window.rodnikMap?.setFullscreen(this.fullscreen);
+        this.$nextTick(() => window.rodnikMap?.map.updateSize());
+        window.dispatchEvent(new CustomEvent('map-state-changed'));
+    },
+});
+Alpine.data('mapLayout', mapLayout);
+Alpine.data('mapOwner', () => Object.assign(mapLayout(), {
+    init() {
+        window.initOpenLayers(this.$el.id, Alpine.store('mapLayout'));
+    },
+    destroy() {
+        window.rodnikMap?.dispose();
+        window.rodnikMap = null;
+    },
+}));
 
 // Dynamic HEIC converter that loads the Vite-managed chunk only when needed.
 window.convertHeicToJpeg = function(file) {
@@ -424,8 +469,17 @@ window.rodnikConfig = {
     }
 };
 
-window.initOpenLayers = function(id) {
-    window.rodnikMap = new OpenLayersMap(id);
+window.initOpenLayers = function(id, layout) {
+    const element = document.getElementById('rodnik-shared-map');
+    const sharedMap = element ? JSON.parse(element.textContent) : null;
+    const pageElement = document.querySelector('[data-rodnik-page]');
+    const page = pageElement ? JSON.parse(pageElement.dataset.rodnikPage).page : null;
+    window.rodnikSharedMap = sharedMap;
+    window.rodnikMap = new OpenLayersMap(id, {
+        ...initialMapConfiguration(window.location.href, page, sharedMap),
+        localTrack: sharedMap ? null : readLocalTrackHistory(window, window.rodnikOwnerId),
+        layout: () => layout,
+    });
 }
 
 window.initOpenHelper = function(element, coordinates) {
@@ -441,6 +495,12 @@ window.initOpenDiffer = function(element, oldCoordinates, newCoordinates) {
 }
 
 window.openedPhotoswipe = null;
+const photoSwipes = new Set();
+window.destroyPhotoSwipes = () => {
+    photoSwipes.forEach(lightbox => lightbox.destroy());
+    photoSwipes.clear();
+    window.openedPhotoswipe = null;
+};
 
 window.initPhotoSwipe = function(id) {
     const lightbox = new PhotoSwipeLightbox({
@@ -455,6 +515,7 @@ window.initPhotoSwipe = function(id) {
         errorMsg: trans('photo_load_error', 'The image cannot be loaded'),
     });
     lightbox.init();
+    photoSwipes.add(lightbox);
     lightbox.on('beforeOpen', () => {
           window.openedPhotoswipe = lightbox.pswp
     })
@@ -463,6 +524,7 @@ window.initPhotoSwipe = function(id) {
     })
 }
 
+installNavigation(Livewire);
 Livewire.start()
 
 window.ymCode = 90143259;

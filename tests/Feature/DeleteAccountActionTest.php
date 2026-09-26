@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use App\Actions\DeleteAccountAction;
 use App\Library\Export\ExportLock;
+use App\Models\Map;
 use App\Models\Photo;
 use App\Models\Report;
 use App\Models\Spring;
 use App\Models\SpringRevision;
+use App\Models\Track;
 use App\Models\TrackPolygon;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -158,6 +160,36 @@ test('another authenticated user cannot delete an account', function () {
     $this->assertModelExists($other);
 });
 
+test('account deletion revokes owned maps and tracks while preserving other peoples saved copies', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $unshared = Track::factory()->for($owner)->create();
+    $shared = Track::factory()->for($owner)->create();
+    $unused = Track::factory()->for($owner)->create();
+    $foreign = Track::factory()->for($other)->create();
+    $map = Map::factory()->for($owner)->create(['track_id' => $unshared->id]);
+    $sharedMap = Map::factory()->for($owner)->create(['track_id' => $shared->id]);
+    $copy = Map::factory()->for($other)->create(['track_id' => $shared->id]);
+    $guestCopy = Map::factory()->create(['track_id' => $shared->id]);
+    $this->actingAs($owner);
+
+    app(DeleteAccountAction::class)($owner);
+
+    $this->assertModelMissing($owner);
+    $this->assertModelMissing($map);
+    $this->assertModelMissing($sharedMap);
+    $this->assertModelMissing($unshared);
+    $this->assertModelMissing($unused);
+    $this->assertModelExists($foreign);
+    $this->assertModelMissing($shared);
+    expect($copy->refresh()->track_id)->toBeNull()
+        ->and($guestCopy->refresh()->track_id)->toBeNull();
+    auth()->logout();
+    $this->get('/maps/'.$map->slug)->assertNotFound();
+    $this->get('/maps/'.$sharedMap->slug)->assertNotFound();
+    $this->getJson('/maps/'.$copy->slug)->assertOk()->assertJsonPath('track', null);
+});
+
 test('a guest cannot delete an account', function () {
     $user = User::factory()->create();
 
@@ -176,6 +208,8 @@ test('account deletion validates that the account exists', function () {
 test('account deletion rolls back when stored exports cannot be removed', function () {
     $user = User::factory()->create();
     $report = Report::factory()->for($user)->create();
+    $track = Track::factory()->for($user)->create();
+    $map = Map::factory()->for($user)->create(['track_id' => $track->id]);
     $token = $user->createToken('device');
     $this->actingAs($user);
 
@@ -188,6 +222,8 @@ test('account deletion rolls back when stored exports cannot be removed', functi
 
     $this->assertModelExists($user);
     $this->assertModelExists($token->accessToken);
+    $this->assertModelExists($map);
+    $this->assertModelExists($track);
     expect($report->fresh()->user_id)->toBe($user->id);
 });
 
@@ -209,4 +245,22 @@ test('account deletion does not begin while contribution exports hold the lock',
     $this->assertModelExists($user);
     $this->assertModelExists($token->accessToken);
     expect($report->fresh()->user_id)->toBe($user->id);
+});
+
+test('account deletion removes owned upload tokens and leaves independently uploaded copies available', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $track = Track::factory()->for($owner)->create();
+    $otherTrack = Track::factory()->for($other)->create(['track' => $track->track, 'hash' => $track->hash]);
+    $dependent = Map::factory()->for($other)->create(['track_id' => $track->id]);
+    $independent = Map::factory()->for($other)->create(['track_id' => $otherTrack->id]);
+    $this->actingAs($owner);
+    app(DeleteAccountAction::class)($owner);
+    auth()->logout();
+    $this->getJson('/tracks/'.$track->token)->assertNotFound();
+    $this->getJson('/tracks/'.$otherTrack->token)->assertOk();
+    $this->getJson(route('maps.show', $dependent))->assertOk()->assertJsonMissingPath('track_deleted')->assertJsonPath('track', null);
+    $this->getJson(route('maps.show', $independent))->assertOk()->assertJsonPath('track.token', $otherTrack->token);
+    $this->assertModelMissing($track);
+    $this->assertModelExists($otherTrack);
 });

@@ -14,12 +14,21 @@ final class LocalizedUrl
 {
     public function absolute(Request $request, string $locale, bool $canonical = false): string
     {
-        return url($this->relative($request, $locale, $canonical));
+        return mb_rtrim(url('/'), '/').$this->relative($request, $locale, $canonical);
     }
 
     public function relative(Request $request, string $locale, bool $canonical = false): string
     {
         $this->ensureSupported($locale);
+
+        if ($request->attributes->has('duo.page')) {
+            return app(DuoUrl::class)->relative(
+                $request->attributes->get('duo.page'),
+                $locale,
+                $request->query(),
+                $canonical,
+            );
+        }
 
         $path = '/'.mb_ltrim($request->path(), '/');
         $path = $path === '/' ? $path : mb_rtrim($path, '/');
@@ -44,7 +53,7 @@ final class LocalizedUrl
             return $path;
         }
 
-        return $path.'?'.urldecode(http_build_query($query, '', '&', PHP_QUERY_RFC3986));
+        return $path.'?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986);
     }
 
     public function hasLocalizedEquivalent(Request $request): bool
@@ -71,6 +80,12 @@ final class LocalizedUrl
     {
         if (! $request->isMethodSafe()) {
             return false;
+        }
+
+        if ($request->attributes->has('duo.page')) {
+            return ! $request->attributes->get('duo.page')['location']
+                && ! $request->attributes->get('duo.spring')?->hidden_at
+                && $request->query('redirect') !== 'false';
         }
 
         $route = $request->route();

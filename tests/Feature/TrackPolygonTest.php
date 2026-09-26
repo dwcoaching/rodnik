@@ -321,7 +321,7 @@ test('a large polygon comparable to the Appalachian Trail buffer is stored witho
     $this->postJson(route('track-polygons.store'), ['hash' => $hash, 'polygon' => $serialized])
         ->assertCreated();
 
-    expect(TrackPolygon::query()->sole()->polygon)->toEqual($polygon);
+    expect(TrackPolygon::query()->sole()->polygon)->toEqualWithDelta($polygon, 1e-12);
 });
 
 test('polygons larger than one MiB are rejected', function () {

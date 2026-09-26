@@ -13,7 +13,7 @@
         <!-- Fonts -->
         @livewireStyles
 
-        <x-js-translations />
+        <script defer src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireScriptConfig
         <!-- Scripts -->
@@ -28,7 +28,7 @@
                     <label for="my-drawer" class="btn btn-square btn-ghost shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </label>
-                    <a href="{{ localized_public_path() }}" class="flex shrink-0 items-center">
+                    <a data-rodnik-navigate href="{{ localized_public_path() }}" class="flex shrink-0 items-center">
                       <img src="/rodnik-nunito-logo.svg" alt="Rodnik.today" class="h-6 w-auto" />
                     </a>
                     <x-language-switcher class="ml-auto shrink-0" />
@@ -41,36 +41,36 @@
                 <label for="my-drawer" aria-label="{{ __('ui.common.close') }}" class="drawer-overlay"></label>
                 <div data-theme="light" class="w-80 min-h-full bg-base-200 p-4 text-base-content">
                   <div class="mb-4 flex flex-nowrap items-center justify-between gap-3 px-2">
-                    <a href="{{ localized_public_path() }}" class="flex shrink-0 items-center">
+                    <a data-rodnik-navigate href="{{ localized_public_path() }}" class="flex shrink-0 items-center">
                       <img src="/rodnik-nunito-logo.svg" alt="Rodnik.today" class="h-6 w-auto" />
                     </a>
                     <x-language-switcher class="hidden shrink-0 lg:block" />
                   </div>
                   <ul class="menu w-full p-0">
                   {{--<li><a href="/">🌍&nbsp; Map</a></li>--}}
-                  <li><a href="{{ localized_public_path('/docs/about') }}"
+                  <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/about') }}"
                     @if (Request::is('docs/about', 'ru/docs/about'))
                       class="active"
                     @endif
                   >😀&nbsp; {{ __('ui.common.about') }}</a></li>
-                  <li><a href="{{ route(app()->isLocale('ru') ? 'ru.docs.users' : 'docs.users') }}"
+                  <li><a data-rodnik-navigate href="{{ route(app()->isLocale('ru') ? 'ru.docs.users' : 'docs.users') }}"
                     @if (Request::is('docs/users', 'ru/docs/users'))
                       class="active"
                     @endif
                   >💧&nbsp; {{ __('pages.users.title') }}</a></li>
-                  <li><a href="{{ localized_public_path('/docs/legend') }}"
+                  <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/legend') }}"
                     @if (Request::is('docs/legend', 'ru/docs/legend'))
                       class="active"
                     @endif
                   >🗺️&nbsp; {{ __('ui.home.map_legend.title') }}</a></li>
-                  <li><a href="{{ localized_public_path('/docs/exports') }}"
+                  <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/exports') }}"
                     @if (Request::is('docs/exports', 'ru/docs/exports'))
                       class="active"
                     @endif
                   >🦜&nbsp; {{ __('pages.exports.title') }}</a></li>
                   @auth
                       @if (app()->isLocale('en'))
-                          <li><a href="{{ route('docs.api') }}"
+                          <li><a data-rodnik-navigate href="{{ route('docs.api') }}"
                             @if (Request::is('docs/api'))
                               class="active"
                             @endif
@@ -80,17 +80,17 @@
                   {{--@auth
                     @can('admin')--}}
                   @if (app()->isLocale('en'))
-                      <li><a href="/docs/admin"
+                      <li><a data-rodnik-navigate href="/docs/admin"
                         @if (Request::is('docs/admin'))
                           class="active"
                         @endif
                       >🦸&nbsp; Admin</a></li>
-                      <li><a href="/docs/admin/duplicates"
+                      <li><a data-rodnik-navigate href="/docs/admin/duplicates"
                         @if (Request::is('docs/admin/duplicates'))
                           class="active"
                         @endif
                       >🔎&nbsp; Possible Duplicates</a></li>
-                      <li><a href="/docs/admin/spring-scores"
+                      <li><a data-rodnik-navigate href="/docs/admin/spring-scores"
                         @if (Request::is('docs/admin/spring-scores'))
                           class="active"
                         @endif
@@ -98,7 +98,7 @@
                   @endif
                   {{--  @endcan
                   @endauth--}}
-                  <li><a href="{{ localized_public_path('/docs/contact-us') }}"
+                  <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/contact-us') }}"
                     @if (Request::is('docs/contact-us', 'ru/docs/contact-us'))
                       class="active"
                     @endif
@@ -106,12 +106,12 @@
                   </ul>
                   <ul class="menu mt-4 w-full p-0" aria-labelledby="docs-legal">
                   <li class="menu-title" id="docs-legal">⚖️&nbsp; {{ __('privacy.legal') }}</li>
-                  <li><a href="{{ route(app()->isLocale('ru') ? 'ru.docs.privacy' : 'docs.privacy') }}"
+                  <li><a data-rodnik-navigate href="{{ route(app()->isLocale('ru') ? 'ru.docs.privacy' : 'docs.privacy') }}"
                     @if (Request::is('docs/privacy', 'ru/docs/privacy'))
                       class="active"
                     @endif
                   >🔒&nbsp; {{ __('privacy.title') }}</a></li>
-                  <li><a href="{{ route(app()->isLocale('ru') ? 'ru.docs.delete-account' : 'docs.delete-account') }}"
+                  <li><a data-rodnik-navigate href="{{ route(app()->isLocale('ru') ? 'ru.docs.delete-account' : 'docs.delete-account') }}"
                     @if (Request::is('docs/delete-account', 'ru/docs/delete-account'))
                       class="active"
                     @endif
@@ -121,5 +121,6 @@
               </div>
             </div>
         </div>
+        <x-js-translations />
     </body>
 </html>

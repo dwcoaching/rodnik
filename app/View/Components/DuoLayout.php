@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\View\Components;
 
-use Illuminate\View\View;
 use Illuminate\View\Component;
+use Illuminate\View\View;
 
-class DuoLayout extends Component
+final class DuoLayout extends Component
 {
-    public function __construct()
-    {
-
-    }
+    /** @param array<string, mixed>|null $sharedMap */
+    public function __construct(public ?array $sharedMap = null, public bool $missingMap = false) {}
 
     /**
      * Get the view / contents that represents the component.

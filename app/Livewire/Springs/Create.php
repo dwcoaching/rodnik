@@ -1,30 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Springs;
 
-use App\Models\Report;
-use App\Models\Spring;
-use Livewire\Component;
-use App\Models\SpringTile;
-use App\Rules\LatitudeRule;
-use App\Rules\LongitudeRule;
-use App\Rules\SpringTypeRule;
-use App\Models\SpringRevision;
-use Illuminate\Validation\Rule;
-use App\Models\WateredSpringTile;
-use App\Library\StatisticsService;
-use App\Jobs\SendReportNotification;
-use Illuminate\Support\Facades\Auth;
 use App\Actions\Springs\PatchSpringsAction;
-use App\Jobs\SendSpringRevisionNotification;
+use App\Models\Spring;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Livewire\Component;
 
-class Create extends Component
+final class Create extends Component
 {
     use AuthorizesRequests;
 
     public $springId;
+
     public $name;
+
     public $type;
 
     public $spring;
@@ -57,6 +49,6 @@ class Create extends Component
             'name' => $this->name,
         ]);
 
-        return $this->redirect(duo_route(['spring' => $this->springId]));
+        return $this->redirect(duo_route(['spring' => $this->springId]), navigate: true);
     }
 }

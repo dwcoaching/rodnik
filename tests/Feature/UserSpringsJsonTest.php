@@ -41,5 +41,6 @@ test('user springs json keeps hidden springs and uses visible reports', function
             'score' => null,
             'notFound' => true,
         ])
-        ->and($feature['properties'])->not->toHaveKey('hidden');
+        ->and($feature['properties'])->not->toHaveKey('hidden')
+        ->not->toHaveKey('waterConfirmed');
 });

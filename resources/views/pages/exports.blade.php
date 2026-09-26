@@ -115,7 +115,7 @@ name('docs.exports');
         <div class="mt-3">
             {{ __('pages.exports.personal.description') }}
             @auth
-                <a href="{{ route('profile.show') }}" class="text-blue-600">
+                <a data-rodnik-navigate href="{{ route('profile.show') }}" class="text-blue-600">
                     {{ __('pages.exports.personal.profile_link') }}
                 </a>
             @endauth

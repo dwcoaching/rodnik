@@ -41,14 +41,14 @@
                 {{ __('ui.report.guest.personal_page') }}
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('login') }}" type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.log_in') }}</a>
-                <a href="{{ route('register') }}" type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.register') }}</a>
+                <a href="{{ route('login') }}" data-rodnik-navigate type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.log_in') }}</a>
+                <a href="{{ route('register') }}" data-rodnik-navigate type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.register') }}</a>
             </div>
         </div>
     @endguest
     <div class="flex items-center justify-between">
         <div class="flex-1 min-w-0">
-            <a href="{{ duo_route(['spring' => $spring->id]) }}" class="block text-base font-semibold text-blue-600 hover:text-blue-700"">
+            <a href="{{ duo_route(['spring' => $spring->id]) }}" data-rodnik-navigate class="block text-base font-semibold text-blue-600 hover:text-blue-700">
                 <span class="mr-2 inline-flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="mr-2" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>

@@ -37,7 +37,7 @@ render(fn (View $view): View => $view->with('users', app(UserRanking::class)->pa
                         <tr class="hover:bg-blue-50/50">
                             <td class="px-3 py-4 text-right tabular-nums text-gray-500">{{ $users->firstItem() + $loop->index }}</td>
                             <th scope="row" class="px-3 py-4 text-left font-semibold">
-                                <a href="{{ duo_route(['user' => $user->id]) }}" class="wrap-anywhere text-blue-600 hover:text-blue-800 hover:underline">{{ $user->name }}</a>
+                                <a data-rodnik-navigate href="{{ duo_route(['user' => $user->id]) }}" class="wrap-anywhere text-blue-600 hover:text-blue-800 hover:underline">{{ $user->name }}</a>
                             </th>
                             <td class="px-3 py-4 text-right font-semibold tabular-nums">{{ number_format($user->reports_count) }}</td>
                             <td class="px-3 py-4 text-right tabular-nums">{{ number_format($user->springs_count) }}</td>
@@ -52,7 +52,7 @@ render(fn (View $view): View => $view->with('users', app(UserRanking::class)->pa
         </div>
 
         @if ($users->hasPages())
-            <div class="mt-6">{{ $users->links() }}</div>
+            <div data-rodnik-pagination class="mt-6">{{ $users->links() }}</div>
         @endif
     </div>
 @endsection

@@ -1,25 +1,26 @@
 <?php
 
-use App\Models\User;
-use App\Models\Report;
-use App\Models\Spring;
-use App\Models\SpringTile;
-use App\Models\WateredSpringTile;
-use Livewire\Livewire;
-use App\Livewire\Duo;
-use App\Library\StatisticsService;
+declare(strict_types=1);
+
+use App\Actions\Reports\MoveReportBackToRedirectedSourceAction;
+use App\Actions\Reports\MoveReportToMergeTargetAction;
 use App\Actions\Springs\MergeSpringsAction;
 use App\Actions\Springs\UnmergeSpringsAction;
-use App\Actions\Reports\MoveReportToMergeTargetAction;
-use App\Actions\Reports\MoveReportBackToRedirectedSourceAction;
+use App\Library\StatisticsService;
 use App\Livewire\Duo\Springs\MergeModal;
 use App\Livewire\Duo\Springs\Show as SpringShow;
 use App\Livewire\Reports\Show as ReportShow;
+use App\Models\Report;
+use App\Models\Spring;
+use App\Models\SpringTile;
+use App\Models\User;
+use App\Models\WateredSpringTile;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -139,7 +140,7 @@ test('final redirect target resolution throws on an existing redirect loop', fun
     $second->redirect_to_spring_id = $first->id;
     $second->save();
 
-    expect(fn () => $first->finallyRedirectedTo())->toThrow(\RuntimeException::class);
+    expect(fn () => $first->finallyRedirectedTo())->toThrow(RuntimeException::class);
 });
 
 test('public spring count excludes redirected duplicates', function () {
@@ -168,8 +169,8 @@ test('redirected spring initial page load redirects to final target', function (
     $middle->redirect_to_spring_id = $finalTarget->id;
     $middle->save();
 
-    Livewire::withQueryParams(['page' => ['spring' => $source->id]])
-        ->test(Duo::class)
+    $this->get(duo_route(['spring' => $source->id]))
+        ->assertStatus(301)
         ->assertRedirect(duo_route(['spring' => $finalTarget->id]));
 });
 
@@ -179,12 +180,9 @@ test('redirected spring initial page load skips redirect with redirect false', f
     $source->redirect_to_spring_id = $target->id;
     $source->save();
 
-    Livewire::withQueryParams([
-        'page' => ['spring' => $source->id],
-        'redirect' => 'false',
-    ])
-        ->test(Duo::class)
-        ->assertNoRedirect();
+    $this->get(duo_route(['spring' => $source->id, 'redirect' => 'false']))
+        ->assertSuccessful()
+        ->assertViewHas('page.spring', $source->id);
 });
 
 test('merge redirects back to the source page with redirect bypassed', function () {
@@ -193,13 +191,14 @@ test('merge redirects back to the source page with redirect bypassed', function 
     $source = createMergeableSpring();
     $target = createMergeableSpring(['latitude' => 55.0010]);
 
-    Livewire::test(MergeModal::class)
+    $component = Livewire::test(MergeModal::class)
         ->set('springId', $source->id)
         ->set('targetSpringId', $target->id)
         ->call('merge')
-        ->assertRedirect(duo_route(['spring' => $source->id]) . '&redirect=false');
+        ->assertRedirect(duo_route(['spring' => $source->id, 'redirect' => 'false']));
 
-    expect($source->fresh()->redirect_to_spring_id)->toBe($target->id);
+    expect($component->effects['redirectUsingNavigate'] ?? false)->toBeTrue()
+        ->and($source->fresh()->redirect_to_spring_id)->toBe($target->id);
 });
 
 test('merge requires admin or superadmin', function () {
@@ -284,8 +283,8 @@ test('merge modal candidate list excludes already redirected targets', function 
     Livewire::test(MergeModal::class)
         ->set('springId', $source->id)
         ->set('open', true)
-        ->assertSee('#' . $candidate->id)
-        ->assertDontSee('#' . $redirectedCandidate->id);
+        ->assertSee('#'.$candidate->id)
+        ->assertDontSee('#'.$redirectedCandidate->id);
 });
 
 test('merge modal candidate list excludes hidden targets', function () {
@@ -301,8 +300,8 @@ test('merge modal candidate list excludes hidden targets', function () {
     Livewire::test(MergeModal::class)
         ->set('springId', $source->id)
         ->set('open', true)
-        ->assertSee('#' . $candidate->id)
-        ->assertDontSee('#' . $hiddenCandidate->id);
+        ->assertSee('#'.$candidate->id)
+        ->assertDontSee('#'.$hiddenCandidate->id);
 });
 
 test('merge modal candidate list shows exact haversine distance in meters', function () {
@@ -314,7 +313,7 @@ test('merge modal candidate list shows exact haversine distance in meters', func
     Livewire::test(MergeModal::class)
         ->set('springId', $source->id)
         ->set('open', true)
-        ->assertSee('#' . $candidate->id)
+        ->assertSee('#'.$candidate->id)
         ->assertSee('111 m');
 });
 
@@ -329,8 +328,8 @@ test('merge modal candidate list sorts by exact haversine distance ascending', f
         ->set('springId', $source->id)
         ->set('open', true)
         ->assertSeeInOrder([
-            '#' . $closeCandidate->id,
-            '#' . $farCandidate->id,
+            '#'.$closeCandidate->id,
+            '#'.$farCandidate->id,
         ]);
 });
 
@@ -350,7 +349,7 @@ test('merge candidates and action use exact haversine radius', function () {
     Livewire::test(MergeModal::class)
         ->set('springId', $source->id)
         ->set('open', true)
-        ->assertDontSee('#' . $candidate->id);
+        ->assertDontSee('#'.$candidate->id);
 
     expect(fn () => app(MergeSpringsAction::class)($source, $candidate->id))
         ->toThrow(ValidationException::class);
@@ -372,7 +371,7 @@ test('merge modal candidate prefilter includes high latitude targets within exac
     Livewire::test(MergeModal::class)
         ->set('springId', $source->id)
         ->set('open', true)
-        ->assertSee('#' . $candidate->id);
+        ->assertSee('#'.$candidate->id);
 });
 
 test('unmerge clears only the selected redirect link', function () {
@@ -511,12 +510,12 @@ test('merged spring report menu can move a report and show restore confirmation'
     $report = createSpringReport($source, User::factory()->create());
 
     Livewire::test(ReportShow::class, ['report' => $report])
-        ->assertSee('Move to #' . $target->id . ' (111 m)')
+        ->assertSee('Move to #'.$target->id.' (111 m)')
         ->call('moveToRedirectTarget')
-        ->assertSee('Report moved to #' . $target->id)
+        ->assertSee('Report moved to #'.$target->id)
         ->assertSee('Undo')
         ->call('undoMoveToRedirectTarget')
-        ->assertSee('Move to #' . $target->id);
+        ->assertSee('Move to #'.$target->id);
 
     expect($report->fresh()->spring_id)->toBe($source->id);
 });
@@ -536,10 +535,10 @@ test('merged spring report menu moves a report only to the final redirect target
     $report = createSpringReport($source, User::factory()->create());
 
     Livewire::test(ReportShow::class, ['report' => $report])
-        ->assertSee('Move to #' . $finalTarget->id)
-        ->assertDontSee('Move to #' . $intermediate->id)
+        ->assertSee('Move to #'.$finalTarget->id)
+        ->assertDontSee('Move to #'.$intermediate->id)
         ->call('moveToRedirectTarget')
-        ->assertSee('Report moved to #' . $finalTarget->id);
+        ->assertSee('Report moved to #'.$finalTarget->id);
 
     expect($report->fresh()->spring_id)->toBe($finalTarget->id);
 });

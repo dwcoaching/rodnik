@@ -20,8 +20,9 @@
         @livewireStyles
 
         <!-- Scripts -->
-        <x-js-translations />
+
         {{--<script src="https://unpkg.com/htmx.org@1.9.8" integrity="sha384-rgjA7mptc2ETQqXoYC3/zJvkU7K/aP44Y+z7xQuJiVnB/422P/Ak+F/AqFR7E4Wr" crossorigin="anonymous"></script>--}}
+        <script defer src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireScriptConfig
 
@@ -51,5 +52,6 @@
         <div class="grow h-full">
             @yield('main')
         </div>
+        <x-js-translations />
     </body>
 </html>

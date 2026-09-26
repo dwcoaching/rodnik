@@ -18,5 +18,6 @@ final class TrimStrings extends Middleware
         'password',
         'password_confirmation',
         'polygon',
+        'track',
     ];
 }

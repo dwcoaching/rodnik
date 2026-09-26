@@ -118,3 +118,10 @@ test('opening deletion settings as a guest requires sign in', function () {
     $this->get(route('profile.show'))
         ->assertRedirect(route('login'));
 });
+
+test('privacy pages explain immediate track uploads and revocable map links', function (string $prefix, string $sharing, string $deletion) {
+    $this->get($prefix.'/docs/privacy')->assertSuccessful()->assertSee($sharing)->assertSee($deletion);
+})->with([
+    'English' => ['', 'Opening a GPX file immediately uploads its precise coordinates and included metadata to our server so you can share a link.', 'Your saved maps and uploaded tracks are also deleted'],
+    'Russian' => ['/ru', 'При открытии GPX точные координаты и метаданные трека сразу загружаются на сервер, чтобы вы могли поделиться ссылкой.', 'Ваши сохранённые карты и загруженные треки также удаляются'],
+]);

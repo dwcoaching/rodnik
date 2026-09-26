@@ -1,6 +1,7 @@
 <div class="h-full" x-data="mapReports" @map-viewport-changed.window.debounce.250ms="refresh()"
     @map-filters-changed.window="refresh()" @map-track-changed.window="refresh()"
     @map-track-polygon-state-changed.window="refresh()"
+    @map-track-persistence-changed.window="refresh()"
     @scroll.window="busy && positionLoader()" @resize.window="busy && positionLoader()">
     <div>
         @if ($userId)
@@ -16,7 +17,7 @@
                 <span class="font-normal text-base text-blue-600 hover:text-blue-700">
                     <span class="text-gray-900 mr-1">{{ __('ui.home.tagline') }}</span>
                 
-                <a href="{{ url((app()->getLocale() === config('localization.default') ? '' : '/' . app()->getLocale()) . '/docs/about') }}" class="text-blue-600 font-normal text-base text-blue-600 hover:text-blue-700 whitespace-nowrap">
+                <a href="{{ url((app()->getLocale() === config('localization.default') ? '' : '/' . app()->getLocale()) . '/docs/about') }}" data-rodnik-navigate class="text-blue-600 font-normal text-base text-blue-600 hover:text-blue-700 whitespace-nowrap">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="relative -mt-0.5 inline" viewBox="0 0 16 16">
                         <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
                     </svg>
@@ -46,7 +47,17 @@
     <section :aria-busy="busy || waitingForPolygon">
         @if (! $userId)
             <div class="px-4 mt-4 mb-2">
-                <h2 class="font-semibold">{{ __('ui.home.reports_in_area') }}</h2>
+                <div class="flex items-center gap-3 whitespace-nowrap text-base">
+                    <h2 class="font-semibold">{{ __('ui.home.latest_reports') }}</h2>
+                    <button type="button" role="switch" :aria-checked="inMapArea" @click="toggleScope()"
+                        class="flex min-h-9 shrink-0 cursor-pointer items-center gap-2 rounded text-base font-semibold text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                        <span>{{ __('ui.home.in_map_area') }}</span>
+                        <span aria-hidden="true" class="flex h-5 w-8 shrink-0 items-center rounded-full p-0.5 transition-colors"
+                            :class="inMapArea ? 'bg-blue-600' : 'bg-stone-400'">
+                            <span class="size-4 rounded-full bg-white transition-transform" :class="inMapArea ? 'translate-x-3' : 'translate-x-0'"></span>
+                        </span>
+                    </button>
+                </div>
                 <div x-cloak x-show="! waitingForPolygon && loaderTop !== null && (busy || (! $wire.bounds && ! failed))" role="status"
                     class="pointer-events-none fixed inset-x-0 z-20 flex items-center justify-center overflow-hidden bg-stone-100/80 sm:bottom-0 sm:left-1/2"
                     :style="{ top: loaderTop + 'px' }"
@@ -68,11 +79,11 @@
             md:border-0
             md:gap-4 items-stretch md:items-start" wire:key="reports" :class="{ 'opacity-50': busy || failed || waitingForPolygon }" :inert="busy || failed || waitingForPolygon">
             @foreach ($lastReports as $report)
-                <x-last-reports.teaser :report="$report" :preserve-map-view="! $userId" />
+                <x-last-reports.teaser :report="$report" :user-id="$userId" :preserve-map-view="true" />
             @endforeach
         </ul>
         @if (! $userId && $bounds && $lastReports->isEmpty())
-            <p x-show="! busy && ! failed && ! waitingForPolygon" role="status" class="px-4 py-8 text-sm text-gray-600">{{ __('ui.home.no_reports_in_area') }}</p>
+            <p x-show="! busy && ! failed && ! waitingForPolygon" role="status" class="px-4 py-8 text-sm text-gray-600"><span x-show="inMapArea">{{ __('ui.home.no_reports_in_area') }}</span><span x-show="! inMapArea">{{ __('ui.home.no_reports') }}</span></p>
         @endif
         @if (! $userId && $hasMore)
             <div class="px-4 pb-6">

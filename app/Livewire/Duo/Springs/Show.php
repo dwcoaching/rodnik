@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Duo\Springs;
 
+use App\Actions\Springs\UnmergeSpringsAction;
 use App\Models\Spring;
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Reactive;
-use App\Actions\Springs\UnmergeSpringsAction;
+use Livewire\Component;
 
-class Show extends Component
+final class Show extends Component
 {
     #[Reactive]
     public $springId;
@@ -31,8 +33,8 @@ class Show extends Component
             ->get();
 
         $coordinates = [
-            floatval($spring->longitude),
-            floatval($spring->latitude)
+            (float) ($spring->longitude),
+            (float) ($spring->latitude),
         ];
 
         return view('livewire.duo.springs.show', compact('reports', 'spring', 'coordinates'));
@@ -44,10 +46,10 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->annihilate();
 
-            return $this->redirect(duo_route());
-        } else {
-            abort(403);
+            return $this->redirect(duo_route(), navigate: true);
         }
+        abort(403);
+
     }
 
     public function hide()
@@ -56,10 +58,10 @@ class Show extends Component
             $spring = Spring::find($this->springId);
             $spring->hide();
 
-            return $this->redirect(duo_route());
-        } else {
-            abort(403);
+            return $this->redirect(duo_route(), navigate: true);
         }
+        abort(403);
+
     }
 
     public function invalidateTiles()
@@ -72,7 +74,7 @@ class Show extends Component
 
         $spring->invalidateTiles();
 
-        return $this->redirect(duo_route(['spring' => $this->springId]));
+        return $this->redirect(duo_route(['spring' => $this->springId]), navigate: true);
     }
 
     public function unmerge(UnmergeSpringsAction $action)
@@ -84,6 +86,6 @@ class Show extends Component
         $spring = Spring::findOrFail($this->springId);
         $action($spring);
 
-        return $this->redirect(duo_route(['spring' => $this->springId]));
+        return $this->redirect(duo_route(['spring' => $this->springId]), navigate: true);
     }
 }

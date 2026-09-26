@@ -5,7 +5,7 @@ const defaultFilters = {
     drinking_water: true,
     fountain: true,
     other: true,
-    confirmed: false,
+    with_reports: false,
     along: false,
 };
 
@@ -14,6 +14,7 @@ const normalizeFilters = (filters) => Object.fromEntries(
 );
 
 export default () => ({
+    inMapArea: true,
     busy: false,
     waitingForPolygon: false,
     failed: false,
@@ -21,12 +22,54 @@ export default () => ({
     pendingState: null,
     activeState: null,
     loaderTop: null,
+    mapReady: false,
 
     init() {
-        this.$nextTick(() => {
+        this.$nextTick(async () => {
+            if (window.rodnikMap?.initialSharedState) await window.rodnikMap.ready;
+            if (!this.$el.isConnected) return;
+            this.mapReady = true;
             this.positionLoader();
             return this.refresh();
         });
+    },
+
+    restoreScope() {
+        const url = new URL(window.location.href);
+        const value = url.searchParams.get('w') ?? url.searchParams.get('whole_world');
+        if (value === '0' || value === '1') {
+            this.inMapArea = value !== '1';
+        } else {
+            try {
+                this.inMapArea = window.localStorage.getItem('rodnik.reports.inMapArea') !== '0';
+            } catch { /* Keep the default when storage is unavailable. */ }
+        }
+        this.persistScope();
+    },
+
+    persistScope() {
+        const value = this.inMapArea ? '1' : '0';
+        try {
+            window.localStorage.setItem('rodnik.reports.inMapArea', value);
+        } catch { /* The URL remains usable when storage is unavailable. */ }
+        const url = new URL(window.location.href);
+        url.searchParams.delete('report_area');
+        url.searchParams.delete('whole_world');
+        if (this.inMapArea) {
+            url.searchParams.delete('w');
+        } else {
+            url.searchParams.set('w', '1');
+        }
+        if (url.href !== window.location.href) {
+            window.history.replaceState(window.history.state, '', url);
+            window.rodnikNavigation?.capture?.();
+        }
+    },
+
+    toggleScope() {
+        this.inMapArea = !this.inMapArea;
+        this.persistScope();
+        return this.refresh();
     },
 
     positionLoader() {
@@ -36,11 +79,14 @@ export default () => ({
     },
 
     readMapState() {
+        if (window.rodnikNavigation?.restoring) return null;
+        this.restoreScope();
         const map = window.rodnikMap;
-        const bounds = map?.getViewportBounds();
+        if (map?.initialSharedState && !this.mapReady) return null;
+        const bounds = this.inMapArea ? map?.getViewportBounds() : { west: -180, south: -90, east: 180, north: 90 };
         if (!bounds) return null;
 
-        const filters = normalizeFilters(map.filters);
+        const filters = normalizeFilters(this.inMapArea ? map.filters : defaultFilters);
         const hasPolygon = filters.along && Boolean(map.buffer?.buffer?.geometry);
         const polygonStatus = hasPolygon ? map.buffer.trackPolygon.status : null;
         const state = {
@@ -50,6 +96,8 @@ export default () => ({
             hasPolygon,
             polygonStatus,
             trackPolygonHash: polygonStatus === 'saved' ? map.buffer.trackPolygon.hash : null,
+            trackLoading: filters.along && map.sharedTrack?.status === 'loading',
+            trackFailed: filters.along && map.sharedTrack?.status === 'failed' && Boolean(map.sharedTrack.token),
         };
 
         return { ...state, key: JSON.stringify(state) };
@@ -64,12 +112,13 @@ export default () => ({
     },
 
     needsPolygon(state) {
-        return state.hasPolygon && (state.polygonStatus !== 'saved' || !state.trackPolygonHash);
+        return state.trackLoading || state.trackFailed
+            || (state.hasPolygon && (state.polygonStatus !== 'saved' || !state.trackPolygonHash));
     },
 
     updatePolygonState(state) {
         const needsPolygon = this.needsPolygon(state);
-        this.waitingForPolygon = needsPolygon && state.polygonStatus === 'saving';
+        this.waitingForPolygon = state.trackLoading || (needsPolygon && state.polygonStatus === 'saving');
         this.failed = needsPolygon && !this.waitingForPolygon;
         if (needsPolygon) this.retryMore = false;
     },
@@ -78,7 +127,9 @@ export default () => ({
         if (!this.$el.isConnected || this.$wire.userId) return;
 
         const state = this.readMapState();
-        if (state && this.needsPolygon(state) && state.polygonStatus !== 'saving') {
+        if (state?.trackFailed) {
+            window.rodnikMap.retrySharedTrack();
+        } else if (state && this.needsPolygon(state) && !state.trackLoading && state.polygonStatus !== 'saving') {
             window.rodnikMap.buffer.saveTrackPolygon();
         }
 

@@ -1,28 +1,12 @@
-@props(['report', 'preserveMapView' => false])
+@props(['report', 'preserveMapView' => false, 'userId' => null])
 
 <li wire:key="report-{{ $report->id }}" class="bg-white md:rounded-lg md:shadow-sm overflow-hidden">
     <div class="">
         @if (! $report->hidden_at)
             <div>
                 <div class="px-3 pt-3 flex justify-between">
-                    <a @click.prevent="
-                        window.dispatchEvent(
-                            new CustomEvent('duo-visit',
-                                {
-                                    detail: {
-                                        user: new URLSearchParams(window.location.search).get('page[user]'),
-                                        spring: {{ intval($report->spring->id )}},
-                                        preserveMapView: @js($preserveMapView),
-                                        coordinates: {{ json_encode([
-                                            floatval($report->spring->longitude),
-                                            floatval($report->spring->latitude)
-                                        ]) }},
-                                    }
-                                }
-                            )
-                        )
-                    "
-                    href="{{ duo_route(['spring' => $report->spring->id]) }}" class="group cursor-pointer mr-2">
+                    <a data-rodnik-navigate @if($preserveMapView) data-rodnik-preserve-map @endif
+                    href="{{ duo_route(['spring' => $report->spring->id, 'user' => $userId]) }}" class="group cursor-pointer mr-2">
                         <div
                             class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ $report->spring->name ?: ($report->spring->type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($report->spring->type)) : __('ui.spring.no_name')) }}</div>
                     </a>
@@ -38,19 +22,7 @@
                                 <div class="flex">
                                     @if ($report->user_id)
                                         <a class="block flex flex-wrap text-sm hover:underline text-blue-600 cursor-pointer hover:text-blue-700"
-                                            @click.prevent="
-                                                window.dispatchEvent(
-                                                    new CustomEvent('duo-visit',
-                                                        {
-                                                            detail: {
-                                                                'spring': null,
-                                                                'user': {{ intval($report->user_id )}},
-                                                                'location': null,
-                                                            }
-                                                        }
-                                                    )
-                                                )
-                                            "
+                                            data-rodnik-navigate
                                             href="{{ duo_route(['user' => $report->user_id]) }}">
                                             <div class="mr-1">{{ $report->user->name }}</div>
                                             <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>

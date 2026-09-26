@@ -3,6 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        @livewireStyles
+        <script defer src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"></script>
+        @vite(['resources/js/app.js'])
+        @livewireScriptConfig
         <title>{{ __('ui.moscow_stats.title') }}</title>
         <style>
             table { border-collapse: collapse; }
@@ -61,7 +66,7 @@
                         }}
                     </th>
                     <th class="value">
-                        @if ($discoveredness->get('visited', 0) + $discoveredness->get('unknown', 0) > 0 )
+                        @if ($stats->sum(fn ($group) => $group->sum()) > 0)
                             {{
                                 number_format(
                                     round(
@@ -84,5 +89,6 @@
                 </tr>
             </table>
         @endforeach
+        <x-js-translations />
     </body>
 </html>

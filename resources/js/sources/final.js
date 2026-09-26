@@ -1,8 +1,8 @@
-import { Vector as VectorSource } from 'ol/source';
-import GeoJSON from 'ol/format/GeoJSON';
-import { tile } from 'ol/loadingstrategy';
-import { createXYZ } from 'ol/tilegrid';
-import { toLonLat } from 'ol/proj';
+import { Vector as VectorSource } from 'ol/source.js';
+import GeoJSON from 'ol/format/GeoJSON.js';
+import { tile } from 'ol/loadingstrategy.js';
+import { createXYZ } from 'ol/tilegrid.js';
+import { toLonLat } from 'ol/proj.js';
 import SphericalMercator from '@mapbox/sphericalmercator';
 
 let merc = new SphericalMercator({
@@ -12,7 +12,7 @@ let merc = new SphericalMercator({
 let zoom = 8;
 
 export default class SpringsFinalSource extends VectorSource {
-    constructor() {
+    constructor(onFeaturesLoadEnd = () => {}) {
         super({
             format: new GeoJSON(),
             strategy: tile(createXYZ({
@@ -28,8 +28,6 @@ export default class SpringsFinalSource extends VectorSource {
             }
         });
 
-        this.on('featuresloadend', (event) => {
-            window.rodnikMap.featuresLoadEnd();
-        });
+        this.on('featuresloadend', onFeaturesLoadEnd);
     }
 }

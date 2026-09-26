@@ -21,19 +21,7 @@
                                 <div class="flex">
                                     @if ($report->user_id)
                                         <a class="block flex flex-wrap text-sm text-blue-600 cursor-pointer hover:text-blue-700"
-                                            @click.prevent="
-                                                window.dispatchEvent(
-                                                    new CustomEvent('duo-visit',
-                                                        {
-                                                            detail: {
-                                                                'spring': null,
-                                                                'user': {{ intval($report->user_id )}},
-                                                                'location': null,
-                                                            }
-                                                        }
-                                                    )
-                                                )
-                                            "
+                                            data-rodnik-navigate
                                             href="{{ duo_route(['user' => $report->user_id]) }}">
                                             <div class="mr-1">{{ $report->user->name }}</div>
                                             <div class="-mt-0.5 text-xs font-semibold text-gray-600">{{ $report->user->rating }}</div>
@@ -85,6 +73,7 @@
                                             && Auth::check()
                                             && $report->user_id == Auth::user()->id)
                                             <a href="{{ localized_route('reports.edit', ['report' => $report]) }}"
+                                                data-rodnik-navigate
                                                 x-menu:item
                                                 :class="{
                                                     'bg-stone-200 text-gray-900': $menuItem.isActive,

@@ -4,25 +4,9 @@
     <div class="flex items-center flex-wrap">
         <!-- Logo -->
         <div class="shrink-0 flex items-center">
-            @if ($map)
-                <span x-data
-                    @click.prevent="
-                        window.dispatchEvent(
-                            new CustomEvent('duo-visit',
-                                {
-                                    detail: {}
-                                }
-                            )
-                        )"
-                    class="flex mr-2 sm:mr-4 cursor-pointer">
-                    <img src="/rodnik-nunito-logo.svg" class="h-6" />
-                </span>
-            @else
-                <a href="{{ localized_public_path() }}"
-                    class="flex mr-2 sm:mr-4 cursor-pointer">
-                    <img src="/rodnik-nunito-logo.svg" class="h-6" />
-                </a>
-            @endif
+            <a href="{{ localized_public_path() }}" data-rodnik-navigate class="flex mr-2 sm:mr-4 cursor-pointer">
+                <img src="/rodnik-nunito-logo.svg" class="h-6" alt="Rodnik.today" />
+            </a>
         </div>
     </div>
 
@@ -30,8 +14,8 @@
         <x-language-switcher />
         @guest
             <div class="flex items-center gap-3 sm:gap-4">
-                <a href="{{ route('login') }}" class="block text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" class="block text-sm text-gray-500">{{ __('Register') }}</a>
+                <a href="{{ route('login') }}" data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Login') }}</a>
+                <a href="{{ route('register') }}" data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth
@@ -52,19 +36,8 @@
                             focus:outline-hidden
                             ">
                             <a x-menu:item href="{{ duo_route(['location' => 1]) }}"
-                                @click.prevent="
-                                    window.dispatchEvent(
-                                        new CustomEvent('duo-visit',
-                                            {
-                                                detail: {
-                                                    location: 1
-                                                }
-                                            }
-                                        )
-                                    )
-
-                                    navbarDropdownMenuOpen = false
-                                    "
+                                @click="navbarDropdownMenuOpen = false"
+                                data-rodnik-navigate
                                 :class="{
                                     'bg-stone-200 text-gray-900': $menuItem.isActive,
                                     'text-gray-600': ! $menuItem.isActive,
@@ -74,17 +47,8 @@
                                 {{ __('ui.spring.new_water_source') }}
                             </a>
                             <a x-menu:item href="{{ duo_route(['user' => Auth::user()->id]) }}"
-                                @click.prevent="
-                                    window.dispatchEvent(
-                                        new CustomEvent('duo-visit',
-                                            {
-                                                detail: {
-                                                    user: {{ intval(Auth::user()->id) }},
-                                                }
-                                            }
-                                        )
-                                    )
-                                    navbarDropdownMenuOpen = false"
+                                @click="navbarDropdownMenuOpen = false"
+                                data-rodnik-navigate
                                 :class="{
                                     'bg-stone-200 text-gray-900': $menuItem.isActive,
                                     'text-gray-600': ! $menuItem.isActive,
@@ -94,10 +58,20 @@
                                     <span class="mr-1">{{ __('ui.nav.my_water_sources') }}</span>
                                     <span class="ml-0 text-xs font-medium px-1 py-0 rounded-full bg-[#FFD300]/25 border border-[#ff6633]">{{ number_format(Auth::user()->rating, 0, ',', ' ') }}</span>
                             </a>
+                            <a x-menu:item href="{{ localized_route('maps.index') }}"
+                                data-rodnik-navigate
+                                :class="{
+                                    'bg-stone-200 text-gray-900': $menuItem.isActive,
+                                    'text-gray-600': ! $menuItem.isActive,
+                                }"
+                                class="rounded-md block w-full px-4 py-2 text-sm font-medium transition-colors">
+                                {{ __('ui.maps.my_maps_and_tracks') }}
+                            </a>
                             <div class="border-t border-stone-300 h-0 -mx-1 px-5 mt-1 mb-1 text-sm text-gray-400 font-bold">
                                 {{--Account Management--}}
                             </div>
                             <a x-menu:item href="{{ route('profile.show') }}"
+                                data-rodnik-navigate
                                 :class="{
                                     'bg-stone-200 text-gray-900': $menuItem.isActive,
                                     'text-gray-600': ! $menuItem.isActive,

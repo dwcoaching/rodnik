@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Spring;
+use Dom\HTMLDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -45,6 +46,10 @@ test('moscow stats filters springs by geojson polygon without geos', function ()
     $response = $this->get('/moscow-stats?area=mkad');
 
     $response->assertOk();
-    $response->assertSee('Water tap');
-    $response->assertDontSee('Fountain');
+
+    $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
+    $table = $document->querySelector('table');
+
+    expect($table)->not->toBeNull();
+    expect($table->textContent)->toContain('Water tap')->not->toContain('Fountain');
 });

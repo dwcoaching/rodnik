@@ -9,6 +9,7 @@ use Filament\Panel;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Jetstream\HasProfilePhoto;
@@ -77,6 +78,12 @@ final class User extends Authenticatable implements FilamentUser, HasLocalePrefe
     public function reports()
     {
         return $this->hasMany(Report::class);
+    }
+
+    /** @return HasMany<Map, $this> */
+    public function maps(): HasMany
+    {
+        return $this->hasMany(Map::class);
     }
 
     public function springRevisions()

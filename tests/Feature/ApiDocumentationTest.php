@@ -43,5 +43,6 @@ test('any authenticated user can see the api documentation and its menu item', f
         ->assertSee('do not retry it blindly')
         ->assertSee('Retry-After')
         ->assertSee('API client best practices')
+        ->assertDontSee('water_confirmed')
         ->assertSee('noindex, nofollow', false);
 });

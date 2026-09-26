@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Livewire\Duo\Reports;
 
-use App\Enums\ReportQuality;
 use App\Library\StatisticsService;
 use App\Library\TrackPolygonArea;
 use App\Models\Report;
@@ -21,6 +20,10 @@ use Livewire\Component;
 
 final class Index extends Component
 {
+    private const MAP_PAGE_SIZE = 24;
+
+    private const MAX_MAP_REPORTS = 1200;
+
     private const SOURCE_TYPES = [
         'spring' => 'Spring',
         'water_well' => 'Water well',
@@ -40,7 +43,7 @@ final class Index extends Component
     #[Locked]
     public ?array $bounds = null;
 
-    /** @var array{spring: bool, water_well: bool, water_tap: bool, drinking_water: bool, fountain: bool, other: bool, confirmed: bool, along: bool} */
+    /** @var array{spring: bool, water_well: bool, water_tap: bool, drinking_water: bool, fountain: bool, other: bool, with_reports: bool, along: bool} */
     #[Locked]
     public array $filters = [
         'spring' => true,
@@ -49,7 +52,7 @@ final class Index extends Component
         'drinking_water' => true,
         'fountain' => true,
         'other' => true,
-        'confirmed' => false,
+        'with_reports' => false,
         'along' => false,
     ];
 
@@ -76,11 +79,11 @@ final class Index extends Component
             'bounds.east' => ['required', 'numeric', 'between:-180,180'],
             'bounds.south' => ['required', 'numeric', 'between:-90,90'],
             'bounds.north' => ['required', 'numeric', 'between:-90,90', 'gte:bounds.south'],
-            'filters' => ['required', 'array:'.implode(',', [...array_keys(self::SOURCE_TYPES), 'confirmed', 'along'])],
+            'filters' => ['required', 'array:'.implode(',', [...array_keys(self::SOURCE_TYPES), 'with_reports', 'along'])],
             'trackPolygonHash' => ['nullable', 'string', 'regex:/\A[a-f0-9]{64}\z/'],
         ];
 
-        foreach ([...array_keys(self::SOURCE_TYPES), 'confirmed', 'along'] as $key) {
+        foreach ([...array_keys(self::SOURCE_TYPES), 'with_reports', 'along'] as $key) {
             $rules['filters.'.$key] = ['required', 'boolean:strict'];
         }
 
@@ -99,14 +102,26 @@ final class Index extends Component
             $this->bounds = $bounds;
             $this->filters = $filters;
             $this->trackPolygonHash = $trackPolygonHash;
-            $this->limit = $this->userId ? 12 : 24;
+            $this->limit = $this->userId ? 12 : self::MAP_PAGE_SIZE;
         }
+    }
+
+    public function restoreNavigationState(array $bounds, array $filters, ?string $trackPolygonHash, mixed $limit): void
+    {
+        $validated = Validator::make(['limit' => $limit], [
+            'limit' => $this->userId
+                ? ['required', 'integer:strict', 'in:12']
+                : ['required', 'integer:strict', 'between:'.self::MAP_PAGE_SIZE.','.self::MAX_MAP_REPORTS, 'multiple_of:'.self::MAP_PAGE_SIZE],
+        ])->validate();
+
+        $this->updateMap($bounds, $filters, $trackPolygonHash);
+        $this->limit = $validated['limit'];
     }
 
     public function showMore(): void
     {
         if ($this->bounds && ! $this->userId) {
-            $this->limit += 24;
+            $this->limit = min($this->limit + self::MAP_PAGE_SIZE, self::MAX_MAP_REPORTS);
         }
     }
 
@@ -134,7 +149,7 @@ final class Index extends Component
         } else {
             $lastReports = $this->mapReports();
 
-            $hasMore = $lastReports->count() > $this->limit;
+            $hasMore = $lastReports->count() > $this->limit && $this->limit < self::MAX_MAP_REPORTS;
             $lastReports = $lastReports->take($this->limit);
 
             $springsCount = StatisticsService::getSpringsCount();
@@ -175,12 +190,6 @@ final class Index extends Component
 
         if ($disabledTypes !== []) {
             $query->where(fn (Builder $query) => $query->whereNull('springs.type')->orWhereNotIn('springs.type', $disabledTypes));
-        }
-
-        if ($this->filters['confirmed']) {
-            $query->whereIn('reports.spring_id', Report::query()->visible()
-                ->select('spring_id')->groupBy('spring_id')
-                ->havingRaw('SUM(CASE WHEN quality = ? THEN 1 WHEN quality IS NOT NULL THEN -1 ELSE 0 END) > 0', [ReportQuality::Good->value]));
         }
 
         $query->latest('reports.created_at')->latest('reports.id');

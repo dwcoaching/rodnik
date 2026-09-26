@@ -303,6 +303,7 @@ test('polygon lookup and upload run while an earlier Livewire report request rem
         },
     };
     globals(t, { window: {
+        location: { href: 'https://rodnik.test/' },
         rodnikMap: {
             filters: { along: false },
             getViewportBounds: () => ({ west: 0, south: 0, east: 10, north: 10 }),

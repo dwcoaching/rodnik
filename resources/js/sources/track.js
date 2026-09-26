@@ -9,15 +9,19 @@ export default class TrackSource extends VectorSource {
         })
     }
 
-    setFromGPXString(string) {
+    setFromGPXString(string, { name = null } = {}) {
         const features = this.createFeatures(string)
 
         if (features.length) {
             this.clear()
             this.addFeatures(features)
+            window.rodnikMap.trackLayer.isUploaded.value = true;
+            window.rodnikMap.trackChanged?.(name);
             window.rodnikMap.buffer.setTrack(features)
+            return true;
         } else {
             alert(trans('please_upload_gpx', 'Please upload a GPX file'))
+            return false;
         }
     }
 

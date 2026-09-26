@@ -19,7 +19,7 @@
                     <div>
                         <b>{{ __('ui.spring.duplicate_title') }}</b>
                         {!! __('ui.spring.duplicate_description', [
-                            'target' => '<a href="' . e(duo_route(['spring' => $spring->redirect_to_spring_id])) . '" class="underline font-semibold">#' . $spring->redirect_to_spring_id . '</a>',
+                            'target' => '<a href="' . e(duo_route(['spring' => $spring->redirect_to_spring_id])) . '" data-rodnik-navigate class="underline font-semibold">#' . $spring->redirect_to_spring_id . '</a>',
                             'parameter' => '<code>?redirect=false</code>',
                         ]) !!}
                     </div>
@@ -60,23 +60,7 @@
                                                 focus:outline-hidden
                                                 ">
                                                 <a x-menu:item href="{{ duo_route(['spring' => $spring->id, 'location' => 1]) }}"
-                                                    @click.prevent="
-                                                        window.dispatchEvent(
-                                                            new CustomEvent('duo-visit',
-                                                                {
-                                                                    detail: {
-                                                                        spring: {{ intval($spring->id) }},
-                                                                        location: 1,
-                                                                        coordinates: {{ json_encode([
-                                                                            floatval($spring->longitude),
-                                                                            floatval($spring->latitude)
-                                                                        ]) }},
-                                                                    }
-                                                                }
-                                                            )
-                                                        )
-                                                        springDropdownOpen = false
-                                                        "
+                                                    data-rodnik-navigate
                                                     :class="{
                                                         'bg-stone-200 text-gray-900': $menuItem.isActive,
                                                         'text-gray-600': ! $menuItem.isActive,
@@ -90,6 +74,7 @@
                                                     {{ __('ui.spring.update_location') }}
                                                 </a>
                                                 <a x-menu:item href="{{ localized_route('springs.edit', ['spring' => $spring]) }}"
+                                                    data-rodnik-navigate
                                                     :class="{
                                                         'bg-stone-200 text-gray-900': $menuItem.isActive,
                                                         'text-gray-600': ! $menuItem.isActive,
@@ -102,6 +87,7 @@
                                                     {{ __('ui.spring.edit_name_and_type') }}
                                                 </a>
                                                 <a x-menu:item href="{{ localized_route('springs.history', ['spring' => $spring]) }}"
+                                                    data-rodnik-navigate
                                                     :class="{
                                                         'bg-stone-200 text-gray-900': $menuItem.isActive,
                                                         'text-gray-600': ! $menuItem.isActive,
@@ -368,7 +354,7 @@
                             {{ __('ui.report.no_reports_yet') }}
                         @endif
                         </div>
-                    <a type="button" href="{{ localized_route('reports.create', ['spring_id' => $spring]) }}" class="btn btn-primary">
+                    <a type="button" href="{{ localized_route('reports.create', ['spring_id' => $spring]) }}" data-rodnik-navigate class="btn btn-primary">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                         </svg>

@@ -20,7 +20,7 @@
         @livewireStyles
 
         <!-- Scripts -->
-        <x-js-translations />
+
         <script defer src="/js/@alpinejs/ui@3.14.1-beta.0.dist.cdn.min.js"></script>
         <script defer src="/js/@alpinejs/focus@3.14.1.dist.cdn.min.js"></script>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -64,5 +64,6 @@
         <div class="grow h-full flex flex-col">
             {{ $slot }}
         </div>
+        <x-js-translations />
     </body>
 </html>

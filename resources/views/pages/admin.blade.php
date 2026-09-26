@@ -72,7 +72,7 @@ name('docs.admin');
                 reports or local edits, in which case they are kept and listed below
                 ({{ $deletedFromOsm->count() }} total):
                 @foreach ($deletedFromOsm as $id)
-                    <a href="{{ route('springs.show', $id) }}" class="text-blue-600 no-underline hover:underline text-sm">{{ $id }}</a>
+                    <a data-rodnik-navigate href="{{ route('springs.show', $id) }}" class="text-blue-600 no-underline hover:underline text-sm">{{ $id }}</a>
                 @endforeach
             </p>
         </div>

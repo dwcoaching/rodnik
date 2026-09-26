@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Springs;
 
+use App\Jobs\SendSpringRevisionNotification;
+use App\Library\StatisticsService;
 use App\Models\Spring;
+use App\Models\SpringRevision;
+use App\Models\SpringTile;
+use App\Models\WateredSpringTile;
 use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
-use App\Rules\SpringTypeRule;
-use App\Models\SpringRevision;
-use App\Library\StatisticsService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
-use App\Jobs\SendSpringRevisionNotification;
 
-class PatchSpringsLocationAction
+final class PatchSpringsLocationAction
 {
     public function __invoke(Spring $spring, $attributes)
     {
@@ -24,17 +27,19 @@ class PatchSpringsLocationAction
 
     public function execute(Spring $spring, $attributes)
     {
+        $oldLongitude = $spring->longitude;
+        $oldLatitude = $spring->latitude;
         $springChangeCount = 0;
         $revision = new SpringRevision();
 
-        if ($spring->latitude != $attributes['latitude']) {
+        if ((float) $spring->latitude !== (float) $attributes['latitude']) {
             $revision->old_latitude = $spring->latitude;
             $revision->new_latitude = $attributes['latitude'];
             $spring->latitude = $attributes['latitude'];
             $springChangeCount++;
         }
 
-        if ($spring->longitude != $attributes['longitude']) {
+        if ((float) $spring->longitude !== (float) $attributes['longitude']) {
             $revision->old_longitude = $spring->longitude;
             $revision->new_longitude = $attributes['longitude'];
             $spring->longitude = $attributes['longitude'];
@@ -53,6 +58,8 @@ class PatchSpringsLocationAction
                 Auth::user()->updateRating();
             }
 
+            SpringTile::invalidate($oldLongitude, $oldLatitude);
+            WateredSpringTile::invalidate($oldLongitude, $oldLatitude);
             $spring->invalidateTiles();
             StatisticsService::invalidateSpringsCount();
 

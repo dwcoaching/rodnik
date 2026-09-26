@@ -22,7 +22,7 @@ beforeEach(function () {
         'drinking_water' => true,
         'fountain' => true,
         'other' => true,
-        'confirmed' => false,
+        'with_reports' => false,
         'along' => false,
     ];
     $this->polygonAttributes = [
@@ -74,36 +74,31 @@ test('disabled source types preserve the map behavior for unknown and missing ty
         ->assertViewHas('lastReports', fn ($visible) => $visible->modelKeys() === $expectedIds);
 });
 
-test('confirmed water filters sources using their visible quality votes and retains their older negative reports', function () {
-    $confirmed = Spring::factory()->create(['longitude' => 15, 'latitude' => 45]);
-    $expected = Report::factory()->for($confirmed)->sequence(
-        ['quality' => ReportQuality::Good],
-        ['quality' => ReportQuality::Good],
-        ['quality' => ReportQuality::Bad],
-        ['quality' => null],
-    )->count(4)->create();
-    Report::factory()->count(3)->for($confirmed)->create(['quality' => ReportQuality::Bad, 'hidden_at' => now()]);
-    Report::factory()->count(3)->for($confirmed)->create(['quality' => ReportQuality::Bad, 'from_osm' => true]);
-
-    $tied = Spring::factory()->create(['longitude' => 15, 'latitude' => 45]);
-    Report::factory()->for($tied)->sequence(
-        ['quality' => ReportQuality::Good],
-        ['quality' => ReportQuality::Uncertain],
-    )->count(2)->create();
-    Report::factory()->count(3)->for($tied)->create(['quality' => ReportQuality::Good, 'hidden_at' => now()]);
-    Report::factory()->count(3)->for($tied)->create(['quality' => ReportQuality::Good, 'from_osm' => true]);
+test('only with reports retains every visible report regardless of water quality', function () {
+    $expected = collect([ReportQuality::Good, ReportQuality::Uncertain, ReportQuality::Bad, null])
+        ->map(fn (?ReportQuality $quality): Report => Report::factory()->for(Spring::factory()->state([
+            'longitude' => 15, 'latitude' => 45,
+        ]))->create(['quality' => $quality, 'state' => null]));
+    $spring = $expected->first()->spring;
+    $expected->push(Report::factory()->for($spring)->create(['quality' => ReportQuality::Bad]));
+    Report::factory()->for($spring)->create(['quality' => ReportQuality::Good, 'hidden_at' => now()]);
+    Report::factory()->for($spring)->create(['quality' => ReportQuality::Good, 'from_osm' => true]);
     Report::factory()->for(Spring::factory()->state([
         'longitude' => 15, 'latitude' => 45,
-    ]))->create(['quality' => null]);
-
-    expect($confirmed->waterConfirmed())->toBeTrue()
-        ->and($tied->waterConfirmed())->toBeFalse();
+    ]))->create(['hidden_at' => now()]);
+    Report::factory()->for(Spring::factory()->state([
+        'longitude' => 15, 'latitude' => 45,
+    ]))->create(['from_osm' => true]);
+    Spring::factory()->create(['longitude' => 15, 'latitude' => 45]);
+    $expectedIds = $expected->pluck('id')->reverse()->values()->all();
 
     Livewire::test(Index::class)
-        ->call('updateMap', $this->bounds, [...$this->mapFilters, 'confirmed' => true])
+        ->call('updateMap', $this->bounds, [...$this->mapFilters, 'with_reports' => true])
         ->assertHasNoErrors()
-        ->assertViewHas('lastReports', fn ($visible) => $visible->modelKeys() === $expected->pluck('id')->reverse()->values()->all())
-        ->assertViewHas('hasMore', false);
+        ->assertViewHas('lastReports', fn ($visible) => $visible->modelKeys() === $expectedIds)
+        ->assertViewHas('hasMore', false)
+        ->call('updateMap', $this->bounds, $this->mapFilters)
+        ->assertViewHas('lastReports', fn ($visible) => $visible->modelKeys() === $expectedIds);
 });
 
 test('along tracks checks the saved geometry including holes and boundaries', function (array $geometry, array $inside, array $outside) {
@@ -145,7 +140,7 @@ test('along tracks checks the saved geometry including holes and boundaries', fu
     ],
 ]);
 
-test('source type confirmed water and track filters combine before pagination', function () {
+test('source type only with reports and track filters combine before pagination', function () {
     $polygon = TrackPolygon::factory()->create($this->polygonAttributes);
     $user = User::factory()->create();
     $matching = Report::factory()->count(25)->for($user)->for(Spring::factory()->state([
@@ -157,10 +152,10 @@ test('source type confirmed water and track filters combine before pagination', 
     Report::factory()->for($user)->for(Spring::factory()->state([
         'type' => 'Water well', 'longitude' => 12, 'latitude' => 48,
     ]))->create(['quality' => ReportQuality::Good, 'created_at' => now()]);
-    Report::factory()->for($user)->for(Spring::factory()->state([
+    $matching->push(Report::factory()->for($user)->for(Spring::factory()->state([
         'type' => 'Spring', 'longitude' => 12, 'latitude' => 48,
-    ]))->create(['quality' => ReportQuality::Bad, 'created_at' => now()]);
-    $filters = [...$this->mapFilters, 'water_well' => false, 'confirmed' => true, 'along' => true];
+    ]))->create(['quality' => ReportQuality::Bad, 'created_at' => now()]));
+    $filters = [...$this->mapFilters, 'water_well' => false, 'with_reports' => true, 'along' => true];
     $expectedIds = $matching->pluck('id')->reverse()->values()->all();
 
     Livewire::test(Index::class)
@@ -203,6 +198,75 @@ test('changing the track resets pagination with unchanged map bounds and filters
         ->assertViewHas('lastReports', fn ($visible) => $visible->modelKeys() === [$secondReport->id]);
 });
 
+test('restoring navigation restores the filtered report page and pagination together', function () {
+    $polygon = TrackPolygon::factory()->create($this->polygonAttributes);
+    $filters = [...$this->mapFilters, 'along' => true, 'water_well' => false];
+    $reports = Report::factory()->count(49)->for(User::factory())->for(Spring::factory()->state([
+        'type' => 'Spring', 'longitude' => 12, 'latitude' => 48,
+    ]))->create(['created_at' => now()]);
+    Report::factory()->for(Spring::factory()->state([
+        'type' => 'Water well', 'longitude' => 12, 'latitude' => 48,
+    ]))->create(['created_at' => now()->addMinute()]);
+    $expectedIds = $reports->pluck('id')->reverse()->take(48)->values()->all();
+
+    Livewire::test(Index::class)
+        ->call('restoreNavigationState', $this->bounds, $filters, $polygon->hash, 48)
+        ->assertHasNoErrors()
+        ->assertSet('bounds', $this->bounds)
+        ->assertSet('filters', $filters)
+        ->assertSet('trackPolygonHash', $polygon->hash)
+        ->assertSet('limit', 48)
+        ->assertViewHas('lastReports', fn ($visible) => $visible->modelKeys() === $expectedIds)
+        ->assertViewHas('hasMore', true)
+        ->call('updateMap', $this->bounds, $filters, $polygon->hash)
+        ->assertSet('limit', 48);
+});
+
+test('invalid restored limits preserve the previous map state atomically', function (mixed $limit) {
+    $changedBounds = [...$this->bounds, 'west' => 11];
+    $changedFilters = [...$this->mapFilters, 'spring' => false];
+
+    Livewire::test(Index::class)
+        ->call('updateMap', $this->bounds, $this->mapFilters)
+        ->call('showMore')
+        ->call('restoreNavigationState', $changedBounds, $changedFilters, null, $limit)
+        ->assertHasErrors(['limit'])
+        ->assertSet('bounds', $this->bounds)
+        ->assertSet('filters', $this->mapFilters)
+        ->assertSet('trackPolygonHash', null)
+        ->assertSet('limit', 48);
+})->with([
+    'missing' => [null],
+    'zero' => [0],
+    'negative' => [-24],
+    'below first page' => [12],
+    'partial page' => [25],
+    'above maximum' => [1224],
+    'fractional' => [24.5],
+    'numeric string' => ['48'],
+    'nonnumeric' => ['invalid'],
+    'boolean' => [true],
+    'array' => [[48]],
+]);
+
+test('invalid map state does not change a restored pagination limit', function () {
+    Livewire::test(Index::class)
+        ->call('updateMap', $this->bounds, $this->mapFilters)
+        ->call('showMore')
+        ->call('restoreNavigationState', [...$this->bounds, 'north' => 91], $this->mapFilters, null, 72)
+        ->assertHasErrors(['bounds.north'])
+        ->assertSet('bounds', $this->bounds)
+        ->assertSet('limit', 48);
+});
+
+test('restored report pagination remains bounded when loading another page', function () {
+    Livewire::test(Index::class)
+        ->call('restoreNavigationState', $this->bounds, $this->mapFilters, null, 1200)
+        ->assertHasNoErrors()
+        ->call('showMore')
+        ->assertSet('limit', 1200);
+});
+
 test('along tracks waits for a polygon instead of displaying unrestricted reports', function () {
     $report = Report::factory()->for(Spring::factory()->state(['longitude' => 12, 'latitude' => 48]))->create();
     $polygon = TrackPolygon::factory()->create($this->polygonAttributes);
@@ -237,7 +301,7 @@ test('invalid map updates preserve bounds filters track and pagination atomicall
     $polygon = TrackPolygon::factory()->create($this->polygonAttributes);
     $filters = [...$this->mapFilters, 'along' => true];
     $newBounds = ['west' => 11, 'south' => 41, 'east' => 19, 'north' => 49];
-    $newFilters = [...$filters, 'confirmed' => true];
+    $newFilters = [...$filters, 'with_reports' => true];
     $newHash = $polygon->hash;
 
     match ($invalidPart) {
@@ -275,12 +339,12 @@ test('invalid stored geometry cannot enable an unrestricted track report feed', 
         ->assertViewHas('lastReports', fn ($visible) => $visible->isEmpty());
 });
 
-test('user report feeds remain independent of map type confirmed and track filters', function () {
+test('user report feeds remain independent of map type report and track filters', function () {
     $user = User::factory()->create();
     $report = Report::factory()->for($user)->for(Spring::factory()->state([
         'type' => 'Spring', 'longitude' => 100, 'latitude' => 0,
     ]))->create(['quality' => ReportQuality::Bad]);
-    $filters = [...array_fill_keys(array_keys($this->mapFilters), false), 'confirmed' => true, 'along' => true];
+    $filters = [...array_fill_keys(array_keys($this->mapFilters), false), 'with_reports' => true, 'along' => true];
 
     Livewire::test(Index::class, ['userId' => $user->id])
         ->call('updateMap', $this->bounds, $filters)

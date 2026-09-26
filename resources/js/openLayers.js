@@ -46,11 +46,23 @@ import SpringsFinalSource from '@/sources/final.js';
 import SpringsUserSource from '@/sources/user.js';
 import trans from '@/i18n';
 import localizedControls from '@/localizedControls';
+import Tracks from './tracks.js';
+import { captureTrackNavigationState, trackGeoJson } from './trackNavigationState.js';
+import { afterMapUiReady, normalizeSharedMapState, sharedMapFilters, sharedMapPage, sharedMapSources } from './sharedMapState.js';
 
 export default class OpenLayersMap {
 
-    constructor(elementId) {
+    constructor(elementId, config = {}) {
         this.debug = false
+        this.disposed = false;
+        this.navigationRestoreGeneration = 0;
+        this.trackImportGeneration = 0;
+        this.sharedConfig = config;
+        this.initialSharedState = config.state ? normalizeSharedMapState(config.state) : null;
+        this.sharedRestoreGeneration = 0;
+        this.restoringSharedState = false;
+        this.preserveMapView = Boolean(this.initialSharedState);
+        this.userOverviewNeedsFit = false;
 
         this.finalZoom = 9;
         this.approximatedZoom = 6;
@@ -65,14 +77,15 @@ export default class OpenLayersMap {
             drinking_water: true,
             fountain: true,
             other: true,
-            confirmed: false,
+            with_reports: false,
             along: false,
         });
 
-        this.overlays = {
+        this.overlays = Alpine.reactive({
             stravaPublic: false,
             osmTraces: false
-        };
+        });
+        this.sourceState = Alpine.reactive({ name: 'osm' });
 
         this.currentOverlays = {...this.overlays};
 
@@ -102,8 +115,8 @@ export default class OpenLayersMap {
         this.wateredSpringsApproximatedLayer = new WateredSpringsApproximatedLayer();
         this.wateredSpringsDistantLayer = new WateredSpringsDistantLayer();
 
-        this.springsFinalSource = new SpringsFinalSource();
-        this.springsUserSource = new SpringsUserSource();
+        this.springsFinalSource = new SpringsFinalSource(() => this.featuresLoadEnd());
+        this.springsUserSource = new SpringsUserSource(() => this.featuresLoadEnd());
 
         this.trackLayer = new TrackLayer()
         this.bufferLayer = new BufferLayer()
@@ -114,11 +127,17 @@ export default class OpenLayersMap {
         this.featureIdToBeSelected = null;
 
         this.buffer = new Buffer();
+        this.tracks = new Tracks({
+            apply: track => this.applySharedTrack(track),
+            changed: () => this.trackPersistenceChanged(),
+        });
+        this.sharedTrack = this.tracks.state;
 
         this.view = new View({
-            center: getInitialCenter(),
-            zoom: getInitialZoom(),
+            center: this.initialSharedState ? fromLonLat(this.initialSharedState.center) : getInitialCenter(),
+            zoom: this.initialSharedState?.zoom ?? getInitialZoom(),
             enableRotation: false,
+            multiWorld: Boolean(this.initialSharedState),
         });
 
         this.geolocation = new Geolocation({
@@ -154,7 +173,7 @@ export default class OpenLayersMap {
             moveTolerance: 5,
         });
 
-        this.source(getInitialSourceName())
+        this.source(this.initialSharedState?.sourceName ?? getInitialSourceName())
 
         this.map.on('moveend', (e) => {
             if (this.queryParameters.location) {
@@ -164,6 +183,7 @@ export default class OpenLayersMap {
             saveLastCenter(this.map.getView().getCenter());
             saveLastZoom(this.map.getView().getZoom());
             window.dispatchEvent(new CustomEvent('map-viewport-changed'));
+            this.notifySharedStateChange();
         });
 
         this.map.on('click', (e) => {
@@ -197,12 +217,7 @@ export default class OpenLayersMap {
         });
 
         this.dragAndDrop.on('addfeatures', (evt) => {
-            const reader = new FileReader()
-            reader.readAsText(evt.file);
-            reader.onload = (e) => {
-                const content = e.target.result
-                this.trackLayer.load(content)
-            }
+            this.upload(evt.file);
         });
           
         this.map.addInteraction(this.dragAndDrop);
@@ -216,7 +231,7 @@ export default class OpenLayersMap {
 
         this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
 
-        Alpine.effect(() => {
+        this.queryEffect = Alpine.effect(() => {
             this.queryParameters
 
             this.springsSource(this.queryParameters.user)
@@ -240,8 +255,18 @@ export default class OpenLayersMap {
             }
         })
 
+        this.ready = afterMapUiReady().then(async () => {
+            if (this.disposed || this.navigationRestoreGeneration > 0) return;
+            if (this.initialSharedState) {
+                await this.restoreSharedState(this.initialSharedState, { track: this.sharedConfig.track ?? null });
+            } else if (this.sharedConfig.track) {
+                this.loadSharedTrack(this.sharedConfig.track, { fit: true });
+            } else {
+                this.trackLayer.restoreFromLocalStorage();
+            }
+            if (!this.disposed && this.sharedConfig.localTrack) this.restoreLocalTrack(this.sharedConfig.localTrack);
+        });
         this.map.once('postrender', () => {
-            this.trackLayer.restoreFromLocalStorage()
 
             const viewport = this.map.getViewport()
 
@@ -272,6 +297,7 @@ export default class OpenLayersMap {
                     let photo = e.dataTransfer.files.item(0)
 
                     locateByPhoto(photo, (result) => {
+                        if (this.disposed) return;
                         this.locateWithIntelligentZoom([result.longitude, result.latitude])
                         if (! this.queryParameters.location) {
                             window.dispatchEvent(
@@ -292,6 +318,254 @@ export default class OpenLayersMap {
 
     showDropHint() { this.map.getTargetElement().classList.add('drop-active'); }
     hideDropHint() { this.map.getTargetElement().classList.remove('drop-active'); }
+
+    getLayout() {
+        return this.sharedConfig?.layout?.() ?? Alpine.store('mapLayout');
+    }
+
+    captureNavigationState() {
+        const layout = this.getLayout();
+        return {
+            center: [...this.view.getCenter()],
+            projection: this.view.getProjection().getCode(),
+            zoom: this.view.getZoom(),
+            sourceName: this.sourceState.name,
+            filters: { ...this.filters },
+            overlays: { ...this.overlays },
+            fullscreen: layout.fullscreen,
+            minimized: layout.minimized,
+            track: captureTrackNavigationState(this.trackLayer.getSource(), this.view.getProjection().getCode()),
+            trackReference: this.sharedTrack?.token
+                ? { hash: this.sharedTrack.hash, token: this.sharedTrack.token, name: this.sharedTrack.name } : null,
+        };
+    }
+
+    async restoreNavigationState(state) {
+        this.trackImportGeneration++;
+        this.fitSharedTrack = false;
+        const generation = ++this.navigationRestoreGeneration;
+        this.sharedRestoreGeneration++;
+        this.restoringSharedState = false;
+        this.restoringNavigationState = true;
+        this.preserveMapView = true;
+        this.view.cancelAnimations();
+        this.source(state.sourceName);
+        Object.assign(this.filters, state.filters);
+        Object.assign(this.overlays, state.overlays);
+        this.updateOverlays();
+        Object.assign(this.getLayout(), { fullscreen: state.fullscreen, minimized: state.minimized });
+        this.fullscreen = state.fullscreen;
+        const features = new GeoJSON().readFeatures(state.track ?? { type: 'FeatureCollection', features: [] }, {
+            dataProjection: 'EPSG:4326', featureProjection: this.view.getProjection(),
+        });
+        const source = this.trackLayer.getSource();
+        source.clear();
+        source.addFeatures(features);
+        this.trackLayer.isUploaded.value = features.length > 0;
+        if (features.length) this.buffer.setTrack(features);
+        else this.buffer.clear();
+        if (state.trackReference) this.tracks?.load(state.trackReference);
+        else this.tracks?.replace(state.track);
+        await Alpine.nextTick();
+        if (this.disposed || generation !== this.navigationRestoreGeneration) return;
+        this.map.updateSize();
+        this.view.cancelAnimations();
+        this.view.setCenter(state.center);
+        this.view.setZoom(state.zoom);
+        this.updateFilterStyles();
+        this.map.renderSync();
+        this.restoringNavigationState = false;
+    }
+
+    refreshSpringData() {
+        if (this.disposed) return;
+        this.dehighlightFeature();
+        this.featureIdToBeSelected = this.queryParameters.spring || null;
+        this.reportCoordinates = {};
+        this.reportSelectionFeature.setGeometry(null);
+
+        const previousFinalSource = this.springsFinalSource;
+        this.springsFinalSource = new SpringsFinalSource(() => this.featuresLoadEnd());
+        this.springsUserSource.invalidateCache();
+        this.springsFinalLayer.setSource(this.queryParameters.user ? this.springsUserSource : this.springsFinalSource);
+        previousFinalSource.dispose();
+
+        for (const [layer, Layer] of [
+            [this.springsApproximatedLayer, SpringsApproximatedLayer],
+            [this.springsDistantLayer, SpringsDistantLayer],
+            [this.wateredSpringsApproximatedLayer, WateredSpringsApproximatedLayer],
+            [this.wateredSpringsDistantLayer, WateredSpringsDistantLayer],
+        ]) {
+            const previousSource = layer.getSource();
+            // Fresh sources isolate late tile responses while retaining each layer's loading strategy.
+            const replacement = new Layer();
+            const source = replacement.getSource();
+            replacement.setSource(null);
+            replacement.dispose();
+            layer.setSource(source);
+            previousSource.dispose();
+        }
+    }
+
+    refreshLocale() {
+        const translations = window.rodnikMapTranslations ?? {};
+        const translate = key => key.replace(/^map\./, '').split('.').reduce((value, part) => value?.[part], translations);
+        this.map.getTargetElement().querySelectorAll('[data-map-i18n]').forEach(element => {
+            const value = translate(element.dataset.mapI18n);
+            if (typeof value === 'string') element.textContent = value;
+        });
+        this.map.getTargetElement().querySelectorAll('[data-map-i18n-title]').forEach(element => {
+            const value = translate(element.dataset.mapI18nTitle);
+            if (typeof value === 'string') element.title = value;
+        });
+        this.map.getControls().clear();
+        localizedControls().forEach(control => this.map.addControl(control));
+        this.map.addControl(this.scaleControl);
+    }
+
+    dispose() {
+        this.disposed = true;
+        this.sharedRestoreGeneration++;
+        this.navigationRestoreGeneration++;
+        Alpine.release(this.queryEffect);
+        this.springsFinalSource.dispose();
+        this.springsUserSource.cancelRequests();
+        this.tracks.clear();
+        this.buffer.clear(false);
+        this.geolocation.setTracking(false);
+        this.map.setTarget(null);
+        this.map.dispose();
+    }
+
+    captureSharedState() {
+        const layout = this.getLayout();
+        return normalizeSharedMapState({
+            version: 1,
+            center: toLonLat(this.view.getCenter()),
+            zoom: this.view.getZoom(),
+            sourceName: this.sourceState.name,
+            filters: sharedMapFilters(this.filters),
+            overlays: { ...this.overlays },
+            page: sharedMapPage(this.queryParameters),
+            fullscreen: layout.fullscreen ?? this.fullscreen ?? false,
+            minimized: layout.minimized ?? false,
+        });
+    }
+
+    async restoreSharedState(state, { track } = {}) {
+        this.trackImportGeneration++;
+        this.fitSharedTrack = false;
+        const saved = normalizeSharedMapState(state);
+        const generation = ++this.sharedRestoreGeneration;
+        this.restoringSharedState = true;
+        this.preserveMapView = true;
+        this.view.cancelAnimations();
+        if (this.view.get('multiWorld') !== true) {
+            this.view = new View({
+                center: this.view.getCenter(),
+                zoom: this.view.getZoom(),
+                projection: this.view.getProjection(),
+                enableRotation: false,
+                multiWorld: true,
+            });
+            this.map.setView(this.view);
+        }
+        this.source(saved.sourceName);
+        Object.assign(this.filters, saved.filters, {
+            all: ['spring', 'water_well', 'water_tap', 'drinking_water', 'fountain', 'other'].every(key => saved.filters[key]),
+        });
+        Object.assign(this.overlays, saved.overlays);
+        this.updateOverlays();
+        Object.assign(this.getLayout(), { fullscreen: saved.fullscreen, minimized: saved.minimized });
+        this.fullscreen = saved.fullscreen;
+        this.previousQueryParameters = { ...saved.page };
+        Object.assign(this.queryParameters, saved.page, { coordinates: null });
+        if (track !== undefined) {
+            this.trackLayer.clear({ persist: false });
+            this.tracks.load(track);
+        }
+        await Alpine.nextTick();
+        if (this.disposed || generation !== this.sharedRestoreGeneration) return;
+        this.map.updateSize();
+        this.view.cancelAnimations();
+        this.view.setCenter(fromLonLat(saved.center));
+        this.view.setZoom(saved.zoom);
+        this.updateFilterStyles();
+        this.map.renderSync();
+        this.restoringSharedState = false;
+        window.dispatchEvent(new CustomEvent('map-filters-changed'));
+        window.dispatchEvent(new CustomEvent('map-viewport-changed'));
+        window.dispatchEvent(new CustomEvent('map-shared-state-restored'));
+    }
+
+    applySharedTrack(track) {
+        const safeTrack = {
+            ...track,
+            features: track.features.map(feature => ({
+                ...feature,
+                properties: feature.properties === null ? null : Object.fromEntries(
+                    Object.entries(feature.properties ?? {}).filter(([key]) => key !== 'geometry'),
+                ),
+            })),
+        };
+        const features = new GeoJSON().readFeatures(safeTrack, {
+            dataProjection: 'EPSG:4326', featureProjection: this.view.getProjection(),
+        });
+        this.trackLayer.getSource().clear();
+        this.trackLayer.getSource().addFeatures(features);
+        this.trackLayer.isUploaded.value = features.length > 0;
+        if (features.length) {
+            this.buffer.setTrack(features);
+            if (this.fitSharedTrack) {
+                this.view.fit(this.trackLayer.getSource().getExtent(), { padding: [60, 60, 60, 60], maxZoom: 16 });
+            }
+        } else this.buffer.clear();
+        this.fitSharedTrack = false;
+    }
+
+    restoreLocalTrack(track) {
+        this.applySharedTrack(track);
+        this.tracks.replace(track);
+    }
+
+    loadSharedTrack(reference, { fit = false } = {}) {
+        this.trackImportGeneration++;
+        this.trackLayer.clear({ persist: false });
+        this.fitSharedTrack = fit;
+        return this.tracks.load(reference);
+    }
+
+    trackChanged(name = null) {
+        const track = trackGeoJson(this.trackLayer.getSource().getFeatures(), this.view.getProjection());
+        this.tracks.replace(track, { name });
+        this.notifySharedStateChange();
+    }
+
+    trackPersistenceChanged() {
+        if (this.sharedTrack?.status === 'saved') this.trackLayer.clearFromLocalStorage();
+        if (this.sharedTrack?.status === 'missing' && this.filters.along) {
+            this.filters.along = false;
+            this.updateFilterStyles();
+            window.dispatchEvent(new CustomEvent('map-filters-changed'));
+        }
+        window.dispatchEvent(new CustomEvent('map-track-persistence-changed'));
+    }
+
+    ensureSharedTrack() {
+        return this.tracks.ensure();
+    }
+
+    retrySharedTrack() {
+        return this.tracks.retry();
+    }
+
+    recoverSharedTrack(token, options) {
+        return this.tracks.recoverMissing(token, options);
+    }
+
+    notifySharedStateChange() {
+        if (!this.disposed && !this.restoringSharedState && !this.restoringNavigationState) window.dispatchEvent(new CustomEvent('map-state-changed'));
+    }
 
     getCoordinates() {
         let coordinates = toLonLat(this.view.getCenter());
@@ -319,6 +593,7 @@ export default class OpenLayersMap {
     }
 
     featuresLoadEnd() {
+        if (this.disposed) return;
         let id = this.featureIdToBeSelected;
 
         if (id) {
@@ -326,9 +601,7 @@ export default class OpenLayersMap {
             this.highlightFeatureById(id);
         }
 
-        if (! this.queryParameters.spring && this.queryParameters.user && this.queryParameters.user != this.previousQueryParameters.user) {
-            this.locateWorld()
-        }
+        this.fitUserOverview();
     }
 
     locateMe() {
@@ -342,6 +615,7 @@ export default class OpenLayersMap {
             );
         } else {
             navigator.geolocation.getCurrentPosition((position) => {
+                if (this.disposed) return;
                 this.view.animate(
                     {
                         center: fromLonLat([position.coords.longitude, position.coords.latitude]),
@@ -358,6 +632,7 @@ export default class OpenLayersMap {
     }
 
     watchMe() {
+        if (this.disposed) return;
         this.geolocation.setTracking(true);
 
         const accuracyFeature = new Feature();
@@ -455,8 +730,11 @@ export default class OpenLayersMap {
 
     upload(file) {
         if (file) {
+            const generation = this.trackImportGeneration = (this.trackImportGeneration ?? 0) + 1;
+            this.fitSharedTrack = false;
             if (file.type.startsWith('image/')) {
                 locateByPhoto(file, (result) => {
+                    if (this.disposed || generation !== this.trackImportGeneration) return;
                     this.locate([result.longitude, result.latitude])
                     if (! this.queryParameters.location) {
                         window.dispatchEvent(
@@ -474,8 +752,9 @@ export default class OpenLayersMap {
                 const reader = new FileReader()
                 reader.readAsText(file);
                 reader.onload = (e) => {
+                    if (this.disposed || generation !== this.trackImportGeneration) return;
                     const content = e.target.result
-                    this.trackLayer.load(content)
+                    this.trackLayer.load(content, { name: file.name?.replace(/\.gpx$/i, '') })
                 }
             }
             
@@ -484,6 +763,7 @@ export default class OpenLayersMap {
     }
 
     source(name) {
+        if (!sharedMapSources.includes(name)) name = 'osm';
         switch(name) {
             case 'osm':
                 this.map.removeLayer(this.currentLayer);
@@ -517,7 +797,9 @@ export default class OpenLayersMap {
                 break;
         }
 
+        this.sourceState.name = name;
         saveLastSourceName(name)
+        this.notifySharedStateChange();
     }
 
     updateFilterStyles() {
@@ -533,6 +815,7 @@ export default class OpenLayersMap {
     updateFilters() {
         this.updateFilterStyles();
         window.dispatchEvent(new CustomEvent('map-filters-changed'));
+        this.notifySharedStateChange();
     }
 
     updateOverlays() {
@@ -559,10 +842,11 @@ export default class OpenLayersMap {
                 this.currentOverlays.osmTraces = false;
             }
         }
+        this.notifySharedStateChange();
     }
 
     highlightFeatureById(id) {
-        let feature = window.rodnikMap.springsFinalLayer.getSource().getFeatureById(id);
+        let feature = this.springsFinalLayer.getSource().getFeatureById(id);
         this.featureIdToBeSelected = feature ? null : id;
         if (feature) {
             this.highlightFeature(feature);
@@ -629,12 +913,21 @@ export default class OpenLayersMap {
     }
 
     locateWorld() {
-        this.view.fit(this.springsFinalLayer.getSource().getExtent());
+        const extent = this.springsFinalLayer.getSource().getExtent();
+        if (!extent.every(Number.isFinite)) return false;
+        this.view.fit(extent);
         
         let naturalZoom = Math.floor(this.view.getZoom() - 1)
         let sensibleZoom = 8
         
         this.view.setZoom(naturalZoom > sensibleZoom ? sensibleZoom : naturalZoom);
+    }
+
+    fitUserOverview() {
+        if (this.userOverviewNeedsFit && !this.preserveMapView && this.queryParameters.user
+            && !this.queryParameters.spring && !this.queryParameters.location) {
+            if (this.locateWorld() !== false) this.userOverviewNeedsFit = false;
+        }
     }
 
     highlightFeature(feature) {
@@ -651,7 +944,7 @@ export default class OpenLayersMap {
         this.previouslyHighlightedFeature = feature;
         feature.setStyle(selectedStyle);
 
-        if (this.fullscreen) {
+        if (this.fullscreen && !this.preserveMapView) {
             this.setFullscreen(false);
             this.locateFeature(feature);
         }
@@ -663,6 +956,7 @@ export default class OpenLayersMap {
                 spring: feature.get('id'),
                 user: this.queryParameters.user > 0 ? this.queryParameters.user : null,
                 location: null,
+                preserveMapView: true,
             }
         }));
     }
@@ -680,6 +974,7 @@ export default class OpenLayersMap {
             detail: {
                 spring: null,
                 user: this.queryParameters.user > 0 ? this.queryParameters.user : null,
+                preserveMapView: true,
             }
         }));
     }
@@ -704,9 +999,7 @@ export default class OpenLayersMap {
 
             if (this.springsUserSource.getUser() == userId) {
                 this.springsFinalLayer.setSource(this.springsUserSource)
-                if (! this.queryParameters.spring && this.previousQueryParameters.user != userId) {
-                    this.locateWorld()
-                }
+                this.fitUserOverview();
             } else {
                 this.springsUserSource.setUser(userId);
                 this.springsFinalLayer.setSource(this.springsUserSource);
@@ -726,6 +1019,8 @@ export default class OpenLayersMap {
 
     setFullscreen(value) {
         this.fullscreen = value;
+        this.getLayout().fullscreen = value;
+        this.notifySharedStateChange();
     }
 
     mapMoved(coordinates) {
@@ -734,13 +1029,23 @@ export default class OpenLayersMap {
     }
 
     duoVisit({ preserveMapView = false, ...queryParameters }) {
-        if (preserveMapView) {
-            this.setFullscreen(false);
+        this.preserveMapView = preserveMapView || this.restoringSharedState;
+        const nextPage = { ...this.queryParameters, ...queryParameters };
+        this.userOverviewNeedsFit = !this.preserveMapView && Boolean(nextPage.user)
+            && !nextPage.spring && !nextPage.location
+            && (nextPage.user != this.queryParameters.user || Boolean(this.queryParameters.spring || this.queryParameters.location));
+        if (queryParameters.coordinates && queryParameters.spring) {
             this.reportCoordinates[queryParameters.spring] = queryParameters.coordinates;
+        }
+        if (this.preserveMapView) {
             queryParameters.coordinates = null;
+        } else if (queryParameters.spring || queryParameters.location) {
+            this.setFullscreen(false);
+            this.getLayout().minimized = false;
         }
 
         this.previousQueryParameters = JSON.parse(JSON.stringify(this.queryParameters))
         Object.assign(this.queryParameters, queryParameters);
+        this.notifySharedStateChange();
     }
 }

@@ -172,7 +172,6 @@ name('docs.api');
     "longitude": 37.6173,
     "intermittent": "no",
     "water_score": 1,
-    "water_confirmed": true,
     "not_found": false,
     "reports_count": 1,
     "reports": [

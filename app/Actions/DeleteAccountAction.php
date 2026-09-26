@@ -8,6 +8,7 @@ use App\Library\Export\ExportLock;
 use App\Models\Photo;
 use App\Models\Report;
 use App\Models\SpringRevision;
+use App\Models\Track;
 use App\Models\TrackPolygon;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,8 @@ use RuntimeException;
 
 final class DeleteAccountAction
 {
+    public function __construct(private DeleteMapAction $deleteMap, private DeleteTrackAction $deleteTrack) {}
+
     public function __invoke(User $user): void
     {
         $this->authorize($user);
@@ -61,6 +64,12 @@ final class DeleteAccountAction
                 });
 
                 TrackPolygon::query()->where('user_id', $account->id)->delete();
+                foreach ($account->maps()->select(['id', 'user_id'])->orderBy('id')->lazyById() as $map) {
+                    $this->deleteMap->execute($account, $map);
+                }
+                foreach (Track::query()->where('user_id', $account->id)->select(['id'])->orderBy('id')->lazyById() as $track) {
+                    $this->deleteTrack->execute($track);
+                }
                 $account->tokens()->delete();
                 Password::broker(config('fortify.passwords'))->deleteToken($account);
 
@@ -72,7 +81,7 @@ final class DeleteAccountAction
                 $account->delete();
 
                 $this->deleteStoredFiles($account);
-            });
+            }, attempts: 3);
         });
     }
 

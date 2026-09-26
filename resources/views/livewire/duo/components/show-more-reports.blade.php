@@ -11,7 +11,7 @@
             md:gap-4 items-stretch
         " wire:key="reports">
             @foreach ($reports as $report)
-                <x-last-reports.teaser :report="$report" />
+                <x-last-reports.teaser :report="$report" :user-id="$userId" :preserve-map-view="true" />
             @endforeach
         </ul>
         @if (count($reports) == $take)

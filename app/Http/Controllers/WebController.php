@@ -1,46 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Spring;
+use App\Support\DuoUrl;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Http\Resources\SpringResource;
+use Illuminate\View\View;
 
-class WebController extends Controller
+final class WebController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, DuoUrl $duoUrl): View|RedirectResponse
     {
-        $redirect = $this->legacyRedirect($request);
-        
-        return $redirect ?: view('duo');
+        $resource = $duoUrl->resolve($request);
+        $page = $resource['page'];
+
+        $resourcePath = $duoUrl->relative($page, canonical: true);
+        $legacyQuery = array_intersect(['page', 'view', 's', 'u', 'spring', 'spring_id', 'locating'], array_keys($request->query()));
+
+        if ($request->getPathInfo() !== $resourcePath || $legacyQuery !== []) {
+            return redirect($duoUrl->absolute($page, query: $request->query()), 301);
+        }
+
+        return view('duo', $resource);
     }
 
-    public function user($userId)
+    public function legacySection(Request $request, DuoUrl $duoUrl, string $springId, string $section): RedirectResponse
     {
-        return redirect(duo_route(['user' => $userId]), 301);
-    }
+        $spring = Spring::query()->findOrFail($duoUrl->identifier($springId));
 
-    private function legacyRedirect(Request $request)
-    {
-        $routeParams = [];
-        
-        if ($request->has('s')) {
-            $routeParams['spring'] = $request->get('s');
-        }
-        
-        if ($request->has('u')) {
-            $routeParams['user'] = $request->get('u');
-        }
-        
-        if ($request->has('location')) {
-            $routeParams['location'] = $request->get('location') ? 1 : null;
-        }
-        
-        if (!empty($routeParams)) {
-            return redirect(duo_route($routeParams), 301);
-        }
-
-        return false;
+        return redirect(localized_route('springs.'.$section, [...$request->query(), 'spring' => $spring]), 301);
     }
 }

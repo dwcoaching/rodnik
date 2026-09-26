@@ -58,7 +58,7 @@ test('user ranking is localized and links contributors to their map', function (
         ->assertSee('<html lang="'.$locale.'">', false)
         ->assertSee($title)
         ->assertSee($columns)
-        ->assertSee('href="'.e(route($locale === 'ru' ? 'ru.duo' : 'duo').'?page[user]='.$user->id).'"', false)
+        ->assertSee('href="'.url('/').$prefix.'/users/'.$user->id.'/"', false)
         ->assertViewHas('users', fn (LengthAwarePaginator $users): bool => $users->getCollection()->modelKeys() === [$user->id]);
 
     expect(route($routeName, absolute: false))->toBe($prefix.'/docs/users');

@@ -56,7 +56,7 @@ final class Create extends Component
             'longitude' => $this->longitude,
         ]);
 
-        return redirect(localized_route('springs.edit', ['spring' => $spring]));
+        return $this->redirect(localized_route('springs.edit', ['spring' => $spring]), navigate: true);
     }
 
     public function update(PatchSpringsLocationAction $patchSpringsLocation)
@@ -68,7 +68,7 @@ final class Create extends Component
             'longitude' => $this->longitude,
         ]);
 
-        return redirect(duo_route(['spring' => $spring->id]));
+        return $this->redirect(duo_route(['spring' => $spring->id]), navigate: true);
     }
 
     protected function rules()

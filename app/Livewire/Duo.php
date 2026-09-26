@@ -1,76 +1,93 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire;
 
+use App\Http\Controllers\WebController;
 use App\Models\Spring;
+use App\Models\User;
+use App\Support\DuoUrl;
+use App\Support\PageMetadata;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Router;
+use Illuminate\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Livewire\Attributes\Url;
 
-class Duo extends Component
+final class Duo extends Component
 {
-    #[Url(history: true)]
-    public $page = [];
+    /** @var array{spring: ?int, user: ?int, location: ?int} */
+    #[Locked]
+    public array $page = [];
 
-    public $firstRender;
+    public bool $firstRender = true;
 
-    public function mount()
+    #[Locked]
+    public bool $isSharedMap = false;
+
+    #[Locked]
+    public int $navigationRevision = 0;
+
+    /**
+     * @param  array<string, mixed>  $page
+     * @param  array<string, mixed>|null  $sharedState
+     */
+    public function mount(array $page = [], ?array $sharedState = null): void
     {
-        $this->page = array_merge(config('duo.url_defaults'), $this->page);
-        $this->firstRender = true;
+        $this->page = array_merge(config('duo.url_defaults'), $page);
 
-        if ($redirect = $this->resolveSpringRedirect()) {
-            return $redirect;
+        if ($sharedState !== null) {
+            $this->isSharedMap = true;
+            $this->page = array_merge(config('duo.url_defaults'), $sharedState['page']);
+
+            if ($this->page['spring'] && ! Spring::query()->whereKey($this->page['spring'])->exists()) {
+                $this->page['spring'] = null;
+            }
+
+            if ($this->page['user'] && ! User::query()->whereKey($this->page['user'])->exists()) {
+                $this->page['user'] = null;
+            }
         }
     }
 
-    public function updatedPage()
+    /**
+     * @return array{page: array{spring: ?int, user: ?int, location: ?int}, coordinates: array<int, float>, url: string, metadata: array<string, mixed>}
+     */
+    public function navigateTo(string $href, DuoUrl $duoUrl, Router $router, PageMetadata $metadata): array
     {
-        // prevents unexisting array keys when the back button is used
-        $this->page = array_merge(config('duo.url_defaults'), $this->page);
+        abort_unless(str_starts_with($href, '/') && ! str_starts_with($href, '//') && ! str_contains($href, '\\'), 404);
+
+        $request = Request::create(url('/').$href);
+        $route = $router->getRoutes()->match($request);
+        abort_unless($route->getActionName() === WebController::class.'@index', 404);
+        $request->setRouteResolver(fn () => $route);
+
+        $locale = $request->is('ru', 'ru/*') ? 'ru' : config('localization.default');
+        abort_unless($locale === app()->getLocale(), 404);
+
+        $resource = $duoUrl->resolve($request);
+        $this->page = $resource['page'];
+        $this->isSharedMap = false;
+        $this->navigationRevision++;
+
+        return [
+            'page' => $this->page,
+            'coordinates' => $resource['coordinates'],
+            'url' => $duoUrl->relative($this->page, $locale, $request->query()),
+            'metadata' => $metadata->forRequest($request),
+        ];
     }
 
-    public function render()
+    public function render(): View
     {
         $coordinates = [];
 
-        if ($this->firstRender && $this->page['spring'] > 0) {
-            $spring = Spring::find($this->page['spring']);
-
-            if (! $spring) abort(404);
-
-            $coordinates = [
-                floatval($spring->longitude),
-                floatval($spring->latitude)
-            ];
+        if ($this->page['spring']) {
+            $spring = Spring::query()->findOrFail($this->page['spring']);
+            $coordinates = [(float) $spring->longitude, (float) $spring->latitude];
         }
 
         return view('livewire.duo', compact('coordinates'));
-    }
-
-    // Springs marked as duplicates redirect to their canonical target on
-    // initial page load. Pass ?redirect=false to bypass (for admins viewing
-    // the merged-away source).
-    protected function resolveSpringRedirect()
-    {
-        if (request()->query('redirect') === 'false') {
-            return null;
-        }
-
-        $springId = $this->page['spring'] ?? null;
-        if (! $springId) {
-            return null;
-        }
-
-        $spring = Spring::find($springId);
-        if (! $spring) {
-            return null;
-        }
-
-        $target = $spring->finallyRedirectedTo();
-        if (! $target) {
-            return null;
-        }
-
-        return $this->redirect(duo_route(['spring' => $target->id]));
     }
 }

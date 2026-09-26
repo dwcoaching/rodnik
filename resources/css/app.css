@@ -49,6 +49,7 @@ layer(base);
 @source '../../storage/framework/views/*.php';
 
 @theme {
+  --font-interface: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-sans:
     Nunito, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
@@ -74,6 +75,14 @@ layer(base);
 }
 
 @layer components {
+  .map-button-primary {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-xs transition-colors hover:border-blue-700 hover:bg-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-wait disabled:opacity-50;
+  }
+
+  .map-button-secondary {
+    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-xs transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-wait disabled:opacity-50;
+  }
+
   .select-primary,
   .input-primary {
     @apply border-gray-300;

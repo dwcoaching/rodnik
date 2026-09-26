@@ -32,7 +32,7 @@ name('docs.admin.duplicates');
             <div class="flex-[1_1_100%] sm:flex-[0_1_auto] w-[min(100%,calc(100vw-4rem))] sm:w-auto min-w-0 max-w-[min(100%,calc(100vw-4rem))] sm:max-w-full overflow-x-auto pb-1">
                 <div class="inline-flex min-w-max gap-1 rounded-lg bg-gray-200 p-1">
                     @foreach (PossibleDuplicateSprings::RADII as $tabRadius)
-                        <a
+                        <a data-rodnik-navigate
                             href="{{ route('docs.admin.duplicates', ['radius' => $tabRadius, 'limit' => $limit]) }}"
                             class="flex h-10 items-center justify-center rounded-lg px-4 text-center text-sm font-medium whitespace-nowrap {{ $radius === $tabRadius ? 'bg-blue-600 text-white' : 'text-gray-900 hover:bg-gray-100' }}"
                         >
@@ -45,7 +45,7 @@ name('docs.admin.duplicates');
             <div class="flex-[1_1_100%] sm:flex-[0_1_auto] w-[min(100%,calc(100vw-4rem))] sm:w-auto min-w-0 max-w-[min(100%,calc(100vw-4rem))] sm:max-w-full overflow-x-auto pb-1">
                 <div class="inline-flex min-w-max gap-1 rounded-lg bg-gray-200 p-1">
                     @foreach (PossibleDuplicateSprings::LIMITS as $tabLimit)
-                        <a
+                        <a data-rodnik-navigate
                             href="{{ route('docs.admin.duplicates', ['radius' => $radius, 'limit' => $tabLimit]) }}"
                             class="flex h-10 items-center justify-center rounded-lg px-4 text-center text-sm font-medium whitespace-nowrap {{ $limit === $tabLimit ? 'bg-blue-600 text-white' : 'text-gray-900 hover:bg-gray-100' }}"
                         >

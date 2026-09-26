@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use App\Enums\ReportQuality;
 use App\Enums\ReportState;
 use App\Library\RedirectChain;
 use App\Library\StatisticsService;
@@ -182,31 +181,6 @@ final class Spring extends Model
         }
 
         return $revision;
-    }
-
-    public function waterConfirmed()
-    {
-        $presenceOfGoodWaterCount = 0;
-        $absenceOfGoodWaterCount = 0;
-
-        foreach ($this->visibleReports as $report) {
-            if ($report->quality === ReportQuality::Good) {
-                $presenceOfGoodWaterCount++;
-            }
-
-            if (
-                ! is_null($report->quality)
-                && $report->quality !== ReportQuality::Good
-            ) {
-                $absenceOfGoodWaterCount++;
-            }
-        }
-
-        if ($presenceOfGoodWaterCount > $absenceOfGoodWaterCount) {
-            return true;
-        }
-
-        return false;
     }
 
     public function annihilate()
