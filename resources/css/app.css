@@ -6,43 +6,6 @@ layer(base);
 
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
-@plugin 'daisyui' {
-  themes: false;
-}
-@plugin 'daisyui/theme' {
-  name: 'mytheme';
-  default: true;
-  prefersdark: false;
-  color-scheme: light;
-  --color-base-100: #ffffff;
-  --color-base-200: #f3f4f6;
-  --color-base-300: #e5e7eb;
-  --color-base-content: #111827;
-  --color-primary: #2563eb;
-  --color-primary-content: #ffffff;
-  --color-secondary: #f6d860;
-  --color-secondary-content: #1f2937;
-  --color-accent: #37cdbe;
-  --color-accent-content: #111827;
-  --color-neutral: #3d4451;
-  --color-neutral-content: #ffffff;
-  --color-info: #3b82f6;
-  --color-info-content: #ffffff;
-  --color-success: #16a34a;
-  --color-success-content: #ffffff;
-  --color-warning: #facc15;
-  --color-warning-content: #111827;
-  --color-error: #dc2626;
-  --color-error-content: #ffffff;
-  --radius-selector: 1.9rem;
-  --radius-field: 0.5rem;
-  --radius-box: 0.5rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 0;
-  --noise: 0;
-}
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/laravel/jetstream/**/*.blade.php';
@@ -65,6 +28,13 @@ layer(base);
   color utility to any element that depends on these defaults.
 */
 @layer base {
+  html {
+    color-scheme: light;
+    background-color: #ffffff;
+    color: #111827;
+    scrollbar-color: color-mix(in oklch, currentColor 35%, transparent) transparent;
+  }
+
   *,
   ::after,
   ::before,
@@ -83,22 +53,92 @@ layer(base);
     @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 shadow-xs transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-wait disabled:opacity-50;
   }
 
-  .select-primary,
-  .input-primary {
-    @apply border-gray-300;
+  .ui-button {
+    --button-color: var(--color-stone-200);
+    --button-foreground: #111827;
+    --tw-prose-links: var(--button-foreground);
+    @apply inline-flex h-10 shrink-0 cursor-pointer flex-nowrap select-none items-center justify-center gap-1.5 rounded-lg border border-solid px-4 text-center align-middle font-semibold;
+    font-size: 0.875rem;
+    background-color: var(--button-color);
+    border-color: var(--button-color);
+    color: var(--button-foreground);
+    outline-color: var(--button-color);
+    outline-offset: 2px;
+    touch-action: manipulation;
+    transition: color 200ms, background-color 200ms, border-color 200ms, box-shadow 200ms;
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
 
-  .select-primary:focus,
-  .input-primary:focus {
-    @apply z-10 border-blue-600 outline-hidden ring-1 ring-blue-600 outline-offset-0;
+  .ui-button-primary {
+    --button-color: #2563eb;
+    --button-foreground: #ffffff;
   }
 
-  .btn:not(.btn-primary):not(.btn-secondary):not(.btn-accent):not(.btn-neutral):not(.btn-info):not(.btn-success):not(.btn-warning):not(.btn-error):not(.btn-ghost):not(.btn-link):not(.btn-outline):not(.btn-dash):not(.btn-soft) {
-    --btn-color: var(--color-stone-200);
+  .ui-button-danger {
+    --button-color: #dc2626;
+    --button-foreground: #ffffff;
   }
 
-  .drawer-toggle:checked ~ .drawer-side > .drawer-overlay {
-    background-color: rgba(17, 24, 39, 0.8);
+  .ui-button-ghost {
+    --button-color: #f3f4f6;
+    background-color: transparent;
+    border-color: transparent;
+    color: inherit;
+    outline-color: currentColor;
+  }
+
+  .ui-button-outline {
+    background-color: transparent;
+    color: var(--button-color);
+  }
+
+  @media (hover: hover) {
+    .ui-button:hover {
+      background-color: color-mix(in oklab, var(--button-color), #000000 7%);
+      border-color: color-mix(in oklab, var(--button-color), #000000 7%);
+      color: var(--button-foreground);
+    }
+  }
+
+  .ui-button:focus-visible,
+  .ui-button:has(:focus-visible) {
+    isolation: isolate;
+    outline-width: 2px;
+    outline-style: solid;
+  }
+
+  .ui-button-outline:focus-visible,
+  .ui-button-ghost:focus-visible {
+    background-color: var(--button-color);
+    color: var(--button-foreground);
+    border-color: var(--button-color);
+  }
+
+  .ui-button:active {
+    background-color: color-mix(in oklab, var(--button-color), #000000 5%);
+    border-color: color-mix(in oklab, var(--button-color), #000000 7%);
+    color: var(--button-foreground);
+    translate: 0 0.5px;
+  }
+
+  .ui-button:disabled {
+    pointer-events: none;
+    background-color: rgb(17 24 39 / 10%);
+    border-color: transparent;
+    color: rgb(17 24 39 / 20%);
+  }
+
+  .ui-button-ghost:disabled {
+    background-color: transparent;
+  }
+
+  .ui-button-sm {
+    @apply h-8 px-3;
+    font-size: 0.75rem;
+  }
+
+  .ui-button-icon {
+    @apply size-10 p-0;
   }
 
   .report-condition-badge {
@@ -121,6 +161,41 @@ layer(base);
     border-color: #ffbfaf;
     background-color: #febcb0;
     color: #232323;
+  }
+}
+
+@layer utilities {
+  :root .prose {
+    --tw-prose-body: rgb(17 24 39 / 80%);
+    --tw-prose-headings: #111827;
+    --tw-prose-lead: #111827;
+    --tw-prose-links: #111827;
+    --tw-prose-bold: #111827;
+    --tw-prose-counters: #111827;
+    --tw-prose-bullets: rgb(17 24 39 / 50%);
+    --tw-prose-hr: rgb(17 24 39 / 20%);
+    --tw-prose-quotes: #111827;
+    --tw-prose-quote-borders: rgb(17 24 39 / 20%);
+    --tw-prose-captions: rgb(17 24 39 / 50%);
+    --tw-prose-code: #111827;
+    --tw-prose-pre-code: #ffffff;
+    --tw-prose-pre-bg: #3d4451;
+    --tw-prose-th-borders: rgb(17 24 39 / 50%);
+    --tw-prose-td-borders: rgb(17 24 39 / 20%);
+    --tw-prose-kbd: rgb(17 24 39 / 80%);
+  }
+
+  :root .prose :where(code):not(pre > code) {
+    background-color: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-radius: 1.9rem;
+    font-weight: inherit;
+    padding: 0.2em 0.5em;
+  }
+
+  :root .prose :where(code):not(pre > code)::before,
+  :root .prose :where(code):not(pre > code)::after {
+    display: none;
   }
 }
 

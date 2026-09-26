@@ -146,8 +146,8 @@
 
 
                 <div class="flex items-center flex-wrap gap-y-2 gap-x-2 mt-2">
-                    <div
-                        class="btn btn-sm"
+                    <button type="button"
+                        class="ui-button ui-button-sm"
                         @click="
                             const text = await navigator.clipboard.readText()
                             coordinates = text
@@ -157,7 +157,7 @@
                             <path fill-rule="evenodd" d="M10.986 3H12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h1.014A2.25 2.25 0 0 1 7.25 1h1.5a2.25 2.25 0 0 1 2.236 2ZM9.5 4v-.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75V4h3Z" clip-rule="evenodd" />
                         </svg>
                         {{ __('ui.spring.from_clipboard') }}
-                    </div>
+                    </button>
                     <label for="locate-by-photo"
                         x-data="{
                             handlePhotoSelect: async function (event) {
@@ -172,25 +172,25 @@
                                 event.target.value = ''
                             }
                         }"
-                        class="btn btn-sm relative drag-indicator">
+                        class="ui-button ui-button-sm relative drag-indicator">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
                             <path d="M9.5 8.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
                             <path fill-rule="evenodd" d="M2.5 5A1.5 1.5 0 0 0 1 6.5v5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 13.5 5h-.879a1.5 1.5 0 0 1-1.06-.44l-1.122-1.12A1.5 1.5 0 0 0 9.38 3H6.62a1.5 1.5 0 0 0-1.06.44L4.439 4.56A1.5 1.5 0 0 1 3.38 5H2.5ZM11 8.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clip-rule="evenodd" />
                         </svg>
                         {{ __('ui.spring.locate_by_photo') }}
-                        <input class="opacity-0 absolute inset-0" x-on:change="handlePhotoSelect($event)" id="locate-by-photo" name="locate-by-photo" type="file" class="sr-only">
+                        <input class="opacity-0 absolute inset-0 cursor-pointer" x-on:change="handlePhotoSelect($event)" id="locate-by-photo" name="locate-by-photo" type="file">
                     </label>
                 </div>
 
                 <div class="mt-2">
                     <span class="mt-2 mr-1 font-bold text-blue-600/70 text-sm">{{ __('ui.spring.zoom') }}</span>
-                    <div class="join mt-2 ">
-                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(10)">{{ __('ui.spring.zoom_city') }}</button>
-                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(14)">{{ __('ui.spring.zoom_street') }}</button>
-                        <button class="btn join-item btn-primary btn-outline btn-ghost btn-sm" @click="window.rodnikMap.zoom(18)">{{ __('ui.spring.zoom_building') }}</button>
+                    <div class="mt-2 inline-flex items-stretch">
+                        <button type="button" class="ui-button ui-button-primary ui-button-outline ui-button-sm rounded-e-none focus:z-10 hover:isolate" @click="window.rodnikMap.zoom(10)">{{ __('ui.spring.zoom_city') }}</button>
+                        <button type="button" class="ui-button ui-button-primary ui-button-outline ui-button-sm -ms-px rounded-none focus:z-10 hover:isolate" @click="window.rodnikMap.zoom(14)">{{ __('ui.spring.zoom_street') }}</button>
+                        <button type="button" class="ui-button ui-button-primary ui-button-outline ui-button-sm -ms-px rounded-s-none focus:z-10 hover:isolate" @click="window.rodnikMap.zoom(18)">{{ __('ui.spring.zoom_building') }}</button>
                     </div>
                     <button type="button" x-cloak x-show="coordinates != lastInputCoordinates"
-                        class="mt-2 btn btn-sm btn-error btn-outline"
+                        class="mt-2 ui-button ui-button-danger ui-button-outline ui-button-sm"
                         @click="
                             updateCoordinates(lastInputCoordinates)
                         ">
@@ -206,10 +206,8 @@
                                     @click="if (! error() && ! saving) {
                                         saving = true
                                         $wire.$call('update')
-                                    }" class="btn btn-primary btn-block"
-                                    x-bind:class="{
-                                        'btn-disabled': error() || saving,
-                                    }"
+                                    }" class="ui-button ui-button-primary w-full"
+                                    x-bind:disabled="error() || saving"
                                 >
                                     {{ __('ui.spring.save_location') }}
                                 </button>
@@ -224,10 +222,8 @@
                                     @click="if (! error() && ! saving) {
                                         saving = true
                                         $wire.$call('create')
-                                    }" class="btn btn-primary btn-block"
-                                    x-bind:class="{
-                                        'btn-disabled': error() || saving,
-                                    }"
+                                    }" class="ui-button ui-button-primary w-full"
+                                    x-bind:disabled="error() || saving"
                                 >
                                         {{ __('ui.spring.add_water_source') }}
                                 </button>

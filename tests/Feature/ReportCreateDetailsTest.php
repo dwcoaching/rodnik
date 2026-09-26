@@ -55,8 +55,8 @@ test('report form increases all non-help text by two pixels', function () {
         ->assertSeeHtml('[&_.text-sm]:text-[16px]/[24px]')
         ->assertSeeHtml('[&_.text-lg]:text-[20px]/[30px]')
         ->assertSeeHtml('[&_.text-2xl]:text-[26px]/[34px]')
-        ->assertSeeHtml('[&_.btn]:text-[16px]/[24px]')
-        ->assertSeeHtml('btn h-11 font-bold btn-primary');
+        ->assertSeeHtml('[&_.ui-button]:text-[16px]/[24px]')
+        ->assertSeeHtml('ui-button ui-button-primary h-11');
 });
 
 test('report form group titles toggle explanations for every value', function () {

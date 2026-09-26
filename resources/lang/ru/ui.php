@@ -220,6 +220,7 @@ return [
     ],
 
     'common' => [
+        'navigation' => 'Навигация',
         'or' => 'или',
         'about' => 'О проекте',
         'anonymous' => 'Аноним',

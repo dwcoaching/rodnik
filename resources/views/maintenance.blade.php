@@ -15,8 +15,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body>
-        <div class="hero min-h-screen bg-base-200">
-          <div class="hero-content text-center">
+        <div class="grid min-h-screen w-full place-items-center bg-[#f3f4f6] bg-cover bg-center">
+          <div class="isolate col-start-1 row-start-1 flex max-w-7xl items-center justify-center gap-4 p-4 text-center">
             <div class="max-w-lg">
               <h1 class="text-5xl font-extrabold">Rodnik.today<br>is getting an update</h1>
               <p class="py-6">
@@ -24,7 +24,7 @@
                 It is expected to take a few minutes.<br>
                 Please come back soon!
               </p>
-              <a type="button" href="/" class="btn btn-primary">Refresh</a>
+              <a href="/" class="ui-button ui-button-primary">Refresh</a>
             </div>
           </div>
         </div>

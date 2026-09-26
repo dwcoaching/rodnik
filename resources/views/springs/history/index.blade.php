@@ -7,7 +7,7 @@
 
         <div class="flex items-center justify-between">
             <div class="flex-1 min-w-0 flex">
-                <a href="{{ duo_route(['spring' => $spring->id]) }}" data-rodnik-navigate class="block btn btn-sm text-base font-semibold text-blue-600 hover:text-blue-700 flex items-center">
+                <a href="{{ duo_route(['spring' => $spring->id]) }}" data-rodnik-navigate aria-label="{{ __('ui.maps.back') }}" class="ui-button ui-button-sm text-base font-semibold text-blue-600 hover:text-blue-700">
                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                         <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
                     </svg>
@@ -16,11 +16,11 @@
         </div>
 
         <h1 class="mt-4 mb-2 text-3xl font-bold">{{ __('ui.history.title') }}</h1>
-        <div class="grid grid-cols-1 gap-1 ">
+        <div class="grid grid-cols-1 gap-1">
             @foreach($events as $event)
                 @if (get_class($event) == 'App\Models\Report')
-                    <div class="card bg-stone-50 shadow-xl">
-                        <div class="card-body p-4">
+                    <div class="relative flex flex-col rounded-lg bg-stone-50 shadow-xl">
+                        <div class="flex flex-auto flex-col gap-2 p-4 text-sm leading-normal">
                             <div class="md:flex">
                                 <div class="md:w-64 shrink-0 flex flex-row md:flex-col items-stretch justify-between">
                                     <div class="flex items-center md:block">
@@ -40,7 +40,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="badge bg-stone-600 text-white text-xs">{{ __('ui.history.report') }}</span>
+                                        <span class="inline-flex h-6 w-fit items-center justify-center gap-2 rounded-[1.9rem] border border-[#f3f4f6] bg-stone-600 px-[11px] align-middle text-xs text-white">{{ __('ui.history.report') }}</span>
                                     </div>
                                 </div>
                                 <div class="">
@@ -84,10 +84,10 @@
                     </div>
                 @endif
                 @if  (get_class($event) == 'App\Models\SpringRevision')
-                    <div class="card shadow-xl
+                    <div class="relative flex flex-col rounded-lg shadow-xl
                         {{ $event->revision_type == 'from_osm' ? 'bg-amber-50' : 'bg-indigo-50' }}
                         ">
-                        <div class="card-body p-4">
+                        <div class="flex flex-auto flex-col gap-2 p-4 text-sm leading-normal">
                             <div class="md:flex">
                                 <div class="md:w-64 shrink-0 flex flex-row md:flex-col items-stretch justify-between">
                                     <div class="flex items-center md:block">
@@ -112,9 +112,9 @@
                                     </div>
                                     <div>
                                         @if ($event->revision_type == 'from_osm')
-                                            <span class="badge bg-amber-600 text-white text-xs">{{ __('ui.history.osm_update') }}</span>
+                                            <span class="inline-flex h-6 w-fit items-center justify-center gap-2 rounded-[1.9rem] border border-[#f3f4f6] bg-amber-600 px-[11px] align-middle text-xs text-white">{{ __('ui.history.osm_update') }}</span>
                                         @else
-                                            <span class="badge bg-indigo-600 text-white text-xs">{{ __('ui.history.edit') }}</span>
+                                            <span class="inline-flex h-6 w-fit items-center justify-center gap-2 rounded-[1.9rem] border border-[#f3f4f6] bg-indigo-600 px-[11px] align-middle text-xs text-white">{{ __('ui.history.edit') }}</span>
                                         @endif
                                     </div>
                                 </div>

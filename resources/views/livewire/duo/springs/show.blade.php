@@ -8,14 +8,14 @@
     <div x-cloak wire:loading.remove class="w-full">
         @if ($spring)
             @if ($spring->hidden_at)
-                <div class="alert alert-warning mb-2">
+                <div role="status" class="mb-2 grid grid-flow-col grid-cols-[auto] items-center justify-start justify-items-start gap-4 rounded-lg border border-[#facc15] bg-[#facc15] px-4 py-3 text-start text-sm text-[#111827]">
                     <div>
                         <b>{{ __('ui.spring.hidden_title') }}</b> {{ __('ui.spring.hidden_description') }}
                     </div>
                 </div>
             @endif
             @if ($spring->redirect_to_spring_id)
-                <div class="alert alert-warning mb-2">
+                <div role="status" class="mb-2 grid grid-flow-col grid-cols-[auto] items-center justify-start justify-items-start gap-4 rounded-lg border border-[#facc15] bg-[#facc15] px-4 py-3 text-start text-sm text-[#111827]">
                     <div>
                         <b>{{ __('ui.spring.duplicate_title') }}</b>
                         {!! __('ui.spring.duplicate_description', [
@@ -354,7 +354,7 @@
                             {{ __('ui.report.no_reports_yet') }}
                         @endif
                         </div>
-                    <a type="button" href="{{ localized_route('reports.create', ['spring_id' => $spring]) }}" data-rodnik-navigate class="btn btn-primary">
+                    <a type="button" href="{{ localized_route('reports.create', ['spring_id' => $spring]) }}" data-rodnik-navigate class="ui-button ui-button-primary">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                         </svg>

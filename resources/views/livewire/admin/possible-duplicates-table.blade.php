@@ -20,21 +20,21 @@
         </div>
     @else
         <div class="mt-6 overflow-x-auto" style="width: min(100%, calc(100vw - 4rem)); max-width: min(100%, calc(100vw - 4rem));">
-            <table class="table table-zebra min-w-[620px] w-full">
-                <thead>
+            <table class="relative min-w-[620px] w-full border-separate border-spacing-0 rounded-lg text-left text-sm leading-normal [&_th]:border-b [&_th]:border-[#111827]/5 [&_th]:px-4 [&_th]:py-3 [&_th]:align-middle [&_td]:align-middle">
+                <thead class="whitespace-nowrap font-semibold text-[#111827]/60">
                     <tr>
                         <th>Distance</th>
                         <th>Rodnik source</th>
                         <th>Closest OSM candidate</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="[&>tr:nth-child(even)]:bg-[#f3f4f6] [&>tr:not(:last-child)>td]:border-b [&>tr:not(:last-child)>td]:border-[#111827]/5">
                     @forelse ($duplicates as $duplicate)
                         <tr>
-                            <td class="font-mono whitespace-nowrap">
+                            <td class="px-4 py-3 font-mono whitespace-nowrap">
                                 {{ number_format((float) $duplicate['distance_meters'], 1) }} m
                             </td>
-                            <td>
+                            <td class="px-4 py-3">
                                 <a data-rodnik-navigate href="{{ route('springs.show', $duplicate['rodnik_id']) }}" class="font-semibold text-blue-600 no-underline hover:underline">
                                     #{{ $duplicate['rodnik_id'] }} {{ $springLabel($duplicate['rodnik_name'], $duplicate['rodnik_type']) }}
                                 </a>
@@ -45,7 +45,7 @@
                                     <div class="text-xs text-gray-500 mt-1">{{ $duplicate['rodnik_type'] }}</div>
                                 @endif
                             </td>
-                            <td>
+                            <td class="px-4 py-3">
                                 <a data-rodnik-navigate href="{{ route('springs.show', $duplicate['osm_id']) }}" class="font-semibold text-blue-600 no-underline hover:underline">
                                     #{{ $duplicate['osm_id'] }} {{ $springLabel($duplicate['osm_name'], $duplicate['osm_type']) }}
                                 </a>
@@ -59,7 +59,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="text-center py-10 text-gray-500">
+                            <td colspan="3" class="text-center px-4 py-10 text-gray-500">
                                 No possible duplicates within {{ $radius }} m.
                             </td>
                         </tr>

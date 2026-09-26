@@ -47,7 +47,7 @@ All business logic follows a strict Action pattern (`docs/1.0/development/action
 ### Frontend Architecture
 - **Livewire 3** - Main reactive frontend framework
 - **Alpine.js** - Client-side interactivity
-- **Tailwind CSS** + **DaisyUI** - Styling
+- **Tailwind CSS** + application CSS - Styling
 - **OpenLayers** - Interactive mapping (`resources/js/`)
 - **Vite** - Asset bundling
 

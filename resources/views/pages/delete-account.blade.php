@@ -16,7 +16,7 @@ name('docs.delete-account');
         <h1>{{ __('privacy.deletion.title') }}</h1>
         <p>{{ __('privacy.deletion.instructions') }}</p>
         <p>
-            <a data-rodnik-navigate href="{{ route('profile.show') }}#delete-account" class="btn btn-primary no-underline">{{ __('privacy.deletion.button') }}</a>
+            <a data-rodnik-navigate href="{{ route('profile.show') }}#delete-account" class="ui-button ui-button-primary no-underline">{{ __('privacy.deletion.button') }}</a>
         </p>
         <p>{{ __('privacy.deletion.effect') }}</p>
         <p>

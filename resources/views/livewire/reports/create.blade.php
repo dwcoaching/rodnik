@@ -6,7 +6,7 @@
         [&_.text-lg]:text-[20px]/[30px]
         [&_.text-xl]:text-[22px]/[30px]
         [&_.text-2xl]:text-[26px]/[34px]
-        [&_.btn]:text-[16px]/[24px]"
+        [&_.ui-button]:text-[16px]/[24px]"
     x-data="reportCreateForm({
         wire: $wire,
         submitReport: () => $wire.store(),
@@ -252,18 +252,20 @@
         <div x-cloak class="flex justify-start">
             <div wire:loading.remove class="w-full">
                 <template x-if="! isUploadBusy()">
-                    <button x-on:click.prevent="submitReport()" type="button" class="no-animation btn h-11 font-bold btn-primary btn-block max-w-3xl">
+                    <button x-on:click.prevent="submitReport()" type="button" class="ui-button ui-button-primary h-11 w-full max-w-3xl font-bold">
                         {{ $reportId ? __('ui.common.save_changes') : __('ui.report.add') }}
                     </button>
                 </template>
                 <template x-if="isUploadBusy()">
-                    <button type="button" class="no-animation h-11 justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
-                        <div class="animate-spin w-5 h-5 mx-auto flex border border-4 rounded-full border-stone-400 border-t-transparent"></div>
+                    <button type="button" class="ui-button ui-button-primary h-11 w-full max-w-3xl font-bold" disabled aria-busy="true">
+                        <span aria-hidden="true" class="animate-spin w-5 h-5 mx-auto flex border-4 rounded-full border-stone-400 border-t-transparent"></span>
+                        <span class="sr-only">{{ $reportId ? __('ui.common.save_changes') : __('ui.report.add') }}</span>
                     </button>
                 </template>
             </div>
-            <button wire:loading type="button" class="no-animation flex justify-center items-center btn font-bold btn-disabled btn-primary btn-block max-w-3xl" disabled>
-                <div class="animate-spin w-5 h-5 mx-auto flex border border-4 rounded-full border-stone-400 border-t-transparent"></div>
+            <button wire:loading.flex type="button" class="ui-button ui-button-primary w-full max-w-3xl font-bold" disabled aria-busy="true">
+                <span aria-hidden="true" class="animate-spin w-5 h-5 mx-auto flex border-4 rounded-full border-stone-400 border-t-transparent"></span>
+                <span class="sr-only">{{ $reportId ? __('ui.common.save_changes') : __('ui.report.add') }}</span>
             </button>
         </div>
     </div>

@@ -111,11 +111,8 @@
     <div class="mt-4 pb-6">
         <div class="flex justify-start">
             <button type="submit"
-                class="btn font-bold btn-primary btn-block"
+                class="ui-button ui-button-primary w-full font-bold"
                 x-bind:disabled="saving"
-                :class="{
-                    'btn-disabled': saving
-                }"
             >
                 {{ $spring->type ? __('ui.common.save_changes') : __('ui.spring.add_name_and_type') }}
             </button>

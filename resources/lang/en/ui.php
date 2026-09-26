@@ -220,6 +220,7 @@ return [
     ],
 
     'common' => [
+        'navigation' => 'Navigation',
         'or' => 'or',
         'about' => 'About',
         'anonymous' => 'Anonymous',
