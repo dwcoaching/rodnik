@@ -523,11 +523,30 @@ test('map controls separate current links and saved maps with adjacent copy acti
                 ->and($example->previousElementSibling->getAttribute('for'))->toBe('save-map-'.$field);
         }
     }
-    expect($document->querySelector('button[\\@click="window.rodnikMap.trackLayer.clear()"]'))->toBeNull();
+    expect($dialog->querySelector('[data-map-i18n="map.remove_track"]'))->toBeNull();
 })->with([
     'English' => ['en', ''],
     'Russian' => ['ru', '/ru'],
 ])->with(['owner', 'guest', 'other user']);
+
+test('map upload menus offer localized track removal alongside uploading another file', function (string $locale, string $prefix, bool $shared) {
+    $path = $shared ? '/maps/'.Map::factory()->create()->slug.'/' : '/';
+    $response = $this->followingRedirects()->get($prefix.$path)->assertOk();
+    $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
+    $menu = $document->querySelector('[x-show="gpxTrackMenuOpen"]');
+    $removeLabel = $menu->querySelector('[data-map-i18n="map.remove_track"]');
+    $removeButton = $removeLabel->parentElement;
+
+    expect($menu->hasAttribute('x-cloak'))->toBeTrue()
+        ->and($removeButton->previousElementSibling->textContent)->toBe(trans('ui.map.upload_new_track_or_photo', locale: $locale))
+        ->and($removeLabel->textContent)->toBe(trans('ui.map.remove_track', locale: $locale))
+        ->and($removeButton->tagName)->toBe('BUTTON')
+        ->and($removeButton->getAttribute('type'))->toBe('button')
+        ->and($removeButton->getAttribute('@click'))->toBe('window.rodnikMap.trackLayer.clear(); gpxTrackMenuOpen = false; forceUpload = false')
+        ->and($menu->querySelector('[data-map-i18n="map.upload_new_track_or_photo"]')->textContent)
+        ->toBe(trans('ui.map.upload_new_track_or_photo', locale: $locale));
+})->with(['English' => ['en', ''], 'Russian' => ['ru', '/ru']])
+    ->with(['main map' => false, 'shared map' => true]);
 
 test('guest shared links offer copying but require signing in to save', function () {
     $map = Map::factory()->create();

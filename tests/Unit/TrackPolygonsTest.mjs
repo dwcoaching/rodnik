@@ -531,7 +531,11 @@ test('restoring GPX rebuilds its polygon and removing a track also clears polygo
     const events = [];
     globals(t, {
         localStorage: { getItem: () => 'saved GPX', removeItem: () => events.push('remove-cache') },
-        window: { rodnikMap: { buffer: { clear: () => events.push('clear-polygon') } } },
+        window: { rodnikMap: {
+            buffer: { clear: () => events.push('clear-polygon') },
+            tracks: { clear: () => events.push('clear-shared-track') },
+            notifySharedStateChange: () => events.push('notify-shared-state'),
+        } },
     });
     const layer = {
         getSource: () => ({
@@ -546,5 +550,7 @@ test('restoring GPX rebuilds its polygon and removing a track also clears polygo
     assert.equal(layer.isUploaded.value, true);
     TrackLayer.prototype.clear.call(layer);
     assert.equal(layer.isUploaded.value, false);
-    assert.deepEqual(events, [['restore', 'saved GPX'], 'clear-track', 'clear-polygon', 'remove-cache']);
+    assert.deepEqual(events, [
+        ['restore', 'saved GPX'], 'clear-track', 'clear-shared-track', 'clear-polygon', 'remove-cache', 'notify-shared-state',
+    ]);
 });

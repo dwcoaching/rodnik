@@ -15,8 +15,9 @@ export default track => ({
     refresh() {
         this.clearTimer();
         if (this.disposed) return;
-        this.visible = visibleStatuses.includes(this.track.status);
-        if (this.track.status !== 'saved') return;
+        this.visible = visibleStatuses.includes(this.track.status)
+            && (this.track.status !== 'saved' || this.track.uploaded === true);
+        if (!this.visible || this.track.status !== 'saved') return;
         const revision = this.revision;
         this.hideTimer = setTimeout(() => {
             if (this.disposed || revision !== this.revision || this.track.status !== 'saved') return;

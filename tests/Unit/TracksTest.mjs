@@ -38,12 +38,14 @@ test('imported tracks upload automatically after the map is ready', async () => 
     assert.equal(persistence.state.status, 'saving');
     assert.equal(persistence.state.hash, null);
     assert.equal(persistence.state.name, 'Coastal walk');
+    assert.equal(persistence.state.uploaded, false);
     await tick();
     assert.equal(requests.length, 0);
     ready.resolve();
     await upload;
     assert.equal(requests.length, 1);
     assert.equal(persistence.state.status, 'saved');
+    assert.equal(persistence.state.uploaded, true);
     assert.equal(JSON.parse(requests[0].options.body).name, 'Coastal walk');
 });
 
@@ -151,9 +153,11 @@ test('failed upload blocks saving the map and can be retried', async () => {
     persistence.replace(track());
     await assert.rejects(persistence.ensure(), /could not be loaded or saved/);
     assert.equal(persistence.state.status, 'failed');
+    assert.equal(persistence.state.uploaded, false);
     persistence.retry();
     assert.deepEqual(await persistence.ensure(), { id: 4, hash: hashOf(track()), token: tokenOf(track()) });
     assert.equal(persistence.state.error, null);
+    assert.equal(persistence.state.uploaded, true);
 });
 
 test('loaded shared tracks are visible and do not require another upload to copy the map', async () => {
@@ -164,6 +168,24 @@ test('loaded shared tracks are visible and do not require another upload to copy
     assert.deepEqual(applied, [track()]);
     assert.deepEqual(await persistence.ensure(), { id: 1, hash: hashOf(track()), token: tokenOf(track()) });
     assert.equal(calls, 1);
+    assert.equal(persistence.state.uploaded, false);
+});
+
+test('loading a shared track and clearing a track reset upload feedback', async () => {
+    const { persistence } = setup({ fetch: async () => Response.json(record(track())) });
+    await persistence.replace(track());
+    assert.equal(persistence.state.uploaded, true);
+
+    const loading = persistence.load(tokenOf(track()));
+    assert.equal(persistence.state.uploaded, false);
+    await loading;
+    assert.equal(persistence.state.status, 'saved');
+    assert.equal(persistence.state.uploaded, false);
+
+    await persistence.replace(track());
+    assert.equal(persistence.state.uploaded, true);
+    persistence.clear();
+    assert.equal(persistence.state.uploaded, false);
 });
 
 test('invalid server records and oversized tracks fail before they can be shared', async () => {

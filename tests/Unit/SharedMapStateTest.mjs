@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { registerHooks } from 'node:module';
 import test from 'node:test';
-import View from 'ol/View.js';
 import VectorSource from 'ol/source/Vector.js';
 import Feature from 'ol/Feature.js';
 import LineString from 'ol/geom/LineString.js';
@@ -9,6 +8,7 @@ import { fromLonLat } from 'ol/proj.js';
 import Tracks from '../../resources/js/tracks.js';
 import { normalizeSharedMapState } from '../../resources/js/sharedMapState.js';
 import { initialMapConfiguration } from '../../resources/js/mapUrlState.js';
+import createMapView from '../../resources/js/mapView.js';
 
 const imports = registerHooks({
     resolve(specifier, context, nextResolve) {
@@ -42,7 +42,7 @@ function setup(t) {
     const trackLoads = [];
     const map = Object.assign(Object.create(OpenLayersMap.prototype), {
         sharedConfig: { layout: () => layout }, sharedRestoreGeneration: 0,
-        view: new View({ center: [0, 0], zoom: 3 }), sourceState: { name: 'osm' },
+        view: createMapView({ center: [0, 0], zoom: 3 }), sourceState: { name: 'osm' },
         filters: { all: true }, overlays: {}, queryParameters: {},
         trackLayer: { getSource: () => source, isUploaded: { value: false }, clear() { source.clear(); } },
         tracks: { load(reference) { trackLoads.push(reference); return new Promise(() => {}); } },
@@ -243,17 +243,53 @@ test('pending upload history restores geometry and resumes uploading without cha
     assert.equal(requests, 1);
 });
 
-test('different viewport sizes keep a shared low zoom and polar center unchanged', async t => {
+function assertViewportWithinWorld(view, size) {
+    const world = view.getProjection().getExtent();
+    const viewport = view.calculateExtent(size);
+    const tolerance = 1e-7;
+    assert.ok(viewport[0] >= world[0] - tolerance, 'the viewport stays inside the western edge');
+    assert.ok(viewport[1] >= world[1] - tolerance, 'the viewport stays inside the southern edge');
+    assert.ok(viewport[2] <= world[2] + tolerance, 'the viewport stays inside the eastern edge');
+    assert.ok(viewport[3] <= world[3] + tolerance, 'the viewport stays inside the northern edge');
+}
+
+for (const size of [[360, 780], [1920, 1080], [1920, 40], [390, 300]]) {
+    test(`map zoom and pan remain inside one world at ${size.join('x')}`, () => {
+        const view = createMapView({ center: fromLonLat([22, 80]), zoom: 0 });
+        view.setViewportSize(size);
+        assertViewportWithinWorld(view, size);
+        const minimumZoom = Math.log2(Math.max(...size) / 256);
+        assert.ok(Math.abs(view.getZoom() - minimumZoom) < 1e-12);
+
+        view.beginInteraction();
+        view.setZoom(0);
+        assertViewportWithinWorld(view, size);
+        view.setZoom(5);
+        for (const center of [[1e9, 1e9], [-1e9, -1e9]]) {
+            view.setCenter(center);
+            assertViewportWithinWorld(view, size);
+        }
+        view.endInteraction(0);
+    });
+}
+
+test('shared low zoom and polar centers stay bounded after restoration and resizing', async t => {
     const { map } = setup(t);
+    const originalView = map.view;
     const state = { ...saved(), center: [22, 80], zoom: 1.25 };
     for (const size of [[360, 780], [1920, 1080], [1920, 40], [390, 300]]) {
         map.map.updateSize = () => map.view.setViewportSize(size);
         await map.restoreSharedState(state);
-        assert.deepEqual(map.view.getCenter(), fromLonLat(state.center));
-        assert.equal(map.view.getZoom(), state.zoom);
-        map.view.setViewportSize([size[1], size[0]]);
-        assert.deepEqual(map.view.getCenter(), fromLonLat(state.center));
-        assert.equal(map.view.getZoom(), state.zoom);
+        assert.equal(map.view, originalView);
+        assertViewportWithinWorld(map.view, size);
+        assert.ok(map.view.getZoom() >= state.zoom);
+
+        const resized = [size[0] * 2, size[1] * 2];
+        map.view.setViewportSize(resized);
+        assertViewportWithinWorld(map.view, resized);
+        map.view.setZoom(0);
+        map.view.setCenter([1e9, -1e9]);
+        assertViewportWithinWorld(map.view, resized);
     }
 });
 

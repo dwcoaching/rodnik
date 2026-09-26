@@ -1,5 +1,4 @@
 import Map from 'ol/Map';
-import View from 'ol/View';
 import Feature from 'ol/Feature';
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import { OSM, XYZ, Vector as VectorSource} from 'ol/source';
@@ -47,6 +46,7 @@ import SpringsUserSource from '@/sources/user.js';
 import trans from '@/i18n';
 import localizedControls from '@/localizedControls';
 import Tracks from './tracks.js';
+import createMapView from './mapView.js';
 import { captureTrackNavigationState, trackGeoJson } from './trackNavigationState.js';
 import { afterMapUiReady, normalizeSharedMapState, sharedMapFilters, sharedMapPage, sharedMapSources } from './sharedMapState.js';
 
@@ -133,11 +133,9 @@ export default class OpenLayersMap {
         });
         this.sharedTrack = this.tracks.state;
 
-        this.view = new View({
+        this.view = createMapView({
             center: this.initialSharedState ? fromLonLat(this.initialSharedState.center) : getInitialCenter(),
             zoom: this.initialSharedState?.zoom ?? getInitialZoom(),
-            enableRotation: false,
-            multiWorld: Boolean(this.initialSharedState),
         });
 
         this.geolocation = new Geolocation({
@@ -460,16 +458,6 @@ export default class OpenLayersMap {
         this.restoringSharedState = true;
         this.preserveMapView = true;
         this.view.cancelAnimations();
-        if (this.view.get('multiWorld') !== true) {
-            this.view = new View({
-                center: this.view.getCenter(),
-                zoom: this.view.getZoom(),
-                projection: this.view.getProjection(),
-                enableRotation: false,
-                multiWorld: true,
-            });
-            this.map.setView(this.view);
-        }
         this.source(saved.sourceName);
         Object.assign(this.filters, saved.filters, {
             all: ['spring', 'water_well', 'water_tap', 'drinking_water', 'fountain', 'other'].every(key => saved.filters[key]),

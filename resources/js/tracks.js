@@ -41,7 +41,7 @@ export default class Tracks {
         reactive = value => globalThis.Alpine?.reactive(value) ?? value,
     } = {}) {
         Object.assign(this, { endpoint, csrfToken, fetch, crypto, defer, apply, changed, timeoutMs });
-        this.state = reactive({ status: 'idle', id: null, hash: null, token: null, name: null, error: null });
+        this.state = reactive({ status: 'idle', id: null, hash: null, token: null, name: null, error: null, uploaded: false });
         this.revision = 0;
         this.clear();
     }
@@ -53,7 +53,7 @@ export default class Tracks {
         this.promise = null;
         this.operation = null;
         this.error = null;
-        Object.assign(this.state, { status: 'idle', id: null, hash: null, token: null, name: null, error: null });
+        Object.assign(this.state, { status: 'idle', id: null, hash: null, token: null, name: null, error: null, uploaded: false });
         this.changed();
     }
 
@@ -109,7 +109,7 @@ export default class Tracks {
             if (revision !== this.revision) return null;
             requestSignal.throwIfAborted();
             if (operation.reference) this.apply(record.track);
-            Object.assign(this.state, { status: 'saved', id: record.id, hash: record.hash, token: record.token, name: record.name ?? this.state.name, error: null });
+            Object.assign(this.state, { status: 'saved', id: record.id, hash: record.hash, token: record.token, name: record.name ?? this.state.name, error: null, uploaded: !operation.reference });
             this.changed();
             return { id: record.id, hash: record.hash, token: record.token, ...(record.name ? { name: record.name } : {}) };
         }).catch(error => {

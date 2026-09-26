@@ -113,6 +113,7 @@ return [
         'choose_view' => 'Choose view',
         'choose_view_help' => 'Choose the area, layers and filters, then save your map.',
         'library_description' => 'Saved views and routes for your next trip.',
+        'library_edit_help' => 'To update the map view, open the map, make changes and click the :share button, and then click Update map.',
         'star_map' => 'Star map',
         'unstar_map' => 'Unstar map',
         'delete_confirm' => 'Delete this map?',

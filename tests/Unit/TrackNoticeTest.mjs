@@ -4,7 +4,7 @@ import trackNotice from '../../resources/js/trackNotice.js';
 
 function setup(t, state = {}) {
     t.mock.timers.enable({ apis: ['setTimeout'] });
-    const track = { status: 'idle', token: null, name: null, ...state };
+    const track = { status: 'idle', token: null, name: null, uploaded: false, ...state };
     const ui = trackNotice(track);
     let watch;
     ui.$watch = (property, callback) => {
@@ -20,8 +20,8 @@ function setup(t, state = {}) {
     };
 }
 
-test('the complete successful track notice hides after three seconds', t => {
-    const { ui, track, tick } = setup(t, { status: 'saved', name: 'Coastal walk', token: 'AbCd123456' });
+test('the complete successful upload notice hides after three seconds', t => {
+    const { ui, track, tick } = setup(t, { status: 'saved', uploaded: true, name: 'Coastal walk', token: 'AbCd123456' });
     assert.equal(ui.track, track);
     assert.equal(ui.visible, true);
     tick(2999);
@@ -47,7 +47,7 @@ test('a successful upload starts its countdown after progress ends', t => {
     const { ui, change, tick } = setup(t, { status: 'saving' });
     tick(10000);
     assert.equal(ui.visible, true);
-    change({ status: 'saved', token: 'AbCd123456' });
+    change({ status: 'saved', uploaded: true, token: 'AbCd123456' });
     tick(2999);
     assert.equal(ui.visible, true);
     tick(1);
@@ -55,7 +55,7 @@ test('a successful upload starts its countdown after progress ends', t => {
 });
 
 test('a repeat upload restores the notice and cancels the previous success timer', t => {
-    const { ui, change, tick } = setup(t, { status: 'saved', token: 'AbCd123456' });
+    const { ui, change, tick } = setup(t, { status: 'saved', uploaded: true, token: 'AbCd123456' });
     tick(2000);
     change({ status: 'saving', token: null, name: 'Second route' });
     tick(3000);
@@ -70,7 +70,7 @@ test('a repeat upload restores the notice and cancels the previous success timer
 });
 
 test('a new saved track gets a fresh countdown even when its status stays saved', t => {
-    const { ui, change, tick } = setup(t, { status: 'saved', token: 'AbCd123456' });
+    const { ui, change, tick } = setup(t, { status: 'saved', uploaded: true, token: 'AbCd123456' });
     tick(2000);
     change({ status: 'saved', token: 'Next123456', name: 'New route' });
     tick(1000);
@@ -81,7 +81,7 @@ test('a new saved track gets a fresh countdown even when its status stays saved'
 
 for (const status of ['failed', 'missing']) {
     test(`a ${status} notice replaces success and survives the old dismissal deadline`, t => {
-        const { ui, change, tick } = setup(t, { status: 'saved' });
+        const { ui, change, tick } = setup(t, { status: 'saved', uploaded: true });
         tick(2000);
         change({ status });
         tick(30000);
@@ -93,7 +93,7 @@ for (const status of ['failed', 'missing']) {
 test('idle and loading states do not expose an empty upload notice', t => {
     const { ui, change, tick } = setup(t);
     assert.equal(ui.visible, false);
-    change({ status: 'saved' });
+    change({ status: 'saved', uploaded: true });
     change({ status: 'idle' });
     assert.equal(ui.visible, false);
     assert.equal(ui.hideTimer, null);
@@ -108,7 +108,7 @@ test('a queued stale success callback cannot dismiss a replacement notice', t =>
     const cleared = [];
     t.mock.method(globalThis, 'setTimeout', callback => { callbacks.push(callback); return callbacks.length; });
     t.mock.method(globalThis, 'clearTimeout', timer => cleared.push(timer));
-    const track = { status: 'saved', token: 'AbCd123456' };
+    const track = { status: 'saved', uploaded: true, token: 'AbCd123456' };
     const ui = trackNotice(track);
     ui.$watch = () => {};
     ui.init();
@@ -123,7 +123,7 @@ test('a queued stale success callback cannot dismiss a replacement notice', t =>
 });
 
 test('destroy clears the timer and ignores late watcher callbacks', t => {
-    const { ui, change, tick } = setup(t, { status: 'saved' });
+    const { ui, change, tick } = setup(t, { status: 'saved', uploaded: true });
     ui.destroy();
     assert.equal(ui.hideTimer, null);
     assert.equal(ui.visible, false);
@@ -131,4 +131,33 @@ test('destroy clears the timer and ignores late watcher callbacks', t => {
     tick(30000);
     assert.equal(ui.visible, false);
     assert.equal(ui.hideTimer, null);
+});
+
+test('opening a shared track never shows the upload success notice', t => {
+    const { ui, change, tick } = setup(t, { status: 'loading' });
+    assert.equal(ui.visible, false);
+    change({ status: 'saved', token: 'AbCd123456', name: 'Lycian Way' });
+    assert.equal(ui.visible, false);
+    assert.equal(ui.hideTimer, null);
+    tick(3000);
+    assert.equal(ui.visible, false);
+});
+
+test('an already loaded shared track stays quiet when the notice initializes', t => {
+    const { ui } = setup(t, { status: 'saved', token: 'AbCd123456', name: 'Lycian Way' });
+    assert.equal(ui.visible, false);
+    assert.equal(ui.hideTimer, null);
+});
+
+test('opening a shared track after an upload clears its success notice', t => {
+    const { ui, change, tick } = setup(t, { status: 'saved', uploaded: true });
+    assert.equal(ui.visible, true);
+    change({ status: 'loading', uploaded: false });
+    assert.equal(ui.visible, false);
+    assert.equal(ui.hideTimer, null);
+    change({ status: 'saved', token: 'AbCd123456' });
+    assert.equal(ui.visible, false);
+    assert.equal(ui.hideTimer, null);
+    tick(3000);
+    assert.equal(ui.visible, false);
 });

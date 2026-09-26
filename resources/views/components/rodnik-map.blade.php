@@ -374,6 +374,7 @@
                 class="absolute shadow-sm top-0 right-11 w-64 rounded-md shadow-sm bg-white px-4 py-4 flex flex-col gap-y-2"
                 >
                 <button @click="forceUpload = true; $refs.gpxTrackUploadLabel.click()" class="px-3 py-1 border border-blue-500 hover:bg-blue-50 rounded-sm text-blue-500 hover:text-blue-600 text-sm font-medium transition-colors"><span data-map-i18n="map.upload_new_track_or_photo">{{ __('ui.map.upload_new_track_or_photo') }}</span></button>
+                <button type="button" @click="window.rodnikMap.trackLayer.clear(); gpxTrackMenuOpen = false; forceUpload = false" class="px-3 py-1 border border-red-500 hover:bg-red-50 rounded-sm text-red-500 hover:text-red-600 text-sm font-medium transition-colors"><span data-map-i18n="map.remove_track">{{ __('ui.map.remove_track') }}</span></button>
             </div>
         </div>
         <div @click="window.rodnikMap.download()" title="{{ __('ui.map.download_waypoints') }}" data-map-i18n-title="map.download_waypoints" class="mt-2 h-9 w-9 bg-white shadow-xs rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">

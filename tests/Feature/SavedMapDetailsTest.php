@@ -10,6 +10,7 @@ use Dom\HTMLDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Js;
+use Illuminate\Support\Str;
 
 uses(RefreshDatabase::class);
 
@@ -362,6 +363,7 @@ test('my maps uses compact rows and edits names and links in one dialog', functi
     Map::factory()->for($owner)->create(['slug' => 'lycian-way']);
     $response = $this->actingAs($owner)->get(route('maps.index'))->assertOk()
         ->assertSee('<title>My maps — Rodnik.today</title>', false)
+        ->assertDontSeeText(trans('ui.maps.library_description'))
         ->assertSee('id="map-search"', false)->assertSee('@input="scheduleSearch()"', false)
         ->assertSee('id="map-favorites"', false)->assertSee('favorites = true; filterChanged()', false)
         ->assertSee('Copy link')->assertDontSee('Copy full URL')
@@ -382,11 +384,23 @@ test('my maps uses compact rows and edits names and links in one dialog', functi
     $form = $modal->querySelector('form');
     $name = $modal->querySelector('input[x-ref="title"]');
     $slug = $modal->querySelector('input[x-ref="slug"]');
+    $help = $main->querySelector('header #map-library-help');
+    $share = $help->querySelector('span');
+    $shareDot = $share->querySelector('.bg-blue-600');
     expect($main->getAttribute('x-data'))->toStartWith('mapLibrary(')
         ->and($main->querySelectorAll('[role="search"] button')->length)->toBe(2)
         ->and($main->querySelector('nav a[aria-current="page"]')->getAttribute('href'))->toBe(route('maps.index'))
         ->and($main->querySelector('nav a:last-child')->getAttribute('href'))->toBe(route('tracks.index'))
-        ->and($main->querySelector('#map-library-help'))->toBeNull()
+        ->and($main->querySelectorAll('header p')->length)->toBe(1)
+        ->and(Str::squish($help->textContent))->toBe(trans('ui.maps.library_edit_help', ['share' => trans('ui.maps.share')]))
+        ->and($help->querySelectorAll('button, a, [role="button"], [tabindex], [x-show], [x-cloak]')->length)->toBe(0)
+        ->and($share->classList->contains('inline-flex'))->toBeTrue()
+        ->and($share->hasAttribute('@click'))->toBeFalse()
+        ->and($share->querySelector('svg')->getAttribute('viewBox'))->toBe('0 0 24 24')
+        ->and($share->querySelector('svg path')->getAttribute('d'))->toBe('M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71m2.25 5.82a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71')
+        ->and($shareDot->classList->contains('size-2'))->toBeTrue()
+        ->and($shareDot->classList->contains('rounded-full'))->toBeTrue()
+        ->and($shareDot->getAttribute('aria-hidden'))->toBe('true')
         ->and($row->querySelector('form'))->toBeNull()
         ->and($row->querySelectorAll('a')->length)->toBe(1)
         ->and($title->localName)->toBe('a')
@@ -470,13 +484,18 @@ test('legacy edit URLs select an owned map for the shared edit dialog', function
     $map = Map::factory()->for($owner)->create(['title' => 'Target route', 'is_starred' => false]);
     Map::factory()->for($owner)->count(21)->create(['title' => 'Other route', 'is_starred' => true]);
 
-    $this->actingAs($owner)->get($prefix.'/user/maps/'.$map->id.'/edit?q=Other&favorites=1')
+    $response = $this->actingAs($owner)->get($prefix.'/user/maps/'.$map->id.'/edit?q=Other&favorites=1')
         ->assertOk()->assertViewHas('editingMap', fn (Map $editing): bool => $editing->is($map))
         ->assertSee('Target route')->assertSee('editingRecord', false)
         ->assertSee('placeholder="lycian-way"', false)
         ->assertSee('id="map-editor-dialog"', false)
         ->assertSee('id="map-editor-title"', false)
         ->assertSee('id="map-delete-dialog"', false);
+
+    $locale = $prefix === '/ru' ? 'ru' : 'en';
+    $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
+    expect(Str::squish($document->querySelector('#map-library-help')->textContent))
+        ->toBe(trans('ui.maps.library_edit_help', ['share' => trans('ui.maps.share', locale: $locale)], $locale));
 })->with(['English' => '', 'Russian' => '/ru']);
 
 test('my maps searches the complete collection and keeps the query on later pages', function () {
