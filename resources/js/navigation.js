@@ -159,6 +159,7 @@ export function installNavigation(Livewire) {
                         ...result.page,
                         coordinates: result.coordinates?.length ? result.coordinates : null,
                         preserveMapView: Boolean(options.preserveMap || restored),
+                        preserveMapViewIfVisible: Boolean(options.preserveMapIfVisible),
                     });
                     await new Promise(resolve => window.Alpine.nextTick(resolve));
                     if (revision !== generation) continue;
@@ -232,6 +233,7 @@ export function installNavigation(Livewire) {
                 ...data.page,
                 coordinates: data.coordinates?.length ? data.coordinates : null,
                 preserveMapView: Boolean(restored || visit?.options.preserveMap),
+                preserveMapViewIfVisible: Boolean(visit?.options.preserveMapIfVisible),
             });
             await new Promise(resolve => window.Alpine.nextTick(resolve));
         }
@@ -409,7 +411,7 @@ export function installNavigation(Livewire) {
             navigation.changeLocale(anchor.dataset.rodnikLocale, anchor.dataset.rodnikLocaleAction);
         } else {
             navigation.visit(url.href, {
-                preserveMap: anchor.hasAttribute('data-rodnik-preserve-map'),
+                preserveMapIfVisible: anchor.hasAttribute('data-rodnik-preserve-map'),
                 restoreUrl: Boolean(new URL(anchor.dataset.rodnikBaseHref ?? anchor.href).hash || url.searchParams.has('t')),
             });
         }

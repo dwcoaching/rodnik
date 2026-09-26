@@ -148,13 +148,16 @@ function setup(t, options = {}) {
                 map.sharedTrack = { status: 'local', token: null, hash: null, id: null };
             },
             refreshLocale() { map.locale = window.rodnikLocale; },
+            containsCoordinates: point => options.containsCoordinates?.(point) ?? true,
             duoVisit(detail) {
                 visits.push(structuredClone(detail));
                 state.page = sharedMapPage(detail);
-                if (!detail.preserveMapView && detail.coordinates) {
+                const preserveMapView = detail.preserveMapView || (detail.preserveMapViewIfVisible
+                    && detail.spring && detail.coordinates && map.containsCoordinates(detail.coordinates));
+                if (!preserveMapView && detail.coordinates) {
                     state.center = [...detail.coordinates];
                     state.zoom = 14;
-                } else if (!detail.preserveMapView && detail.user && !detail.spring) {
+                } else if (!preserveMapView && detail.user && !detail.spring) {
                     state.center = coordinates(detail.user);
                     state.zoom = 8;
                 }
@@ -765,25 +768,88 @@ test('explicit map links restore their fragment with the authoritative server re
 });
 
 for (const user of [null, 17]) {
-    test(`${user ? 'user' : 'area'} report links preserve the live camera while updating the source content`, async t => {
-        const app = setup(t, { href: user ? `https://rodnik.test/users/${user}/` : 'https://rodnik.test/' });
-        const anchor = navigationAnchor(`https://rodnik.test/2/${user ? `?user=${user}` : ''}`, { rodnikPreserveMap: '' });
+    for (const visible of [true, false]) {
+        test(`${user ? 'user' : 'worldwide'} report links ${visible ? 'preserve the camera for visible sources' : 'focus sources outside the map'}`, async t => {
+            const app = setup(t, {
+                href: user ? `https://rodnik.test/users/${user}/` : 'https://rodnik.test/?w=1',
+                containsCoordinates: point => {
+                    assert.deepEqual(point, coordinates(2));
+                    return visible;
+                },
+            });
+            const anchor = navigationAnchor(`https://rodnik.test/2/${user ? `?user=${user}` : ''}`, { rodnikPreserveMap: '' });
+            app.anchors([anchor]);
+            await app.ready();
+            const map = app.window.rodnikMap;
+            app.change({ center: [15, 45], zoom: 11.25, filters: { with_reports: true }, sourceName: 'terrain' });
+            app.navigation.capture();
+            click(app, anchor);
+            await tick();
+            assert.deepEqual(app.camera(), visible ? [15, 45] : coordinates(2));
+            assert.equal(app.state().zoom, visible ? 11.25 : 14);
+            assert.equal(app.window.rodnikMap, map);
+            assert.equal(app.state().filters.with_reports, true);
+            assert.equal(app.state().sourceName, 'terrain');
+            assert.equal(app.data().page.spring, 2);
+            assert.equal(app.data().page.user, user);
+            assert.equal(app.window.location.pathname, '/2/');
+            assert.equal(app.window.location.searchParams.get('user'), user ? String(user) : null);
+            assert.equal(app.window.location.searchParams.get('w'), user ? null : '1');
+            assert.equal(parseMapUrlState(app.window.location.href).state.zoom, visible ? 11.25 : 14);
+            assert.equal(app.visits.at(-1).preserveMapView, false);
+            assert.equal(app.visits.at(-1).preserveMapViewIfVisible, true);
+        });
+    }
+}
+
+for (const visible of [true, false]) {
+    test(`report links retain conditional map focus across locale page navigation when ${visible ? 'visible' : 'outside the map'}`, async t => {
+        const app = setup(t, { containsCoordinates: () => visible });
+        const anchor = navigationAnchor('https://rodnik.test/ru/2/', { rodnikPreserveMap: '' });
         app.anchors([anchor]);
         await app.ready();
         app.change({ center: [15, 45], zoom: 11.25 });
         app.navigation.capture();
+        const map = app.window.rodnikMap;
+
         click(app, anchor);
-        await tick();
-        assert.deepEqual(app.camera(), [15, 45]);
-        assert.equal(app.state().zoom, 11.25);
-        assert.equal(app.data().page.spring, 2);
-        assert.equal(app.data().page.user, user);
-        assert.equal(app.window.location.pathname, '/2/');
-        assert.equal(app.window.location.searchParams.get('user'), user ? String(user) : null);
-        assert.equal(parseMapUrlState(app.window.location.href).state.zoom, 11.25);
-        assert.equal(app.visits.at(-1).preserveMapView, true);
+        await app.swap();
+
+        assert.equal(app.window.rodnikMap, map);
+        assert.deepEqual(app.camera(), visible ? [15, 45] : coordinates(2));
+        assert.equal(app.state().zoom, visible ? 11.25 : 14);
+        assert.equal(app.visits.at(-1).preserveMapViewIfVisible, true);
+        assert.equal(app.window.rodnikLocale, 'ru');
     });
 }
+
+test('Back and Forward after an offscreen report card keep source navigation working', async t => {
+    const app = setup(t, { href: 'https://rodnik.test/1/?w=1', containsCoordinates: () => false });
+    const anchor = navigationAnchor('https://rodnik.test/2/', { rodnikPreserveMap: '' });
+    app.anchors([anchor]);
+    await app.ready();
+    app.change({ center: [15, 45], zoom: 11.25 });
+    app.navigation.capture();
+
+    click(app, anchor);
+    await tick();
+    assert.deepEqual(app.camera(), coordinates(2));
+    assert.equal(app.state().zoom, 14);
+
+    await app.go(-1);
+    assert.equal(app.data().page.spring, 1);
+    assert.deepEqual(app.camera(), coordinates(1));
+    assert.equal(app.visits.at(-1).preserveMapViewIfVisible, false);
+
+    await app.go(1);
+    assert.equal(app.data().page.spring, 2);
+    assert.deepEqual(app.camera(), coordinates(2));
+    assert.equal(app.state().zoom, 14);
+    assert.equal(app.visits.at(-1).preserveMapViewIfVisible, false);
+    assert.equal(app.window.location.searchParams.get('w'), '1');
+    assert.equal(app.entries().length, 2);
+    assert.deepEqual(app.reloads, []);
+});
 
 test('map selection and deselection events update spring user and location through Duo', async t => {
     const app = setup(t);

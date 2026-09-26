@@ -6,7 +6,7 @@ import VectorSource from 'ol/source/Vector.js';
 import Feature from 'ol/Feature.js';
 import Point from 'ol/geom/Point.js';
 import VectorLayer from 'ol/layer/Vector.js';
-import { get as getProjection } from 'ol/proj.js';
+import { get as getProjection, fromLonLat, toLonLat } from 'ol/proj.js';
 import SpringsFinalSource from '../../resources/js/sources/final.js';
 import SpringsUserSource from '../../resources/js/sources/user.js';
 
@@ -158,6 +158,7 @@ function userNavigationMap({ user = 4889, spring = 1392968, location = null, fea
         filters: { spring: false, with_reports: true },
         overlays: { osmTraces: true },
         view: new View({ center: [10000, 30000], zoom: 14 }),
+        map: { getSize: () => [1000, 700] },
         springsFinalLayer: layer,
         springsApproximatedLayer: layer,
         springsDistantLayer: layer,
@@ -170,6 +171,74 @@ function userNavigationMap({ user = 4889, spring = 1392968, location = null, fea
     map.view.setViewportSize([1000, 700]);
     return { map, source, loadFeatures };
 }
+
+for (const user of [null, 4889]) {
+    test(`${user ? 'user' : 'global'} report card preserves the camera when its source is in view`, () => {
+        const { map } = userNavigationMap({ user, spring: null });
+        const coordinates = toLonLat([10500, 30500]);
+        const center = [...map.view.getCenter()];
+        const zoom = map.view.getZoom();
+
+        map.duoVisit({ spring: 1392969, user, location: null, coordinates, preserveMapViewIfVisible: true });
+
+        assert.equal(map.preserveMapView, true);
+        assert.equal(map.queryParameters.spring, 1392969);
+        assert.equal(map.queryParameters.user, user);
+        assert.equal(map.queryParameters.coordinates, null);
+        assert.deepEqual(map.reportCoordinates[1392969], coordinates);
+        assert.deepEqual(map.view.getCenter(), center);
+        assert.equal(map.view.getZoom(), zoom);
+    });
+
+    test(`${user ? 'user' : 'global'} offscreen report card schedules the same source focus as an external link`, () => {
+        const coordinates = [37, 55];
+        const visit = { spring: 1392969, user, location: null, coordinates };
+        const { map } = userNavigationMap({ user, spring: null });
+        const { map: externalMap } = userNavigationMap({ user, spring: null });
+
+        map.duoVisit({ ...visit, preserveMapViewIfVisible: true });
+        externalMap.duoVisit(visit);
+
+        assert.equal(map.preserveMapView, false);
+        assert.deepEqual(map.queryParameters, externalMap.queryParameters);
+        assert.deepEqual(map.queryParameters.coordinates, coordinates);
+        assert.deepEqual(map.getLayout(), externalMap.getLayout());
+        assert.deepEqual(map.filters, { spring: false, with_reports: true });
+        assert.deepEqual(map.overlays, { osmTraces: true });
+
+        const animations = [];
+        map.view.animate = animation => animations.push(animation);
+        map.locate(map.queryParameters.coordinates);
+        assert.deepEqual(animations, [{ center: fromLonLat(coordinates), zoom: 14, duration: 250 }]);
+    });
+}
+
+test('card focus expands a minimized map even when its source is within the stored viewport', () => {
+    const { map } = userNavigationMap({ spring: null });
+    const coordinates = toLonLat(map.view.getCenter());
+    map.getLayout().minimized = true;
+
+    map.duoVisit({ spring: 1392969, coordinates, preserveMapViewIfVisible: true });
+
+    assert.equal(map.preserveMapView, false);
+    assert.equal(map.getLayout().minimized, false);
+    assert.deepEqual(map.queryParameters.coordinates, coordinates);
+});
+
+test('explicit map preservation and shared-state restoration override conditional card focus', () => {
+    for (const restoring of [false, true]) {
+        const { map } = userNavigationMap({ spring: null });
+        map.restoringSharedState = restoring;
+        map.duoVisit({
+            spring: 1392969, coordinates: [37, 55],
+            preserveMapView: !restoring, preserveMapViewIfVisible: true,
+        });
+
+        assert.equal(map.preserveMapView, true);
+        assert.equal(map.queryParameters.coordinates, null);
+        assert.deepEqual(map.view.getCenter(), [10000, 30000]);
+    }
+});
 
 test('marker selection and background deselection preserve the camera and user context', t => {
     const previousWindow = globalThis.window;

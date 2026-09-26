@@ -4,6 +4,7 @@ import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
 import { OSM, XYZ, Vector as VectorSource} from 'ol/source';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { fromLonLat, toLonLat } from 'ol/proj';
+import { containsCoordinate } from 'ol/extent';
 import GeoJSON from 'ol/format/GeoJSON';
 import { ScaleLine } from 'ol/control';
 import GPX from 'ol/format/GPX';
@@ -1016,8 +1017,18 @@ export default class OpenLayersMap {
         window.dispatchEvent(event);
     }
 
-    duoVisit({ preserveMapView = false, ...queryParameters }) {
-        this.preserveMapView = preserveMapView || this.restoringSharedState;
+    containsCoordinates(coordinates) {
+        if (!Array.isArray(coordinates) || coordinates.length !== 2 || !coordinates.every(Number.isFinite)
+            || this.getLayout().minimized) return false;
+        const size = this.map.getSize();
+        if (!size?.[0] || !size?.[1]) return false;
+
+        return containsCoordinate(this.view.calculateExtent(size), fromLonLat(coordinates));
+    }
+
+    duoVisit({ preserveMapView = false, preserveMapViewIfVisible = false, ...queryParameters }) {
+        this.preserveMapView = Boolean(preserveMapView || this.restoringSharedState
+            || (preserveMapViewIfVisible && this.containsCoordinates(queryParameters.coordinates)));
         const nextPage = { ...this.queryParameters, ...queryParameters };
         this.userOverviewNeedsFit = !this.preserveMapView && Boolean(nextPage.user)
             && !nextPage.spring && !nextPage.location
