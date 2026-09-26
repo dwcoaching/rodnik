@@ -148,7 +148,7 @@ Route::get('tracks/{token}', [TrackController::class, 'show'])
     ->middleware('throttle:120,1,tracks-lookup')
     ->name('tracks.show');
 Route::post('tracks', [TrackController::class, 'store'])
-    ->middleware('throttle:30,1,tracks-upload')
+    ->middleware('throttle:tracks-upload')
     ->name('tracks.store');
 
 Route::get('track-polygons/{hash}', [TrackPolygonController::class, 'show'])

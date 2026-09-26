@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\DatabaseTransactionsManager;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Uri;
 
 abstract class TestCase extends BaseTestCase
@@ -26,6 +27,8 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Storage::fake('tracks');
         
         // Wrap each test in a transaction for performance
         if (app('db')->connection()->transactionLevel() === 0) {

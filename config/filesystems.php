@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -40,6 +42,13 @@ return [
             'root' => storage_path('app/photos'),
             'url' => env('APP_URL').'/photos',
             'visibility' => 'public',
+        ],
+
+        'tracks' => [
+            'driver' => 'local',
+            'root' => storage_path('app/tracks'),
+            'visibility' => 'private',
+            'throw' => true,
         ],
 
         'public' => [

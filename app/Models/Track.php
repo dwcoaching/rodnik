@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\StoresGeometryFile;
 use Database\Factories\TrackFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -15,7 +19,26 @@ final class Track extends Model
     /** @use HasFactory<TrackFactory> */
     use HasFactory;
 
+    use Prunable;
+    use StoresGeometryFile;
+
+    public const int GUEST_RETENTION_DAYS = 30;
+
     protected $fillable = ['token', 'hash', 'track', 'user_id', 'name', 'summary'];
+
+    public function geometryPath(): string
+    {
+        return 'uploads/'.$this->token.'.json';
+    }
+
+    /** @return Builder<static> */
+    public function prunable(): Builder
+    {
+        return self::query()
+            ->whereNull('user_id')
+            ->whereDoesntHave('maps')
+            ->where('updated_at', '<=', now()->subDays(self::GUEST_RETENTION_DAYS));
+    }
 
     public function getRouteKeyName(): string
     {
@@ -55,9 +78,15 @@ final class Track extends Model
         ];
     }
 
+    /** @return Attribute<object, mixed> */
+    protected function track(): Attribute
+    {
+        return $this->geometryAttribute(associative: false);
+    }
+
     /** @return array<string, string> */
     protected function casts(): array
     {
-        return ['track' => 'object', 'summary' => 'array'];
+        return ['summary' => 'array'];
     }
 }

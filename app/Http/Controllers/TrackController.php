@@ -21,7 +21,7 @@ final class TrackController extends Controller
 {
     public function show(string $token): JsonResponse
     {
-        $track = Track::query()->where('token', $token)->firstOrFail(['id', 'hash', 'token', 'name', 'track']);
+        $track = Track::query()->where('token', $token)->firstOrFail(['id', 'hash', 'token', 'name']);
 
         return response()->json($track->only(['id', 'hash', 'token', 'name', 'track']))->header('Cache-Control', 'no-store');
     }

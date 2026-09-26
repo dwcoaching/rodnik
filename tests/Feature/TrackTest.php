@@ -2,11 +2,16 @@
 
 declare(strict_types=1);
 
+use App\Models\Map;
 use App\Models\Track;
 use App\Models\User;
 use App\Rules\GeoJsonTrackRule;
+use Illuminate\Console\Scheduling\Event;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -343,4 +348,92 @@ test('a long track is stored and downloaded without text column truncation', fun
     $created = $this->postJson(route('tracks.store'), ['hash' => $hash, 'track' => $serialized])->assertCreated();
     $this->getJson(route('tracks.show', ['token' => $created->json('token')]))
         ->assertOk()->assertJsonPath('track.features.0.geometry.coordinates', $track['features'][0]['geometry']['coordinates']);
+});
+
+test('uploaded track geometry is stored as a private file instead of a database column', function () {
+    $token = $this->postJson(route('tracks.store'), $this->payload)->assertCreated()->json('token');
+
+    expect(Schema::hasColumn('tracks', 'track'))->toBeFalse();
+    Storage::disk('tracks')->assertExists('uploads/'.$token.'.json');
+    expect(Storage::disk('tracks')->get('uploads/'.$token.'.json'))->toBe($this->trackJson);
+    $this->getJson(route('tracks.show', ['token' => $token]))->assertOk()->assertJsonPath('track', $this->track);
+});
+
+test('repeated guest uploads of the same track reuse one row and extend its retention', function () {
+    $this->freezeSecond();
+    $created = $this->postJson(route('tracks.store'), $this->payload)->assertCreated();
+
+    $this->travel(20)->days();
+    $this->postJson(route('tracks.store'), $this->payload)
+        ->assertOk()
+        ->assertJsonPath('id', $created->json('id'))
+        ->assertJsonPath('token', $created->json('token'));
+
+    $this->assertDatabaseCount('tracks', 1);
+    expect(Track::query()->sole()->updated_at->equalTo(now()))->toBeTrue();
+    expect(Storage::disk('tracks')->allFiles())->toBe(['uploads/'.$created->json('token').'.json']);
+});
+
+test('guest uploads of the same track under another name do not reveal the first name', function () {
+    $first = $this->postJson(route('tracks.store'), $this->payload + ['name' => 'Private morning run'])->assertCreated();
+
+    $this->postJson(route('tracks.store'), $this->payload + ['name' => 'Shared route'])
+        ->assertCreated()
+        ->assertJsonPath('name', 'Shared route')
+        ->assertJsonPath('token', fn (string $token): bool => $token !== $first->json('token'));
+
+    $this->assertDatabaseCount('tracks', 2);
+});
+
+test('guests are limited to one hundred track uploads per day', function () {
+    $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.44']);
+
+    for ($upload = 1; $upload <= 100; $upload++) {
+        if ($upload % 30 === 0) {
+            $this->travel(2)->minutes();
+        }
+        $this->postJson(route('tracks.store'), $this->payload)->assertSuccessful();
+    }
+
+    $this->postJson(route('tracks.store'), $this->payload)->assertTooManyRequests();
+    $this->actingAs(User::factory()->create())->postJson(route('tracks.store'), $this->payload)->assertCreated();
+
+    $this->travel(1)->days();
+    auth()->logout();
+    $this->postJson(route('tracks.store'), $this->payload)->assertSuccessful();
+});
+
+test('pruning removes only old unused guest tracks and their files', function () {
+    $this->freezeSecond();
+    $oldGuest = Track::factory()->create(['updated_at' => now()->subDays(Track::GUEST_RETENTION_DAYS + 1)]);
+    $recentGuest = Track::factory()->create(['updated_at' => now()->subDays(Track::GUEST_RETENTION_DAYS - 1)]);
+    $oldGuestOnMap = Track::factory()->create(['updated_at' => now()->subDays(Track::GUEST_RETENTION_DAYS + 1)]);
+    Map::factory()->for(User::factory())->create(['track_id' => $oldGuestOnMap->id]);
+    $oldOwned = Track::factory()->for(User::factory())->create(['updated_at' => now()->subDays(Track::GUEST_RETENTION_DAYS + 1)]);
+
+    $this->artisan('model:prune', ['--model' => [Track::class]])->assertSuccessful();
+
+    $this->assertModelMissing($oldGuest);
+    Storage::disk('tracks')->assertMissing($oldGuest->geometryPath());
+    foreach ([$recentGuest, $oldGuestOnMap, $oldOwned] as $kept) {
+        $this->assertModelExists($kept);
+        Storage::disk('tracks')->assertExists($kept->geometryPath());
+    }
+});
+
+test('guest track pruning is scheduled daily', function () {
+    $event = collect(app(Schedule::class)->events())
+        ->first(fn (Event $event): bool => str_contains($event->command, 'model:prune') && str_contains($event->command, 'Track'));
+
+    expect($event)->not->toBeNull()->and($event->expression)->toBe('0 4 * * *');
+});
+
+test('deleting a track removes its file after the deletion commits', function () {
+    $owner = User::factory()->create();
+    $track = Track::factory()->for($owner)->create();
+    Storage::disk('tracks')->assertExists($track->geometryPath());
+
+    $this->actingAs($owner)->deleteJson(route('tracks.destroy', ['track' => $track->token]))->assertNoContent();
+
+    Storage::disk('tracks')->assertMissing($track->geometryPath());
 });

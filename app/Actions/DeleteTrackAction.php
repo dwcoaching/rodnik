@@ -32,7 +32,7 @@ final class DeleteTrackAction
     public function execute(Track $track): void
     {
         DB::transaction(function () use ($track): void {
-            $current = Track::query()->whereKey($track->id)->lockForUpdate()->firstOrFail(['id']);
+            $current = Track::query()->whereKey($track->id)->lockForUpdate()->firstOrFail(['id', 'token']);
             $maps = Map::query()->where('track_id', $current->id)->select(['id', 'state', 'version'])
                 ->lockForUpdate()->lazyById(100);
             foreach ($maps as $map) {

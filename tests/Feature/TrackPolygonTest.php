@@ -6,6 +6,8 @@ use App\Models\TrackPolygon;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -354,4 +356,12 @@ test('polygons with more than fifty thousand total vertices are rejected', funct
         ->assertJsonValidationErrors('polygon');
 
     $this->assertDatabaseEmpty('track_polygons');
+});
+
+test('uploaded polygon geometry is stored as a private file instead of a database column', function () {
+    $this->postJson(route('track-polygons.store'), $this->payload)->assertCreated();
+
+    expect(Schema::hasColumn('track_polygons', 'polygon'))->toBeFalse()
+        ->and(Storage::disk('tracks')->get('polygons/'.$this->polygonHash.'.json'))->toBe($this->polygonJson)
+        ->and(TrackPolygon::query()->sole()->polygon)->toEqual($this->polygon);
 });

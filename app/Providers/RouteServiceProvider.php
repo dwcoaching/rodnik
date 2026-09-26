@@ -68,6 +68,17 @@ final class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(600)->by(optional($request->user())->id ?: $request->ip());
         });
 
+        RateLimiter::for('tracks-upload', function (Request $request) {
+            if ($request->user() !== null) {
+                return Limit::perMinute(30)->by('user:'.$request->user()->id);
+            }
+
+            return [
+                Limit::perMinute(30)->by('guest:'.$request->ip()),
+                Limit::perDay(100)->by('guest-day:'.$request->ip()),
+            ];
+        });
+
         RateLimiter::for('api-token', function (Request $request) {
             return Limit::perMinute(5)->by(
                 Str::lower((string) $request->string('email')->transliterate()).'|'.$request->ip(),

@@ -213,6 +213,7 @@ test('account deletion rolls back when stored exports cannot be removed', functi
     $token = $user->createToken('device');
     $this->actingAs($user);
 
+    $tracks = Storage::disk('tracks');
     $disk = Mockery::mock(FilesystemAdapter::class);
     $disk->shouldReceive('allFiles')->once()->with('exports')->andReturn(['exports/old.json']);
     $disk->shouldReceive('delete')->once()->with(['exports/old.json'])->andReturn(false);
@@ -225,6 +226,7 @@ test('account deletion rolls back when stored exports cannot be removed', functi
     $this->assertModelExists($map);
     $this->assertModelExists($track);
     expect($report->fresh()->user_id)->toBe($user->id);
+    $tracks->assertExists($track->geometryPath());
 });
 
 test('account deletion does not begin while contribution exports hold the lock', function () {
@@ -263,4 +265,24 @@ test('account deletion removes owned upload tokens and leaves independently uplo
     $this->getJson(route('maps.show', $independent))->assertOk()->assertJsonPath('track.token', $otherTrack->token);
     $this->assertModelMissing($track);
     $this->assertModelExists($otherTrack);
+});
+
+test('account deletion removes owned track and polygon files and keeps other peoples files', function () {
+    $owner = User::factory()->create();
+    $other = User::factory()->create();
+    $track = Track::factory()->for($owner)->create();
+    $polygon = TrackPolygon::factory()->for($owner)->create();
+    $otherTrack = Track::factory()->for($other)->create();
+    $otherPolygon = TrackPolygon::factory()->for($other)->create();
+    $this->actingAs($owner);
+
+    app(DeleteAccountAction::class)($owner);
+
+    $disk = Storage::disk('tracks');
+    $disk->assertMissing($track->geometryPath());
+    $disk->assertMissing($polygon->geometryPath());
+    $disk->assertExists($otherTrack->geometryPath());
+    $disk->assertExists($otherPolygon->geometryPath());
+    $this->assertModelMissing($polygon);
+    $this->assertModelExists($otherPolygon);
 });

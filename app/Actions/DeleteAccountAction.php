@@ -63,7 +63,9 @@ final class DeleteAccountAction
                     }
                 });
 
-                TrackPolygon::query()->where('user_id', $account->id)->delete();
+                foreach (TrackPolygon::query()->where('user_id', $account->id)->select(['id', 'hash'])->lazyById() as $polygon) {
+                    $polygon->delete();
+                }
                 foreach ($account->maps()->select(['id', 'user_id'])->orderBy('id')->lazyById() as $map) {
                     $this->deleteMap->execute($account, $map);
                 }

@@ -70,7 +70,7 @@ final class StoreTrackPolygonAction
         }
 
         return TrackPolygon::query()->firstOrCreate(['hash' => $validated['hash']], [
-            'polygon' => $geometry,
+            'polygon' => $validated['polygon'],
             'user_id' => $user?->id,
             'latitude_from' => round($latitudeFrom, 7, RoundingMode::NegativeInfinity),
             'latitude_to' => round($latitudeTo, 7, RoundingMode::PositiveInfinity),

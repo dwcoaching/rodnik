@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+declare(strict_types=1);
+
+use App\Models\Track;
 use Illuminate\Support\Facades\Schedule;
-use App\Console\Commands\Export\SpringsExport;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +17,4 @@ use App\Console\Commands\Export\SpringsExport;
 */
 
 Schedule::command('export:full')->cron('30 22 * * *');
+Schedule::command('model:prune', ['--model' => [Track::class]])->dailyAt('04:00');

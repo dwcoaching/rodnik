@@ -8,6 +8,7 @@ use App\Models\Track;
 use App\Models\User;
 use App\Rules\GeoJsonTrackRule;
 use App\Support\TrackGeometry;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -59,20 +60,29 @@ final class StoreTrackAction
         do {
             try {
                 return DB::transaction(function () use ($user, $validated): Track {
-                    if ($user !== null) {
-                        $existing = Track::query()->where('hash', $validated['hash'])->whereBelongsTo($user)->lockForUpdate()->first();
-                        if ($existing !== null) {
-                            return $existing;
-                        }
-                    }
                     $geometry = json_decode($validated['track'], false, 32, JSON_THROW_ON_ERROR);
+                    $name = mb_trim($validated['name'] ?? '') ?: TrackGeometry::name($geometry);
+                    $existing = Track::query()->where('hash', $validated['hash'])
+                        ->when(
+                            $user !== null,
+                            fn (Builder $query): Builder => $query->whereBelongsTo($user),
+                            fn (Builder $query): Builder => $query->whereNull('user_id')->where('name', $name),
+                        )
+                        ->lockForUpdate()->first();
+                    if ($existing !== null) {
+                        if ($user === null) {
+                            $existing->touch();
+                        }
+
+                        return $existing;
+                    }
 
                     return Track::query()->create([
                         'token' => Str::random(10),
                         'hash' => $validated['hash'],
-                        'track' => $geometry,
+                        'track' => $validated['track'],
                         'user_id' => $user?->id,
-                        'name' => mb_trim($validated['name'] ?? '') ?: TrackGeometry::name($geometry),
+                        'name' => $name,
                         'summary' => TrackGeometry::summary($geometry),
                     ]);
                 }, attempts: 3);

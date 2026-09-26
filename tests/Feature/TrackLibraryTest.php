@@ -15,7 +15,7 @@ uses(RefreshDatabase::class);
 
 test('maps and tracks use only the agreed schema', function () {
     expect(Schema::getColumnListing('tracks'))->toEqualCanonicalizing([
-        'id', 'user_id', 'token', 'name', 'hash', 'track', 'summary', 'created_at', 'updated_at',
+        'id', 'user_id', 'token', 'name', 'hash', 'summary', 'created_at', 'updated_at',
     ])->and(Schema::getColumnListing('maps'))->toEqualCanonicalizing([
         'id', 'user_id', 'slug', 'title', 'state', 'track_id', 'version', 'views_count', 'is_starred', 'created_at', 'updated_at',
     ])->and(Schema::hasTable('track_uploads'))->toBeFalse();
@@ -55,15 +55,14 @@ test('reuploading identical geometry deduplicates within each owners library onl
     $this->getJson('/tracks/'.$second->json('token'))->assertOk();
 });
 
-test('guest uploads of identical geometry get independent public links', function () {
+test('guest uploads of identical geometry and name share one public link', function () {
     $first = $this->postJson(route('tracks.store'), trackLibraryPayload())->assertCreated();
-    $second = $this->postJson(route('tracks.store'), trackLibraryPayload())->assertCreated();
+    $second = $this->postJson(route('tracks.store'), trackLibraryPayload())->assertOk();
 
-    expect($second->json('token'))->not->toBe($first->json('token'))
-        ->and($second->json('id'))->not->toBe($first->json('id'));
-    $this->assertDatabaseCount('tracks', 2);
+    expect($second->json('token'))->toBe($first->json('token'))
+        ->and($second->json('id'))->toBe($first->json('id'));
+    $this->assertDatabaseCount('tracks', 1);
     $this->getJson('/tracks/'.$first->json('token'))->assertOk();
-    $this->getJson('/tracks/'.$second->json('token'))->assertOk();
 });
 
 test('track library is private searchable paginated and exposes summaries without geometry', function (string $prefix) {
