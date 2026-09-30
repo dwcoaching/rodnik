@@ -1,3 +1,0 @@
-[mcp_servers.laravel-boost]
-command = "/Users/andrewkolpakov/Library/Application Support/Herd/bin/herd"
-args = ["php", "/Users/andrewkolpakov/code/rodnik/artisan", "boost:mcp"]

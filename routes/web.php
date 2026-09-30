@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\CoverageController;
 use App\Http\Controllers\HeatmapController;
+use App\Http\Controllers\LatestExportController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\PhotoUploadController;
@@ -120,6 +121,10 @@ Route::prefix('en')
     ->name('en.')
     ->middleware('set-locale:en')
     ->group($resourceRoutes);
+
+Route::get('docs/exports/{format}/latest', LatestExportController::class)
+    ->whereIn('format', array_keys(LatestExportController::FORMATS))
+    ->name('exports.latest');
 
 Route::get('overpass-batches/{overpassBatch}/coverage', [CoverageController::class, 'index'])->name('coverage');
 Route::get('heatmap', [HeatmapController::class, 'index'])->name('heatmap');

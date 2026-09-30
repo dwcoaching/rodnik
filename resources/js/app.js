@@ -10,6 +10,7 @@ import mapTitles from './mapTitles.js';
 import mapLibrary from './mapLibrary.js';
 import trackLibrary from './trackLibrary.js';
 import trackNotice from './trackNotice.js';
+import springFocus from './springFocus.js';
 import { installNavigation } from './navigation.js';
 import { initialMapConfiguration } from './mapUrlState.js';
 import { readLocalTrackHistory } from './localTrackHistory.js';
@@ -31,6 +32,7 @@ Alpine.data('mapTitles', mapTitles);
 Alpine.data('mapLibrary', mapLibrary);
 Alpine.data('trackLibrary', trackLibrary);
 Alpine.data('trackNotice', trackNotice);
+Alpine.data('springFocus', springFocus);
 
 window.Alpine = Alpine;
 window.resizeImage = resizeImage;

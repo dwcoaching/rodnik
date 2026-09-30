@@ -384,6 +384,7 @@ return [
         'merge_into_another' => 'Merge into another…',
         'remove_redirect' => 'Remove redirect',
         'remove_redirect_confirm' => 'Remove the redirect on this water source?',
+        'show_on_map' => 'Show on map',
         'location' => 'Location',
         'url' => 'URL',
         'osm_data' => 'OpenStreetMap Data',

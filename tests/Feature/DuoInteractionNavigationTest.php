@@ -162,6 +162,21 @@ test('source panel links opt in to application navigation including merged sourc
     ]);
 });
 
+test('the source panel can bring its source into focus on the map for every visitor', function (bool $signedIn) {
+    if ($signedIn) {
+        $this->actingAs(User::factory()->create());
+    }
+    $spring = Spring::factory()->create(['latitude' => 44.857306, 'longitude' => 34.610396]);
+    $html = $this->get(duo_route(['spring' => $spring->id]))->assertOk()->getContent();
+
+    $button = HTMLDocument::createFromString($html, LIBXML_NOERROR)->querySelector('button[x-data^="springFocus("]');
+
+    expect($button)->not->toBeNull()
+        ->and($button->getAttribute('x-data'))->toBe("springFocus(JSON.parse('[34.610396,44.857306]'))")
+        ->and($button->getAttribute('aria-label'))->toBe(__('ui.spring.show_on_map'))
+        ->and($button->classList->contains('invisible'))->toBeTrue();
+})->with(['guest' => false, 'signed in' => true]);
+
 test('source forms and history return to the source through application navigation', function () {
     $user = User::factory()->create();
     $this->actingAs($user);

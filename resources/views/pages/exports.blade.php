@@ -110,6 +110,20 @@ name('docs.exports');
         </div>
 
         <div class="mt-9 font-black text-xl">
+            {{ __('pages.exports.latest.title') }}
+        </div>
+        <div class="mt-3 max-w-prose">
+            <p>{{ __('pages.exports.latest.description') }}</p>
+            <ul>
+                @foreach (array_keys(\App\Http\Controllers\LatestExportController::FORMATS) as $format)
+                    <li>
+                        <a href="{{ route('exports.latest', $format) }}" download class="text-blue-600 break-all">{{ route('exports.latest', $format) }}</a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+
+        <div class="mt-9 font-black text-xl">
             {{ __('pages.exports.personal.title') }}
         </div>
         <div class="mt-3">

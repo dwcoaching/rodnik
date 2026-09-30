@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Library\Export;
 
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 final class JsonWriter extends Writer
 {
@@ -21,16 +21,14 @@ final class JsonWriter extends Writer
 
         $timestamp = now()->format('Y-m-d_H-i-s');
 
-        $directory = $this->user ? 'users/' : '';
-
         if ($this->user) {
             $filename = 'rodnik-user-'.$this->user->id.'-from-'.$timestamp.'.json';
         } else {
             $filename = 'rodnik-from-'.$timestamp.'.json';
         }
 
-        Storage::disk('public')->put('exports/'.$directory.$filename, $finalJson);
-
-        return $filename;
+        return $this->writeAtomically($filename, function (string $path) use ($finalJson): void {
+            File::put($path, $finalJson);
+        });
     }
 }

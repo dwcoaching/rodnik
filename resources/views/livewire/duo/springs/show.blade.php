@@ -38,8 +38,22 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center gap-x-2">
                             {{--<span class="mr-3 text-gray-600 text-2xl font-thin">#{{ $spring->id }}</span>--}}
+                            <button type="button"
+                                x-data="springFocus(@js($coordinates))"
+                                @map-viewport-changed.window="refresh()"
+                                @map-state-changed.window="refresh()"
+                                @click="showOnMap()"
+                                :class="{ 'invisible opacity-0': ! visible }"
+                                title="{{ __('ui.spring.show_on_map') }}"
+                                aria-label="{{ __('ui.spring.show_on_map') }}"
+                                class="invisible opacity-0 transition-[opacity,visibility] duration-150 rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-stone-600 hover:bg-stone-300
+                                    focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-blue-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5" aria-hidden="true">
+                                    <path d="M4.25 2A2.25 2.25 0 0 0 2 4.25v2a.75.75 0 0 0 1.5 0v-2a.75.75 0 0 1 .75-.75h2a.75.75 0 0 0 0-1.5h-2ZM13.75 2a.75.75 0 0 0 0 1.5h2a.75.75 0 0 1 .75.75v2a.75.75 0 0 0 1.5 0v-2A2.25 2.25 0 0 0 15.75 2h-2ZM3.5 13.75a.75.75 0 0 0-1.5 0v2A2.25 2.25 0 0 0 4.25 18h2a.75.75 0 0 0 0-1.5h-2a.75.75 0 0 1-.75-.75v-2ZM18 13.75a.75.75 0 0 0-1.5 0v2a.75.75 0 0 1-.75.75h-2a.75.75 0 0 0 0 1.5h2A2.25 2.25 0 0 0 18 15.75v-2ZM7 10a3 3 0 1 1 6 0 3 3 0 0 1-6 0Z" />
+                                </svg>
+                            </button>
                             @can('update', $spring)
                                 <div class="relative">
                                     <div x-data="{

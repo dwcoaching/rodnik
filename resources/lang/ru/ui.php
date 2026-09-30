@@ -384,6 +384,7 @@ return [
         'merge_into_another' => 'Объединить с другим…',
         'remove_redirect' => 'Удалить перенаправление',
         'remove_redirect_confirm' => 'Удалить перенаправление с этого источника воды?',
+        'show_on_map' => 'Показать на карте',
         'location' => 'Местоположение',
         'url' => 'Ссылка',
         'osm_data' => 'Данные OpenStreetMap',

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Library\Export;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Common\Entity\Style\Style;
 use OpenSpout\Writer\XLSX\Writer as OpenSpoutXlsxWriter;
@@ -19,17 +18,50 @@ final class XlsxWriter extends Writer
 
     public function writeXlsx(array $allSprings, array $allReports, array $allEdits, array $allPhotos): string
     {
-        $writer = $this->getOpenSpoutWriter();
-
         $timestamp = now()->format('Y-m-d_H-i-s');
 
         $filename = 'rodnik'
             .($this->user ? '-user-'.$this->user->id : '')
             .'-from-'.$timestamp.'.xlsx';
 
-        $writer->openToFile(Storage::disk('public')->path('exports/'
-        .($this->user ? 'users/' : '')
-        .$filename));
+        return $this->writeAtomically($filename, function (string $path) use ($allSprings, $allReports, $allEdits, $allPhotos): void {
+            $this->writeSheets($path, $allSprings, $allReports, $allEdits, $allPhotos);
+        });
+    }
+
+    protected function write(): string
+    {
+        $allSprings = [];
+        $allReports = [];
+        $allEdits = [];
+        $allPhotos = [];
+
+        $firstRun = true;
+
+        $this->query->chunk(500, function ($springs) use (&$allSprings, &$allReports, &$allEdits, &$allPhotos, &$firstRun) {
+            $csvTransformer = (new CsvTransformer($springs))->forUser($this->user);
+
+            if ($firstRun) {
+                $allSprings[] = $csvTransformer->getHeadersForSprings();
+                $allReports[] = $csvTransformer->getHeadersForReports();
+                $allEdits[] = $csvTransformer->getHeadersForEdits();
+                $allPhotos[] = $csvTransformer->getHeadersForPhotos();
+                $firstRun = false;
+            }
+
+            $allSprings = array_merge($allSprings, $csvTransformer->transformSprings());
+            $allReports = array_merge($allReports, $csvTransformer->transformReports());
+            $allEdits = array_merge($allEdits, $csvTransformer->transformEdits());
+            $allPhotos = array_merge($allPhotos, $csvTransformer->transformPhotos());
+        });
+
+        return $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
+    }
+
+    private function writeSheets(string $path, array $allSprings, array $allReports, array $allEdits, array $allPhotos): void
+    {
+        $writer = $this->getOpenSpoutWriter();
+        $writer->openToFile($path);
 
         // Create bold style for headers
         $headerStyle = new Style();
@@ -101,37 +133,6 @@ final class XlsxWriter extends Writer
         ]);
 
         $writer->close();
-
-        return $filename;
-    }
-
-    protected function write(): string
-    {
-        $allSprings = [];
-        $allReports = [];
-        $allEdits = [];
-        $allPhotos = [];
-
-        $firstRun = true;
-
-        $this->query->chunk(500, function ($springs) use (&$allSprings, &$allReports, &$allEdits, &$allPhotos, &$firstRun) {
-            $csvTransformer = (new CsvTransformer($springs))->forUser($this->user);
-
-            if ($firstRun) {
-                $allSprings[] = $csvTransformer->getHeadersForSprings();
-                $allReports[] = $csvTransformer->getHeadersForReports();
-                $allEdits[] = $csvTransformer->getHeadersForEdits();
-                $allPhotos[] = $csvTransformer->getHeadersForPhotos();
-                $firstRun = false;
-            }
-
-            $allSprings = array_merge($allSprings, $csvTransformer->transformSprings());
-            $allReports = array_merge($allReports, $csvTransformer->transformReports());
-            $allEdits = array_merge($allEdits, $csvTransformer->transformEdits());
-            $allPhotos = array_merge($allPhotos, $csvTransformer->transformPhotos());
-        });
-
-        return $this->writeXlsx($allSprings, $allReports, $allEdits, $allPhotos);
     }
 
     private function styleSheet($writer, $sheet, array $data, Style $headerStyle, Style $defaultStyle, array $columnWidths): void

@@ -51,6 +51,8 @@ import createMapView from './mapView.js';
 import { captureTrackNavigationState, trackGeoJson } from './trackNavigationState.js';
 import { afterMapUiReady, normalizeSharedMapState, sharedMapFilters, sharedMapPage, sharedMapSources } from './sharedMapState.js';
 
+const focusZoom = 14;
+
 export default class OpenLayersMap {
 
     constructor(elementId, config = {}) {
@@ -852,7 +854,7 @@ export default class OpenLayersMap {
     }
 
     locate(coordinates) {
-        const zoom = 14
+        const zoom = focusZoom
 
         this.view.animate(
             {
@@ -932,11 +934,6 @@ export default class OpenLayersMap {
 
         this.previouslyHighlightedFeature = feature;
         feature.setStyle(selectedStyle);
-
-        if (this.fullscreen && !this.preserveMapView) {
-            this.setFullscreen(false);
-            this.locateFeature(feature);
-        }
     }
 
     selectFeature(feature) {
@@ -948,6 +945,12 @@ export default class OpenLayersMap {
                 preserveMapView: true,
             }
         }));
+
+        // Fullscreen hides the source panel, so choosing a source brings the panel back.
+        if (this.getLayout().fullscreen) {
+            this.setFullscreen(false);
+            this.locateFeature(feature);
+        }
     }
 
     dehighlightFeature() {
@@ -1024,6 +1027,28 @@ export default class OpenLayersMap {
         if (!size?.[0] || !size?.[1]) return false;
 
         return containsCoordinate(this.view.calculateExtent(size), fromLonLat(coordinates));
+    }
+
+    isSpringFocused(coordinates) {
+        if (!this.containsCoordinates(coordinates)) return false;
+        const [x, y] = fromLonLat(coordinates);
+        const [centerX, centerY] = this.view.getCenter();
+
+        return this.view.getZoom() >= focusZoom - 0.01
+            && Math.hypot(centerX - x, centerY - y) <= 2 * this.view.getResolution();
+    }
+
+    focusSpring(coordinates) {
+        if (this.getLayout().minimized) {
+            this.getLayout().minimized = false;
+            this.notifySharedStateChange();
+        }
+
+        this.view.animate({
+            center: fromLonLat(coordinates),
+            zoom: Math.max(this.view.getZoom(), focusZoom),
+            duration: 250,
+        });
     }
 
     duoVisit({ preserveMapView = false, preserveMapViewIfVisible = false, ...queryParameters }) {

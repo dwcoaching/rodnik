@@ -1,21 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands\Export;
 
-use App\Models\User;
-use App\Models\Spring;
-use Illuminate\Console\Command;
-use App\Library\Export\Selector;
 use App\Library\Export\CsvWriter;
-use App\Library\Export\JsonExport;
 use App\Library\Export\JsonWriter;
+use App\Library\Export\Selector;
 use App\Library\Export\XlsxWriter;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Builder;
 
-class FullExport extends Command
+final class FullExport extends Command
 {
     /**
      * The name and signature of the console command.
@@ -29,16 +25,23 @@ class FullExport extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Export all public springs data and remove the previous full exports';
 
     /**
      * Execute the console command.
      */
     public function handle(Selector $selector)
     {
-        Artisan::call('export:clear');        
-        Artisan::call('export:springs', ['--format' => 'json']);
-        Artisan::call('export:springs', ['--format' => 'csv']);
-        Artisan::call('export:springs', ['--format' => 'xlsx']);
+        $filenames = [
+            (new JsonWriter($selector->forUser(null)->getQuery()))->save(),
+            (new CsvWriter($selector->forUser(null)->getQuery()))->save(),
+            (new XlsxWriter($selector->forUser(null)->getQuery()))->save(),
+        ];
+
+        // Previous exports are removed only once all new ones are in place,
+        // so the exports page and the latest links always have a file to serve.
+        collect(Storage::disk('public')->files('exports'))
+            ->reject(fn (string $file) => in_array(basename($file), $filenames, true))
+            ->each(fn (string $file) => Storage::disk('public')->delete($file));
     }
 }

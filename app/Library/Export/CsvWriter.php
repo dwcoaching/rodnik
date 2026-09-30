@@ -21,28 +21,24 @@ final class CsvWriter extends Writer
     {
         $timestamp = now()->format('Y-m-d_H-i-s');
 
-        $exportDir = Storage::disk('public')->path('exports/'
-        .($this->user ? 'users/' : ''));
-
         $filename = 'rodnik'
             .($this->user ? '-user-'.$this->user->id : '')
             .'-from-'.$timestamp.'.zip';
 
-        $filePath = $exportDir.$filename;
-
-        Process::path($exportDir)
-            ->run([
-                'zip',
-                '-j',  // junk paths (don't store directory structure)
-                '-6',  // compression level (1=fastest, 9=best compression, 6=default)
-                $filePath,
-                $springsFilePath,
-                $reportsFilePath,
-                $editsFilePath,
-                $photosFilePath,
-            ]);
-
-        return $filename;
+        return $this->writeAtomically($filename, function (string $path) use ($springsFilePath, $reportsFilePath, $editsFilePath, $photosFilePath): void {
+            Process::path(dirname($path))
+                ->run([
+                    'zip',
+                    '-j',  // junk paths (don't store directory structure)
+                    '-6',  // compression level (1=fastest, 9=best compression, 6=default)
+                    $path,
+                    $springsFilePath,
+                    $reportsFilePath,
+                    $editsFilePath,
+                    $photosFilePath,
+                ])
+                ->throw();
+        });
     }
 
     public function deleteFiles(string $springsFilePath, string $reportsFilePath, string $editsFilePath, string $photosFilePath): void

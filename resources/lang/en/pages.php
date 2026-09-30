@@ -74,6 +74,10 @@ return [
             'title' => 'Update frequency',
             'description' => 'The exports are updated daily.',
         ],
+        'latest' => [
+            'title' => 'Permanent links',
+            'description' => 'These links always redirect to the most recent export, so you can use them in scripts and integrations without looking up a fresh link on this page.',
+        ],
         'personal' => [
             'title' => 'Personal user exports',
             'description' => 'You can export all your personal contributions to Rodnik.today from your user profile.',

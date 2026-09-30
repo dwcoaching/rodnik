@@ -248,8 +248,6 @@ test('marker selection and background deselection preserve the camera and user c
     const feature = new Feature({ id: 1392969, geometry: new Point([50000, 60000]) });
     const events = [];
     window.addEventListener('duo-visit', event => events.push(event.detail));
-    map.fullscreen = true;
-    map.getLayout().fullscreen = true;
     map.getLayout().minimized = true;
     const center = [...map.view.getCenter()];
     const zoom = map.view.getZoom();
@@ -269,9 +267,79 @@ test('marker selection and background deselection preserve the camera and user c
 
     assert.deepEqual(map.view.getCenter(), center);
     assert.equal(map.view.getZoom(), zoom);
-    assert.equal(map.fullscreen, true);
     assert.equal(map.getLayout().minimized, true);
     assert.equal(map.userOverviewNeedsFit, false);
+});
+
+test('choosing a marker in fullscreen returns to its source panel centered on it', t => {
+    const previousWindow = globalThis.window;
+    globalThis.window = new EventTarget();
+    t.after(() => { globalThis.window = previousWindow; });
+    const { map } = userNavigationMap({ spring: null });
+    const feature = new Feature({ id: 1392969, geometry: new Point([50000, 60000]) });
+    const events = [];
+    const animations = [];
+    window.addEventListener('duo-visit', event => events.push(event.detail));
+    map.view.animate = animation => animations.push(animation);
+    map.setFullscreen(true);
+
+    map.deselectFeature();
+    assert.equal(map.getLayout().fullscreen, true, 'clicking the background keeps exploring in fullscreen');
+    assert.deepEqual(animations, []);
+
+    map.selectFeature(feature);
+    assert.deepEqual(events[1], { spring: 1392969, user: 4889, location: null, preserveMapView: true });
+    assert.equal(map.getLayout().fullscreen, false);
+    assert.equal(map.fullscreen, false);
+    assert.deepEqual(animations, [{ center: [50000, 60000], duration: 250 }]);
+
+    map.duoVisit({ ...events[1], coordinates: [45, 60] });
+    map.highlightFeature(feature);
+    assert.equal(map.getLayout().fullscreen, false);
+    assert.equal(animations.length, 1, 'the loaded source panel must not move the camera again');
+});
+
+test('a source is focused only when centered at street zoom or closer in a visible map', () => {
+    const { map } = userNavigationMap();
+    const coordinates = toLonLat([10000, 30000]);
+    assert.equal(map.isSpringFocused(coordinates), true);
+
+    map.view.setZoom(17);
+    assert.equal(map.isSpringFocused(coordinates), true, 'zooming in further keeps the source in focus');
+    map.view.setZoom(13);
+    assert.equal(map.isSpringFocused(coordinates), false);
+
+    map.view.setZoom(14);
+    map.view.setCenter([10000 + map.view.getResolution(), 30000]);
+    assert.equal(map.isSpringFocused(coordinates), true, 'rounded URL coordinates still count as centered');
+    map.view.setCenter([10000, 30000 + 5 * map.view.getResolution()]);
+    assert.equal(map.isSpringFocused(coordinates), false, 'a drag past the click tolerance moves the source off center');
+
+    map.view.setCenter([10000, 30000]);
+    map.getLayout().minimized = true;
+    assert.equal(map.isSpringFocused(coordinates), false, 'a minimized map does not show the source');
+    map.getLayout().minimized = false;
+    assert.equal(map.isSpringFocused(null), false);
+});
+
+test('showing a source on the map expands the map and never zooms out', () => {
+    const { map } = userNavigationMap();
+    const animations = [];
+    let layoutChanges = 0;
+    map.view.animate = animation => animations.push(animation);
+    map.notifySharedStateChange = () => { layoutChanges++; };
+    map.view.setZoom(6);
+    map.getLayout().minimized = true;
+
+    map.focusSpring([37, 55]);
+    assert.equal(map.getLayout().minimized, false);
+    assert.equal(layoutChanges, 1);
+    assert.deepEqual(animations, [{ center: fromLonLat([37, 55]), zoom: 14, duration: 250 }]);
+
+    map.view.setZoom(17);
+    map.focusSpring([37, 55]);
+    assert.equal(animations[1].zoom, map.view.getZoom());
+    assert.equal(layoutChanges, 1, 'an expanded map keeps its layout');
 });
 
 test('returning from a source to the same user overview fits cached sources once', () => {
