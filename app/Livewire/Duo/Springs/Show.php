@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Livewire\Duo\Springs;
 
+use App\Actions\GeocodeSpringAction;
 use App\Actions\Springs\UnmergeSpringsAction;
 use App\Models\Spring;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Reactive;
 use Livewire\Component;
+use Throwable;
 
 final class Show extends Component
 {
@@ -19,9 +21,13 @@ final class Show extends Component
     #[Reactive]
     public $userId;
 
+    public ?int $geocodedSpringId = null;
+
+    public bool $geocodingMatched = false;
+
     public function render()
     {
-        $spring = Spring::findOrFail($this->springId);
+        $spring = Spring::with(['geoCountry', 'geoRegion', 'nearestCity'])->findOrFail($this->springId);
 
         $reports = $spring
             ->reports()
@@ -87,5 +93,22 @@ final class Show extends Component
         $action($spring);
 
         return $this->redirect(duo_route(['spring' => $this->springId]), navigate: true);
+    }
+
+    public function geocode(GeocodeSpringAction $action): void
+    {
+        Gate::authorize('admin');
+
+        $spring = Spring::findOrFail($this->springId);
+        $this->resetErrorBag('geocoding');
+        $this->geocodedSpringId = null;
+
+        try {
+            $this->geocodingMatched = $action($spring);
+            $this->geocodedSpringId = (int) $spring->id;
+        } catch (Throwable $exception) {
+            report($exception);
+            $this->addError('geocoding', __('ui.spring.geocoding_failed'));
+        }
     }
 }

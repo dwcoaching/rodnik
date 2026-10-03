@@ -11,6 +11,7 @@
     </div>
 
     <div class="flex items-center gap-2 sm:gap-3">
+        <a href="{{ localized_route('geography.countries.index') }}" data-rodnik-navigate class="text-sm font-medium text-blue-700 hover:underline">{{ __('geography.browse') }}</a>
         <x-language-switcher />
         @guest
             <div class="flex items-center gap-3 sm:gap-4">

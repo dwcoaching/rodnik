@@ -51,8 +51,9 @@ class OverpassImportParse extends Command
                 $existing = $existing + 1;
             }
 
-            $spring->latitude = $node['lat'];
-            $spring->longitude = $node['lon'];
+            // SimpleXML attributes are objects; observers need numeric coordinates.
+            $spring->latitude = (float) (string) $node['lat'];
+            $spring->longitude = (float) (string) $node['lon'];
             $spring->save();
 
             DB::table('osm_tags')->where('spring_id', '=', $spring->id)->delete();

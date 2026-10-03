@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Spring extends Model
@@ -36,6 +37,34 @@ final class Spring extends Model
     // Coarse query prefilter for nearby merge candidates. Exact merge distance
     // checks use the HaversineDistance library.
     public const MERGE_RADIUS_DEGREES = self::MERGE_RADIUS_METERS / 111320;
+
+    protected $casts = [
+        'geocoded_at' => 'datetime',
+        'country_id' => 'integer',
+        'region_id' => 'integer',
+        'nearest_city_id' => 'integer',
+        'nearest_city_distance_km' => 'float',
+    ];
+
+    public function geoCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'country_id');
+    }
+
+    public function geoRegion(): BelongsTo
+    {
+        return $this->belongsTo(Region::class, 'region_id');
+    }
+
+    public function nearestCity(): BelongsTo
+    {
+        return $this->belongsTo(City::class, 'nearest_city_id');
+    }
+
+    public function scopePublicGeography(Builder $query): Builder
+    {
+        return $query->whereNull($this->qualifyColumn('hidden_at'))->notRedirected();
+    }
 
     public function reports()
     {

@@ -25,6 +25,7 @@
                         {{ __('ui.common.about') }}
                     </span>
                 </a>
+                <a href="{{ localized_route('geography.countries.index') }}" data-rodnik-navigate class="ml-2 text-blue-600 hover:underline">{{ __('geography.browse') }}</a>
                 {{-- 
                     <div class="">
                         <a href="https://www.instagram.com/rodnik.today/" target="_blank" class="flex items-center font-normal text-sm text-blue-600 hover:text-blue-700">

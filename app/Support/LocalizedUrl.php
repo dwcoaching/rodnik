@@ -49,6 +49,17 @@ final class LocalizedUrl
             )
             : $request->query();
 
+        if ($canonical && $request->routeIs('geography.*', 'ru.geography.*')) {
+            $query = [];
+
+            foreach (['page', 'settlements_page'] as $name) {
+                $page = $request->query($name);
+                if (is_scalar($page) && filter_var($page, FILTER_VALIDATE_INT, ['options' => ['min_range' => 2]]) !== false) {
+                    $query[$name] = (int) $page;
+                }
+            }
+        }
+
         if ($query === []) {
             return $path;
         }

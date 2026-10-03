@@ -23,6 +23,9 @@ final class SpringController extends Controller
         }
 
         $spring->load([
+            'geoCountry',
+            'geoRegion',
+            'nearestCity',
             'visibleReports' => fn ($reports) => $reports
                 ->select([
                     'id',

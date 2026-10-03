@@ -30,6 +30,20 @@ name('docs.about');
             <a href="https://www.openstreetmap.org/copyright" class="text-blue-600" target="_blank">ODbL</a>.
             {{ __('pages.about.copyright.after_license') }}
         </div>
+        <div class="mt-3">
+            {{ __('pages.about.copyright.geocoding_cities') }}
+            <a href="https://www.geonames.org/" class="text-blue-600" target="_blank" rel="noopener">GeoNames</a>
+            (<a href="https://creativecommons.org/licenses/by/4.0/" class="text-blue-600" target="_blank" rel="noopener">CC BY 4.0</a>)
+            {{ __('pages.about.copyright.geocoding_boundaries') }}
+            <a href="https://www.naturalearthdata.com/about/terms-of-use/" class="text-blue-600" target="_blank" rel="noopener">Natural Earth</a>.
+        </div>
+        <div class="mt-3">
+            {{ __('pages.about.copyright.geocoding_policy_boundaries') }}
+            <a href="https://data.humdata.org/dataset/cod-ab-ukr" class="text-blue-600" target="_blank" rel="noopener">Kartographia / OCHA</a>
+            (<a href="https://creativecommons.org/licenses/by/3.0/igo/" class="text-blue-600" target="_blank" rel="noopener">CC BY 3.0 IGO</a>)
+            {{ __('pages.about.copyright.geocoding_osm_boundaries') }}
+            (<a href="https://www.openstreetmap.org/copyright" class="text-blue-600" target="_blank" rel="noopener">ODbL</a>).
+        </div>
 
         <div class="mt-9 font-black text-xl">
             {{ __('pages.about.authors.title') }}

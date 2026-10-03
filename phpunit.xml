@@ -24,6 +24,12 @@
         <env name="DB_CONNECTION" value="testing"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="GEOCODING_PATH" value="tests/Fixtures/geocoding.geojson"/>
+        <env name="GEOCODING_CITIES_PATH" value="null"/>
+        <env name="GEOCODING_ADMIN1_PATH" value="null"/>
+        <env name="GEOCODING_REGIONS_PATH" value="null"/>
+        <env name="GEOCODING_REFERENCE_PATH" value="null"/>
+        <env name="GEOCODING_RUSSIA_BORDER_PATH" value="null"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
     </php>

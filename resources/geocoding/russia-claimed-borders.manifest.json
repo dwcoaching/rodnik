@@ -1,0 +1,659 @@
+{
+    "generated_at": "2026-10-02T16:23:20+00:00",
+    "policy": "russia-claimed-administrative-extent",
+    "official_geometry": false,
+    "provider": "Natural Earth; Kartographia / OCHA Ukraine; OpenStreetMap contributors",
+    "version": "Natural Earth 5.1.2; OCHA COD-AB Ukraine v05; historical OSM relation 1738982 snapshot",
+    "license": "Per-feature licences retained: Natural Earth public domain; OCHA CC BY 3.0 IGO; OSM-derived historical-raion geometry ODbL 1.0.",
+    "attribution": [
+        {
+            "provider": "Natural Earth",
+            "source": "https://www.naturalearthdata.com/",
+            "license": "Public domain",
+            "license_url": "https://www.naturalearthdata.com/about/terms-of-use/"
+        },
+        {
+            "provider": "State Scientific Production Enterprise Kartographia / OCHA Ukraine",
+            "source": "https://data.humdata.org/dataset/cod-ab-ukr",
+            "license": "CC BY 3.0 IGO",
+            "license_url": "https://creativecommons.org/licenses/by/3.0/igo/",
+            "valid_on": "2025-09-01",
+            "version": "v05",
+            "modifications": "Select complete claimed subject polygons and replace country/region labels for the application policy; use settlement centres for coverage verification."
+        },
+        {
+            "provider": "OpenStreetMap contributors",
+            "source": "https://www.openstreetmap.org/relation/1738982",
+            "license": "ODbL 1.0",
+            "license_url": "https://opendatacommons.org/licenses/odbl/1-0/",
+            "snapshot_file": "russia-claimed-municipalities-osm.geojson",
+            "modifications": "Retain historical raion polygon; attach Russia and Kherson policy labels. OSM-derived geometry remains available under ODbL 1.0."
+        }
+    ],
+    "policy_sources": [
+        "https://www.minjust.gov.ru/ru/documents/8011/",
+        "https://publication.pravo.gov.ru/Document/View/0001201403210014",
+        "https://publication.pravo.gov.ru/Document/View/0001202210050005",
+        "https://publication.pravo.gov.ru/Document/View/0001202210050006",
+        "https://publication.pravo.gov.ru/Document/View/0001202210050007",
+        "https://publication.pravo.gov.ru/Document/View/0001202210050008",
+        "https://khogov.ru/o-hersonskoj-oblasti/",
+        "https://khogov.ru/wp-content/uploads/2024/12/85-zho-1.pdf",
+        "https://khogov.ru/wp-content/uploads/2024/12/86-zho-3.pdf",
+        "https://khogov.ru/wp-content/uploads/2024/02/27-ukaz-%E2%84%9658-u-ot-29.03.2023.pdf",
+        "https://khogov.ru/wp-content/uploads/2024/02/47-ukaz-%E2%84%9677-u-ot-29.03.2023.pdf"
+    ],
+    "inputs": {
+        "countries": {
+            "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_admin_0_countries.geojson",
+            "sha256": "239eec57ac17f100a11e2536cffc56752c318b50ae765b0918ff7aab4ce8f255",
+            "bytes": 13287234,
+            "input": "local"
+        },
+        "admin1": {
+            "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_admin_1_states_provinces.geojson",
+            "sha256": "22d0e3ad85eb3e27f17cabf8ba2d50e554fbc27a87796ff891d958185da62fb5",
+            "bytes": 40726851,
+            "input": "local"
+        },
+        "ukraine": {
+            "url": "https://data.humdata.org/dataset/d23f529f-31e4-4021-a65b-13987e5cfb42/resource/681beb86-391b-4a08-8140-ca52e80fcdce/download/ukr_admin_boundaries.geojson.zip",
+            "sha256": "b8604bc983e1e54a6f7c10186a5cf8474cb8ed49eb038b4bef8091d92c286790",
+            "bytes": 83953609,
+            "input": "local"
+        },
+        "municipalities": {
+            "url": "https://nominatim.openstreetmap.org/lookup?osm_ids=R1738982&format=geojson&polygon_geojson=1",
+            "sha256": "de5a19bbbeb1aec92a25ba28379c3396f7731ea70aa485baa0bc40a263cb37bb",
+            "bytes": 14783,
+            "input": "local",
+            "osm_relation_id": 1738982
+        }
+    },
+    "official_reference_documents": [
+        {
+            "url": "https://khogov.ru/wp-content/uploads/2024/12/85-zho-1.pdf",
+            "date": "2024-12-27",
+            "sha256": "cff203da24fe1406516af01f29de010c6543878d616727284dac4453ff5a20cd",
+            "scope": "Law 85-ZHO Appendix 1: Aleksandrovsky 19 and Snihurivka 39 settlement names and aliases."
+        },
+        {
+            "url": "https://khogov.ru/wp-content/uploads/2024/12/86-zho-3.pdf",
+            "date": "2024-12-27",
+            "sha256": "bf6234341a0883dc3b11415f8afffbf8789fc0aea40591bd1a8b9a0c6f73285f",
+            "scope": "Law 86-ZHO Articles 5 and 23: the same municipal settlement lists."
+        },
+        {
+            "url": "https://khogov.ru/wp-content/uploads/2024/02/27-ukaz-%E2%84%9658-u-ot-29.03.2023.pdf",
+            "date": "2023-03-29",
+            "sha256": "cfeb72b6de201546af88c841274a1c75c3ffa17fc68522b01c75702d457596fb",
+            "scope": "Decree 58-u defines external settlement territory boundaries for Aleksandrovsky, without surveyed coordinate geometry."
+        },
+        {
+            "url": "https://khogov.ru/wp-content/uploads/2024/02/47-ukaz-%E2%84%9677-u-ot-29.03.2023.pdf",
+            "date": "2023-03-29",
+            "sha256": "f8d188e95e3b253c6affcf2a5dda2bdd5f25388162c00ddc6ade6f672af863ae",
+            "scope": "Decree 77-u older Snihurivka list includes Bezimenne."
+        }
+    ],
+    "output": {
+        "file": "russia-claimed-borders.geojson",
+        "sha256": "328654c4d57ce0f729ad2eefbbbb77029e58aba8fcceb66a122478c85622a681",
+        "bytes": 5402930
+    },
+    "counts": {
+        "features": 14,
+        "claimed_subjects": {
+            "UA-09": "Луганская Народная Республика",
+            "UA-14": "Донецкая Народная Республика",
+            "UA-43": "Республика Крым",
+            "UA-65": "Херсонская область",
+            "UA-23": "Запорожская область",
+            "UA-40": "Севастополь"
+        },
+        "municipalities": {
+            "verified_settlements": 58,
+            "aleksandrovsky": 19,
+            "snihurivka": 39,
+            "settlements": {
+                "UA4802009001": {
+                    "municipality": "Александровский",
+                    "name_uk": "Горохівське",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.70248735100017,
+                        46.959193210000194
+                    ]
+                },
+                "UA4802009002": {
+                    "municipality": "Александровский",
+                    "name_uk": "Баратівка",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.78018316300012,
+                        46.94542908400018
+                    ]
+                },
+                "UA4802009003": {
+                    "municipality": "Александровский",
+                    "name_uk": "Великопілля",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.65480135100006,
+                        46.93511748700007
+                    ]
+                },
+                "UA4802009004": {
+                    "municipality": "Александровский",
+                    "name_uk": "Виноградне",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.677755772000125,
+                        46.96590131800008
+                    ]
+                },
+                "UA4802009005": {
+                    "municipality": "Александровский",
+                    "name_uk": "Гречанівка",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.811345438000046,
+                        46.93686645000008
+                    ]
+                },
+                "UA4802009006": {
+                    "municipality": "Александровский",
+                    "name_uk": "Гуляйгородок",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.586192730000164,
+                        46.87362178799998
+                    ]
+                },
+                "UA4802009007": {
+                    "municipality": "Александровский",
+                    "name_uk": "Лиманці",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.82415743000013,
+                        46.866341396000166
+                    ]
+                },
+                "UA4802009008": {
+                    "municipality": "Александровский",
+                    "name_uk": "Михайлівка",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.80774757000006,
+                        46.85452940300007
+                    ]
+                },
+                "UA4802009009": {
+                    "municipality": "Александровский",
+                    "name_uk": "Новий Шлях",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.713238594000074,
+                        46.989842355000064
+                    ]
+                },
+                "UA4802009010": {
+                    "municipality": "Александровский",
+                    "name_uk": "Новософіївка",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.81837598100009,
+                        46.893602559000044
+                    ]
+                },
+                "UA4802009011": {
+                    "municipality": "Александровский",
+                    "name_uk": "Новотимофіївка",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.79335236800006,
+                        46.84359017700001
+                    ]
+                },
+                "UA4802009012": {
+                    "municipality": "Александровский",
+                    "name_uk": "Олександрівка",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.761745549000125,
+                        46.83760096100008
+                    ]
+                },
+                "UA4802009013": {
+                    "municipality": "Александровский",
+                    "name_uk": "Петропавлівське",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.80788684400005,
+                        46.91753974400007
+                    ]
+                },
+                "UA4802009014": {
+                    "municipality": "Александровский",
+                    "name_uk": "Промінь",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.73794302400006,
+                        46.89561739000004
+                    ]
+                },
+                "UA4802009015": {
+                    "municipality": "Александровский",
+                    "name_uk": "Романово-Булгакове",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.79493719500016,
+                        46.97728604800005
+                    ]
+                },
+                "UA4802009016": {
+                    "municipality": "Александровский",
+                    "name_uk": "Суворе",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.68964325600018,
+                        46.87266605100007
+                    ]
+                },
+                "UA4802009017": {
+                    "municipality": "Александровский",
+                    "name_uk": "Галаганівка",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.752865101000054,
+                        46.950678303000075
+                    ]
+                },
+                "UA4802009018": {
+                    "municipality": "Александровский",
+                    "name_uk": "Садове",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.745664153,
+                        46.95324953700003
+                    ]
+                },
+                "UA4802009019": {
+                    "municipality": "Александровский",
+                    "name_uk": "Світла Дача",
+                    "hromada_uk": "Горохівська",
+                    "coordinates": [
+                        32.65715069900011,
+                        46.89362629900006
+                    ]
+                },
+                "UA4802019001": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Снігурівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.808019167000054,
+                        47.07561687100019
+                    ]
+                },
+                "UA4802019002": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Афанасіївка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.815145650000034,
+                        47.02197692800013
+                    ]
+                },
+                "UA4802019004": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Бурханівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.629946940000025,
+                        46.98472961900018
+                    ]
+                },
+                "UA4802019005": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Василівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.85565048000018,
+                        47.07542529600005
+                    ]
+                },
+                "UA4802019006": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Галаганівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.82723879600019,
+                        46.905617579000136
+                    ]
+                },
+                "UA4802019007": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Євгенівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.89994222700017,
+                        47.08545615200012
+                    ]
+                },
+                "UA4802019008": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Єлизаветівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.81860283600008,
+                        46.94665169000007
+                    ]
+                },
+                "UA4802019009": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Івано-Кепине",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.850830756000164,
+                        47.042455498000095
+                    ]
+                },
+                "UA4802019010": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Калинівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.64395807000005,
+                        47.01111381599998
+                    ]
+                },
+                "UA4802019011": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Кобзарці",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.77330998100007,
+                        47.14884165000012
+                    ]
+                },
+                "UA4802019012": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Любимівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.6670946210001,
+                        47.013167960000146
+                    ]
+                },
+                "UA4802019013": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Нововасилівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.80666703999998,
+                        47.00167055900016
+                    ]
+                },
+                "UA4802019014": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Новокондакове",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.839200087000165,
+                        46.99993877300005
+                    ]
+                },
+                "UA4802019015": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Новопавлівське",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.9030816880001,
+                        47.135323948000064
+                    ]
+                },
+                "UA4802019016": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Павлівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.847581182000056,
+                        47.066982474000156
+                    ]
+                },
+                "UA4802019017": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Павло-Мар'янівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.89498578100006,
+                        47.10592720100004
+                    ]
+                },
+                "UA4802019018": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Мирне",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.605775929000174,
+                        46.948581909000154
+                    ]
+                },
+                "UA4802019019": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Тамарине",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.999908587000164,
+                        47.01741271600014
+                    ]
+                },
+                "UA4802019020": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Трудолюбівка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.608730485000024,
+                        46.920450359000085
+                    ]
+                },
+                "UA4802019021": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Юріївка",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.84289150800015,
+                        47.03330174900003
+                    ]
+                },
+                "UA4802019022": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Васильки",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.55944709600004,
+                        46.97714118100009
+                    ]
+                },
+                "UA4802019023": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Ясна Поляна",
+                    "hromada_uk": "Снігурівська",
+                    "coordinates": [
+                        32.832820296000136,
+                        46.97093744700015
+                    ]
+                },
+                "UA4802023001": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Широке",
+                    "hromada_uk": "Широківська",
+                    "coordinates": [
+                        32.6759616010001,
+                        47.09728531899998
+                    ]
+                },
+                "UA4802023002": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Любине",
+                    "hromada_uk": "Широківська",
+                    "coordinates": [
+                        32.67179124800009,
+                        47.07903404100017
+                    ]
+                },
+                "UA4802023003": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Новопетрівка",
+                    "hromada_uk": "Широківська",
+                    "coordinates": [
+                        32.667032907000134,
+                        47.05969800800017
+                    ]
+                },
+                "UA4802023004": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Покровське",
+                    "hromada_uk": "Широківська",
+                    "coordinates": [
+                        32.621467115000144,
+                        47.18365921000009
+                    ]
+                },
+                "UA4802023005": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Червона Долина",
+                    "hromada_uk": "Широківська",
+                    "coordinates": [
+                        32.661931625000136,
+                        47.14656796700007
+                    ]
+                },
+                "UA4802023006": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Поляна",
+                    "hromada_uk": "Широківська",
+                    "coordinates": [
+                        32.68002383000004,
+                        47.16979108900006
+                    ]
+                },
+                "UA4802023007": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Степове",
+                    "hromada_uk": "Широківська",
+                    "coordinates": [
+                        32.56750399800018,
+                        47.16717257700009
+                    ]
+                },
+                "UA4806027004": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Киселівка",
+                    "hromada_uk": "Заводська",
+                    "coordinates": [
+                        32.474419750000095,
+                        47.00273227200017
+                    ]
+                },
+                "UA4806027006": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Максимівка",
+                    "hromada_uk": "Заводська",
+                    "coordinates": [
+                        32.48122084800008,
+                        46.96346548399998
+                    ]
+                },
+                "UA4806037002": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Богородицьке",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.49356369600008,
+                        46.8511933530001
+                    ]
+                },
+                "UA4806037003": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Вавилове",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.47047428700006,
+                        46.924843145000125
+                    ]
+                },
+                "UA4806037010": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Новокиївка",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.49911085500014,
+                        46.86269738800007
+                    ]
+                },
+                "UA4806037014": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Шмідтове",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.463930967000124,
+                        46.872397619000026
+                    ]
+                },
+                "UA4806037016": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Знам'янка",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.55189642500011,
+                        46.902599781
+                    ]
+                },
+                "UA4806037018": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Любомирівка",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.37707491900005,
+                        46.886562856000126
+                    ]
+                },
+                "UA4806037020": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Тернові Поди",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.38748858800005,
+                        46.859577398000056
+                    ]
+                },
+                "UA4806037021": {
+                    "municipality": "Снигиревский",
+                    "name_uk": "Центральне",
+                    "hromada_uk": "Шевченківська",
+                    "coordinates": [
+                        32.473823350000146,
+                        46.907800768000186
+                    ]
+                }
+            },
+            "additional_settlements_in_historic_polygon": {
+                "UA4802019003": "Безіменне"
+            }
+        }
+    },
+    "transformations": [
+        "Retain Russian country geography, including islands, from Natural Earth.",
+        "Prefer detailed OCHA / Kartographia complete administrative polygons for Crimea, Sevastopol, Donetsk, Luhansk, Kherson and Zaporizhzhia; retain Natural Earth administrative fallback coverage and do not clip to military control lines.",
+        "Add the historical Snihurivka-raion OSM polygon as the combined external extent of the additional Aleksandrovsky and Snihurivka municipal claims described by the official Kherson governor history.",
+        "Verify all 58 settlements listed by Kherson laws 85-ZHO and 86-ZHO (27 December 2024) against OCHA COD-AB v05 settlement centres: 19 Aleksandrovsky and 39 Snihurivka. Current hromadas alone are insufficient because ten listed places now belong to Zavodska or Shevchenkivska.",
+        "Assign canonical country Russia / Россия / RU to every feature and use Russian subject names for the six selected administrative regions."
+    ],
+    "limitations": [
+        "This is derived generalized administrative geography, not an official Russian surveyed border or a certification of legal compliance.",
+        "The additional municipalities use a historical administrative polygon anchored to official subject/settlement descriptions, not a newly surveyed Russian border. All 58 current listed settlement centres are covered. The historical polygon also contains Bezimenne, present in the 2023 Snihurivka decree but absent from the 2024 settlement lists; no unsupported cut around its territory is inferred.",
+        "Maritime zones and claims to continental-shelf rights are not land-country polygons."
+    ]
+}

@@ -8,6 +8,7 @@
         <x-seo
             :title="trim($__env->yieldContent('title')) ?: null"
             :description="trim($__env->yieldContent('description')) ?: null"
+            :indexable="$indexable ?? null"
         />
 
         <!-- Fonts -->
@@ -79,6 +80,11 @@
                   </div>
                   <nav aria-label="{{ __('ui.common.navigation') }}" class="text-sm leading-normal [&_a]:grid [&_a]:grid-flow-col [&_a]:content-start [&_a]:items-center [&_a]:gap-2 [&_a]:rounded-lg [&_a]:px-3 [&_a]:py-1.5 [&_a]:text-start [&_a]:text-balance [&_a]:select-none [&_a]:transition-colors [&_a]:duration-200 [&_a:hover]:bg-[#111827]/10 [&_a:focus-visible]:bg-[#111827]/10 [&_a:focus-visible]:outline-hidden [&_a:active]:bg-[#3d4451] [&_a:active]:text-white">
                   <ul class="flex w-full flex-col">
+                  <li><a data-rodnik-navigate href="{{ localized_route('geography.countries.index') }}"
+                    @if (Request::routeIs('geography.*', 'ru.geography.*'))
+                      aria-current="page"
+                    @endif
+                  >🌍&nbsp; {{ __('geography.browse') }}</a></li>
                   {{--<li><a href="/">🌍&nbsp; Map</a></li>--}}
                   <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/about') }}"
                     @if (Request::is('docs/about', 'ru/docs/about'))

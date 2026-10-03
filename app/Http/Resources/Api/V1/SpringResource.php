@@ -21,12 +21,27 @@ final class SpringResource extends JsonResource
             return [];
         }
 
+        $country = $spring->relationLoaded('geoCountry') ? $spring->getRelation('geoCountry') : null;
+        $region = $spring->relationLoaded('geoRegion') ? $spring->getRelation('geoRegion') : null;
+        $city = $spring->relationLoaded('nearestCity') ? $spring->getRelation('nearestCity') : null;
+
         return [
             'id' => (int) $spring->id,
             'name' => $spring->name,
             'type' => $spring->type,
             'latitude' => $spring->latitude !== null ? (float) $spring->latitude : null,
             'longitude' => $spring->longitude !== null ? (float) $spring->longitude : null,
+            'country' => $country->name ?? $spring->country,
+            'country_ru' => $country->name_ru ?? $spring->country_ru,
+            'country_code' => $spring->country_code,
+            'city' => $city->name ?? $spring->city,
+            'region' => $region->name ?? $spring->region,
+            'city_ru' => $city->name_ru ?? $spring->city_ru,
+            'region_ru' => $region->name_ru ?? $spring->region_ru,
+            'country_id' => $spring->country_id,
+            'region_id' => $spring->region_id,
+            'nearest_city_id' => $spring->nearest_city_id,
+            'nearest_city_distance_km' => $spring->nearest_city_distance_km,
             'intermittent' => $spring->intermittent,
             'water_score' => $spring->getWaterScore(),
             'not_found' => $spring->isNotFound(),

@@ -1,0 +1,13 @@
+{
+    "source_url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_admin_1_states_provinces.geojson",
+    "provider": "Natural Earth",
+    "version": "5.1.2",
+    "license": "Public domain",
+    "license_url": "https://www.naturalearthdata.com/about/terms-of-use/",
+    "source_sha256": "22d0e3ad85eb3e27f17cabf8ba2d50e554fbc27a87796ff891d958185da62fb5",
+    "admin1_sha256": "1da92a6323a5fec3176f3f743bf4cf4040fd56a876da55e46fbca23c863aa60a",
+    "output_sha256": "e77f2a138ff7ddee7beedca6465d1b8ad643fa3e862d512da1c6db2bae889b12",
+    "regions": 4577,
+    "skipped_unassigned": 19,
+    "ambiguous_geonames_ids_cleared": 28
+}

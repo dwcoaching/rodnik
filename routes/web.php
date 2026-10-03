@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\CoverageController;
+use App\Http\Controllers\GeographyController;
 use App\Http\Controllers\HeatmapController;
 use App\Http\Controllers\LatestExportController;
 use App\Http\Controllers\LocaleController;
@@ -45,6 +46,10 @@ Route::get('sitemaps/static.xml', [SitemapController::class, 'staticPages'])->na
 Route::get('sitemaps/springs-{page}.xml', [SitemapController::class, 'springs'])
     ->whereNumber('page')
     ->name('sitemap.springs');
+Route::get('sitemaps/locations-{type}-{page}.xml', [SitemapController::class, 'locations'])
+    ->whereIn('type', ['countries', 'regions', 'cities'])
+    ->whereNumber('page')
+    ->name('sitemap.locations');
 
 $resourceRoutes = function (): void {
     Route::get('/', [WebController::class, 'index'])->name('duo');
@@ -64,6 +69,11 @@ $resourceRoutes = function (): void {
 
 $publicRoutes = function () use ($resourceRoutes): void {
     $resourceRoutes();
+
+    Route::get('countries', [GeographyController::class, 'index'])->name('geography.countries.index');
+    Route::get('countries/{country:slug}', [GeographyController::class, 'country'])->name('geography.countries.show');
+    Route::get('regions/{region:slug}', [GeographyController::class, 'region'])->name('geography.regions.show');
+    Route::get('cities/{city:slug}', [GeographyController::class, 'city'])->name('geography.cities.show');
 
     Route::get('maps/{map:slug}', [MapController::class, 'show'])
         ->where('map', '[a-zA-Z0-9-]{3,80}')

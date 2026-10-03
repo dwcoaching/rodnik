@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"country": "Test country", "country_code": "XX"},
+      "geometry": {"type": "Polygon", "coordinates": [[[-180, -90], [180, -90], [180, 90], [-180, 90], [-180, -90]]]}
+    },
+    {
+      "type": "Feature",
+      "properties": {"city": "Test city", "country_code": "XX"},
+      "geometry": {"type": "Point", "coordinates": [0, 0]}
+    }
+  ]
+}

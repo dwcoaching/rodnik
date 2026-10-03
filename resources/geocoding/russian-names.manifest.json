@@ -1,0 +1,34 @@
+{
+    "generated_at": "2026-10-02T19:53:31+00:00",
+    "provider": "GeoNames",
+    "license": "CC BY 4.0",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "attribution_url": "https://www.geonames.org/",
+    "schema_url": "https://download.geonames.org/export/dump/readme.txt",
+    "inputs": {
+        "alternate_names": {
+            "url": "https://download.geonames.org/export/dump/alternateNamesV2.zip",
+            "sha256": "f9e22a7971fc79596e68be75e2e04e46aa517d5a84383ff76df677af81c88308"
+        },
+        "country_info": {
+            "url": "https://download.geonames.org/export/dump/countryInfo.txt",
+            "sha256": "93bafc525813f22e4711ff9ed6d626343094ce48c26388dc7c49189b3d7d5512"
+        }
+    },
+    "normalized_files": {
+        "countryInfo.txt": {
+            "sha256": "93bafc525813f22e4711ff9ed6d626343094ce48c26388dc7c49189b3d7d5512",
+            "bytes": 31678
+        },
+        "russian-names.tsv": {
+            "sha256": "c055a7932aa34cb6b754542d80cd7da2cb36236e4414d484f4a3daa40487001e",
+            "bytes": 20402822
+        }
+    },
+    "counts": {
+        "russian_names": 698209,
+        "countries": 252
+    },
+    "selection": "Language ru; colloquial, historic, and ended-period names excluded; preferred names ranked first, then short names; lowest alternate-name identifier breaks ties.",
+    "coverage": "Russian names are supplied where GeoNames has a current Russian alternate name. Application display falls back to the original name."
+}

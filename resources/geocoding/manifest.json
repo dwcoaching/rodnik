@@ -1,0 +1,77 @@
+{
+    "generated_at": "2026-10-02T19:24:04+00:00",
+    "countries": {
+        "provider": "Natural Earth",
+        "version": "5.1.2",
+        "scale": "1:10m",
+        "license": "Public domain",
+        "license_url": "https://www.naturalearthdata.com/about/terms-of-use/"
+    },
+    "cities": {
+        "provider": "GeoNames",
+        "dataset": "cities500",
+        "supplement_countries": [
+            "RU",
+            "UA"
+        ],
+        "scope": "Population over 500 or administrative seats down to PPLA4, as supplied by GeoNames",
+        "supplement_scope": "All current populated places in the selected country files, including villages with small or unknown populations",
+        "excluded_feature_codes": [
+            "PPLX",
+            "PPLQ",
+            "PPLH",
+            "PPLCH",
+            "PPLW"
+        ],
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0/",
+        "attribution_url": "https://www.geonames.org/",
+        "schema_url": "https://download.geonames.org/export/dump/readme.txt"
+    },
+    "inputs": {
+        "countries": {
+            "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_10m_admin_0_countries.geojson",
+            "sha256": "239eec57ac17f100a11e2536cffc56752c318b50ae765b0918ff7aab4ce8f255"
+        },
+        "cities": {
+            "url": "https://download.geonames.org/export/dump/cities500.zip",
+            "sha256": "88b41c5f6ce2a69ac526bf70b54a27f9c1992d8cf29855536b853be63bde4d17"
+        },
+        "admin1": {
+            "url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+            "sha256": "1da92a6323a5fec3176f3f743bf4cf4040fd56a876da55e46fbca23c863aa60a"
+        },
+        "supplement_RU": {
+            "url": "https://download.geonames.org/export/dump/RU.zip",
+            "sha256": "2e0309fac6736255728e434d05ea803c3d305510318cca5bba51fab9646bd545"
+        },
+        "supplement_UA": {
+            "url": "https://download.geonames.org/export/dump/UA.zip",
+            "sha256": "998e71e1d77e8141c4b1dad79f6321db9d3013b1e2413e79bde156085c416e98"
+        }
+    },
+    "normalized_files": {
+        "countries.geojson": {
+            "sha256": "a654a6b6393191718859933d8c1bf3d370cdb7a1d8b61ff2122aac0177ed3a8d",
+            "bytes": 12427872
+        },
+        "settlements.txt": {
+            "sha256": "8a15ff9b38ba8d95af3ae3de99f822391aaa527fa8111a22f86cefce4045822f",
+            "bytes": 27024127
+        },
+        "admin1CodesASCII.txt": {
+            "sha256": "1da92a6323a5fec3176f3f743bf4cf4040fd56a876da55e46fbca23c863aa60a",
+            "bytes": 151583
+        }
+    },
+    "counts": {
+        "countries": 258,
+        "cities": 436514,
+        "admin1_regions": 3865
+    },
+    "transformations": [
+        "Country labels and ISO alpha-2 codes normalized from Natural Earth; GeoNames country codes used for Somaliland and Northern Cyprus.",
+        "GeoNames TSV retains the standard 19 column positions; unused ASCII/alternate names and extraneous fields are emptied.",
+        "Historical, abandoned, destroyed settlements and sections of populated places are excluded; coordinates and display names are preserved."
+    ]
+}

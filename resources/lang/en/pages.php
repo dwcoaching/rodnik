@@ -13,6 +13,10 @@ return [
             'title' => 'Copyright and license',
             'before_license' => 'All data reported by our users is in the public domain, although most of the information comes from OpenStreetMap, which is licensed under the',
             'after_license' => 'We are eternally grateful to the OpenStreetMap community for their work.',
+            'geocoding_cities' => 'Country and nearest-city labels use adapted settlement data from',
+            'geocoding_boundaries' => 'and public-domain country boundaries from',
+            'geocoding_policy_boundaries' => 'Additional administrative boundary geometry is adapted from',
+            'geocoding_osm_boundaries' => 'and OpenStreetMap contributors',
         ],
         'authors' => [
             'title' => 'Authors',

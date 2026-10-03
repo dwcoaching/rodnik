@@ -7,4 +7,11 @@
             <loc>{{ route('sitemap.springs', ['page' => $page]) }}</loc>
         </sitemap>
     @endfor
+    @foreach ($locationPages as $type => $pageCount)
+        @for ($page = 1; $page <= $pageCount; $page++)
+            <sitemap>
+                <loc>{{ route('sitemap.locations', ['type' => $type, 'page' => $page]) }}</loc>
+            </sitemap>
+        @endfor
+    @endforeach
 </sitemapindex>

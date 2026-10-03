@@ -7,6 +7,14 @@
     </div>
     <div x-cloak wire:loading.remove class="w-full">
         @if ($spring)
+            @error('geocoding')
+                <div role="alert" class="mb-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{{ $message }}</div>
+            @enderror
+            @if ($geocodedSpringId === (int) $spring->id)
+                <div role="status" class="mb-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+                    {{ $geocodingMatched ? __('ui.spring.geocoding_complete') : __('ui.spring.geocoding_no_match') }}
+                </div>
+            @endif
             @if ($spring->hidden_at)
                 <div role="status" class="mb-2 grid grid-flow-col grid-cols-[auto] items-center justify-start justify-items-start gap-4 rounded-lg border border-[#facc15] bg-[#facc15] px-4 py-3 text-start text-sm text-[#111827]">
                     <div>
@@ -126,6 +134,25 @@
                                                         <button
                                                             type="button"
                                                             x-menu:item
+                                                            wire:click="geocode"
+                                                            wire:loading.attr="disabled"
+                                                            wire:target="geocode"
+                                                            @click="springDropdownOpen = false"
+                                                            :class="{
+                                                                'bg-gray-200 text-gray-700': $menuItem.isActive,
+                                                                'text-gray-600': ! $menuItem.isActive,
+                                                                'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
+                                                            }"
+                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7.5-5.25 7.5-12a7.5 7.5 0 1 0-15 0C4.5 15.75 12 21 12 21Z" />
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                            </svg>
+                                                            {{ __('ui.spring.reverse_geocode') }}
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            x-menu:item
                                                             wire:click="invalidateTiles"
                                                             :class="{
                                                                 'bg-gray-200 text-gray-700': $menuItem.isActive,
@@ -219,6 +246,52 @@
                             @endcan
                         </div>
                     </div>
+                    @php
+                        $countryName = $spring->geoCountry?->displayName() ?: (app()->isLocale('ru') ? ($spring->country_ru ?: $spring->country) : ($spring->country ?: $spring->country_ru));
+                        $regionName = $spring->geoRegion?->displayName() ?: (app()->isLocale('ru') ? ($spring->region_ru ?: $spring->region) : ($spring->region ?: $spring->region_ru));
+                        $cityName = $spring->nearestCity?->displayName() ?: (app()->isLocale('ru') ? ($spring->city_ru ?: $spring->city) : ($spring->city ?: $spring->city_ru));
+                        $hasPublicGeography = $spring->hidden_at === null && $spring->redirect_to_spring_id === null;
+                    @endphp
+                    @if ($countryName || $regionName || $cityName)
+                        <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
+                            @if ($countryName)
+                                <div>
+                                    <div class="text-gray-500 font-medium">{{ __('ui.spring.country') }}</div>
+                                    <div class="font-bold">
+                                        @if ($hasPublicGeography && $spring->geoCountry?->is_active)
+                                            <a href="{{ localized_route('geography.countries.show', ['country' => $spring->geoCountry->slug]) }}" class="text-blue-700 hover:underline">{{ $countryName }}</a>
+                                        @else
+                                            {{ $countryName }}
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                            @if ($regionName)
+                                <div>
+                                    <div class="text-gray-500 font-medium">{{ __('ui.spring.region') }}</div>
+                                    <div class="font-bold">
+                                        @if ($hasPublicGeography && $spring->geoRegion?->is_active)
+                                            <a href="{{ localized_route('geography.regions.show', ['region' => $spring->geoRegion->slug]) }}" class="text-blue-700 hover:underline">{{ $regionName }}</a>
+                                        @else
+                                            {{ $regionName }}
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                            @if ($cityName)
+                                <div>
+                                    <div class="text-gray-500 font-medium">{{ __('ui.spring.nearest_city') }}</div>
+                                    <div class="font-bold">
+                                        @if ($hasPublicGeography && $spring->nearestCity?->is_active)
+                                            <a href="{{ localized_route('geography.cities.show', ['city' => $spring->nearestCity->slug]) }}" class="text-blue-700 hover:underline">{{ $cityName }}</a>
+                                        @else
+                                            {{ $cityName }}
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
                     <div class="text-gray-600 mt-3 text-sm flex gap-y-2 flex-wrap items-start">
                         <div class="mr-3 flex-1">
                             <div class="text-gray-600 text-sm cursor-pointer"
