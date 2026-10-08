@@ -37,6 +37,9 @@ final class Region extends Model
 
     protected function casts(): array
     {
-        return ['is_active' => 'boolean', 'geonames_id' => 'integer'];
+        return [
+            'is_active' => 'boolean', 'geonames_id' => 'integer',
+            'bbox_west' => 'float', 'bbox_south' => 'float', 'bbox_east' => 'float', 'bbox_north' => 'float',
+        ];
     }
 }

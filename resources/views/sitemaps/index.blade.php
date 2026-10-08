@@ -14,4 +14,9 @@
             </sitemap>
         @endfor
     @endforeach
+    @for ($page = 1; $page <= $mapPages; $page++)
+        <sitemap>
+            <loc>{{ route('sitemap.maps', ['page' => $page]) }}</loc>
+        </sitemap>
+    @endfor
 </sitemapindex>

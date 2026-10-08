@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Services\Geography\GeographyBoundsImporter;
 use App\Services\Geography\GeographyCatalogImporter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ final class GeocodingImportCatalog extends Command
 
     protected $description = 'Import stable country, region, and settlement identities and Russian names';
 
-    public function handle(GeographyCatalogImporter $importer): int
+    public function handle(GeographyCatalogImporter $importer, GeographyBoundsImporter $bounds): int
     {
         File::ensureDirectoryExists(storage_path('app'));
         $lock = @fopen(storage_path('app/geography-catalog-import.lock'), 'c');
@@ -57,6 +58,9 @@ final class GeocodingImportCatalog extends Command
             });
             $this->info("Imported {$counts['countries']} countries, {$counts['regions']} regions, and {$counts['cities']} settlements.");
             $this->line("Russian names: {$counts['countries_ru']} countries, {$counts['regions_ru']} regions, {$counts['cities_ru']} settlements. Original names are used where Russian names are unavailable.");
+            foreach (GeocodingImportBounds::summary($bounds->import(['countries' => $paths['countries'], 'regions' => $paths['regions']])) as $line) {
+                $this->line($line);
+            }
             $this->line('Run springs:geocode --queue to refresh source links and labels.');
 
             return self::SUCCESS;

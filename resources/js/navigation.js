@@ -308,6 +308,12 @@ export function installNavigation(Livewire) {
         event.stopImmediatePropagation();
         const url = new URL(window.location.href);
         const previous = new URL(activeUrl);
+        // In-page anchors (e.g. letter jumps) also fire popstate; the browser already scrolled, so a visit would undo it.
+        if (sameResource(url, previous) && url.hash !== previous.hash
+            && !parseMapUrlState(url.href) && !parseMapUrlState(previous.href)) {
+            activeUrl = url.href;
+            return;
+        }
         if (duo() && sameResource(url, previous) && url.hash !== previous.hash && parseMapUrlState(url.href)) {
             if (componentRequest) {
                 navigation.visit(url.href, { history: true, restoreUrl: true, preserveMap: true });

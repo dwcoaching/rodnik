@@ -3,6 +3,63 @@
 declare(strict_types=1);
 
 return [
+    'docs' => [
+        'nav' => 'Docs',
+        'overview' => 'Overview',
+        'title' => 'Rodnik.today overview',
+        'seo_title' => 'Rodnik.today overview: water sources, maps and open data',
+        'seo_description' => 'Everything on Rodnik.today in one place: community reports and contributors, public saved maps, open data exports and water sources by country, region and settlement.',
+        'lead' => 'A public map of springs, wells, taps and other water sources, with up-to-date reports from the people who visit them.',
+        'open_map' => 'Open the map',
+        'stats' => [
+            'title' => 'Rodnik.today in numbers',
+            'sources' => 'water source|water sources',
+            'reports' => 'report|reports',
+            'contributors' => 'contributor|contributors',
+            'maps' => 'saved map|saved maps',
+            'countries' => 'country with water sources|countries with water sources',
+        ],
+        'contributors' => [
+            'all' => 'All contributors (:count)',
+            'reports' => ':count report|:count reports',
+            'sources' => ':count unique water source|:count unique water sources',
+        ],
+        'maps' => [
+            'description' => 'Map views that users saved with their water sources, filters and tracks. All saved maps are public.',
+            'all' => 'All maps (:count)',
+        ],
+        'open_data' => [
+            'title' => 'Open data',
+            'description' => 'Everything users contribute is in the public domain. Use it in your own maps, apps and research.',
+            'exports' => 'Daily exports of all public water sources in open formats.',
+            'api' => 'Mobile API',
+            'api_description' => 'Contract, authentication and examples for the Rodnik.today mobile app.',
+        ],
+        'locations' => [
+            'nav' => 'Water sources by location',
+            'title' => 'Water sources by location',
+            'description' => 'Lists of public water sources in each country, region and settlement, with links to the map.',
+            'countries' => 'Countries',
+            'regions' => 'Regions',
+            'settlements' => 'Settlements',
+            'all' => 'All countries (:count)',
+            'empty' => 'Location pages will appear here as water sources are linked to countries, regions and settlements.',
+        ],
+        'help' => [
+            'title' => 'About and help',
+        ],
+    ],
+    'maps' => [
+        'title' => 'Saved maps',
+        'seo_title' => 'Saved maps of water sources and routes',
+        'seo_description' => 'All maps saved by Rodnik.today users: map views with water sources, filters and GPX tracks of hikes, rides and trips.',
+        'description' => 'All maps saved by Rodnik.today users, most viewed first. Each one opens with its own view, filters and track.',
+        'count' => ':count saved map|:count saved maps',
+        'track' => 'Track: :name',
+        'updated' => 'Last updated',
+        'empty' => 'No saved maps yet.',
+        'empty_help' => 'Maps that users save from the Share menu on the map will appear here.',
+    ],
     'about' => [
         'title' => 'About',
         'seo_description' => 'Learn how Rodnik.today combines OpenStreetMap data with community reports about public water sources.',

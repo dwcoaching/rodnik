@@ -5,9 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        {{-- @section() escapes its value and <x-seo> escapes again, so undo the first pass. --}}
         <x-seo
-            :title="trim($__env->yieldContent('title')) ?: null"
-            :description="trim($__env->yieldContent('description')) ?: null"
+            :title="html_entity_decode(trim($__env->yieldContent('title')), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?: null"
+            :description="html_entity_decode(trim($__env->yieldContent('description')), ENT_QUOTES | ENT_HTML5, 'UTF-8') ?: null"
             :indexable="$indexable ?? null"
         />
 
@@ -38,7 +39,7 @@
                     </a>
                     <x-language-switcher class="ml-auto shrink-0" />
                 </header>
-                <div class="min-w-0 max-w-full p-8">
+                <div class="min-w-0 max-w-full px-4 py-6 sm:p-8">
                     @yield('content')
                 </div>
               </div>
@@ -78,13 +79,13 @@
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-5" aria-hidden="true"><path stroke-linecap="round" d="m6 6 12 12M6 18 18 6" /></svg>
                     </button>
                   </div>
-                  <nav aria-label="{{ __('ui.common.navigation') }}" class="text-sm leading-normal [&_a]:grid [&_a]:grid-flow-col [&_a]:content-start [&_a]:items-center [&_a]:gap-2 [&_a]:rounded-lg [&_a]:px-3 [&_a]:py-1.5 [&_a]:text-start [&_a]:text-balance [&_a]:select-none [&_a]:transition-colors [&_a]:duration-200 [&_a:hover]:bg-[#111827]/10 [&_a:focus-visible]:bg-[#111827]/10 [&_a:focus-visible]:outline-hidden [&_a:active]:bg-[#3d4451] [&_a:active]:text-white">
+                  <nav aria-label="{{ __('ui.common.navigation') }}" class="text-sm leading-normal [&_a]:grid [&_a]:grid-flow-col [&_a]:content-start [&_a]:items-center [&_a]:gap-2 [&_a]:rounded-lg [&_a]:px-3 [&_a]:py-1.5 [&_a]:text-start [&_a]:text-balance [&_a]:select-none [&_a]:transition-colors [&_a]:duration-200 [&_a[aria-current=page]]:bg-white [&_a[aria-current=page]]:font-semibold [&_a[aria-current=page]]:shadow-xs [&_a:hover]:bg-[#111827]/10 [&_a:focus-visible]:bg-[#111827]/10 [&_a:focus-visible]:outline-hidden [&_a:active]:bg-[#3d4451] [&_a:active]:text-white">
                   <ul class="flex w-full flex-col">
-                  <li><a data-rodnik-navigate href="{{ localized_route('geography.countries.index') }}"
-                    @if (Request::routeIs('geography.*', 'ru.geography.*'))
+                  <li><a data-rodnik-navigate href="{{ localized_public_path('/docs') }}"
+                    @if (Request::is('docs', 'ru/docs'))
                       aria-current="page"
                     @endif
-                  >🌍&nbsp; {{ __('geography.browse') }}</a></li>
+                  >📖&nbsp; {{ __('pages.docs.overview') }}</a></li>
                   {{--<li><a href="/">🌍&nbsp; Map</a></li>--}}
                   <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/about') }}"
                     @if (Request::is('docs/about', 'ru/docs/about'))
@@ -96,6 +97,16 @@
                       aria-current="page"
                     @endif
                   >💧&nbsp; {{ __('pages.users.title') }}</a></li>
+                  <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/maps') }}"
+                    @if (Request::is('docs/maps', 'ru/docs/maps'))
+                      aria-current="page"
+                    @endif
+                  >🧭&nbsp; {{ __('pages.maps.title') }}</a></li>
+                  <li><a data-rodnik-navigate href="{{ localized_route('geography.countries.index') }}"
+                    @if (Request::routeIs('geography.*', 'ru.geography.*'))
+                      aria-current="page"
+                    @endif
+                  >🌍&nbsp; {{ __('pages.docs.locations.nav') }}</a></li>
                   <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/legend') }}"
                     @if (Request::is('docs/legend', 'ru/docs/legend'))
                       aria-current="page"

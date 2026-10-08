@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Map;
 use App\Models\Spring;
 use App\Services\Geography\PublicGeography;
 use App\Support\DuoUrl;
+use App\Support\PageMetadata;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 
@@ -14,8 +16,11 @@ final class SitemapController extends Controller
 {
     private const SPRINGS_PER_SITEMAP = 20000;
 
-    // Each place is emitted in two languages, staying below the 50,000 URL limit.
+    // Each place and map is emitted in two languages, staying below the
+    // 50,000 URL limit.
     private const PLACES_PER_SITEMAP = 10000;
+
+    private const MAPS_PER_SITEMAP = 10000;
 
     public function __construct(private readonly PublicGeography $geography) {}
 
@@ -30,6 +35,7 @@ final class SitemapController extends Controller
         return $this->xml('sitemaps.index', [
             'springPages' => $springPages,
             'locationPages' => $locationPages,
+            'mapPages' => (int) ceil(Map::query()->count() / self::MAPS_PER_SITEMAP),
         ]);
     }
 
@@ -37,15 +43,17 @@ final class SitemapController extends Controller
     {
         $paths = [
             '/',
+            '/docs',
             '/docs/about',
             '/docs/legend',
             '/docs/contact-us',
             '/docs/exports',
+            '/docs/maps',
             '/docs/coll-de-sa-batalla',
         ];
 
         if ($this->geography->countries()->exists()) {
-            $paths[] = '/countries';
+            $paths[] = '/docs/countries';
         }
 
         $entries = collect($paths)->map(fn (string $path): array => [
@@ -90,9 +98,20 @@ final class SitemapController extends Controller
         $entries = $places->map(fn (string $slug): array => [
             'urls' => collect(array_keys(config('localization.supported')))
                 ->mapWithKeys(fn (string $locale): array => [
-                    $locale => url(localized_public_path('/'.$type.'/'.$slug, $locale)),
+                    $locale => url(localized_public_path('/docs/'.$type.'/'.$slug, $locale)),
                 ])->all(),
         ]);
+
+        return $this->xml('sitemaps.urls', ['entries' => $entries]);
+    }
+
+    public function maps(int $page, PageMetadata $metadata): Response
+    {
+        abort_if($page < 1, 404);
+        $slugs = Map::query()->orderBy('id')->forPage($page, self::MAPS_PER_SITEMAP)->pluck('slug');
+        abort_if($slugs->isEmpty(), 404);
+
+        $entries = $slugs->map(fn (string $slug): array => ['urls' => $metadata->savedMapUrls($slug)]);
 
         return $this->xml('sitemaps.urls', ['entries' => $entries]);
     }

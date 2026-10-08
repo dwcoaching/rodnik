@@ -32,6 +32,7 @@
             -->
         </div>
     </div>
+    <x-map-search />
     <div x-cloak class="absolute sm:block top-2 right-2" style="z-index: 10000;"
         :class="{
             'hidden': minimized

@@ -487,7 +487,7 @@ test('map page loads count each GET but not HEAD or fetching the track', functio
     $url = route('maps.show', ['map' => $map->slug]);
 
     $response = $this->get($url)->assertOk()
-        ->assertHeader('X-Robots-Tag', 'noindex')
+        ->assertHeaderMissing('X-Robots-Tag')
         ->assertViewHas('sharedMap', fn (array $map): bool => ! array_key_exists('views_count', $map) && ! array_key_exists('user_id', $map));
     expect($response->headers->get('Cache-Control'))->toContain('no-store');
     $this->get($url)->assertOk();

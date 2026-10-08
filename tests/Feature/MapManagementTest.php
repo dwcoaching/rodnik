@@ -99,6 +99,15 @@ test('map editor metadata identifies the localized private editor page', functio
         ->and($document->querySelector('meta[property="og:url"]')->getAttribute('content'))->toBe(url($path))
         ->and($document->querySelector('meta[name="robots"]')->getAttribute('content'))->toBe('noindex, nofollow')
         ->and($document->querySelector('link[hreflang]'))->toBeNull();
+
+    // Unlike the public saved map pages, the private library stays out of search results.
+    foreach ([$prefix.'/user/maps', $prefix.'/user/tracks'] as $library) {
+        $response = $this->get($library)->assertOk()->assertHeader('X-Robots-Tag', 'noindex');
+        $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
+        expect($document->querySelector('meta[name="robots"]')->getAttribute('content'))->toBe('noindex, nofollow')
+            ->and($document->querySelector('link[hreflang]'))->toBeNull();
+    }
+    $this->get($prefix.'/maps/'.$map->slug)->assertOk()->assertHeaderMissing('X-Robots-Tag');
 })->with(['English' => ['', 'en'], 'Russian' => ['/ru', 'ru']]);
 
 test('starring and editing maps preserve newest shared order with stable ties', function () {

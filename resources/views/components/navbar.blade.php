@@ -1,7 +1,7 @@
 <div class="flex justify-between items-center flex-nowrap pt-4 pb-2
     {{ $map ? 'px-4' : '' }}
 ">
-    <div class="flex items-center flex-wrap">
+    <div class="mt-0.5 flex shrink-0 items-center self-start">
         <!-- Logo -->
         <div class="shrink-0 flex items-center">
             <a href="{{ localized_public_path() }}" data-rodnik-navigate class="flex mr-2 sm:mr-4 cursor-pointer">
@@ -10,8 +10,9 @@
         </div>
     </div>
 
-    <div class="flex items-center gap-2 sm:gap-3">
-        <a href="{{ localized_route('geography.countries.index') }}" data-rodnik-navigate class="text-sm font-medium text-blue-700 hover:underline">{{ __('geography.browse') }}</a>
+    {{-- On narrow screens the guest links wrap below instead of covering the logo. --}}
+    <div class="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 sm:gap-3">
+        <a href="{{ localized_public_path('/docs') }}" data-rodnik-navigate data-docs-link class="flex h-7 shrink-0 items-center rounded-md bg-stone-200 px-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-stone-300 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">{{ __('pages.docs.nav') }}</a>
         <x-language-switcher />
         @guest
             <div class="flex items-center gap-3 sm:gap-4">

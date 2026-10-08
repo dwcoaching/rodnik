@@ -93,7 +93,7 @@ test('source details and API read updated catalog translations without changing 
 
     Livewire::test(Show::class, ['springId' => $spring->id])
         ->assertSee('Примерия')->assertSee('Регион источника')->assertSee('Новое название')
-        ->assertSee('/ru/cities/nearest-town', false);
+        ->assertSee('/ru/docs/cities/nearest-town', false);
     $this->getJson('/api/v1/springs/'.$spring->id)
         ->assertOk()->assertJsonPath('data.country_id', $this->country->id)
         ->assertJsonPath('data.region_id', $this->region->id)

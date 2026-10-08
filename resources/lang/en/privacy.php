@@ -6,7 +6,7 @@ return [
     'title' => 'Privacy Policy',
     'legal' => 'Legal',
     'description' => 'How Rodnik.today uses account data and public contributions, and how to delete your account.',
-    'updated' => 'Updated September 26, 2026',
+    'updated' => 'Updated October 5, 2026',
     'operator' => 'Rodnik.today is a public map of water sources, operated by Andrey Kolpakov. This policy covers the website, apps and API. Contact:',
     'sections' => [
         'account' => [
@@ -19,7 +19,7 @@ return [
         ],
         'usage' => [
             'title' => 'Using the service',
-            'body' => 'We process requests, IP addresses, device information and technical logs to operate and protect the service. Cookies and browser storage keep you signed in and remember preferences. Location permission lets you locate yourself on the map; map areas are requested from servers. Photo uploads may include extracted GPS coordinates and filenames. Route searches store a simplified area around the route, linked to your account when signed in. Opening a GPX file immediately uploads its precise coordinates and included metadata to our server so you can share a link. Anyone with the map or track link can view them. Tracks uploaded while signed in appear in My tracks, where you can rename or delete them. Guest uploads cannot be deleted by the guest later. Saved maps appear in My maps. Deleting a track leaves its saved maps accessible without that track; deleting a saved map stops its named link from working.',
+            'body' => 'We process requests, IP addresses, device information and technical logs to operate and protect the service. Cookies and browser storage keep you signed in and remember preferences. Location permission lets you locate yourself on the map; map areas are requested from servers. Photo uploads may include extracted GPS coordinates and filenames. Route searches store a simplified area around the route, linked to your account when signed in. Opening a GPX file immediately uploads its precise coordinates and included metadata to our server so you can share a link. Saved maps are public: each one is listed on the public maps page with its title, author name, map view and attached track, can be found through site search and may be indexed by search engines. A track that is not attached to a saved map stays accessible only to people who have its link. Tracks uploaded while signed in appear in My tracks, where you can rename or delete them. Guest uploads cannot be deleted by the guest later. Saved maps appear in My maps. Deleting a track leaves its saved maps accessible without that track; deleting a saved map removes it from the public list and stops its named link from working.',
         ],
         'providers' => [
             'title' => 'Other services',

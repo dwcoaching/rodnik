@@ -9,6 +9,7 @@ use App\Http\Controllers\LatestExportController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\PhotoUploadController;
+use App\Http\Controllers\PlaceSearchController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SpringAggregatesJsonController;
@@ -44,12 +45,15 @@ Route::post('locale/{locale}', LocaleController::class)->name('locale.update');
 Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
 Route::get('sitemaps/static.xml', [SitemapController::class, 'staticPages'])->name('sitemap.static');
 Route::get('sitemaps/springs-{page}.xml', [SitemapController::class, 'springs'])
-    ->whereNumber('page')
+    ->where('page', '[1-9][0-9]{0,5}')
     ->name('sitemap.springs');
 Route::get('sitemaps/locations-{type}-{page}.xml', [SitemapController::class, 'locations'])
     ->whereIn('type', ['countries', 'regions', 'cities'])
-    ->whereNumber('page')
+    ->where('page', '[1-9][0-9]{0,5}')
     ->name('sitemap.locations');
+Route::get('sitemaps/maps-{page}.xml', [SitemapController::class, 'maps'])
+    ->where('page', '[1-9][0-9]{0,5}')
+    ->name('sitemap.maps');
 
 $resourceRoutes = function (): void {
     Route::get('/', [WebController::class, 'index'])->name('duo');
@@ -70,10 +74,17 @@ $resourceRoutes = function (): void {
 $publicRoutes = function () use ($resourceRoutes): void {
     $resourceRoutes();
 
-    Route::get('countries', [GeographyController::class, 'index'])->name('geography.countries.index');
-    Route::get('countries/{country:slug}', [GeographyController::class, 'country'])->name('geography.countries.show');
-    Route::get('regions/{region:slug}', [GeographyController::class, 'region'])->name('geography.regions.show');
-    Route::get('cities/{city:slug}', [GeographyController::class, 'city'])->name('geography.cities.show');
+    Route::get('docs/countries', [GeographyController::class, 'index'])->name('geography.countries.index');
+    Route::get('docs/countries/{country:slug}', [GeographyController::class, 'country'])->name('geography.countries.show');
+    Route::get('docs/regions/{region:slug}', [GeographyController::class, 'region'])->name('geography.regions.show');
+    Route::get('docs/cities/{city:slug}', [GeographyController::class, 'city'])->name('geography.cities.show');
+    // Location pages first lived outside /docs.
+    Route::get('countries/{slug?}', [GeographyController::class, 'legacy'])->defaults('type', 'countries');
+    Route::get('regions/{slug}', [GeographyController::class, 'legacy'])->defaults('type', 'regions');
+    Route::get('cities/{slug}', [GeographyController::class, 'legacy'])->defaults('type', 'cities');
+    Route::get('search/places', PlaceSearchController::class)
+        ->middleware('throttle:120,1,place-search')
+        ->name('places.search');
 
     Route::get('maps/{map:slug}', [MapController::class, 'show'])
         ->where('map', '[a-zA-Z0-9-]{3,80}')

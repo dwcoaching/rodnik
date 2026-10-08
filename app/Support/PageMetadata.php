@@ -45,4 +45,39 @@ final class PageMetadata
             'locale' => app()->getLocale(),
         ];
     }
+
+    /**
+     * Saved maps are public pages of their own, whatever resource they show.
+     *
+     * @param  array{slug: string, title: string}  $map
+     * @return array{title: string, description: string, canonical: string, alternates: array<string, string>, robots: ?string, locale: string}
+     */
+    public function forSavedMap(array $map): array
+    {
+        $urls = $this->savedMapUrls($map['slug']);
+
+        return [
+            'title' => $map['title'].' — Rodnik.today',
+            'description' => __('seo.map_description', ['title' => $map['title']]),
+            'canonical' => $urls[app()->getLocale()],
+            'alternates' => [...$urls, 'x-default' => $urls[config('localization.default')]],
+            'robots' => null,
+            'locale' => app()->getLocale(),
+        ];
+    }
+
+    /**
+     * The trailing slash matches the shared links and other map page URLs.
+     *
+     * @return array<string, string>
+     */
+    public function savedMapUrls(string $slug): array
+    {
+        $urls = [];
+        foreach (array_keys(config('localization.supported')) as $locale) {
+            $urls[$locale] = route(localized_route_name('maps.show', $locale), ['map' => $slug]).'/';
+        }
+
+        return $urls;
+    }
 }

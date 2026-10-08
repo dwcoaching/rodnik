@@ -190,39 +190,42 @@ test('pasted public map links resolve to JSON without recording a page view', fu
     expect($map->refresh()->getAttributes())->toEqual($before);
 })->with(['English' => '', 'Russian' => '/ru'])->with(['anonymous' => false, 'named' => true]);
 
-test('shared pages use normal resource metadata while retaining the saved map for editing', function (string $locale, string $prefix, string $resource) {
+test('saved map pages are indexed under the map title and URL whatever resource they show', function (string $locale, string $prefix, string $resource) {
     $owner = User::factory()->create(['name' => 'River walker']);
     $spring = $resource === 'spring' ? Spring::factory()->create(['name' => 'Forest spring']) : null;
     $state = Map::factory()->make()->state;
     $state['page']['spring'] = $spring?->id;
     $state['page']['user'] = $resource === 'user' ? $owner->id : null;
-    $map = Map::factory()->for($owner)->create(['title' => 'Saved weekend route', 'state' => $state]);
-    $path = match ($resource) {
-        'spring' => '/'.$spring->id.'/',
-        'user' => '/users/'.$owner->id.'/',
-        default => '/',
-    };
-    $canonical = url('/').$prefix.($path === '/' && $prefix !== '' ? '' : $path);
-    $title = match ($resource) {
-        'spring' => 'Forest spring — Rodnik.today',
-        'user' => 'River walker — Rodnik.today',
-        default => trans('seo.default_title', locale: $locale),
-    };
+    $map = Map::factory()->for($owner)->create(['title' => 'Saved weekend route & co', 'slug' => 'weekend-route', 'state' => $state]);
+    $canonical = url($prefix.'/maps/weekend-route').'/';
 
-    $response = $this->actingAs($owner)->get($prefix.'/maps/'.$map->slug)
-        ->assertOk()
-        ->assertHeader('X-Robots-Tag', 'noindex');
-    $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
-    $saved = json_decode($document->querySelector('#rodnik-shared-map')->textContent, true, flags: JSON_THROW_ON_ERROR);
+    foreach ([$prefix.'/maps/weekend-route', $prefix.'/maps/weekend-route/?utm_source=chat&location=1'] as $url) {
+        $response = $this->actingAs($owner)->get($url)
+            ->assertOk()
+            ->assertHeaderMissing('X-Robots-Tag');
+        $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
+        $saved = json_decode($document->querySelector('#rodnik-shared-map')->textContent, true, flags: JSON_THROW_ON_ERROR);
+        $alternates = collect($document->querySelectorAll('link[rel="alternate"][hreflang]'))
+            ->mapWithKeys(fn ($link): array => [$link->getAttribute('hreflang') => $link->getAttribute('href')])->all();
 
-    expect($document->querySelector('title')->textContent)->toBe($title)
-        ->and($document->querySelector('link[rel="canonical"]')->getAttribute('href'))->toBe($canonical)
-        ->and($document->querySelector('meta[property="og:url"]')->getAttribute('content'))->toBe($canonical)
-        ->and($document->querySelector('meta[name="robots"]')->getAttribute('content'))->toBe('noindex, nofollow')
-        ->and($document->querySelector('link[hreflang]'))->toBeNull()
-        ->and($saved['id'])->toBe($map->id)->and($saved)->not->toHaveKey('token')
-        ->and($saved['title'])->toBe($map->title)
-        ->and($saved['can_update'])->toBeTrue();
+        expect($document->querySelector('title')->textContent)->toBe('Saved weekend route & co — Rodnik.today')
+            ->and($document->querySelector('meta[property="og:title"]')->getAttribute('content'))->toBe('Saved weekend route & co — Rodnik.today')
+            ->and($document->querySelector('meta[name="description"]')->getAttribute('content'))
+            ->toBe(trans('seo.map_description', ['title' => 'Saved weekend route & co'], $locale))
+            ->and($document->querySelector('link[rel="canonical"]')->getAttribute('href'))->toBe($canonical)
+            ->and($document->querySelector('meta[property="og:url"]')->getAttribute('content'))->toBe($canonical)
+            ->and($document->querySelector('meta[name="robots"]'))->toBeNull()
+            ->and($alternates)->toBe([
+                'en' => url('/maps/weekend-route').'/',
+                'ru' => url('/ru/maps/weekend-route').'/',
+                'x-default' => url('/maps/weekend-route').'/',
+            ])
+            ->and($saved['id'])->toBe($map->id)->and($saved)->not->toHaveKey('token')
+            ->and($saved['title'])->toBe($map->title)
+            ->and($saved['url'])->toBe($canonical)
+            ->and($saved['can_update'])->toBeTrue();
+    }
+    $this->get($canonical)->assertOk();
 })->with([
     'English spring' => ['en', '', 'spring'],
     'Russian spring' => ['ru', '/ru', 'spring'],
@@ -232,10 +235,10 @@ test('shared pages use normal resource metadata while retaining the saved map fo
     'Russian map' => ['ru', '/ru', 'map'],
 ]);
 
-test('shared page metadata uses the surviving page when a saved resource is unavailable', function (string $locale, string $prefix) {
+test('saved maps keep their own metadata when a saved resource is unavailable', function (string $locale, string $prefix) {
     $state = Map::factory()->make()->state;
     $state['page'] = ['spring' => 987654321, 'user' => 987654321, 'location' => 1];
-    $map = Map::factory()->create(['state' => $state]);
+    $map = Map::factory()->create(['title' => 'Route with a removed source', 'state' => $state]);
 
     $response = $this->get($prefix.'/maps/'.$map->slug)
         ->assertOk()
@@ -245,8 +248,9 @@ test('shared page metadata uses the surviving page when a saved resource is unav
             && $sharedMap['resource_url'] === url('/').($prefix ?: '/'));
     $document = HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR);
 
-    expect($document->querySelector('title')->textContent)->toBe(trans('seo.default_title', locale: $locale))
-        ->and($document->querySelector('link[rel="canonical"]')->getAttribute('href'))->toBe(url('/').($prefix ?: '/'));
+    expect($document->querySelector('title')->textContent)->toBe('Route with a removed source — Rodnik.today')
+        ->and($document->querySelector('link[rel="canonical"]')->getAttribute('href'))->toBe(url($prefix.'/maps/'.$map->slug).'/')
+        ->and($document->querySelector('meta[name="robots"]'))->toBeNull();
 })->with(['English' => ['en', ''], 'Russian' => ['ru', '/ru']]);
 
 test('expanded shared resource URLs retain normalized page context and unrelated query parameters', function (string $prefix) {
@@ -634,4 +638,16 @@ test('saved titles are escaped in lists and embedded map state', function () {
         ->and($form->querySelector('input[x-model="draftTitle"]')->hasAttribute('required'))->toBeTrue()
         ->and($row->querySelector('[x-text="title"]'))->not->toBeNull()
         ->and($row->querySelector('[x-html]'))->toBeNull();
+});
+
+test('crawler visits to an indexed map page do not count as views', function () {
+    $map = Map::factory()->create(['views_count' => 0]);
+    $url = $map->publicData(null)['url'];
+
+    $this->withHeader('User-Agent', 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)')->get($url)->assertOk();
+    $this->withHeader('User-Agent', 'Mozilla/5.0 (compatible; YandexBot/3.0; +http://yandex.com/bots)')->get($url)->assertOk();
+    expect($map->refresh()->views_count)->toBe(0);
+
+    $this->withHeader('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1')->get($url)->assertOk();
+    expect($map->refresh()->views_count)->toBe(1);
 });

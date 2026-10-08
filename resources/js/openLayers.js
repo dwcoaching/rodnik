@@ -1,9 +1,9 @@
 import Map from 'ol/Map';
 import Feature from 'ol/Feature';
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { Circle as CircleStyle, Fill, Icon, Stroke, Style, Text } from 'ol/style';
 import { OSM, XYZ, Vector as VectorSource} from 'ol/source';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { fromLonLat, toLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 import { containsCoordinate } from 'ol/extent';
 import GeoJSON from 'ol/format/GeoJSON';
 import { ScaleLine } from 'ol/control';
@@ -52,6 +52,38 @@ import { captureTrackNavigationState, trackGeoJson } from './trackNavigationStat
 import { afterMapUiReady, normalizeSharedMapState, sharedMapFilters, sharedMapPage, sharedMapSources } from './sharedMapState.js';
 
 const focusZoom = 14;
+const placeFocusDuration = 400;
+
+const searchMarkerImage = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="56" height="72" viewBox="0 0 28 36">'
+    + '<path d="M14 35S26.5 22.4 26.5 13.6a12.5 12.5 0 0 0-25 0C1.5 22.4 14 35 14 35Z" fill="#18181b" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>'
+    + '<circle cx="14" cy="13.6" r="4.6" fill="#fff"/></svg>',
+)}`;
+let searchMarkerPin = null;
+let searchMarkerLabel = null;
+
+function searchMarkerStyle(feature) {
+    // Built lazily: icon styles create browser images.
+    searchMarkerPin ??= new Style({ image: new Icon({ src: searchMarkerImage, anchor: [0.5, 1], scale: 0.5 }) });
+    const label = feature.get('label');
+    if (!label) return searchMarkerPin;
+    if (searchMarkerLabel?.getText().getText() !== label) {
+        searchMarkerLabel = new Style({
+            text: new Text({
+                text: label,
+                font: '600 13px Nunito, ui-sans-serif, system-ui, sans-serif',
+                fill: new Fill({ color: '#18181b' }),
+                stroke: new Stroke({ color: '#ffffff', width: 3 }),
+                textAlign: 'left',
+                textBaseline: 'middle',
+                offsetX: 16,
+                offsetY: -22,
+            }),
+        });
+    }
+
+    return [searchMarkerPin, searchMarkerLabel];
+}
 
 export default class OpenLayersMap {
 
@@ -124,6 +156,13 @@ export default class OpenLayersMap {
         this.trackLayer = new TrackLayer()
         this.bufferLayer = new BufferLayer()
         this.trackSimplifiedLayer = new TrackSimplifiedLayer()
+        this.searchMarkerLayer = new VectorLayer({
+            source: new VectorSource(),
+            style: searchMarkerStyle,
+            zIndex: 1001,
+            updateWhileAnimating: true,
+            updateWhileInteracting: true,
+        });
 
         this.featureToBeSelected = null;
         this.selectedFeature = null;
@@ -169,6 +208,7 @@ export default class OpenLayersMap {
                 this.trackLayer,
                 this.bufferLayer,
                 this.trackSimplifiedLayer,
+                this.searchMarkerLayer,
             ],
             view: this.view,
             moveTolerance: 5,
@@ -205,6 +245,8 @@ export default class OpenLayersMap {
                 this.deselectFeature()
             }
         });
+
+        this.dismissSearchMarkerOnSingleClick();
 
         this.map.on('pointerdrag', (e) => {
             if (this.queryParameters.location) {
@@ -342,6 +384,7 @@ export default class OpenLayersMap {
     }
 
     async restoreNavigationState(state) {
+        this.setSearchMarker(null);
         this.trackImportGeneration++;
         this.fitSharedTrack = false;
         const generation = ++this.navigationRestoreGeneration;
@@ -454,6 +497,7 @@ export default class OpenLayersMap {
     }
 
     async restoreSharedState(state, { track } = {}) {
+        this.setSearchMarker(null);
         this.trackImportGeneration++;
         this.fitSharedTrack = false;
         const saved = normalizeSharedMapState(state);
@@ -1049,6 +1093,57 @@ export default class OpenLayersMap {
             zoom: Math.max(this.view.getZoom(), focusZoom),
             duration: 250,
         });
+    }
+
+    async focusPlace({ center = null, zoom = null, bounds = null, label = null, marker = false } = {}) {
+        if (this.disposed) return;
+        const generation = this.placeFocusGeneration = (this.placeFocusGeneration ?? 0) + 1;
+        const layout = this.getLayout();
+        if (layout.minimized) {
+            layout.minimized = false;
+            this.notifySharedStateChange();
+            // The fit depends on the expanded map size, which Alpine applies on the next tick.
+            await Alpine.nextTick();
+            if (this.disposed || generation !== this.placeFocusGeneration) return;
+            this.map.updateSize();
+        }
+
+        this.view.cancelAnimations();
+        const duration = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 0 : placeFocusDuration;
+        this.setSearchMarker(marker ? center : null, label);
+
+        if (bounds) {
+            const size = this.map.getSize();
+            const padding = size?.[0] && size[0] < 500 ? 24 : 48;
+            let [west, south, east, north] = bounds;
+            // The view cannot pan across the antimeridian, so only the side holding more of the place is shown.
+            if (east > 180) [west, east] = 180 - west >= east - 180 ? [west, 180] : [-180, east - 360];
+            const latitude = value => Math.max(-85, Math.min(85, value));
+            this.view.fit(transformExtent([west, latitude(south), east, latitude(north)], 'EPSG:4326', this.view.getProjection()), {
+                ...(size ? { size } : {}),
+                padding: [padding, padding, padding, padding],
+                maxZoom: 12,
+                duration,
+            });
+        } else if (center) {
+            this.view.animate({
+                center: fromLonLat(center),
+                zoom: zoom ?? Math.max(this.view.getZoom(), 13),
+                duration,
+            });
+        }
+    }
+
+    // A double-click zooms in around the found place, so only a single click dismisses its pin.
+    dismissSearchMarkerOnSingleClick() {
+        this.map.on('singleclick', () => this.setSearchMarker(null));
+    }
+
+    setSearchMarker(center = null, label = null) {
+        const source = this.searchMarkerLayer?.getSource();
+        if (!source) return;
+        source.clear();
+        if (center) source.addFeature(new Feature({ geometry: new Point(fromLonLat(center)), label }));
     }
 
     duoVisit({ preserveMapView = false, preserveMapViewIfVisible = false, ...queryParameters }) {

@@ -2,10 +2,13 @@
     'title' => null,
     'description' => null,
     'indexable' => null,
+    'savedMap' => null,
 ])
 
 @php
-    $metadata = app(\App\Support\PageMetadata::class)->forRequest(request(), $title, $description, $indexable);
+    $metadata = $savedMap === null
+        ? app(\App\Support\PageMetadata::class)->forRequest(request(), $title, $description, $indexable)
+        : app(\App\Support\PageMetadata::class)->forSavedMap($savedMap);
 @endphp
 
 <title>{{ $metadata['title'] }}</title>

@@ -260,3 +260,28 @@ body.dragover .drag-indicator {
 #map.drop-active .drop-overlay {
     display: grid;
 }
+
+.map-search-dialog::backdrop {
+    background-color: rgb(9 9 11 / 0.35);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .map-search-dialog[open]::backdrop {
+        animation: map-search-backdrop-in 140ms ease-out;
+    }
+
+    .map-search-dialog[open] .map-search-panel {
+        animation: map-search-panel-in 140ms cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top center;
+    }
+}
+
+@keyframes map-search-backdrop-in {
+    from { opacity: 0; }
+}
+
+@keyframes map-search-panel-in {
+    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+}

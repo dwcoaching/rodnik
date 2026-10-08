@@ -31,7 +31,7 @@ test('owners create a named map with the supplied view and ignore the removed de
         ->and($map->slug)->toBe('lycian-way')
         ->and($map->getAttributes())->not->toHaveKey('description')
         ->and(Schema::hasColumn('maps', 'description'))->toBeFalse();
-    $this->get($response->json('url'))->assertOk()->assertHeader('X-Robots-Tag', 'noindex')
+    $this->get($response->json('url'))->assertOk()->assertHeaderMissing('X-Robots-Tag')
         ->assertViewHas('sharedMap', fn (array $data): bool => $data['title'] === 'Lycian Way');
 });
 

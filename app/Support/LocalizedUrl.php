@@ -49,10 +49,16 @@ final class LocalizedUrl
             )
             : $request->query();
 
-        if ($canonical && $request->routeIs('geography.*', 'ru.geography.*')) {
+        $pageParameters = match (true) {
+            $request->routeIs('geography.*', 'ru.geography.*') => ['page', 'settlements_page'],
+            $request->is('docs/maps', 'ru/docs/maps') => ['page'],
+            default => null,
+        };
+
+        if ($canonical && $pageParameters !== null) {
             $query = [];
 
-            foreach (['page', 'settlements_page'] as $name) {
+            foreach ($pageParameters as $name) {
                 $page = $request->query($name);
                 if (is_scalar($page) && filter_var($page, FILTER_VALIDATE_INT, ['options' => ['min_range' => 2]]) !== false) {
                     $query[$name] = (int) $page;
@@ -117,6 +123,8 @@ final class LocalizedUrl
         }
 
         return $request->is(
+            'docs',
+            'docs/maps',
             'docs/about',
             'docs/legend',
             'docs/contact-us',
@@ -124,6 +132,8 @@ final class LocalizedUrl
             'docs/privacy',
             'docs/delete-account',
             'docs/coll-de-sa-batalla',
+            'ru/docs',
+            'ru/docs/maps',
             'ru/docs/about',
             'ru/docs/legend',
             'ru/docs/contact-us',

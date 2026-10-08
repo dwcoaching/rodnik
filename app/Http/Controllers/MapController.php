@@ -13,6 +13,7 @@ use App\Actions\UpdateMapDetailsAction;
 use App\Models\Map;
 use App\Models\Spring;
 use App\Models\User;
+use App\Support\Crawler;
 use App\Support\DuoUrl;
 use App\Support\MapDetailsPayload;
 use Illuminate\Database\Eloquent\Builder;
@@ -111,10 +112,10 @@ final class MapController extends Controller
         }
 
         $response = response()->view('duo', ['sharedMap' => $sharedMap])
-            ->header('Cache-Control', 'no-store')
-            ->header('X-Robots-Tag', 'noindex');
+            ->header('Cache-Control', 'no-store');
 
-        if ($request->isMethod('GET')) {
+        // Map pages are indexed now; crawler visits would otherwise reorder the public maps list.
+        if ($request->isMethod('GET') && ! Crawler::detect($request->userAgent())) {
             Map::query()->whereKey($map->id)->toBase()->increment('views_count');
         }
 

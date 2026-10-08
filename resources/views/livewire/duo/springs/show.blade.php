@@ -53,10 +53,12 @@
                                 @map-viewport-changed.window="refresh()"
                                 @map-state-changed.window="refresh()"
                                 @click="showOnMap()"
-                                :class="{ 'invisible opacity-0': ! visible }"
+                                :disabled="! visible"
                                 title="{{ __('ui.spring.show_on_map') }}"
                                 aria-label="{{ __('ui.spring.show_on_map') }}"
-                                class="invisible opacity-0 transition-[opacity,visibility] duration-150 rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-stone-600 hover:bg-stone-300
+                                disabled
+                                class="shrink-0 rounded-md bg-stone-200 px-2.5 py-1.5 text-sm font-semibold text-blue-600 transition-colors hover:bg-stone-300
+                                    disabled:text-gray-400 disabled:hover:bg-stone-200 disabled:cursor-default
                                     focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-blue-700">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5" aria-hidden="true">
                                     <path d="M4.25 2A2.25 2.25 0 0 0 2 4.25v2a.75.75 0 0 0 1.5 0v-2a.75.75 0 0 1 .75-.75h2a.75.75 0 0 0 0-1.5h-2ZM13.75 2a.75.75 0 0 0 0 1.5h2a.75.75 0 0 1 .75.75v2a.75.75 0 0 0 1.5 0v-2A2.25 2.25 0 0 0 15.75 2h-2ZM3.5 13.75a.75.75 0 0 0-1.5 0v2A2.25 2.25 0 0 0 4.25 18h2a.75.75 0 0 0 0-1.5h-2a.75.75 0 0 1-.75-.75v-2ZM18 13.75a.75.75 0 0 0-1.5 0v2a.75.75 0 0 1-.75.75h-2a.75.75 0 0 0 0 1.5h2A2.25 2.25 0 0 0 18 15.75v-2ZM7 10a3 3 0 1 1 6 0 3 3 0 0 1-6 0Z" />
@@ -78,7 +80,7 @@
 
                                             <div x-menu:items x-cloak
                                                 style="display: none;"
-                                                class="absolute overflow-hidden right-0 w-56 p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
+                                                class="absolute overflow-hidden right-0 w-max min-w-56 max-w-[calc(100vw-2rem)] p-1 mt-2 z-10 origin-top-right bg-white rounded-lg border border-stone-300 shadow-lg
                                                 focus:outline-hidden
                                                 ">
                                                 <a x-menu:item href="{{ duo_route(['spring' => $spring->id, 'location' => 1]) }}"
@@ -88,11 +90,11 @@
                                                         'text-gray-600': ! $menuItem.isActive,
                                                         'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                     }"
-                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                    {{--<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                    class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                    {{--<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 shrink-0 mt-0.5">
                                                         <path fill-rule="evenodd" d="m7.539 14.841.003.003.002.002a.755.755 0 0 0 .912 0l.002-.002.003-.003.012-.009a5.57 5.57 0 0 0 .19-.153 15.588 15.588 0 0 0 2.046-2.082c1.101-1.362 2.291-3.342 2.291-5.597A5 5 0 0 0 3 7c0 2.255 1.19 4.235 2.292 5.597a15.591 15.591 0 0 0 2.046 2.082 8.916 8.916 0 0 0 .189.153l.012.01ZM8 8.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clip-rule="evenodd" />
                                                     </svg>--}}
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="#000000" viewBox="0 0 256 256"><path d="M232,116h-4.72A100.21,100.21,0,0,0,140,28.72V24a12,12,0,0,0-24,0v4.72A100.21,100.21,0,0,0,28.72,116H24a12,12,0,0,0,0,24h4.72A100.21,100.21,0,0,0,116,227.28V232a12,12,0,0,0,24,0v-4.72A100.21,100.21,0,0,0,227.28,140H232a12,12,0,0,0,0-24Zm-92,87v-3a12,12,0,0,0-24,0v3a76.15,76.15,0,0,1-63-63h3a12,12,0,0,0,0-24H53a76.15,76.15,0,0,1,63-63v3a12,12,0,0,0,24,0V53a76.15,76.15,0,0,1,63,63h-3a12,12,0,0,0,0,24h3A76.15,76.15,0,0,1,140,203ZM128,84a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,84Zm0,64a20,20,0,1,1,20-20A20,20,0,0,1,128,148Z"></path></svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 256 256"><path d="M232,116h-4.72A100.21,100.21,0,0,0,140,28.72V24a12,12,0,0,0-24,0v4.72A100.21,100.21,0,0,0,28.72,116H24a12,12,0,0,0,0,24h4.72A100.21,100.21,0,0,0,116,227.28V232a12,12,0,0,0,24,0v-4.72A100.21,100.21,0,0,0,227.28,140H232a12,12,0,0,0,0-24Zm-92,87v-3a12,12,0,0,0-24,0v3a76.15,76.15,0,0,1-63-63h3a12,12,0,0,0,0-24H53a76.15,76.15,0,0,1,63-63v3a12,12,0,0,0,24,0V53a76.15,76.15,0,0,1,63,63h-3a12,12,0,0,0,0,24h3A76.15,76.15,0,0,1,140,203ZM128,84a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,84Zm0,64a20,20,0,1,1,20-20A20,20,0,0,1,128,148Z"></path></svg>
                                                     {{ __('ui.spring.update_location') }}
                                                 </a>
                                                 <a x-menu:item href="{{ localized_route('springs.edit', ['spring' => $spring]) }}"
@@ -102,8 +104,8 @@
                                                         'text-gray-600': ! $menuItem.isActive,
                                                         'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                     }"
-                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
+                                                    class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4 shrink-0 mt-0.5">
                                                         <path fill-rule="evenodd" d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z" clip-rule="evenodd" />
                                                     </svg>
                                                     {{ __('ui.spring.edit_name_and_type') }}
@@ -115,15 +117,15 @@
                                                         'text-gray-600': ! $menuItem.isActive,
                                                         'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                     }"
-                                                    class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4">
+                                                    class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4 shrink-0 mt-0.5">
                                                         <path d="M3 2a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H3Z" />
                                                         <path fill-rule="evenodd" d="M3 6h10v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Zm3 2.75A.75.75 0 0 1 6.75 8h2.5a.75.75 0 0 1 0 1.5h-2.5A.75.75 0 0 1 6 8.75Z" clip-rule="evenodd" />
                                                     </svg>
-                                                    {{ __('ui.spring.view_history') }}
-                                                    <div class="border-stone-300 bg-stone-100 border rounded-full text-xs px-1.5 py-0.5">
-                                                        {{ $spring->springRevisions->count() ?: __('ui.common.empty') }}
-                                                    </div>
+                                                    <span>
+                                                        {{ __('ui.spring.view_history') }}
+                                                        <span class="ml-1 inline-block whitespace-nowrap border-stone-300 bg-stone-100 border rounded-full text-xs leading-4 px-1.5 -my-0.5 align-[1px]">{{ $spring->springRevisions->count() ?: __('ui.common.empty') }}</span>
+                                                    </span>
                                                 </a>
 
 
@@ -143,8 +145,8 @@
                                                                 'text-gray-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4" aria-hidden="true">
+                                                            class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s7.5-5.25 7.5-12a7.5 7.5 0 1 0-15 0C4.5 15.75 12 21 12 21Z" />
                                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                             </svg>
@@ -159,8 +161,8 @@
                                                                 'text-gray-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 16 16">
+                                                            class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 16 16">
                                                                 <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
                                                                 <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
                                                             </svg>
@@ -177,8 +179,8 @@
                                                                 'text-amber-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                            class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 shrink-0 mt-0.5">
                                                                 <path fill-rule="evenodd" d="M3.28 2.22a.75.75 0 0 0-1.06 1.06l10.5 10.5a.75.75 0 1 0 1.06-1.06l-1.322-1.323a7.012 7.012 0 0 0 2.16-3.11.87.87 0 0 0 0-.567A7.003 7.003 0 0 0 4.82 3.76l-1.54-1.54Zm3.196 3.195 1.135 1.136A1.502 1.502 0 0 1 9.45 8.389l1.136 1.135a3 3 0 0 0-4.109-4.109Z" clip-rule="evenodd" />
                                                                 <path d="m7.812 10.994 1.816 1.816A7.003 7.003 0 0 1 1.38 8.28a.87.87 0 0 1 0-.566 6.985 6.985 0 0 1 1.113-2.039l2.513 2.513a3 3 0 0 0 2.806 2.806Z" />
                                                             </svg>
@@ -197,8 +199,8 @@
                                                                 'text-red-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4">
+                                                            class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 shrink-0 mt-0.5">
                                                                 <path fill-rule="evenodd" d="M8.074.945A4.993 4.993 0 0 0 6 5v.032c.004.6.114 1.176.311 1.709.16.428-.204.91-.61.7a5.023 5.023 0 0 1-1.868-1.677c-.202-.304-.648-.363-.848-.058a6 6 0 1 0 8.017-1.901l-.004-.007a4.98 4.98 0 0 1-2.18-2.574c-.116-.31-.477-.472-.744-.28Zm.78 6.178a3.001 3.001 0 1 1-3.473 4.341c-.205-.365.215-.694.62-.59a4.008 4.008 0 0 0 1.873.03c.288-.065.413-.386.321-.666A3.997 3.997 0 0 1 8 8.999c0-.585.126-1.14.351-1.641a.42.42 0 0 1 .503-.235Z" clip-rule="evenodd" />
                                                             </svg>
                                                             {{ __('ui.spring.annihilate') }}
@@ -215,8 +217,8 @@
                                                                 'text-gray-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4" viewBox="0 0 256 256"><path d="M174.63,81.37a80,80,0,1,0-93.26,93.26,80,80,0,1,0,93.26-93.26ZM100.69,136,120,155.31A63.48,63.48,0,0,1,96,160,63.48,63.48,0,0,1,100.69,136Zm33.75,11.13-25.57-25.57a64.65,64.65,0,0,1,12.69-12.69l25.57,25.57A64.65,64.65,0,0,1,134.44,147.13ZM155.31,120,136,100.69A63.48,63.48,0,0,1,160,96,63.48,63.48,0,0,1,155.31,120ZM32,96a64,64,0,0,1,126-16A80.08,80.08,0,0,0,80.05,158,64.11,64.11,0,0,1,32,96ZM160,224A64.11,64.11,0,0,1,98,176,80.08,80.08,0,0,0,176,98,64,64,0,0,1,160,224Z"></path></svg>
+                                                            class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="w-4 h-4 shrink-0 mt-0.5" viewBox="0 0 256 256"><path d="M174.63,81.37a80,80,0,1,0-93.26,93.26,80,80,0,1,0,93.26-93.26ZM100.69,136,120,155.31A63.48,63.48,0,0,1,96,160,63.48,63.48,0,0,1,100.69,136Zm33.75,11.13-25.57-25.57a64.65,64.65,0,0,1,12.69-12.69l25.57,25.57A64.65,64.65,0,0,1,134.44,147.13ZM155.31,120,136,100.69A63.48,63.48,0,0,1,160,96,63.48,63.48,0,0,1,155.31,120ZM32,96a64,64,0,0,1,126-16A80.08,80.08,0,0,0,80.05,158,64.11,64.11,0,0,1,32,96ZM160,224A64.11,64.11,0,0,1,98,176,80.08,80.08,0,0,0,176,98,64,64,0,0,1,160,224Z"></path></svg>
                                                             {{ __('ui.spring.merge_into_another') }}
                                                         </button>
                                                     @endif
@@ -231,8 +233,8 @@
                                                                 'text-amber-600': ! $menuItem.isActive,
                                                                 'opacity-50 cursor-not-allowed': $menuItem.isDisabled,
                                                             }"
-                                                            class="flex items-center gap-x-2 rounded-md block w-full px-4 py-3 text-sm font-medium transition-colors">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-4 h-4">
+                                                            class="flex items-start gap-x-2 rounded-md w-full px-4 py-3 text-start text-sm font-medium transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="currentColor" class="w-4 h-4 shrink-0 mt-0.5">
                                                                 <path d="M198.63,57.37a32,32,0,0,0-45.19-.06L141.79,69.52a8,8,0,0,1-11.58-11l11.72-12.29a1.59,1.59,0,0,1,.13-.13,48,48,0,0,1,67.88,67.88,1.59,1.59,0,0,1-.13.13l-12.29,11.72a8,8,0,0,1-11-11.58l12.21-11.65A32,32,0,0,0,198.63,57.37ZM114.21,186.48l-11.65,12.21a32,32,0,0,1-45.25-45.25l12.21-11.65a8,8,0,0,0-11-11.58L46.19,141.93a1.59,1.59,0,0,0-.13.13,48,48,0,0,0,67.88,67.88,1.59,1.59,0,0,0,.13-.13l11.72-12.29a8,8,0,1,0-11.58-11ZM216,152H192a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16ZM40,104H64a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16Zm120,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V192A8,8,0,0,0,160,184ZM96,72a8,8,0,0,0,8-8V40a8,8,0,0,0-16,0V64A8,8,0,0,0,96,72Z" />
                                                             </svg>
                                                             {{ __('ui.spring.remove_redirect') }}
