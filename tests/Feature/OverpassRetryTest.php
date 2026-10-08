@@ -331,7 +331,7 @@ test('a connection failure is recorded instead of aborting the batch', function 
     fakeOverpassResponses([
         new ConnectException(
             'cURL error 7: Failed to connect to overpass-api.de port 443',
-            new Request('POST', OverpassImport::ENDPOINT),
+            new Request('POST', config('services.overpass.url')),
         ),
     ]);
 

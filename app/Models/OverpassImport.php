@@ -16,8 +16,6 @@ final class OverpassImport extends Model
 {
     use HasFactory;
 
-    public const ENDPOINT = 'https://overpass-api.de/api/interpreter';
-
     /**
      * Response code we record ourselves when the request never reached the API at all.
      */
@@ -43,7 +41,7 @@ final class OverpassImport extends Model
             $this->fake();
         } else {
             try {
-                $result = $guzzle->request('POST', self::ENDPOINT, [
+                $result = $guzzle->request('POST', config('services.overpass.url'), [
                     'form_params' => [
                         'data' => $this->query, // your Overpass QL query
                     ],

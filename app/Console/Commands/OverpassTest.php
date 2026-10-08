@@ -30,7 +30,7 @@ class OverpassTest extends Command
     {
         $guzzle = new Client;
 
-        $result = $guzzle->request('GET', 'https://overpass-api.de/api/interpreter', [
+        $result = $guzzle->request('GET', config('services.overpass.url'), [
             'query' => [
                 'data' => "/*
                     This is an example Overpass query.
