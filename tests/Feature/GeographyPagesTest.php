@@ -20,7 +20,7 @@ function geographyFixtures(): array
 {
     $country = Country::create(['code' => 'RU', 'name' => 'Russia', 'name_ru' => 'Россия', 'slug' => 'russia-ru', 'is_active' => true]);
     $region = Region::create(['source_key' => 'geonames-admin1:RU.47', 'source_country_code' => 'RU', 'admin1_code' => '47', 'country_id' => $country->id, 'name' => 'Moscow Oblast', 'name_ru' => 'Московская область', 'slug' => 'moscow-oblast-524925', 'is_active' => true]);
-    $city = City::create(['source_key' => 'geonames:524901', 'source_country_code' => 'RU', 'geonames_id' => 524901, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Moscow', 'name_ru' => 'Москва', 'slug' => 'moscow-524901', 'latitude' => 55.75, 'longitude' => 37.62, 'is_active' => true]);
+    $city = City::create(['source_country_code' => 'RU', 'geonames_id' => 524901, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Moscow', 'name_ru' => 'Москва', 'slug' => 'moscow-524901', 'latitude' => 55.75, 'longitude' => 37.62, 'is_active' => true]);
 
     return [$country, $region, $city];
 }
@@ -53,7 +53,7 @@ function geographyCity(Country $country, ?Region $region, string $name, ?string 
 {
     $id = City::query()->max('geonames_id') + 1;
 
-    return City::create(['source_key' => 'geonames:'.$id, 'source_country_code' => $country->code, 'geonames_id' => $id, 'country_id' => $country->id, 'region_id' => $region?->id, 'name' => $name, 'name_ru' => $nameRu, 'slug' => Str::slug($name).'-'.$id, 'latitude' => 55.7, 'longitude' => 37.6, 'is_active' => true]);
+    return City::create(['source_country_code' => $country->code, 'geonames_id' => $id, 'country_id' => $country->id, 'region_id' => $region?->id, 'name' => $name, 'name_ru' => $nameRu, 'slug' => Str::slug($name).'-'.$id, 'latitude' => 55.7, 'longitude' => 37.6, 'is_active' => true]);
 }
 
 /** @return list<string> */
@@ -342,8 +342,8 @@ test('place names are escaped once in page titles and descriptions', function ()
 test('inactive and empty geographic places are excluded from browsing and sitemaps', function () {
     [$country, $region, $city] = geographyFixtures();
     geographySpring($country, $region, $city);
-    $emptyCity = City::create(['source_key' => 'geonames:999901', 'source_country_code' => 'RU', 'geonames_id' => 999901, 'latitude' => 55.76, 'longitude' => 37.63, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Empty settlement', 'slug' => 'empty-settlement-test', 'is_active' => true]);
-    $inactiveCity = City::create(['source_key' => 'geonames:999902', 'source_country_code' => 'RU', 'geonames_id' => 999902, 'latitude' => 55.77, 'longitude' => 37.64, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Inactive settlement', 'slug' => 'inactive-settlement-test', 'is_active' => false]);
+    $emptyCity = City::create(['source_country_code' => 'RU', 'geonames_id' => 999901, 'latitude' => 55.76, 'longitude' => 37.63, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Empty settlement', 'slug' => 'empty-settlement-test', 'is_active' => true]);
+    $inactiveCity = City::create(['source_country_code' => 'RU', 'geonames_id' => 999902, 'latitude' => 55.77, 'longitude' => 37.64, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Inactive settlement', 'slug' => 'inactive-settlement-test', 'is_active' => false]);
     geographySpring($country, $region, $inactiveCity);
     $hiddenOnlyCountry = Country::create(['code' => 'DE', 'name' => 'Hidden-only country', 'slug' => 'hidden-only-test', 'is_active' => true]);
     geographySpring($hiddenOnlyCountry, null, null, ['hidden_at' => now()]);

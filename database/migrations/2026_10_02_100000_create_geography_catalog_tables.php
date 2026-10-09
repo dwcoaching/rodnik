@@ -43,8 +43,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('country_id')->constrained()->restrictOnDelete();
             $table->foreignId('region_id')->nullable()->constrained()->restrictOnDelete();
-            $table->string('source_key', 100)->unique();
-            $table->unsignedBigInteger('geonames_id')->nullable()->unique();
+            $table->unsignedBigInteger('geonames_id')->unique();
             $table->string('source_country_code', 3);
             $table->string('admin1_code', 20)->nullable();
             $table->string('name');

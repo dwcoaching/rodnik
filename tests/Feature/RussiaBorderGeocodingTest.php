@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 use App\Actions\GeocodeSpringAction;
 use App\Contracts\ReverseGeocoder;
+use App\Models\City;
 use App\Models\Country;
+use App\Models\Region;
 use App\Models\Spring;
 use App\Models\User;
 use App\Services\Geocoding\GeographyReverseGeocoder;
 use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
+    $this->russia = Country::create(['code' => 'RU', 'name' => 'Russia', 'name_ru' => 'Россия', 'slug' => 'russia']);
+    $this->ukraine = Country::create(['code' => 'UA', 'name' => 'Ukraine', 'name_ru' => 'Украина', 'slug' => 'ukraine']);
+    $this->region = Region::factory()->create(['country_id' => $this->russia->id, 'geonames_id' => 703883, 'name' => 'Republic of Crimea']);
+    $this->village = City::factory()->create(['country_id' => $this->ukraine->id, 'geonames_id' => 7001, 'name' => 'Nearest village']);
     $this->borderDirectory = sys_get_temp_dir().'/rodnik-border-feature-'.bin2hex(random_bytes(8));
     File::ensureDirectoryExists($this->borderDirectory);
     $base = [
@@ -23,7 +29,7 @@ beforeEach(function () {
             ],
             [
                 'type' => 'Feature',
-                'properties' => ['city' => 'Nearest village', 'country_code' => 'UA', 'region' => 'Foreign region'],
+                'properties' => ['city' => 'Nearest village', 'country_code' => 'UA', 'region' => 'Foreign region', 'geonames_id' => 7001],
                 'geometry' => ['type' => 'Point', 'coordinates' => [5, 5]],
             ],
         ],
@@ -32,7 +38,7 @@ beforeEach(function () {
         'type' => 'FeatureCollection',
         'features' => [[
             'type' => 'Feature',
-            'properties' => ['region' => 'Policy region'],
+            'properties' => ['region' => 'Republic of Crimea'],
             'geometry' => ['type' => 'Polygon', 'coordinates' => [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]],
         ]],
     ];
@@ -56,42 +62,41 @@ test('the application applies the final country policy to source creation and lo
     expect(app(ReverseGeocoder::class))->toBeInstanceOf(GeographyReverseGeocoder::class);
     $spring = Spring::factory()->create(['latitude' => 5, 'longitude' => 5]);
 
-    expect($spring->country)->toBe('Russia')->and($spring->country_ru)->toBe('Россия')
-        ->and($spring->country_code)->toBe('RU')->and($spring->city)->toBe('Nearest village')
-        ->and($spring->region)->toBe('Policy region');
+    expect($spring->country_id)->toBe($this->russia->id)
+        ->and($spring->nearest_city_id)->toBe($this->village->id)
+        ->and($spring->region_id)->toBe($this->region->id);
 
     $spring->forceFill(['latitude' => 15, 'longitude' => 15])->save();
 
-    expect($spring->fresh()->country_code)->toBe('UA')->and($spring->fresh()->country)->toBe('Ukraine');
+    expect($spring->fresh()->country_id)->toBe($this->ukraine->id)->and($spring->fresh()->region_id)->toBeNull();
 });
 
-test('manual and bulk recalculation use the final country policy over legacy provider labels', function () {
+test('manual and bulk recalculation use the final country policy over legacy provider links', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
     $spring = Spring::withoutEvents(fn () => Spring::factory()->create([
-        'latitude' => 5, 'longitude' => 5, 'country' => 'Ukraine', 'country_ru' => 'Украина', 'country_code' => 'UA',
+        'latitude' => 5, 'longitude' => 5, 'country_id' => $this->ukraine->id,
     ]));
     app(GeocodeSpringAction::class)($spring);
-    expect($spring->fresh()->country_code)->toBe('RU')->and($spring->fresh()->city)->toBe('Nearest village');
+    expect($spring->fresh()->geoCountry->code)->toBe('RU')->and($spring->fresh()->nearestCity->name)->toBe('Nearest village');
 
-    $spring->forceFill(['country' => 'Ukraine', 'country_ru' => 'Украина', 'country_code' => 'UA'])->saveQuietly();
+    $spring->forceFill(['country_id' => $this->ukraine->id])->saveQuietly();
     $this->artisan('springs:geocode')->assertSuccessful();
 
-    expect($spring->fresh()->country)->toBe('Russia')->and($spring->fresh()->country_ru)->toBe('Россия')
-        ->and($spring->fresh()->country_code)->toBe('RU');
-    $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('0 mismatched labels')->assertSuccessful();
+    expect($spring->fresh()->geoCountry->code)->toBe('RU')->and($spring->fresh()->geoCountry->name_ru)->toBe('Россия');
+    $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('0 mismatched countries')->assertSuccessful();
 });
 
-test('the border audit detects inconsistent country fields and does not modify sources', function () {
+test('the border audit detects a source inside the policy that is not linked to Russia and does not modify sources', function () {
     $spring = Spring::withoutEvents(fn () => Spring::factory()->create([
-        'latitude' => 5, 'longitude' => 5, 'country' => 'Russia', 'country_ru' => 'Украина', 'country_code' => 'RU',
+        'latitude' => 5, 'longitude' => 5, 'country_id' => $this->ukraine->id,
     ]));
     Spring::withoutEvents(fn () => Spring::factory()->create([
-        'latitude' => 15, 'longitude' => 15, 'country' => 'Ukraine', 'country_ru' => 'Украина', 'country_code' => 'UA',
+        'latitude' => 15, 'longitude' => 15, 'country_id' => $this->ukraine->id,
     ]));
     $before = $spring->fresh()->getAttributes();
 
     $this->artisan('springs:audit-russia-borders')
-        ->expectsOutputToContain('2 water sources; 1 within the Russia border policy; 1 mismatched labels')
+        ->expectsOutputToContain('2 water sources; 1 within the Russia border policy; 1 mismatched countries')
         ->expectsOutputToContain((string) $spring->id)->assertFailed();
 
     expect($spring->fresh()->getAttributes())->toBe($before);
@@ -99,7 +104,7 @@ test('the border audit detects inconsistent country fields and does not modify s
 
 test('disabled or broken border files fail the audit and broken policies cannot clear labels on reset', function () {
     $spring = Spring::withoutEvents(fn () => Spring::factory()->create([
-        'latitude' => 5, 'longitude' => 5, 'country' => 'Saved country', 'city' => 'Saved city',
+        'latitude' => 5, 'longitude' => 5, ...catalogLinks('ZZ', 'Saved city'),
     ]));
     config(['geocoding.russia_border_path' => null]);
     $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('policy is disabled')->assertFailed();
@@ -107,17 +112,17 @@ test('disabled or broken border files fail the audit and broken policies cannot 
 
     $this->artisan('springs:audit-russia-borders')->assertFailed();
     $this->artisan('springs:geocode', ['--reset' => true])->assertFailed();
-    expect($spring->fresh()->country)->toBe('Saved country')->and($spring->fresh()->city)->toBe('Saved city');
+    expect($spring->fresh()->geoCountry->code)->toBe('ZZ')->and($spring->fresh()->nearestCity->name)->toBe('Saved city');
 });
 
-test('the border audit detects a conflicting country identity even when text labels say Russia', function (): void {
-    $russia = Country::create(['code' => 'RU', 'name' => 'Russia', 'name_ru' => 'Россия', 'slug' => 'russia']);
-    $other = Country::create(['code' => 'UA', 'name' => 'Ukraine', 'slug' => 'ukraine']);
+test('the border audit requires Russia in the catalog and passes once sources link to it', function (): void {
     $spring = Spring::withoutEvents(fn () => Spring::factory()->create([
-        'latitude' => 5, 'longitude' => 5, 'country' => 'Russia', 'country_ru' => 'Россия',
-        'country_code' => 'RU', 'country_id' => $other->id,
+        'latitude' => 5, 'longitude' => 5, 'country_id' => null,
     ]));
-    $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('1 mismatched labels')->assertFailed();
-    $spring->forceFill(['country_id' => $russia->id])->saveQuietly();
-    $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('0 mismatched labels')->assertSuccessful();
+    $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('1 mismatched countries')->assertFailed();
+    $spring->forceFill(['country_id' => $this->russia->id])->saveQuietly();
+    $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('0 mismatched countries')->assertSuccessful();
+
+    $this->russia->update(['is_active' => false]);
+    $this->artisan('springs:audit-russia-borders')->expectsOutputToContain('Russia is missing from the geography catalog')->assertFailed();
 });

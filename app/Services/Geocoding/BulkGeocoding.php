@@ -233,9 +233,7 @@ final class BulkGeocoding
         $query = Spring::query()->where('id', '<=', $maxId);
 
         if ($mode === 'missing') {
-            $query->where(fn (Builder $query) => $query
-                ->whereNull('country')->orWhere('country', '')
-                ->orWhereNull('city')->orWhere('city', ''));
+            $query->where(fn (Builder $query) => $query->whereNull('country_id')->orWhereNull('nearest_city_id'));
         }
 
         return $query;

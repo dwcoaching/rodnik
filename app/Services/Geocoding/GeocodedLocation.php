@@ -28,20 +28,14 @@ final readonly class GeocodedLocation
         public ?string $regionSourceKey = null,
     ) {}
 
+    /** Water sources store only catalog links; names are read from the catalog. */
     public function attributes(): array
     {
         return [
-            'country' => $this->country,
-            'country_ru' => $this->countryRu,
-            'country_code' => $this->countryCode,
-            'region' => $this->region,
-            'city' => $this->city,
             'geocoding_source' => $this->source,
             'country_id' => $this->countryId,
             'region_id' => $this->regionId,
             'nearest_city_id' => $this->nearestCityId,
-            'city_ru' => $this->cityRu,
-            'region_ru' => $this->regionRu,
             'nearest_city_distance_km' => $this->nearestCityDistanceKm,
         ];
     }

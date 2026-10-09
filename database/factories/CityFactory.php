@@ -19,7 +19,7 @@ final class CityFactory extends Factory
         $name = fake()->city();
 
         return [
-            'country_id' => Country::factory(), 'region_id' => null, 'source_key' => 'fixture:'.Str::uuid(),
+            'country_id' => Country::factory(), 'region_id' => null, 'geonames_id' => fake()->unique()->numberBetween(1, 2_000_000_000),
             'source_country_code' => 'RU', 'name' => $name, 'name_ru' => null, 'slug' => Str::slug($name).'-'.Str::random(8),
             'latitude' => fake()->latitude(), 'longitude' => fake()->longitude(), 'is_active' => true,
         ];

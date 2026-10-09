@@ -13,7 +13,7 @@ final class SpringsAuditRussiaBorders extends Command
 {
     protected $signature = 'springs:audit-russia-borders';
 
-    protected $description = 'Check that sources within the configured Russia border policy are labeled Russia / Россия / RU';
+    protected $description = 'Check that sources within the configured Russia border policy link to Russia';
 
     public function handle(RussiaBorderPolicy $policy): int
     {
@@ -31,8 +31,15 @@ final class SpringsAuditRussiaBorders extends Command
 
         try {
             $russiaId = DB::table('countries')->where('code', 'RU')->where('is_active', true)->value('id');
+
+            if ($russiaId === null) {
+                $this->error('Russia is missing from the geography catalog. Run geocoding:import-catalog before auditing.');
+
+                return self::FAILURE;
+            }
+
             $policy->withBorderSnapshot(function () use ($policy, $russiaId, &$checked, &$inside, &$mismatched, &$invalid, &$examples): void {
-                DB::table('springs')->select(['id', 'latitude', 'longitude', 'country', 'country_ru', 'country_code', 'country_id'])
+                DB::table('springs')->select(['id', 'latitude', 'longitude', 'country_id'])
                     ->chunkById(2000, function ($sources) use ($policy, $russiaId, &$checked, &$inside, &$mismatched, &$invalid, &$examples): void {
                         foreach ($sources as $source) {
                             if (! is_numeric($source->latitude) || ! is_numeric($source->longitude)
@@ -51,8 +58,7 @@ final class SpringsAuditRussiaBorders extends Command
 
                             $inside++;
 
-                            if ($source->country === 'Russia' && $source->country_ru === 'Россия' && $source->country_code === 'RU'
-                                && ($russiaId === null || (int) $source->country_id === (int) $russiaId)) {
+                            if ((int) $source->country_id === (int) $russiaId) {
                                 continue;
                             }
 
@@ -70,15 +76,11 @@ final class SpringsAuditRussiaBorders extends Command
             return self::FAILURE;
         }
 
-        $this->line("Checked {$checked} water sources; {$inside} within the Russia border policy; {$mismatched} mismatched labels; {$invalid} invalid coordinates.");
-
-        if ($russiaId !== null) {
-            $this->line('The audit also checks the linked Russia country identity.');
-        }
+        $this->line("Checked {$checked} water sources; {$inside} within the Russia border policy; {$mismatched} mismatched countries; {$invalid} invalid coordinates.");
 
         if ($mismatched > 0) {
             $this->error('Mismatched source IDs (up to 20): '.implode(', ', $examples).'.');
-            $this->line('Run springs:geocode to recalculate saved labels, then repeat this audit.');
+            $this->line('Run springs:geocode to recalculate saved links, then repeat this audit.');
 
             return self::FAILURE;
         }
@@ -89,7 +91,7 @@ final class SpringsAuditRussiaBorders extends Command
             return self::FAILURE;
         }
 
-        $this->info('All sources within the configured border policy are labeled Russia / Россия / RU.');
+        $this->info('All sources within the configured border policy link to Russia.');
 
         return self::SUCCESS;
     }

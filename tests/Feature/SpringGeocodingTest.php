@@ -38,8 +38,8 @@ final class RecordingSpringGeocoder implements ReverseGeocoder
         ($this->duringLookup ?? static fn () => null)();
 
         return $latitude < 50
-            ? new GeocodedLocation('Armenia', 'AM', 'Yerevan', 'Армения', 'Yerevan')
-            : new GeocodedLocation('Russia', 'RU', 'Moscow', 'Россия', 'Moscow');
+            ? catalogLocation('AM', 'Yerevan')
+            : catalogLocation('RU', 'Moscow');
     }
 }
 
@@ -55,8 +55,8 @@ test('a user-created source receives country and city before the response', func
 
     $spring = app(PostSpringsAction::class)(['latitude' => 40.18, 'longitude' => 44.51]);
 
-    expect($spring->fresh()->country_code)->toBe('AM')
-        ->and($spring->fresh()->city)->toBe('Yerevan')
+    expect($spring->fresh()->geoCountry->code)->toBe('AM')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Yerevan')
         ->and($spring->geocoded_at)->not->toBeNull()
         ->and($this->geocoder->lookups)->toBe([[40.18, 44.51]]);
 });
@@ -69,8 +69,8 @@ test('location edits replace derived labels and unchanged coordinates do not rep
     app(PatchSpringsLocationAction::class)($spring->fresh(), ['latitude' => '55.750000', 'longitude' => '37.620000']);
     $spring->fresh()->forceFill(['name' => 'A new name'])->save();
 
-    expect($spring->fresh()->country_code)->toBe('RU')
-        ->and($spring->fresh()->city)->toBe('Moscow')
+    expect($spring->fresh()->geoCountry->code)->toBe('RU')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Moscow')
         ->and($this->geocoder->lookups)->toBe([[40.18, 44.51], [55.75, 37.62]]);
 });
 
@@ -86,7 +86,7 @@ test('osm node and way creation and movement geocode the effective coordinates',
     ];
     Overpass::parse((object) ['elements' => [$element]]);
     $spring = Spring::where('osm_'.$type.'_id', $element->id)->firstOrFail();
-    expect($spring->country_code)->toBe('AM')->and($spring->city)->toBe('Yerevan');
+    expect($spring->geoCountry->code)->toBe('AM')->and($spring->nearestCity->name)->toBe('Yerevan');
 
     $element->version = 2;
     $element->lat = 55.75;
@@ -94,8 +94,8 @@ test('osm node and way creation and movement geocode the effective coordinates',
     $element->center = (object) ['lat' => 55.75, 'lon' => 37.62];
     Overpass::parse((object) ['elements' => [$element]]);
 
-    expect($spring->fresh()->country_code)->toBe('RU')
-        ->and($spring->fresh()->city)->toBe('Moscow')
+    expect($spring->fresh()->geoCountry->code)->toBe('RU')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Moscow')
         ->and($this->geocoder->lookups)->toHaveCount(2);
 })->with(['node', 'way']);
 
@@ -113,7 +113,7 @@ test('an osm update preserves geocoding for a location that a user moved', funct
     ]]]);
 
     expect((float) $spring->fresh()->latitude)->toBe(55.75)
-        ->and($spring->fresh()->country_code)->toBe('RU')
+        ->and($spring->fresh()->geoCountry->code)->toBe('RU')
         ->and($this->geocoder->lookups)->toHaveCount(1);
 });
 
@@ -122,8 +122,8 @@ test('invalid or removed coordinates clear country and city', function () {
     $spring->latitude = null;
     $spring->save();
 
-    expect($spring->fresh()->country)->toBeNull()
-        ->and($spring->fresh()->city)->toBeNull()
+    expect($spring->fresh()->country_id)->toBeNull()
+        ->and($spring->fresh()->nearest_city_id)->toBeNull()
         ->and($spring->fresh()->geocoded_at)->toBeNull()
         ->and($this->geocoder->lookups)->toHaveCount(1);
 });
@@ -135,8 +135,8 @@ test('an unavailable dataset never prevents source creation or retains labels af
     $spring->save();
     $new = Spring::factory()->create(['latitude' => 0, 'longitude' => 0]);
 
-    expect($spring->fresh()->country)->toBeNull()
-        ->and($spring->fresh()->city)->toBeNull()
+    expect($spring->fresh()->country_id)->toBeNull()
+        ->and($spring->fresh()->nearest_city_id)->toBeNull()
         ->and($spring->fresh()->geocoded_at)->toBeNull()
         ->and($new->exists)->toBeTrue();
 });
@@ -145,10 +145,10 @@ test('a background lookup cannot overwrite the result of a concurrent location e
     $spring = Spring::factory()->create(['latitude' => 40.18, 'longitude' => 44.51]);
     $this->geocoder->duringLookup = static function () use ($spring): void {
         DB::table('springs')->where('id', $spring->id)->update([
-            'latitude' => 55.75, 'longitude' => 37.62, 'country' => 'Russia', 'country_code' => 'RU', 'city' => 'Moscow',
+            'latitude' => 55.75, 'longitude' => 37.62, ...catalogLinks('RU', 'Moscow'),
         ]);
     };
 
     expect(fn () => app(GeocodeSpring::class)->geocode($spring))->toThrow(RuntimeException::class, 'coordinates changed');
-    expect($spring->fresh()->country_code)->toBe('RU')->and($spring->fresh()->city)->toBe('Moscow');
+    expect($spring->fresh()->geoCountry->code)->toBe('RU')->and($spring->fresh()->nearestCity->name)->toBe('Moscow');
 });

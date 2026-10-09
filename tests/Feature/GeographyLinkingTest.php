@@ -28,7 +28,7 @@ beforeEach(function (): void {
         'name' => 'Actual region', 'name_ru' => 'Регион источника', 'slug' => 'actual-region',
     ]);
     $this->city = City::create([
-        'country_id' => $this->foreignCountry->id, 'source_key' => 'geonames:5555',
+        'country_id' => $this->foreignCountry->id,
         'source_country_code' => 'BB', 'geonames_id' => 5555,
         'name' => 'Nearest town', 'name_ru' => 'Ближний город', 'slug' => 'nearest-town',
         'latitude' => 1, 'longitude' => 1.02,
@@ -70,18 +70,18 @@ test('automatic geocoding links actual country and containing region independent
     expect($spring->fresh())->country_id->toBe($this->country->id)
         ->region_id->toBe($this->region->id)
         ->nearest_city_id->toBe($this->city->id)
-        ->nearest_city_distance_km->toBe(2.223)
-        ->country_ru->toBe('Примерия')
-        ->region_ru->toBe('Регион источника')
-        ->city_ru->toBe('Ближний город');
+        ->nearest_city_distance_km->toBe(2.223);
+    expect($spring->fresh())->geoCountry->name_ru->toBe('Примерия')
+        ->geoRegion->name_ru->toBe('Регион источника')
+        ->nearestCity->name_ru->toBe('Ближний город');
     expect($spring->fresh()->geoCountry->id)->not->toBe($spring->fresh()->nearestCity->country_id);
 });
 
-test('moving beyond coverage clears every catalog link, translated label, and settlement distance', function (): void {
+test('moving beyond coverage clears every catalog link and settlement distance', function (): void {
     $spring = Spring::factory()->create(['latitude' => 1, 'longitude' => 1]);
     $spring->forceFill(['latitude' => 6])->save();
 
-    foreach (['country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km', 'country_ru', 'region_ru', 'city_ru'] as $field) {
+    foreach (['country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km'] as $field) {
         expect($spring->fresh()->getAttribute($field))->toBeNull();
     }
 });
@@ -103,19 +103,19 @@ test('source details and API read updated catalog translations without changing 
     expect($this->city->fresh()->slug)->toBe('nearest-town');
 });
 
-test('an unrecognized replacement settlement retains text labels and has no incorrect catalog association', function (): void {
-    app()->instance(ReverseGeocoder::class, new class implements ReverseGeocoder
+test('an unrecognized country and settlement get no incorrect catalog association', function (): void {
+    app()->instance(ReverseGeocoder::class, new GeographyReverseGeocoder(new class implements ReverseGeocoder
     {
         public function validateSource(): void {}
 
         public function reverse(float $latitude, float $longitude): ?GeocodedLocation
         {
-            return new GeocodedLocation('Custom country', 'ZZ', 'Custom settlement', cityRu: 'Новый посёлок');
+            return new GeocodedLocation('Custom country', 'ZZ', 'Custom settlement', geonamesId: 9999);
         }
-    });
+    }, new RegionBoundaryIndex(app('config')), new DatabaseGeographyCatalog));
     $spring = Spring::factory()->create(['latitude' => 1, 'longitude' => 1]);
-    expect($spring->fresh())->city->toBe('Custom settlement')->city_ru->toBe('Новый посёлок')
-        ->country_id->toBeNull()->region_id->toBeNull()->nearest_city_id->toBeNull();
+    expect($spring->fresh())->country_id->toBeNull()->region_id->toBeNull()->nearest_city_id->toBeNull()
+        ->geocoding_source->toBe('geojson')->geocoded_at->not->toBeNull();
 });
 
 test('admin refresh and queued reset persist all catalog links through the shared geocoding workflow', function (): void {
@@ -126,11 +126,11 @@ test('admin refresh and queued reset persist all catalog links through the share
     expect($spring->fresh()->nearest_city_id)->toBe($this->city->id);
     $this->artisan('springs:geocode', ['--reset' => true, '--queue' => true])->assertSuccessful();
 
-    foreach (['country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km', 'country_ru', 'region_ru', 'city_ru'] as $field) {
+    foreach (['country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km'] as $field) {
         expect($spring->fresh()->getAttribute($field))->toBeNull();
     }
     $run = GeocodingRun::latest('id')->firstOrFail();
     app(BulkGeocoding::class)->processChunk($run);
     expect($spring->fresh())->country_id->toBe($this->country->id)->region_id->toBe($this->region->id)
-        ->nearest_city_id->toBe($this->city->id)->city_ru->toBe('Ближний город');
+        ->nearest_city_id->toBe($this->city->id)->nearest_city_distance_km->toBe(2.223);
 });

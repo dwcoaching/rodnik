@@ -69,7 +69,7 @@ test('water sources are found by any word of their name in both locales', functi
         'name' => 'Moscow Oblast', 'name_ru' => 'Московская область', 'slug' => 'moscow-oblast', 'is_active' => true,
     ]);
     $city = City::create([
-        'source_key' => 'test:mytishchi', 'source_country_code' => 'RU', 'country_id' => $country->id, 'region_id' => $region->id,
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => 'RU', 'country_id' => $country->id, 'region_id' => $region->id,
         'name' => 'Mytishchi', 'name_ru' => 'Мытищи', 'slug' => 'mytishchi', 'latitude' => 55.91, 'longitude' => 37.73, 'population' => 200_000, 'is_active' => true,
     ]);
     $spring = springNameSearchSpring('Святой источник', [
@@ -106,7 +106,7 @@ test('a source named like its type and a city named like its region are not repe
         'name' => 'Moscow', 'name_ru' => 'Москва', 'slug' => 'moscow', 'is_active' => true,
     ]);
     $city = City::create([
-        'source_key' => 'test:moscow-city', 'source_country_code' => 'RU', 'country_id' => $country->id, 'region_id' => $region->id,
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => 'RU', 'country_id' => $country->id, 'region_id' => $region->id,
         'name' => 'Moscow', 'name_ru' => 'Москва', 'slug' => 'moscow-city', 'latitude' => 55.75, 'longitude' => 37.62, 'population' => 12_000_000, 'is_active' => true,
     ]);
     springNameSearchSpring('Родник', ['nearest_city_id' => $city->id, 'region_id' => $region->id, 'country_id' => $country->id]);
@@ -188,7 +188,7 @@ test('names typed with the other keyboard layout are corrected', function () {
 test('groups stay together, the closest match comes first and each group is capped', function () {
     $country = Country::create(['code' => 'RU', 'name' => 'Russia', 'name_ru' => 'Россия', 'slug' => 'russia-ru', 'is_active' => true]);
     $city = fn (string $name, int $population): City => City::create([
-        'source_key' => 'test:'.Str::uuid(), 'source_country_code' => 'RU', 'country_id' => $country->id, 'name' => $name, 'name_ru' => null,
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => 'RU', 'country_id' => $country->id, 'name' => $name, 'name_ru' => null,
         'slug' => Str::slug($name).'-'.Str::random(6), 'latitude' => 56.0, 'longitude' => 38.0, 'population' => $population, 'is_active' => true,
     ]);
     $city('Rodniki', 25_000);

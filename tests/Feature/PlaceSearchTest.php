@@ -37,7 +37,7 @@ function placeSearchRegion(Country $country, array $attributes = []): Region
 function placeSearchCity(Country $country, ?Region $region, array $attributes = []): City
 {
     return City::create(array_merge([
-        'source_key' => 'test:'.Str::uuid(), 'source_country_code' => $country->code, 'country_id' => $country->id, 'region_id' => $region?->id,
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => $country->code, 'country_id' => $country->id, 'region_id' => $region?->id,
         'name' => 'Moscow', 'name_ru' => 'Москва', 'slug' => 'moscow-'.Str::random(6), 'latitude' => 55.7522, 'longitude' => 37.6156,
         'population' => 12_000_000, 'is_active' => true,
     ], $attributes));

@@ -47,7 +47,7 @@ final class GeographyCatalogReader
                 continue;
             }
             yield [
-                'source_key' => 'geonames:'.$columns[0], 'geonames_id' => (int) $columns[0],
+                'geonames_id' => (int) $columns[0],
                 'source_country_code' => $columns[8], 'admin1_code' => $columns[10] ?: null,
                 'name' => $this->name($columns[1]), 'latitude' => (float) $columns[4], 'longitude' => (float) $columns[5],
                 'population' => $columns[14] === '' ? null : (int) $columns[14],

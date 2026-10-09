@@ -14,7 +14,6 @@ use RuntimeException;
 final class GeocodeSpring
 {
     public const FIELDS = [
-        'country', 'country_ru', 'country_code', 'region', 'region_ru', 'city', 'city_ru',
         'country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km',
         'geocoding_source', 'geocoded_at',
     ];

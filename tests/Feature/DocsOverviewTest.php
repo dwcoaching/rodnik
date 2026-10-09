@@ -25,7 +25,7 @@ function docsOverviewWorld(): array
 {
     $country = Country::create(['code' => 'RU', 'name' => 'Russia', 'name_ru' => 'Россия', 'slug' => 'russia-ru', 'is_active' => true]);
     $region = Region::create(['source_key' => 'geonames-admin1:RU.47', 'source_country_code' => 'RU', 'admin1_code' => '47', 'country_id' => $country->id, 'name' => 'Moscow Oblast', 'name_ru' => 'Московская область', 'slug' => 'moscow-oblast-524925', 'is_active' => true]);
-    $city = City::create(['source_key' => 'geonames:524901', 'source_country_code' => 'RU', 'geonames_id' => 524901, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Moscow', 'name_ru' => 'Москва', 'slug' => 'moscow-524901', 'latitude' => 55.75, 'longitude' => 37.62, 'is_active' => true]);
+    $city = City::create(['source_country_code' => 'RU', 'geonames_id' => 524901, 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Moscow', 'name_ru' => 'Москва', 'slug' => 'moscow-524901', 'latitude' => 55.75, 'longitude' => 37.62, 'is_active' => true]);
     $spring = Spring::withoutEvents(fn (): Spring => Spring::factory()->create([
         'country_id' => $country->id,
         'region_id' => $region->id,

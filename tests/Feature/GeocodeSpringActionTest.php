@@ -32,7 +32,7 @@ final class GeocodingActionTestSource implements ReverseGeocoder
     {
         $this->lookupCalls++;
 
-        return new GeocodedLocation('Russia', 'RU', 'Moscow', 'Россия', source: 'test-dataset');
+        return catalogLocation('RU', 'Moscow', 'test-dataset');
     }
 }
 
@@ -43,17 +43,15 @@ test('the manual geocoding action validates the source and persists derived fiel
     $spring = Spring::withoutEvents(fn () => Spring::factory()->create([
         'latitude' => 55.75,
         'longitude' => 37.62,
-        'country' => 'Old country',
-        'city' => 'Old city',
+        ...catalogLinks('ZZ', 'Old city'),
     ]));
 
     expect(app(GeocodeSpringAction::class)($spring))->toBeTrue();
 
     expect($source->validationCalls)->toBe(1)
         ->and($source->lookupCalls)->toBe(1)
-        ->and($spring->fresh()->country)->toBe('Russia')
-        ->and($spring->fresh()->country_code)->toBe('RU')
-        ->and($spring->fresh()->city)->toBe('Moscow')
+        ->and($spring->fresh()->geoCountry->code)->toBe('RU')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Moscow')
         ->and($spring->fresh()->geocoding_source)->toBe('test-dataset')
         ->and($spring->fresh()->geocoded_at)->not->toBeNull();
 })->with([
@@ -67,14 +65,14 @@ test('the manual geocoding action rejects visitors and ordinary users before rea
     }
     $source = new GeocodingActionTestSource();
     $this->instance(ReverseGeocoder::class, $source);
-    $spring = Spring::withoutEvents(fn () => Spring::factory()->create(['country' => 'Old country', 'city' => 'Old city']));
+    $spring = Spring::withoutEvents(fn () => Spring::factory()->create(catalogLinks('ZZ', 'Old city')));
 
     expect(fn () => app(GeocodeSpringAction::class)($spring))->toThrow(AuthorizationException::class);
 
     expect($source->validationCalls)->toBe(0)
         ->and($source->lookupCalls)->toBe(0)
-        ->and($spring->fresh()->country)->toBe('Old country')
-        ->and($spring->fresh()->city)->toBe('Old city');
+        ->and($spring->fresh()->geoCountry->code)->toBe('ZZ')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Old city');
 })->with(['visitor' => false, 'ordinary user' => true]);
 
 test('the manual geocoding action preserves existing labels when source validation fails', function () {
@@ -82,11 +80,11 @@ test('the manual geocoding action preserves existing labels when source validati
     $source = new GeocodingActionTestSource();
     $source->invalid = true;
     $this->instance(ReverseGeocoder::class, $source);
-    $spring = Spring::withoutEvents(fn () => Spring::factory()->create(['country' => 'Old country', 'city' => 'Old city']));
+    $spring = Spring::withoutEvents(fn () => Spring::factory()->create(catalogLinks('ZZ', 'Old city')));
 
     expect(fn () => app(GeocodeSpringAction::class)($spring))->toThrow(RuntimeException::class, 'Invalid test geocoding dataset.');
 
     expect($source->lookupCalls)->toBe(0)
-        ->and($spring->fresh()->country)->toBe('Old country')
-        ->and($spring->fresh()->city)->toBe('Old city');
+        ->and($spring->fresh()->geoCountry->code)->toBe('ZZ')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Old city');
 });

@@ -48,7 +48,7 @@ function boundsCity(Country $country, float $latitude, float $longitude, array $
     $id++;
 
     return City::create([
-        'country_id' => $country->id, 'source_key' => "geonames:{$id}", 'geonames_id' => $id, 'source_country_code' => $country->code,
+        'country_id' => $country->id, 'geonames_id' => $id, 'source_country_code' => $country->code,
         'name' => "Place {$id}", 'slug' => "place-{$id}", 'latitude' => $latitude, 'longitude' => $longitude, 'is_active' => true, ...$attributes,
     ]);
 }

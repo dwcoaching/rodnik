@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -42,7 +44,46 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/** A catalog country with this ISO code, created on first use. */
+function catalogCountry(string $code, ?string $name = null): App\Models\Country
 {
-    // ..
+    return App\Models\Country::where('code', $code)->first()
+        ?? App\Models\Country::factory()->create(['code' => $code, 'name' => $name ?? $code]);
+}
+
+/** A catalog city with this name in the given country, created on first use. */
+function catalogCity(string $countryCode, string $name): App\Models\City
+{
+    $country = catalogCountry($countryCode);
+
+    return App\Models\City::where('country_id', $country->id)->where('name', $name)->first()
+        ?? App\Models\City::factory()->create(['country_id' => $country->id, 'source_country_code' => $countryCode, 'name' => $name]);
+}
+
+/** A catalog region with this name in the given country, created on first use. */
+function catalogRegion(string $countryCode, string $name): App\Models\Region
+{
+    $country = catalogCountry($countryCode);
+
+    return App\Models\Region::where('country_id', $country->id)->where('name', $name)->first()
+        ?? App\Models\Region::factory()->create(['country_id' => $country->id, 'source_country_code' => $countryCode, 'name' => $name]);
+}
+
+/** A geocoder result that links to catalog rows, so it is actually persisted on a spring. */
+function catalogLocation(string $countryCode, string $city, string $source = 'geojson', ?string $region = null): App\Services\Geocoding\GeocodedLocation
+{
+    $links = catalogLinks($countryCode, $city, $region);
+
+    return new App\Services\Geocoding\GeocodedLocation(
+        catalogCountry($countryCode)->name, $countryCode, $city, region: $region, source: $source,
+        countryId: $links['country_id'], regionId: $links['region_id'], nearestCityId: $links['nearest_city_id'],
+    );
+}
+
+/** Catalog links for a spring, e.g. an "old" location that must be preserved or cleared. */
+function catalogLinks(string $countryCode, string $city, ?string $region = null): array
+{
+    $nearest = catalogCity($countryCode, $city);
+
+    return ['country_id' => $nearest->country_id, 'region_id' => $region === null ? null : catalogRegion($countryCode, $region)->id, 'nearest_city_id' => $nearest->id];
 }

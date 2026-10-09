@@ -40,7 +40,7 @@ final class RecordingBulkGeocoder implements ReverseGeocoder
             throw new RuntimeException('Lookup failed');
         }
 
-        return $latitude < 0 ? null : new GeocodedLocation('Armenia', 'AM', 'Yerevan', 'Армения', 'Yerevan');
+        return $latitude < 0 ? null : catalogLocation('AM', 'Yerevan', region: 'Yerevan');
     }
 }
 
@@ -65,7 +65,7 @@ test('the bulk command geocodes all water sources including hidden and redirecte
     $this->artisan('springs:geocode')->assertSuccessful();
 
     foreach ([$first, $hidden, $redirected] as $spring) {
-        expect($spring->fresh()->country_code)->toBe('AM')->and($spring->fresh()->city)->toBe('Yerevan');
+        expect($spring->fresh()->geoCountry->code)->toBe('AM')->and($spring->fresh()->nearestCity->name)->toBe('Yerevan');
     }
     $run = GeocodingRun::latest('id')->firstOrFail();
     expect($run->status)->toBe('completed')->and($run->processed)->toBe(3)
@@ -73,30 +73,31 @@ test('the bulk command geocodes all water sources including hidden and redirecte
         ->and($run->progressPercentage())->toBe(100);
 });
 
-test('missing mode includes null or empty country and city but preserves complete locations', function () {
-    $complete = bulkGeocodingSpring(['country' => 'Saved country', 'city' => 'Saved city']);
-    $countryMissing = bulkGeocodingSpring(['country' => null, 'city' => 'Saved city']);
-    $cityMissing = bulkGeocodingSpring(['country' => 'Saved country', 'city' => '']);
+test('missing mode includes a missing country or city link but preserves complete locations', function () {
+    $saved = catalogLinks('ZZ', 'Saved city');
+    $complete = bulkGeocodingSpring($saved);
+    $countryMissing = bulkGeocodingSpring([...$saved, 'country_id' => null]);
+    $cityMissing = bulkGeocodingSpring([...$saved, 'nearest_city_id' => null]);
 
     $this->artisan('springs:geocode', ['--missing' => true])->assertSuccessful();
 
-    expect($complete->fresh()->country)->toBe('Saved country')->and($complete->fresh()->city)->toBe('Saved city')
-        ->and($countryMissing->fresh()->city)->toBe('Yerevan')
-        ->and($cityMissing->fresh()->country_code)->toBe('AM')
+    expect($complete->fresh()->geoCountry->code)->toBe('ZZ')->and($complete->fresh()->nearestCity->name)->toBe('Saved city')
+        ->and($countryMissing->fresh()->nearestCity->name)->toBe('Yerevan')
+        ->and($cityMissing->fresh()->geoCountry->code)->toBe('AM')
         ->and($this->geocoder->lookups)->toHaveCount(2);
 });
 
 test('reset clears all derived fields and recalculates after validating the dataset', function () {
-    $matched = bulkGeocodingSpring(['country' => 'Old', 'city' => 'Old', 'region' => 'Old']);
+    $old = catalogLinks('ZZ', 'Old', 'Old');
+    $matched = bulkGeocodingSpring($old);
     $unmatched = bulkGeocodingSpring([
-        'latitude' => -10, 'country' => 'Old', 'country_ru' => 'Old', 'country_code' => 'XX',
-        'city' => 'Old', 'region' => 'Old', 'geocoding_source' => 'Old', 'geocoded_at' => now(),
+        'latitude' => -10, ...$old, 'nearest_city_distance_km' => 5, 'geocoding_source' => 'Old', 'geocoded_at' => now(),
     ]);
 
     $this->artisan('springs:geocode', ['--reset' => true])->assertSuccessful();
 
-    expect($matched->fresh()->country_code)->toBe('AM')->and($matched->fresh()->region)->toBe('Yerevan');
-    foreach (['country', 'country_ru', 'country_code', 'city', 'region', 'geocoding_source'] as $field) {
+    expect($matched->fresh()->geoCountry->code)->toBe('AM')->and($matched->fresh()->geoRegion->name)->toBe('Yerevan');
+    foreach (['country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km', 'geocoding_source'] as $field) {
         expect($unmatched->fresh()->{$field})->toBeNull();
     }
     $run = GeocodingRun::latest('id')->firstOrFail();
@@ -104,29 +105,29 @@ test('reset clears all derived fields and recalculates after validating the data
 });
 
 test('an invalid dataset never clears existing geocoding during reset', function () {
-    $spring = bulkGeocodingSpring(['country' => 'Saved country', 'city' => 'Saved city']);
+    $spring = bulkGeocodingSpring(catalogLinks('ZZ', 'Saved city'));
     $this->geocoder->broken = true;
 
     $this->artisan('springs:geocode', ['--reset' => true])->assertFailed();
 
-    expect($spring->fresh()->country)->toBe('Saved country')->and($spring->fresh()->city)->toBe('Saved city')
+    expect($spring->fresh()->geoCountry->code)->toBe('ZZ')->and($spring->fresh()->nearestCity->name)->toBe('Saved city')
         ->and(GeocodingRun::count())->toBe(0);
 });
 
 test('a stale reset run instance cannot reset locations a second time', function () {
-    $spring = bulkGeocodingSpring(['country' => 'Old', 'city' => 'Old']);
+    $spring = bulkGeocodingSpring(catalogLinks('ZZ', 'Old'));
     $run = app(BulkGeocoding::class)->start('reset');
     $run->reset_applied_at = null;
     $spring->refresh();
     Illuminate\Support\Facades\DB::table('springs')->where('id', $spring->id)
-        ->update(['country' => 'Saved concurrently', 'city' => 'Saved concurrently']);
+        ->update(catalogLinks('YY', 'Saved concurrently'));
     $this->geocoder->broken = false;
     $this->geocoder->failedLatitudes = [40.18];
 
     app(BulkGeocoding::class)->processChunk($run);
 
-    expect($spring->fresh()->country)->toBe('Saved concurrently')
-        ->and($spring->fresh()->city)->toBe('Saved concurrently')
+    expect($spring->fresh()->geoCountry->code)->toBe('YY')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Saved concurrently')
         ->and($run->reset_applied_at)->not->toBeNull();
 });
 
@@ -180,14 +181,12 @@ test('a stopped stale worker cannot overwrite locations saved by a replacement r
         $run->update(['lease_until' => now()->subSecond()]);
         $bulk->stop($run);
         $replacement = $bulk->start('reset');
-        Illuminate\Support\Facades\DB::table('springs')->where('id', $spring->id)->update([
-            'country' => 'Replacement country', 'country_code' => 'ZZ', 'city' => 'Replacement city',
-        ]);
+        Illuminate\Support\Facades\DB::table('springs')->where('id', $spring->id)->update(catalogLinks('ZZ', 'Replacement city'));
     };
 
     expect($bulk->processChunk($run))->toBeFalse()
-        ->and($spring->fresh()->country)->toBe('Replacement country')
-        ->and($spring->fresh()->city)->toBe('Replacement city')
+        ->and($spring->fresh()->geoCountry->code)->toBe('ZZ')
+        ->and($spring->fresh()->nearestCity->name)->toBe('Replacement city')
         ->and($run->fresh()->status)->toBe('failed')
         ->and($replacement?->fresh()->isActive())->toBeTrue();
 });
@@ -245,8 +244,8 @@ test('the admin page starts the CLI and exposes saved progress while ordinary us
 });
 
 test('conflicting CLI modes fail before any locations are changed', function () {
-    $spring = bulkGeocodingSpring(['country' => 'Saved country', 'city' => 'Saved city']);
+    $spring = bulkGeocodingSpring(catalogLinks('ZZ', 'Saved city'));
 
     expect(Artisan::call('springs:geocode', ['--missing' => true, '--reset' => true]))->toBe(2)
-        ->and($spring->fresh()->country)->toBe('Saved country')->and(GeocodingRun::count())->toBe(0);
+        ->and($spring->fresh()->nearestCity->name)->toBe('Saved city')->and(GeocodingRun::count())->toBe(0);
 });

@@ -91,7 +91,7 @@ test('catalog readers retain provider identifiers and reject invalid settlement 
     try {
         file_put_contents($path, implode("\t", $columns)."\n");
         $rows = iterator_to_array((new GeographyCatalogReader())->cities($path));
-        expect($rows[0])->toMatchArray(['source_key' => 'geonames:123', 'geonames_id' => 123, 'source_country_code' => 'RU', 'admin1_code' => '48', 'latitude' => 0.0, 'longitude' => 0.0]);
+        expect($rows[0])->toMatchArray(['geonames_id' => 123, 'source_country_code' => 'RU', 'admin1_code' => '48', 'latitude' => 0.0, 'longitude' => 0.0]);
         $columns[4] = '91';
         file_put_contents($path, implode("\t", $columns)."\n");
         expect(fn () => iterator_to_array((new GeographyCatalogReader())->cities($path)))->toThrow(RuntimeException::class);

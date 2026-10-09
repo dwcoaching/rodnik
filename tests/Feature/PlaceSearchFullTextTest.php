@@ -28,7 +28,7 @@ afterEach(function () {
 function placeSearchFullTextCity(Country $country, string $name, string $nameRu, int $population): City
 {
     return City::create([
-        'source_key' => 'test:'.Str::uuid(), 'source_country_code' => $country->code, 'country_id' => $country->id,
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => $country->code, 'country_id' => $country->id,
         'name' => $name, 'name_ru' => $nameRu, 'slug' => Str::slug($name).'-'.Str::random(6),
         'latitude' => 55.0, 'longitude' => 37.0, 'population' => $population, 'is_active' => true,
     ]);

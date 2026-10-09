@@ -15,8 +15,6 @@ return new class extends Migration
             $table->foreignId('region_id')->nullable()->constrained('regions')->nullOnDelete();
             $table->foreignId('nearest_city_id')->nullable()->constrained('cities')->nullOnDelete();
             $table->decimal('nearest_city_distance_km', 10, 3)->nullable();
-            $table->string('city_ru')->nullable();
-            $table->string('region_ru')->nullable();
             $table->index(['country_id', 'hidden_at', 'redirect_to_spring_id'], 'springs_country_public_index');
             $table->index(['region_id', 'hidden_at', 'redirect_to_spring_id'], 'springs_region_public_index');
             $table->index(['nearest_city_id', 'hidden_at', 'redirect_to_spring_id'], 'springs_city_public_index');
@@ -32,7 +30,7 @@ return new class extends Migration
             $table->dropIndex('springs_country_public_index');
             $table->dropIndex('springs_region_public_index');
             $table->dropIndex('springs_city_public_index');
-            $table->dropColumn(['country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km', 'city_ru', 'region_ru']);
+            $table->dropColumn(['country_id', 'region_id', 'nearest_city_id', 'nearest_city_distance_km']);
         });
     }
 };

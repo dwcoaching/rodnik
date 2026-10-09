@@ -79,11 +79,11 @@ test('links to place pages find active places, on new and old addresses', functi
         'bbox_west' => 18.0, 'bbox_south' => 50.8, 'bbox_east' => 20.7, 'bbox_north' => 52.4,
     ]);
     $city = City::create([
-        'source_key' => 'test:lodz-city', 'source_country_code' => 'PL', 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Łódź',
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => 'PL', 'country_id' => $country->id, 'region_id' => $region->id, 'name' => 'Łódź',
         'name_ru' => 'Лодзь', 'slug' => 'lodz-3093133', 'latitude' => 51.77, 'longitude' => 19.47, 'population' => 680_000, 'is_active' => true,
     ]);
     City::create([
-        'source_key' => 'test:former', 'source_country_code' => 'PL', 'country_id' => $country->id, 'name' => 'Former', 'slug' => 'former-1',
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => 'PL', 'country_id' => $country->id, 'name' => 'Former', 'slug' => 'former-1',
         'latitude' => 51.0, 'longitude' => 19.0, 'population' => 10, 'is_active' => false,
     ]);
     Country::create(['code' => 'XU', 'name' => 'Unbounded', 'slug' => 'unbounded-xu', 'is_active' => true]);
@@ -110,7 +110,7 @@ test('links to place pages find active places, on new and old addresses', functi
 test('links to anything else find nothing, and their words are not searched', function () {
     $country = Country::create(['code' => 'RU', 'name' => 'Russia', 'name_ru' => 'Россия', 'slug' => 'russia-ru', 'is_active' => true]);
     City::create([
-        'source_key' => 'test:about', 'source_country_code' => 'RU', 'country_id' => $country->id, 'name' => 'About', 'slug' => 'about-1',
+        'geonames_id' => fake()->unique()->numberBetween(800_000_000, 900_000_000), 'source_country_code' => 'RU', 'country_id' => $country->id, 'name' => 'About', 'slug' => 'about-1',
         'latitude' => 51.0, 'longitude' => 19.0, 'population' => 10_000, 'is_active' => true,
     ]);
     Map::factory()->create(['title' => 'rodnik.app/about']);

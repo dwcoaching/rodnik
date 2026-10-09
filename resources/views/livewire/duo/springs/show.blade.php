@@ -249,9 +249,9 @@
                         </div>
                     </div>
                     @php
-                        $countryName = $spring->geoCountry?->displayName() ?: (app()->isLocale('ru') ? ($spring->country_ru ?: $spring->country) : ($spring->country ?: $spring->country_ru));
-                        $regionName = $spring->geoRegion?->displayName() ?: (app()->isLocale('ru') ? ($spring->region_ru ?: $spring->region) : ($spring->region ?: $spring->region_ru));
-                        $cityName = $spring->nearestCity?->displayName() ?: (app()->isLocale('ru') ? ($spring->city_ru ?: $spring->city) : ($spring->city ?: $spring->city_ru));
+                        $countryName = $spring->geoCountry?->displayName();
+                        $regionName = $spring->geoRegion?->displayName();
+                        $cityName = $spring->nearestCity?->displayName();
                         $hasPublicGeography = $spring->hidden_at === null && $spring->redirect_to_spring_id === null;
                     @endphp
                     @if ($countryName || $regionName || $cityName)

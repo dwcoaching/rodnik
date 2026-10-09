@@ -8,7 +8,10 @@ use App\Jobs\GeocodeSprings;
 use App\Models\GeocodingRun;
 use App\Models\Spring;
 use App\Models\User;
+use App\Services\Geocoding\DatabaseGeographyCatalog;
+use App\Services\Geocoding\GeographyReverseGeocoder;
 use App\Services\Geocoding\GeoJsonReverseGeocoder;
+use App\Services\Geocoding\RegionBoundaryIndex;
 use Illuminate\Queue\DatabaseQueue;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Support\Facades\Artisan;
@@ -37,6 +40,7 @@ beforeEach(function (): void {
         ],
         'queue.failed.database' => 'geocoding_queue_sqlite',
         'geocoding.path' => $this->queueDatasetPath,
+        'geocoding.regions_path' => null,
         'geocoding.queue_connection' => $this->queueConnectionName,
         'geocoding.queue' => $this->queueName,
         'geocoding.chunk_size' => 1,
@@ -78,26 +82,40 @@ beforeEach(function (): void {
         ],
         [
             'type' => 'Feature',
-            'properties' => ['city' => 'Westville', 'country_code' => 'AA', 'region' => 'West'],
+            'properties' => ['city' => 'Westville', 'country_code' => 'AA', 'geonames_id' => 1],
             'geometry' => ['type' => 'Point', 'coordinates' => [1, 1]],
         ],
         [
             'type' => 'Feature',
-            'properties' => ['city' => 'Eastville', 'country_code' => 'AA', 'region' => 'East'],
+            'properties' => ['city' => 'Eastville', 'country_code' => 'AA', 'geonames_id' => 2],
             'geometry' => ['type' => 'Point', 'coordinates' => [9, 9]],
         ],
     ];
     file_put_contents($this->queueDatasetPath, json_encode([
         'type' => 'FeatureCollection', 'features' => $this->queueFeatures,
     ], JSON_THROW_ON_ERROR));
-    app()->instance(ReverseGeocoder::class, new GeoJsonReverseGeocoder(app('config')));
+    app()->instance(ReverseGeocoder::class, new GeographyReverseGeocoder(
+        new GeoJsonReverseGeocoder(app('config')), new RegionBoundaryIndex(app('config')), new DatabaseGeographyCatalog,
+    ));
+
+    // The geocoder links sources to these catalog rows by country code and GeoNames id.
+    DB::table('countries')->insert([
+        ['id' => 1, 'code' => 'AA', 'name' => 'Exampleland', 'slug' => 'exampleland'],
+        ['id' => 2, 'code' => 'ZZ', 'name' => 'Saved country', 'slug' => 'saved-country'],
+    ]);
+    DB::table('cities')->insert([
+        ['id' => 1, 'country_id' => 1, 'geonames_id' => 1, 'source_country_code' => 'AA', 'name' => 'Westville', 'slug' => 'westville', 'latitude' => 1, 'longitude' => 1],
+        ['id' => 2, 'country_id' => 1, 'geonames_id' => 2, 'source_country_code' => 'AA', 'name' => 'Eastville', 'slug' => 'eastville', 'latitude' => 9, 'longitude' => 9],
+        ['id' => 3, 'country_id' => 1, 'geonames_id' => 3, 'source_country_code' => 'AA', 'name' => 'Westfield', 'slug' => 'westfield', 'latitude' => 1, 'longitude' => 1],
+        ['id' => 4, 'country_id' => 2, 'geonames_id' => 4, 'source_country_code' => 'ZZ', 'name' => 'Saved city', 'slug' => 'saved-city', 'latitude' => 0, 'longitude' => 0],
+    ]);
 
     // Raw inserts leave locations missing until the actual serialized jobs run.
     DB::table('springs')->insert([
-        ['id' => 1, 'latitude' => 1.4, 'longitude' => 1.2, 'country' => null, 'city' => null],
-        ['id' => 2, 'latitude' => 8.6, 'longitude' => 8.8, 'country' => null, 'city' => null],
-        ['id' => 3, 'latitude' => 2.0, 'longitude' => 1.8, 'country' => 'Saved country', 'city' => 'Saved city'],
-        ['id' => 4, 'latitude' => 5.0, 'longitude' => 12.0, 'country' => 'Saved country', 'city' => 'Saved city'],
+        ['id' => 1, 'latitude' => 1.4, 'longitude' => 1.2, 'country_id' => null, 'nearest_city_id' => null],
+        ['id' => 2, 'latitude' => 8.6, 'longitude' => 8.8, 'country_id' => null, 'nearest_city_id' => null],
+        ['id' => 3, 'latitude' => 2.0, 'longitude' => 1.8, 'country_id' => 2, 'nearest_city_id' => 4],
+        ['id' => 4, 'latitude' => 5.0, 'longitude' => 12.0, 'country_id' => 2, 'nearest_city_id' => 4],
     ]);
     DB::table('jobs')->insert([
         'queue' => 'unrelated-integration-sentinel', 'payload' => '{}',
@@ -132,27 +150,27 @@ test('filament commands run through the real database queue with progress, datas
 
     expect(Artisan::call('queue:work', [
         'connection' => $this->queueConnectionName, '--queue' => $this->queueName,
-        '--stop-when-empty' => true, '--sleep' => 0, '--max-jobs' => 1,
+        '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 4096, '--max-jobs' => 1,
     ]))->toBe(0);
     $missing->refresh();
     expect($missing->status)->toBe('queued')->and($missing->processed)->toBe(1)
         ->and($missing->progressPercentage())->toBe(50)
         ->and(DB::table('jobs')->where('queue', $this->queueName)->count())->toBe(1)
-        ->and(Spring::findOrFail(1)->city)->toBe('Westville')
-        ->and(Spring::findOrFail(2)->city)->toBeNull();
+        ->and(Spring::findOrFail(1)->nearestCity->name)->toBe('Westville')
+        ->and(Spring::findOrFail(2)->nearest_city_id)->toBeNull();
     $page->call('$refresh')->assertSee('1 of 2 processed');
 
     expect(Artisan::call('queue:work', [
         'connection' => $this->queueConnectionName, '--queue' => $this->queueName,
-        '--stop-when-empty' => true, '--sleep' => 0,
+        '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 4096,
     ]))->toBe(0);
     expect($missing->fresh()->status)->toBe('completed')->and($missing->fresh()->processed)->toBe(2)
-        ->and(Spring::findOrFail(2)->city)->toBe('Eastville')
-        ->and(Spring::findOrFail(3)->city)->toBe('Saved city');
+        ->and(Spring::findOrFail(2)->nearestCity->name)->toBe('Eastville')
+        ->and(Spring::findOrFail(3)->nearestCity->name)->toBe('Saved city');
 
     // Recalculate-all must observe a replacement inside the same long-lived
     // application/worker, including sources that already have country and city.
-    $this->queueFeatures[1]['properties']['city'] = 'Westfield';
+    $this->queueFeatures[1]['properties'] = ['city' => 'Westfield', 'country_code' => 'AA', 'geonames_id' => 3];
     file_put_contents($this->queueDatasetPath, json_encode([
         'type' => 'FeatureCollection', 'features' => $this->queueFeatures,
     ], JSON_THROW_ON_ERROR));
@@ -161,32 +179,32 @@ test('filament commands run through the real database queue with progress, datas
     expect($all->mode)->toBe('all')->and($all->total)->toBe(4);
     expect(Artisan::call('queue:work', [
         'connection' => $this->queueConnectionName, '--queue' => $this->queueName,
-        '--stop-when-empty' => true, '--sleep' => 0,
+        '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 4096,
     ]))->toBe(0);
     expect($all->fresh()->status)->toBe('completed')->and($all->fresh()->matched)->toBe(3)
         ->and($all->fresh()->unmatched)->toBe(1)
-        ->and(Spring::findOrFail(1)->city)->toBe('Westfield')
-        ->and(Spring::findOrFail(3)->city)->toBe('Westfield')
-        ->and(Spring::findOrFail(4)->country)->toBeNull();
+        ->and(Spring::findOrFail(1)->nearestCity->name)->toBe('Westfield')
+        ->and(Spring::findOrFail(3)->nearestCity->name)->toBe('Westfield')
+        ->and(Spring::findOrFail(4)->country_id)->toBeNull();
 
     // Opening the confirmation has no writes. Only submitting it invokes the
     // shared reset CLI and queues the recalculation.
     $page->mountAction('reset')->assertActionMounted('reset');
-    expect(GeocodingRun::count())->toBe(2)->and(Spring::findOrFail(1)->city)->toBe('Westfield');
+    expect(GeocodingRun::count())->toBe(2)->and(Spring::findOrFail(1)->nearestCity->name)->toBe('Westfield');
     $page->callMountedAction();
     $reset = GeocodingRun::latest('id')->firstOrFail();
     expect($reset->mode)->toBe('reset')->and($reset->reset_applied_at)->not->toBeNull()
         ->and($reset->status)->toBe('queued')
-        ->and(DB::table('springs')->whereNotNull('country')->count())->toBe(0)
-        ->and(DB::table('springs')->whereNotNull('city')->count())->toBe(0);
+        ->and(DB::table('springs')->whereNotNull('country_id')->count())->toBe(0)
+        ->and(DB::table('springs')->whereNotNull('nearest_city_id')->count())->toBe(0);
     expect(Artisan::call('queue:work', [
         'connection' => $this->queueConnectionName, '--queue' => $this->queueName,
-        '--stop-when-empty' => true, '--sleep' => 0,
+        '--stop-when-empty' => true, '--sleep' => 0, '--memory' => 4096,
     ]))->toBe(0);
     expect($reset->fresh()->status)->toBe('completed')->and($reset->fresh()->processed)->toBe(4)
         ->and($reset->fresh()->matched)->toBe(3)->and($reset->fresh()->unmatched)->toBe(1)
-        ->and(Spring::findOrFail(1)->country_code)->toBe('AA')
-        ->and(Spring::findOrFail(2)->region)->toBe('East')
+        ->and(Spring::findOrFail(1)->geoCountry->code)->toBe('AA')
+        ->and(Spring::findOrFail(2)->nearestCity->name)->toBe('Eastville')
         ->and($this->processedQueueJobs)->toBe(array_fill(0, 10, GeocodeSprings::class))
         ->and(DB::table('jobs')->where('queue', $this->queueName)->count())->toBe(0)
         ->and(DB::table('failed_jobs')->count())->toBe(0)

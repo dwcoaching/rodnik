@@ -274,7 +274,7 @@ final class GeographyCatalogImporter
                 'is_active' => true, 'catalog_generation' => $generation, 'created_at' => $timestamp, 'updated_at' => $timestamp,
             ];
         }
-        DB::table('cities')->upsert($rows, ['source_key'], ['country_id', 'region_id', 'geonames_id', 'source_country_code', 'admin1_code', 'name', 'name_ru', 'latitude', 'longitude', 'population', 'is_active', 'catalog_generation', 'updated_at']);
+        DB::table('cities')->upsert($rows, ['geonames_id'], ['country_id', 'region_id', 'source_country_code', 'admin1_code', 'name', 'name_ru', 'latitude', 'longitude', 'population', 'is_active', 'catalog_generation', 'updated_at']);
 
         return $russian;
     }
