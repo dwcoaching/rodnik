@@ -9,10 +9,11 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
-use Filament\Support\Assets\Css;
+use Filament\View\PanelsRenderHook;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Vite;
+use Illuminate\Foundation\Vite;
+use Illuminate\Support\HtmlString;
 use Filament\Http\Middleware\Authenticate;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -61,9 +62,9 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->assets([
-                Css::make('custom-stylesheet', Vite::asset('resources/css/app.css'))
-            ])
+            // Rendered per page rather than registered as an asset: booting the app (composer's
+            // package:discover runs before npm run build on deploy) must not need the Vite manifest.
+            ->renderHook(PanelsRenderHook::STYLES_AFTER, fn (): HtmlString => app(Vite::class)('resources/css/app.css'))
             ->navigationItems([
                 NavigationItem::make('Log Viewer')
                     ->url('/' . config('log-viewer.route_path'))
