@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'overpass' => [
+        'url' => env('OVERPASS_API_URL', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter'),
+        'status_url' => env('OVERPASS_STATUS_URL', 'https://maps.mail.ru/osm/tools/overpass/api/status'),
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

@@ -4,6 +4,11 @@ Entry: Filament admin → Create OverpassBatch → [CreateOverpassBatch::afterCr
 
 Not scheduled in [Kernel.php](app/Console/Kernel.php) — triggered manually.
 
+The Overpass query endpoint is configured by `OVERPASS_API_URL` in `.env`
+(`services.overpass.url`), defaulting to `https://maps.mail.ru/osm/tools/overpass/api/interpreter`.
+Congestion checks use `OVERPASS_STATUS_URL` (`services.overpass.status_url`),
+defaulting to `https://maps.mail.ru/osm/tools/overpass/api/status`.
+
 ## Status fields (on OverpassBatch)
 
 | Field | States |

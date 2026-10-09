@@ -18,8 +18,6 @@ use Illuminate\Support\Facades\Cache;
  */
 final class OverpassGate
 {
-    public const STATUS_URL = 'https://overpass-api.de/api/status';
-
     /**
      * Shortest allowed interval between the *starts* of two queries.
      *
@@ -111,7 +109,7 @@ final class OverpassGate
     private function waitAdvertisedByStatus(): int
     {
         try {
-            $response = (new Client)->request('GET', self::STATUS_URL, [
+            $response = (new Client)->request('GET', config('services.overpass.status_url'), [
                 'headers' => [
                     'User-Agent' => 'Rodnik.today/1.0 (+https://rodnik.today; kolpavko@hey.com)',
                     'Accept' => '*/*',
