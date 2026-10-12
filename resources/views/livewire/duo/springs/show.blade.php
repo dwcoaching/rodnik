@@ -248,53 +248,7 @@
                             @endcan
                         </div>
                     </div>
-                    @php
-                        $countryName = $spring->geoCountry?->displayName();
-                        $regionName = $spring->geoRegion?->displayName();
-                        $cityName = $spring->nearestCity?->displayName();
-                        $hasPublicGeography = $spring->hidden_at === null && $spring->redirect_to_spring_id === null;
-                    @endphp
-                    @if ($countryName || $regionName || $cityName)
-                        <div class="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
-                            @if ($countryName)
-                                <div>
-                                    <div class="text-gray-500 font-medium">{{ __('ui.spring.country') }}</div>
-                                    <div class="font-bold">
-                                        @if ($hasPublicGeography && $spring->geoCountry?->is_active)
-                                            <a href="{{ localized_route('geography.countries.show', ['country' => $spring->geoCountry->slug]) }}" class="text-blue-700 hover:underline">{{ $countryName }}</a>
-                                        @else
-                                            {{ $countryName }}
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($regionName)
-                                <div>
-                                    <div class="text-gray-500 font-medium">{{ __('ui.spring.region') }}</div>
-                                    <div class="font-bold">
-                                        @if ($hasPublicGeography && $spring->geoRegion?->is_active)
-                                            <a href="{{ localized_route('geography.regions.show', ['region' => $spring->geoRegion->slug]) }}" class="text-blue-700 hover:underline">{{ $regionName }}</a>
-                                        @else
-                                            {{ $regionName }}
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($cityName)
-                                <div>
-                                    <div class="text-gray-500 font-medium">{{ __('ui.spring.nearest_city') }}</div>
-                                    <div class="font-bold">
-                                        @if ($hasPublicGeography && $spring->nearestCity?->is_active)
-                                            <a href="{{ localized_route('geography.cities.show', ['city' => $spring->nearestCity->slug]) }}" class="text-blue-700 hover:underline">{{ $cityName }}</a>
-                                        @else
-                                            {{ $cityName }}
-                                        @endif
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    @endif
-                    <div class="text-gray-600 mt-3 text-sm flex gap-y-2 flex-wrap items-start">
+                    <div class="text-gray-600 mt-1 text-sm flex gap-y-2 flex-wrap items-start">
                         <div class="mr-3 flex-1">
                             <div class="text-gray-600 text-sm cursor-pointer"
                                 x-data="{

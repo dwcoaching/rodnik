@@ -27,7 +27,7 @@ final class Show extends Component
 
     public function render()
     {
-        $spring = Spring::with(['geoCountry', 'geoRegion', 'nearestCity'])->findOrFail($this->springId);
+        $spring = Spring::findOrFail($this->springId);
 
         $reports = $spring
             ->reports()

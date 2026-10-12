@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Actions\GeocodeSpringAction;
 use App\Contracts\ReverseGeocoder;
-use App\Livewire\Duo\Springs\Show;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\GeocodingRun;
@@ -17,7 +16,6 @@ use App\Services\Geocoding\GeocodedLocation;
 use App\Services\Geocoding\GeographyReverseGeocoder;
 use App\Services\Geocoding\RegionBoundaryIndex;
 use Illuminate\Support\Facades\Queue;
-use Livewire\Livewire;
 
 beforeEach(function (): void {
     $this->country = Country::create(['code' => 'AA', 'name' => 'Exampleland', 'name_ru' => 'Примерия', 'slug' => 'exampleland']);
@@ -86,14 +84,11 @@ test('moving beyond coverage clears every catalog link and settlement distance',
     }
 });
 
-test('source details and API read updated catalog translations without changing saved identities or URLs', function (): void {
+test('API reads updated catalog translations without changing saved identities or URLs', function (): void {
     $spring = Spring::factory()->create(['latitude' => 1, 'longitude' => 1]);
     $this->city->update(['name' => 'Renamed town', 'name_ru' => 'Новое название']);
     app()->setLocale('ru');
 
-    Livewire::test(Show::class, ['springId' => $spring->id])
-        ->assertSee('Примерия')->assertSee('Регион источника')->assertSee('Новое название')
-        ->assertSee('/ru/docs/cities/nearest-town', false);
     $this->getJson('/api/v1/springs/'.$spring->id)
         ->assertOk()->assertJsonPath('data.country_id', $this->country->id)
         ->assertJsonPath('data.region_id', $this->region->id)

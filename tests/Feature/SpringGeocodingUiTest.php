@@ -40,10 +40,7 @@ test('admins and superadmins can refresh country and city from the source menu',
         ->assertSee('Refresh country and city')
         ->call('geocode')
         ->assertHasNoErrors()
-        ->assertSee('Country and nearest city updated.')
-        ->assertSee('Russia')
-        ->assertSee('Moscow')
-        ->assertDontSee('Old city');
+        ->assertSee('Country and nearest city updated.');
 
     expect($spring->fresh()->nearestCity->name)->toBe('Moscow');
 })->with([
@@ -64,8 +61,6 @@ test('visitors and ordinary users cannot call the manual geocoding action', func
 
     Livewire::test(Show::class, ['springId' => $spring->id])
         ->assertDontSee('Refresh country and city')
-        ->assertSee('Russia')
-        ->assertSee('Moscow')
         ->call('geocode')
         ->assertForbidden();
 })->with(['visitor' => false, 'ordinary user' => true]);
@@ -83,9 +78,7 @@ test('a geocoding dataset failure shows a safe error and preserves stored labels
         ->call('geocode')
         ->assertHasErrors('geocoding')
         ->assertSee('Could not update country and city. Check the geocoding dataset and try again.')
-        ->assertDontSee('/private/internal/countries.json')
-        ->assertSee('Russia')
-        ->assertSee('Moscow');
+        ->assertDontSee('/private/internal/countries.json');
 
     expect($spring->fresh()->geoCountry->code)->toBe('RU')
         ->and($spring->fresh()->nearestCity->name)->toBe('Moscow');
@@ -111,19 +104,14 @@ test('a manual geocoding lookup without a match reports that outcome', function 
         ->and($spring->fresh()->nearest_city_id)->toBeNull();
 });
 
-test('source details display the Russian country name and fallback when no translation exists', function () {
+test('source details do not show the country, region and nearest city block', function () {
     app()->setLocale('ru');
-    $spring = createGeocodingUiSpring(catalogLinks('RU', 'Moscow'));
+    $spring = createGeocodingUiSpring(catalogLinks('RU', 'Moscow', 'Moscow Oblast'));
 
     Livewire::test(Show::class, ['springId' => $spring->id])
-        ->assertSee('Страна')
-        ->assertSee('Россия')
-        ->assertSee('Ближайший населённый пункт')
-        ->assertDontSee('Russia');
-
-    $spring->forceFill(['country_id' => catalogCountry('FR', 'France')->id])->saveQuietly();
-
-    Livewire::test(Show::class, ['springId' => $spring->id])->assertSee('France');
+        ->assertDontSee('Ближайший населённый пункт')
+        ->assertDontSee('Россия')
+        ->assertDontSee('Moscow');
 });
 
 test('spring JSON resources expose the derived country and nearest city', function () {
