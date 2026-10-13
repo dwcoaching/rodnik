@@ -448,13 +448,14 @@ test('the gate never waits on an unparseable or already elapsed status', functio
 });
 
 test('the gate reserves the next slot from the start of a query, not from its response', function () {
+    config(['services.overpass.minimum_cycle_seconds' => 30]);
     Cache::flush();
 
     $gate = new OverpassGate;
     $gate->awaitSlot();
 
     // A query that outlasts the cycle leaves nothing to wait for.
-    $this->travel(OverpassGate::MINIMUM_CYCLE_SECONDS + 5)->seconds();
+    $this->travel(30 + 5)->seconds();
     expect(Cache::get('overpass:next-request-at'))->toBeLessThanOrEqual(now()->getTimestamp());
 
     // A query that comes back quickly still has to sit out the rest of the cycle.
@@ -462,7 +463,31 @@ test('the gate reserves the next slot from the start of a query, not from its re
     $gate->awaitSlot();
     $this->travel(4)->seconds();
     expect(Cache::get('overpass:next-request-at') - now()->getTimestamp())
-        ->toBe(OverpassGate::MINIMUM_CYCLE_SECONDS - 4);
+        ->toBe(30 - 4);
+});
+
+test('the gate does not pace an endpoint without a quota', function () {
+    config(['services.overpass.minimum_cycle_seconds' => 0]);
+    Cache::flush();
+
+    (new OverpassGate)->awaitSlot();
+
+    expect(Cache::get('overpass:next-request-at'))->toBeNull();
+});
+
+test('the gate shrugs off a short run of refusals and backs off from a long one', function () {
+    config(['services.overpass.tolerated_congestion' => 4]);
+
+    expect(OverpassGate::congestionWaitSeconds(1))->toBe(5)
+        ->and(OverpassGate::congestionWaitSeconds(5))->toBe(5)
+        ->and(OverpassGate::congestionWaitSeconds(6))->toBe(10)
+        ->and(OverpassGate::congestionWaitSeconds(7))->toBe(20)
+        ->and(OverpassGate::congestionWaitSeconds(30))->toBe(OverpassGate::MAXIMUM_WAIT_SECONDS);
+
+    config(['services.overpass.tolerated_congestion' => 0]);
+
+    expect(OverpassGate::congestionWaitSeconds(1))->toBe(5)
+        ->and(OverpassGate::congestionWaitSeconds(2))->toBe(10);
 });
 
 test('the gate backs off exponentially and stays capped', function () {

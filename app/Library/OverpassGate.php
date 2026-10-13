@@ -15,21 +15,14 @@ use Illuminate\Support\Facades\Cache;
  * (`rate_limited`) or HTTP 504 (`request_read_and_idx::timeout`) once they are used
  * up. Both are congestion signals, so the only useful reaction is to wait for a slot
  * instead of sending more requests.
+ *
+ * maps.mail.ru has no quota at all, and its 504s are a coin toss: over two full imports the
+ * share of refusals stayed at about half whether the previous query had just returned or we
+ * had waited minutes, so there the gate keeps out of the way unless refusals pile up. How
+ * patient to be is configured per endpoint under `services.overpass`.
  */
 final class OverpassGate
 {
-    /**
-     * Shortest allowed interval between the *starts* of two queries.
-     *
-     * Measured from the start rather than from the previous response on purpose. Overpass keeps
-     * a slot marked busy for a while after a query returns — /api/status advertised waits of up
-     * to 44 seconds during the last full import — so pacing from the response punishes nothing
-     * when a query is slow and paces not at all when it is fast. Cheap ocean areas came back in
-     * seconds and were refused on 98% of first tries, while 150-second European areas, which
-     * space themselves out for free, were never refused once.
-     */
-    public const MINIMUM_CYCLE_SECONDS = 30;
-
     /**
      * Upper bound for a single wait so an unreachable status endpoint cannot stall a batch.
      */
@@ -75,6 +68,35 @@ final class OverpassGate
     }
 
     /**
+     * Shortest allowed interval between the *starts* of two queries.
+     *
+     * Measured from the start rather than from the previous response on purpose. overpass-api.de
+     * keeps a slot marked busy for a while after a query returns — /api/status advertised waits
+     * of up to 44 seconds during a full import — so pacing from the response punishes nothing
+     * when a query is slow and paces not at all when it is fast. Cheap ocean areas came back in
+     * seconds and were refused on 98% of first tries, while 150-second European areas, which
+     * space themselves out for free, were never refused once.
+     */
+    public static function minimumCycleSeconds(): int
+    {
+        return max(0, (int) config('services.overpass.minimum_cycle_seconds'));
+    }
+
+    /**
+     * How long to wait after a run of congestion responses.
+     *
+     * The first `tolerated_congestion` refusals in a row are treated as noise and retried after
+     * the shortest wait; only a longer run, which a coin toss rarely produces, starts the
+     * exponential backoff that protects an API that is really down.
+     */
+    public static function congestionWaitSeconds(int $consecutiveFailures): int
+    {
+        $tolerated = max(0, (int) config('services.overpass.tolerated_congestion'));
+
+        return self::backoffSeconds($consecutiveFailures - $tolerated);
+    }
+
+    /**
      * Wait until the API is ready for another query, then claim the next slot.
      *
      * The claim is made here, before the query runs, so that the reservation covers the query
@@ -84,9 +106,15 @@ final class OverpassGate
      */
     public function awaitSlot(): void
     {
+        $cycle = self::minimumCycleSeconds();
+
+        if ($cycle <= 0) {
+            return;
+        }
+
         $this->sleep($this->secondsUntilNextRequest());
 
-        $this->reserveNextRequestAt(self::MINIMUM_CYCLE_SECONDS);
+        $this->reserveNextRequestAt($cycle);
     }
 
     /**
@@ -94,7 +122,11 @@ final class OverpassGate
      */
     public function backOff(int $consecutiveFailures): void
     {
-        $wait = max($this->waitAdvertisedByStatus(), self::backoffSeconds($consecutiveFailures));
+        $wait = self::congestionWaitSeconds($consecutiveFailures);
+
+        if (config('services.overpass.consult_status')) {
+            $wait = max($this->waitAdvertisedByStatus(), $wait);
+        }
 
         echo "Overpass is congested ({$consecutiveFailures} in a row), backing off {$wait}s\n";
 

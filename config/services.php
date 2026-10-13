@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -17,6 +19,13 @@ return [
     'overpass' => [
         'url' => env('OVERPASS_API_URL', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter'),
         'status_url' => env('OVERPASS_STATUS_URL', 'https://maps.mail.ru/osm/tools/overpass/api/status'),
+
+        // Pacing, tuned for maps.mail.ru: it has no per-IP quota (`Rate limit: 0`) and turns away
+        // about half of all queries at random however long we wait in between, so waiting only
+        // costs time. For overpass-api.de use 30 / 0 / true.
+        'minimum_cycle_seconds' => (int) env('OVERPASS_MINIMUM_CYCLE_SECONDS', 0),
+        'tolerated_congestion' => (int) env('OVERPASS_TOLERATED_CONGESTION', 4),
+        'consult_status' => (bool) env('OVERPASS_CONSULT_STATUS', false),
     ],
 
     'mailgun' => [
@@ -37,7 +46,7 @@ return [
 
     'telegram-bot-api' => [
         'token' => env('TELEGRAM_BOT_TOKEN'),
-        'channel_id' => env('TELEGRAM_CHANNEL_ID')
+        'channel_id' => env('TELEGRAM_CHANNEL_ID'),
     ],
 
 ];

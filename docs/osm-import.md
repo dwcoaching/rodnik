@@ -9,6 +9,16 @@ The Overpass query endpoint is configured by `OVERPASS_API_URL` in `.env`
 Congestion checks use `OVERPASS_STATUS_URL` (`services.overpass.status_url`),
 defaulting to `https://maps.mail.ru/osm/tools/overpass/api/status`.
 
+Pacing ([OverpassGate](app/Library/OverpassGate.php)) is configured per endpoint. The defaults
+suit maps.mail.ru, which has no per-IP quota and refuses ~50% of queries at random no matter
+how long we wait:
+
+| Env | Default | overpass-api.de |
+|---|---|---|
+| `OVERPASS_MINIMUM_CYCLE_SECONDS` — min interval between query starts | `0` | `30` |
+| `OVERPASS_TOLERATED_CONGESTION` — 504/429s in a row retried after 5s before exponential backoff | `4` | `0` |
+| `OVERPASS_CONSULT_STATUS` — ask `/api/status` how long to wait after a refusal | `false` | `true` |
+
 ## Status fields (on OverpassBatch)
 
 | Field | States |
@@ -43,7 +53,7 @@ All jobs use queue `overpass`, timeout `0`.
 - `updateCoverage()` — links checks to covering imports via `covered_by`; at 100% → dispatches `ParseOverpassBatchImports`
 - `grindUpFailedImports()` — calls `$import->grindUp()` on failures; recursively re-runs `fetchImports()`
 - `parseImports()` — loops unparsed imports → `$import->parse()` → `updateParsedPercentage()`
-- `updateParsedPercentage()` — at 100% → dispatches `CleanupOSMSprings` + `RemoveOlderOverpassArtifacts`
+- `updateParsedPercentage()` — on first reaching 100% → dispatches `CleanupOSMSprings` + `PruneMissingOSMSprings` + `RemoveOlderOverpassArtifacts` (once per batch)
 
 ### [OverpassImport](app/Models/OverpassImport.php)
 - `fetch()` — POST to Overpass API; stores JSON to `storage/app/overpass/responses/{id}.json`; sets `response_code`, `fetched_at`
@@ -53,7 +63,7 @@ All jobs use queue `overpass`, timeout `0`.
   - `grindUpLongitudinally()` — splits lon range ÷10
   - `grindUpLatitudinally()` — adaptive step (60→20→10→5→1)
   - `retry1x1()` — last-resort same-bounds retry
-- `getQueryAttribute()` — builds Overpass QL (13 node + 13 way water types, 180s timeout)
+- `getQueryAttribute()` — builds Overpass QL (`nw[...]` water types, `[timeout:120][maxsize:128MiB]` — a small declared size gets admitted by a busy server)
 
 ### [OverpassCheck](app/Models/OverpassCheck.php)
 1×1° grid cell. Field `covered_by` → OverpassImport id.

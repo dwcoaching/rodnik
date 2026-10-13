@@ -26,6 +26,19 @@ final class OverpassImport extends Model
      */
     public const MAXIMUM_ATTEMPTS = 25;
 
+    /**
+     * What the query declares it may take. Overpass only admits a query once that much time and
+     * memory are free, and an unset `maxsize` claims the 512 MiB default: on a busy server such
+     * a query waits in the dispatcher and comes back as a 504 `request_read_and_idx::timeout`
+     * about half the time, while the same query declaring 64 MiB was never turned away like
+     * that in a probe of sixteen. 128 MiB comfortably fits the densest area we fetch (a 70 MB
+     * response), and an area that outgrows it answers with an "out of memory" remark, which
+     * grinds it up into smaller ones.
+     */
+    public const QUERY_TIMEOUT_SECONDS = 120;
+
+    public const QUERY_MAXSIZE_BYTES = 128 * 1024 * 1024;
+
     protected $cachedArea = null;
 
     public function fetch()
@@ -243,8 +256,11 @@ final class OverpassImport extends Model
     {
         $area = $this->area;
 
+        $timeout = self::QUERY_TIMEOUT_SECONDS;
+        $maxsize = self::QUERY_MAXSIZE_BYTES;
+
         $query = "
-            [out:json][timeout:180];
+            [out:json][timeout:{$timeout}][maxsize:{$maxsize}];
             (
               nw[natural=spring]{$area}
               nw[man_made=spring_box]{$area}

@@ -132,10 +132,15 @@ final class OverpassBatch extends Model
         $this->parsed_percentage = $percentage * 100;
 
         if ($percentage === 1.0) {
-            $this->parse_status = 'parsed';
-            CleanupOSMSprings::dispatch($this);
-            PruneMissingOSMSprings::dispatch($this);
-            RemoveOlderOverpassArtifacts::dispatch($this);
+            // parseImports() asks after every import and once more at the end, so both the last
+            // import and the final call see 100%. Finish the batch only once, or every cleanup
+            // job runs twice.
+            if ($this->parse_status !== 'parsed') {
+                $this->parse_status = 'parsed';
+                CleanupOSMSprings::dispatch($this);
+                PruneMissingOSMSprings::dispatch($this);
+                RemoveOlderOverpassArtifacts::dispatch($this);
+            }
         } else {
             $this->parse_status = 'parsing';
         }

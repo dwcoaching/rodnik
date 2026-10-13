@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Jobs\CleanupOSMSprings;
 use App\Jobs\PruneMissingOSMSprings;
 use App\Jobs\RemoveOlderOverpassArtifacts;
@@ -36,4 +38,35 @@ test('updateParsedPercentage at 100% dispatches PruneMissingOSMSprings alongside
     Queue::assertPushed(CleanupOSMSprings::class);
     Queue::assertPushed(PruneMissingOSMSprings::class);
     Queue::assertPushed(RemoveOlderOverpassArtifacts::class);
+});
+
+test('a batch that reaches 100% twice is finished only once', function () {
+    Queue::fake();
+
+    $batch = OverpassBatch::create([]);
+    $batch->coverage = 100;
+    $batch->save();
+
+    $import = new OverpassImport();
+    $import->overpass_batch_id = $batch->id;
+    $import->latitude_from = -90;
+    $import->latitude_to = 90;
+    $import->longitude_from = -180;
+    $import->longitude_to = 180;
+    $import->started_at = now();
+    $import->fetched_at = now();
+    $import->parsed_at = now();
+    $import->response_code = 200;
+    $import->has_remarks = 0;
+    $import->ground_up = false;
+    $import->save();
+
+    // parseImports() checks after its last import and then once more on the way out.
+    $batch->updateParsedPercentage();
+    $batch->updateParsedPercentage();
+
+    expect($batch->parse_status)->toBe('parsed');
+    Queue::assertPushed(CleanupOSMSprings::class, 1);
+    Queue::assertPushed(PruneMissingOSMSprings::class, 1);
+    Queue::assertPushed(RemoveOlderOverpassArtifacts::class, 1);
 });

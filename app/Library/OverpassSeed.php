@@ -24,8 +24,9 @@ use Illuminate\Support\Facades\DB;
 final class OverpassSeed
 {
     /**
-     * What each area should cost. Comfortably under the query's 180 second timeout, and above
-     * {@see OverpassGate::MINIMUM_CYCLE_SECONDS} so that pacing never idles.
+     * What each area should cost. Comfortably under the query's
+     * {@see \App\Models\OverpassImport::QUERY_TIMEOUT_SECONDS}, and above
+     * {@see OverpassGate::minimumCycleSeconds()} so that pacing never idles.
      */
     public const TARGET_SECONDS = 60.0;
 
