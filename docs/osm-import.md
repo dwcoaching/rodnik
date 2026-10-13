@@ -80,7 +80,7 @@ All jobs use queue `overpass`, timeout `0`.
 
 ## Library
 
-- [Overpass::parse($json)](app/Library/Overpass.php) — iterates nodes/ways; creates/updates Spring records; parses OSM tags; returns `{new, existing}`
+- [Overpass::parse($json, $batchId)](app/Library/Overpass.php) — works in chunks of 1000 elements: one lookup per chunk, then a single `UPDATE` stamps `last_seen_overpass_batch_id` on every unchanged spring. Unchanged = same `osm_version`, and for ways also the same `center` (a way's version does not change when its nodes move). Only new/changed elements go through the model (tags, revision, tiles). Returns `{new, existing, unchanged}`
 - [Laundry::cleanup()](app/Library/Laundry.php) — chunks Springs matching false-positive tag combos (toilets, campsites, huts marked `drinking_water=no`) and `$spring->hide()`s them
 
 ## Manual/debug commands
