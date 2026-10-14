@@ -521,3 +521,44 @@ test('elements are counted in the pretty-printed JSON Overpass actually sends', 
     expect(OverpassImport::countElements($body))->toBe(3)
         ->and(OverpassImport::countElements(''))->toBe(0);
 });
+
+test('a response too big to decode is not decoded: its area is ground up instead', function () {
+    $batch = OverpassBatch::create([]);
+    $import = overpassImport($batch, ['longitude_from' => 72, 'longitude_to' => 76]);
+
+    // Not JSON at all: if anything tried to decode it, it would count as a remark, not as too big.
+    $import->response_code = 200;
+    $import->response = str_repeat('x', OverpassImport::MAXIMUM_RESPONSE_BYTES + 1);
+    $import->save();
+
+    expect($import->isOversized())->toBeTrue()
+        ->and($import->succeeded())->toBeFalse()
+        ->and($import->needsSmallerArea())->toBeTrue()
+        ->and($import->isCongested())->toBeFalse()
+        ->and($import->responseHasRemarks())->toBe(1);
+
+    $batch->checkImports();
+    $batch->grindUpFailedImports();
+
+    $children = OverpassImport::where('parent_id', $import->id)->orderBy('longitude_from')->get();
+
+    expect($import->fresh()->ground_up)->toBeTruthy()
+        ->and($children->pluck('longitude_from')->map(fn ($v) => (int) $v)->all())->toBe([72, 73, 74, 75]);
+});
+
+test('a response within the limit is decoded once for all the checks a fetch runs', function () {
+    $batch = OverpassBatch::create([]);
+    $import = overpassImport($batch);
+    $import->response_code = 200;
+    $import->response = json_encode(['remark' => 'runtime error: Query timed out', 'elements' => []]);
+
+    expect($import->isOversized())->toBeFalse()
+        ->and($import->responseRemark())->toBe('runtime error: Query timed out')
+        ->and($import->needsSmallerArea())->toBeTrue();
+
+    // Replacing the response forgets what the old one said.
+    $import->response = json_encode(['elements' => []]);
+
+    expect($import->responseRemark())->toBeNull()
+        ->and($import->succeeded())->toBeTrue();
+});

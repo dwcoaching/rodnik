@@ -31,6 +31,15 @@ final class OverpassSeed
     public const TARGET_SECONDS = 60.0;
 
     /**
+     * The most an area may send back. Seconds are a poor guide to this on maps.mail.ru, where
+     * most of a request is spent queueing: the wells of southern India come back as 70 MB in
+     * barely half a minute, so on time alone they were merged with their neighbours into a 73 MB
+     * answer the workers could not decode. Kept well below
+     * {@see \App\Models\OverpassImport::MAXIMUM_RESPONSE_BYTES}.
+     */
+    public const TARGET_BYTES = 20_000_000.0;
+
+    /**
      * Ignore measurements older than this many batches; OSM density drifts.
      */
     public const BATCHES_OF_HISTORY = 2;
@@ -48,7 +57,7 @@ final class OverpassSeed
             return self::uniformSegments();
         }
 
-        return self::segmentsFor($costs);
+        return self::segmentsFor($costs, self::measuredCellBytes());
     }
 
     /**
@@ -62,56 +71,18 @@ final class OverpassSeed
      */
     public static function measuredCellCosts(): array
     {
-        $batches = OverpassAttempt::query()
-            ->distinct()
-            ->orderByDesc('overpass_batch_id')
-            ->limit(self::BATCHES_OF_HISTORY)
-            ->pluck('overpass_batch_id');
+        return self::spreadOverCells(fn (OverpassAttempt $attempt): float => (float) $attempt->duration_seconds);
+    }
 
-        if ($batches->isEmpty()) {
-            return [];
-        }
-
-        $density = self::springDensity();
-        $costs = [];
-        $samples = [];
-
-        $attempts = OverpassAttempt::query()
-            ->whereIn('overpass_batch_id', $batches)
-            ->where('response_code', 200)
-            ->where('congested', false)
-            ->get();
-
-        foreach ($attempts as $attempt) {
-            $cells = self::cellsOf($attempt);
-
-            if ($cells === []) {
-                continue;
-            }
-
-            $weight = 0.0;
-
-            foreach ($cells as [$longitude, $latitude]) {
-                $weight += 1 + ($density[$longitude][$latitude] ?? 0);
-            }
-
-            foreach ($cells as [$longitude, $latitude]) {
-                $share = (1 + ($density[$longitude][$latitude] ?? 0)) / $weight;
-
-                $costs[$longitude][$latitude] = ($costs[$longitude][$latitude] ?? 0.0)
-                    + $attempt->duration_seconds * $share;
-                $samples[$longitude][$latitude] = ($samples[$longitude][$latitude] ?? 0) + 1;
-            }
-        }
-
-        // A cell covered by several batches has accumulated several batches' worth of seconds.
-        foreach ($costs as $longitude => $column) {
-            foreach ($column as $latitude => $seconds) {
-                $costs[$longitude][$latitude] = $seconds / $samples[$longitude][$latitude];
-            }
-        }
-
-        return $costs;
+    /**
+     * Measured response bytes per 1x1 degree cell, keyed by [longitude][latitude], spread the
+     * same way. Bytes follow the springs far more closely than seconds do.
+     *
+     * @return array<int, array<int, float>>
+     */
+    public static function measuredCellBytes(): array
+    {
+        return self::spreadOverCells(fn (OverpassAttempt $attempt): float => (float) $attempt->response_bytes);
     }
 
     /**
@@ -166,33 +137,48 @@ final class OverpassSeed
     }
 
     /**
-     * Pack a cost map into areas of roughly {@see self::TARGET_SECONDS} each.
+     * Pack a cost map into areas of roughly {@see self::TARGET_SECONDS} each, none of them
+     * expected to send back more than {@see self::TARGET_BYTES}.
      *
      * @param  array<int, array<int, float>>  $costs  measured seconds keyed by [longitude][latitude]
+     * @param  array<int, array<int, float>>  $bytes  measured response bytes, keyed the same way
      * @return array<int, array{latitude_from: int, latitude_to: int, longitude_from: int, longitude_to: int}>
      */
-    public static function segmentsFor(array $costs): array
+    public static function segmentsFor(array $costs, array $bytes = []): array
     {
         $segments = [];
         $runFrom = null;
         $runTo = null;
         $runCost = 0.0;
+        $runBytes = 0.0;
 
         for ($longitude = -180; $longitude < 180; $longitude++) {
             $column = $costs[$longitude] ?? [];
             $cost = array_sum($column);
+            $byteColumn = $bytes[$longitude] ?? [];
+            $size = array_sum($byteColumn);
 
-            $tooExpensiveToMerge = $cost > self::TARGET_SECONDS;
-            $wouldOverflowTheRun = $runFrom !== null && $runCost + $cost > self::TARGET_SECONDS;
+            $tooExpensiveToMerge = $cost > self::TARGET_SECONDS || $size > self::TARGET_BYTES;
+            $wouldOverflowTheRun = $runFrom !== null
+                && ($runCost + $cost > self::TARGET_SECONDS || $runBytes + $size > self::TARGET_BYTES);
 
             if (($tooExpensiveToMerge || $wouldOverflowTheRun) && $runFrom !== null) {
                 $segments[] = self::wholeColumns($runFrom, $runTo);
                 $runFrom = null;
                 $runCost = 0.0;
+                $runBytes = 0.0;
             }
 
             if ($tooExpensiveToMerge) {
-                foreach (self::latitudeBands($column, $cost) as $band) {
+                // Split along whichever measure needs more bands, so both end up within target.
+                $bandsForCost = (int) ceil($cost / self::TARGET_SECONDS);
+                $bandsForSize = (int) ceil($size / self::TARGET_BYTES);
+
+                $bands = $bandsForSize > $bandsForCost
+                    ? self::latitudeBands($byteColumn, $size, $bandsForSize)
+                    : self::latitudeBands($column, $cost);
+
+                foreach ($bands as $band) {
                     $segments[] = [
                         'latitude_from' => $band[0],
                         'latitude_to' => $band[1],
@@ -207,6 +193,7 @@ final class OverpassSeed
             $runFrom ??= $longitude;
             $runTo = $longitude;
             $runCost += $cost;
+            $runBytes += $size;
         }
 
         if ($runFrom !== null) {
@@ -217,18 +204,19 @@ final class OverpassSeed
     }
 
     /**
-     * Split one column into bands of roughly equal measured cost.
+     * Split one column into bands of roughly equal measured weight.
      *
      * Splitting evenly rather than filling each band to the target avoids leaving a tiny
      * straggler band behind, which would cost a whole pacing slot to fetch almost nothing.
      *
-     * @param  array<int, float>  $column  measured seconds keyed by latitude
+     * @param  array<int, float>  $column  measured seconds (or bytes) keyed by latitude
+     * @param  int|null  $bands  how many bands to aim for; by default enough for the time target
      * @return array<int, array{0: int, 1: int}>
      */
-    public static function latitudeBands(array $column, float $cost): array
+    public static function latitudeBands(array $column, float $total, ?int $bands = null): array
     {
-        $bands = max(2, (int) ceil($cost / self::TARGET_SECONDS));
-        $share = $cost / $bands;
+        $bands = max(2, $bands ?? (int) ceil($total / self::TARGET_SECONDS));
+        $share = $total / $bands;
 
         if ($share <= 0) {
             return [[-90, 90]];
@@ -276,6 +264,67 @@ final class OverpassSeed
         }
 
         return $segments;
+    }
+
+    /**
+     * Spread a measurement of every successful recent request over the cells it covered.
+     *
+     * @param  callable(OverpassAttempt): float  $measure
+     * @return array<int, array<int, float>>
+     */
+    private static function spreadOverCells(callable $measure): array
+    {
+        $batches = OverpassAttempt::query()
+            ->distinct()
+            ->orderByDesc('overpass_batch_id')
+            ->limit(self::BATCHES_OF_HISTORY)
+            ->pluck('overpass_batch_id');
+
+        if ($batches->isEmpty()) {
+            return [];
+        }
+
+        $density = self::springDensity();
+        $totals = [];
+        $samples = [];
+
+        $attempts = OverpassAttempt::query()
+            ->whereIn('overpass_batch_id', $batches)
+            ->where('response_code', 200)
+            ->where('congested', false)
+            ->get();
+
+        foreach ($attempts as $attempt) {
+            $cells = self::cellsOf($attempt);
+
+            if ($cells === []) {
+                continue;
+            }
+
+            $weight = 0.0;
+
+            foreach ($cells as [$longitude, $latitude]) {
+                $weight += 1 + ($density[$longitude][$latitude] ?? 0);
+            }
+
+            $value = $measure($attempt);
+
+            foreach ($cells as [$longitude, $latitude]) {
+                $share = (1 + ($density[$longitude][$latitude] ?? 0)) / $weight;
+
+                $totals[$longitude][$latitude] = ($totals[$longitude][$latitude] ?? 0.0) + $value * $share;
+                $samples[$longitude][$latitude] = ($samples[$longitude][$latitude] ?? 0) + 1;
+            }
+        }
+
+        // A cell covered by several batches has accumulated several batches' worth.
+        foreach ($totals as $longitude => $column) {
+            foreach ($column as $latitude => $total) {
+                $totals[$longitude][$latitude] = $total / $samples[$longitude][$latitude];
+            }
+        }
+
+        return $totals;
     }
 
     /**

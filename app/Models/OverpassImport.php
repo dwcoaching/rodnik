@@ -39,7 +39,23 @@ final class OverpassImport extends Model
 
     public const QUERY_MAXSIZE_BYTES = 128 * 1024 * 1024;
 
+    /**
+     * The largest response we take apart in one piece. Decoding JSON takes PHP roughly seven
+     * times its size in memory and the workers get 512 MB: the 73 MB answer for the wells of
+     * southern India (longitudes 72-76) ran both the fetch and the parse out of memory. A bigger
+     * response is treated like Overpass running out of memory, and its area is ground up.
+     */
+    public const MAXIMUM_RESPONSE_BYTES = 40_000_000;
+
     protected $cachedArea = null;
+
+    /**
+     * What the stored response turned out to be, so the checks a fetch runs one after another
+     * decode it once rather than each on its own.
+     *
+     * @var array{json: bool, remark: ?string}|null
+     */
+    private ?array $inspection = null;
 
     /**
      * Counted by hand rather than by decoding: the query only ever asks for nodes and ways, so
@@ -161,6 +177,10 @@ final class OverpassImport extends Model
             return false;
         }
 
+        if ($this->isOversized()) {
+            return true;
+        }
+
         $remark = mb_strtolower((string) $this->responseRemark());
 
         return str_contains($remark, 'timed out') || str_contains($remark, 'out of memory');
@@ -172,9 +192,22 @@ final class OverpassImport extends Model
      */
     public function responseRemark(): ?string
     {
-        $json = json_decode((string) $this->response);
+        return $this->inspectResponse()['remark'];
+    }
 
-        return isset($json->remark) ? (string) $json->remark : null;
+    /**
+     * Whether a successful response is too big to decode, judged from its size on disk alone.
+     */
+    public function isOversized(): bool
+    {
+        return (int) $this->response_code === 200 && $this->responseBytes() > self::MAXIMUM_RESPONSE_BYTES;
+    }
+
+    public function responseBytes(): int
+    {
+        $disk = Storage::disk('local');
+
+        return $disk->exists($this->responsePath) ? (int) $disk->size($this->responsePath) : 0;
     }
 
     public function hasAttemptsLeft(): bool
@@ -219,9 +252,9 @@ final class OverpassImport extends Model
 
     public function responseHasRemarks()
     {
-        $json = json_decode($this->response);
+        $inspection = $this->inspectResponse();
 
-        return (is_null($json) || isset($json->remark)) ? 1 : 0;
+        return (! $inspection['json'] || $inspection['remark'] !== null) ? 1 : 0;
     }
 
     public function getResponseAttribute()
@@ -236,6 +269,8 @@ final class OverpassImport extends Model
     public function setResponseAttribute($response)
     {
         Storage::disk('local')->put($this->responsePath, $response);
+
+        $this->inspection = null;
     }
 
     public function getResponsePathAttribute()
@@ -296,6 +331,13 @@ final class OverpassImport extends Model
     public function parse()
     {
         $json = json_decode($this->response);
+
+        // Note what the response held while it is decoded anyway, so the remark check below does
+        // not decode it a second time.
+        $this->inspection = [
+            'json' => $json !== null,
+            'remark' => isset($json->remark) ? (string) $json->remark : null,
+        ];
 
         $stats = Overpass::parse($json, $this->overpass_batch_id);
 
@@ -407,6 +449,27 @@ final class OverpassImport extends Model
     public function deleteArtifacts()
     {
         Storage::disk('local')->delete($this->responsePath);
+    }
+
+    /**
+     * @return array{json: bool, remark: ?string}
+     */
+    private function inspectResponse(): array
+    {
+        if ($this->inspection === null) {
+            if ($this->isOversized()) {
+                $this->inspection = ['json' => false, 'remark' => null];
+            } else {
+                $json = json_decode((string) $this->response);
+
+                $this->inspection = [
+                    'json' => $json !== null,
+                    'remark' => isset($json->remark) ? (string) $json->remark : null,
+                ];
+            }
+        }
+
+        return $this->inspection;
     }
 
     /**

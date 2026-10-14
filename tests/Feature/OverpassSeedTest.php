@@ -185,3 +185,95 @@ test('createImports uses the seed and covers the globe', function () {
     expect($batch->fresh()->imports_status)->toBe('created')
         ->and(tilingErrors($segments))->toBe(['gaps' => 0, 'overlaps' => 0, 'cells' => 64800]);
 });
+
+/**
+ * A byte map shaped like southern India: two columns quick to answer but huge, with nearly all
+ * of their bytes between 8 and 20 degrees north.
+ *
+ * @return array<int, array<int, float>>
+ */
+function indiaByteMap(): array
+{
+    $bytes = [];
+
+    for ($lon = -180; $lon < 180; $lon++) {
+        for ($lat = -90; $lat < 90; $lat++) {
+            $bytes[$lon][$lat] = 1_000.0;
+        }
+    }
+
+    foreach ([74, 75] as $lon) {
+        for ($lat = 8; $lat < 20; $lat++) {
+            $bytes[$lon][$lat] = 2_900_000.0; // ~35 MB per column
+        }
+    }
+
+    return $bytes;
+}
+
+test('a column that is quick to answer but huge is split by its bytes, not merged by its seconds', function () {
+    // Every column is cheap in seconds, so on time alone the dense ones would merge with others.
+    $segments = OverpassSeed::segmentsFor(costMap(cheap: 0.05), indiaByteMap());
+
+    $touching = array_values(array_filter($segments, fn ($s) => $s['longitude_from'] < 76 && $s['longitude_to'] > 74));
+
+    foreach ($touching as $segment) {
+        expect($segment['longitude_to'] - $segment['longitude_from'])->toBe(1);
+    }
+
+    $bytes = indiaByteMap();
+    foreach ($segments as $segment) {
+        $size = 0.0;
+        for ($lon = $segment['longitude_from']; $lon < $segment['longitude_to']; $lon++) {
+            for ($lat = $segment['latitude_from']; $lat < $segment['latitude_to']; $lat++) {
+                $size += $bytes[$lon][$lat];
+            }
+        }
+
+        expect($size)->toBeLessThanOrEqual(OverpassSeed::TARGET_BYTES + 3_000_000.0);
+    }
+
+    expect(tilingErrors($segments))->toBe(['gaps' => 0, 'overlaps' => 0, 'cells' => 64800]);
+});
+
+test('runs of cheap columns stop growing before their responses add up past the byte target', function () {
+    $bytes = [];
+    for ($lon = -180; $lon < 180; $lon++) {
+        for ($lat = -90; $lat < 90; $lat++) {
+            $bytes[$lon][$lat] = 50_000.0; // 9 MB per column
+        }
+    }
+
+    $segments = OverpassSeed::segmentsFor(costMap(cheap: 0.01), $bytes);
+    $widths = array_map(fn ($s) => $s['longitude_to'] - $s['longitude_from'], $segments);
+
+    expect(max($widths))->toBe(2)
+        ->and(tilingErrors($segments))->toBe(['gaps' => 0, 'overlaps' => 0, 'cells' => 64800]);
+});
+
+test('response bytes are spread over the cells an attempt covered', function () {
+    $batch = OverpassBatch::create([]);
+
+    OverpassAttempt::create([
+        'overpass_batch_id' => $batch->id,
+        'overpass_import_id' => 1,
+        'attempt' => 1,
+        'latitude_from' => -90, 'latitude_to' => 90,
+        'longitude_from' => 74, 'longitude_to' => 76,
+        'started_at' => now(),
+        'duration_seconds' => 32,
+        'response_code' => 200,
+        'response_bytes' => 69_583_852,
+        'congested' => false,
+    ]);
+
+    $bytes = OverpassSeed::measuredCellBytes();
+
+    $total = 0.0;
+    foreach ($bytes as $column) {
+        $total += array_sum($column);
+    }
+
+    expect(round($total))->toBe(69_583_852.0)
+        ->and(array_keys($bytes))->toBe([74, 75]);
+});
