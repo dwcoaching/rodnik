@@ -14,7 +14,8 @@ class SpringFactory extends Factory
         return [
             'name' => $this->faker->words(3, true),
             'type' => $this->faker->randomElement(Spring::TYPES),
-            'latitude' => $this->faker->latitude,
+            // Web Mercator tiles stop at ±85.05°; beyond that tile invalidation aborts with 404.
+            'latitude' => $this->faker->latitude(-85, 85),
             'longitude' => $this->faker->longitude,
             'intermittent' => $this->faker->randomElement([null, 'yes', 'no']),
             'hidden_at' => null,

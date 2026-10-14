@@ -41,6 +41,17 @@ final class OverpassImport extends Model
 
     protected $cachedArea = null;
 
+    /**
+     * Counted by hand rather than by decoding: the query only ever asks for nodes and ways, so
+     * these markers are the elements, and a 70 MB payload does not have to be materialised just
+     * to be measured. Overpass pretty-prints its JSON (`"type": "node"`), so the spacing around
+     * the colon is not fixed.
+     */
+    public static function countElements(string $body): int
+    {
+        return (int) preg_match_all('/"type"\s*:\s*"(?:node|way)"/', $body);
+    }
+
     public function fetch()
     {
         $guzzle = $this->httpClient();
@@ -110,10 +121,7 @@ final class OverpassImport extends Model
             'duration_seconds' => max(0, $finishedAt->getTimestamp() - $startedAt->getTimestamp()),
             'response_code' => (int) $this->response_code,
             'response_bytes' => mb_strlen($body, '8bit'),
-            // Counted by hand rather than by decoding: the query only ever asks for nodes and
-            // ways, so these two markers are the elements, and a 15 MB payload does not have to
-            // be materialised just to be measured.
-            'element_count' => mb_substr_count($body, '"type":"node"') + mb_substr_count($body, '"type":"way"'),
+            'element_count' => self::countElements($body),
             'congested' => $this->isCongested(),
         ]);
     }

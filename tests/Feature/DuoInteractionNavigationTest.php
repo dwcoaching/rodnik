@@ -174,7 +174,7 @@ test('the source panel can bring its source into focus on the map for every visi
     expect($button)->not->toBeNull()
         ->and($button->getAttribute('x-data'))->toBe("springFocus(JSON.parse('[34.610396,44.857306]'))")
         ->and($button->getAttribute('aria-label'))->toBe(__('ui.spring.show_on_map'))
-        ->and($button->classList->contains('invisible'))->toBeTrue();
+        ->and($button->hasAttribute('disabled'))->toBeTrue();
 })->with(['guest' => false, 'signed in' => true]);
 
 test('source forms and history return to the source through application navigation', function () {

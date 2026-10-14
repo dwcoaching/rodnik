@@ -388,7 +388,7 @@ test('shared pages and my maps expose localized controls in both languages', fun
         ->and($data['endpoint'])->toBe(url($prefix.'/user/maps/options'));
 
     $locale = $prefix === '/ru' ? 'ru' : 'en';
-    expect($document->querySelector('#map-library-help'))->toBeNull()
+    expect($document->querySelector('#map-library-help'))->not->toBeNull()
         ->and($document->querySelector('[aria-label="'.trans('ui.maps.library_navigation', locale: $locale).'"]'))->not->toBeNull()
         ->and($document->querySelector('a[href="'.url($prefix.'/user/tracks').'"]'))->not->toBeNull();
 })->with([

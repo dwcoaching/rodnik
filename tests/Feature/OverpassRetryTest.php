@@ -496,3 +496,28 @@ test('the gate backs off exponentially and stays capped', function () {
         ->and(OverpassGate::backoffSeconds(3))->toBe(20)
         ->and(OverpassGate::backoffSeconds(20))->toBe(OverpassGate::MAXIMUM_WAIT_SECONDS);
 });
+
+test('elements are counted in the pretty-printed JSON Overpass actually sends', function () {
+    $body = <<<'JSON'
+        {
+          "version": 0.6,
+          "elements": [
+        {
+          "type": "node",
+          "id": 1
+        },
+        {
+          "type": "way",
+          "id": 2
+        },
+        {
+          "type":"node",
+          "id": 3
+        }
+          ]
+        }
+        JSON;
+
+    expect(OverpassImport::countElements($body))->toBe(3)
+        ->and(OverpassImport::countElements(''))->toBe(0);
+});
