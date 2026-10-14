@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -68,6 +69,16 @@ final class User extends Authenticatable implements FilamentUser, HasLocalePrefe
     {
         return $this->belongsToMany(Spring::class, 'reports', 'user_id', 'spring_id')
             ->whereNull('reports.hidden_at');
+    }
+
+    /**
+     * Whether a viewer of this profile sees reports on springs hidden from the public map. The
+     * author does, so a source that was hidden after they reported it (say, one they found gone
+     * and that was later deleted from OSM) does not vanish from their own history.
+     */
+    public function showsHiddenSpringsTo(?self $viewer): bool
+    {
+        return $viewer !== null && ($viewer->is($this) || Gate::forUser($viewer)->allows('admin'));
     }
 
     public function preferredLocale(): string

@@ -42,6 +42,8 @@ final class PruneMissingOSMSprings implements ShouldQueue
 
         $this->markMissing();
 
+        // Hidden springs are kept. Hiding is a decision taken on Rodnik and recorded nowhere else:
+        // if the object ever comes back to OSM, it has to come back hidden.
         $candidates = Spring::query()
             ->whereNull('hidden_at')
             ->where(function ($q) {

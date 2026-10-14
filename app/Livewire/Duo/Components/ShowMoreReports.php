@@ -1,17 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Livewire\Duo\Components;
 
-use App\Models\User;
 use App\Models\Report;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
-class ShowMoreReports extends Component
+final class ShowMoreReports extends Component
 {
     public $shown = false;
+
     public $skip;
+
     public $take;
+
     public $reports = [];
+
     public $userId = null;
 
     public function show()
@@ -41,7 +48,7 @@ class ShowMoreReports extends Component
                     ->join('springs', 'springs.id', '=', 'reports.spring_id')
                     ->whereNull('reports.hidden_at')
                     ->whereNull('reports.from_osm')
-                    ->whereNull('springs.hidden_at')
+                    ->when(! $user->showsHiddenSpringsTo(Auth::user()), fn ($query) => $query->whereNull('springs.hidden_at'))
                     ->with(['user', 'photos', 'spring'])
                     ->latest()
                     ->skip($this->skip)

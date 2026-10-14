@@ -269,12 +269,22 @@ final class Spring extends Model
         return $this->osm_node_id || $this->osm_way_id;
     }
 
+    /**
+     * Whether a complete import no longer contained this object: it was deleted from OSM or no
+     * longer carries the tags we import.
+     */
+    public function isMissingFromOsm(): bool
+    {
+        return $this->isOsmTracked() && $this->osm_missing_since !== null;
+    }
+
     // Source spring (the duplicate being merged away). Must not be tracked by
     // OSM — OSM-tracked springs would re-appear on the next import and need
-    // to be deleted from OSM first.
+    // to be deleted from OSM first. One that is already gone from OSM is free
+    // to merge; if it ever comes back, the import updates it and it stays merged.
     public function canBeRedirectedFrom()
     {
-        return ! $this->isOsmTracked();
+        return ! $this->isOsmTracked() || $this->isMissingFromOsm();
     }
 
     public function canBeRedirectedTo(self $source)
@@ -380,6 +390,11 @@ final class Spring extends Model
             });
     }
 
+    /**
+     * Whether a spring that left OSM can simply be deleted: nothing on Rodnik refers to it. Reports,
+     * edits by people, and duplicates merged into it all keep it, so it can be hidden or merged
+     * instead.
+     */
     public function canBePrunedAsMissing()
     {
         if ($this->reports()->count() > 0) {
@@ -387,6 +402,10 @@ final class Spring extends Model
         }
 
         if ($this->springRevisions()->where('revision_type', '!=', 'from_osm')->count() > 0) {
+            return false;
+        }
+
+        if (self::query()->where('redirect_to_spring_id', $this->id)->exists()) {
             return false;
         }
 

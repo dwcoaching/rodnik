@@ -11,6 +11,7 @@ use App\Models\TrackPolygon;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -142,7 +143,7 @@ final class Index extends Component
                 ->with(['photos', 'user', 'spring'])
                 ->whereNull('reports.hidden_at')
                 ->join('springs', 'springs.id', '=', 'reports.spring_id')
-                ->whereNull('springs.hidden_at')
+                ->when(! $user->showsHiddenSpringsTo(Auth::user()), fn ($query) => $query->whereNull('springs.hidden_at'))
                 ->latest('reports.created_at')
                 ->limit($this->limit)
                 ->get();

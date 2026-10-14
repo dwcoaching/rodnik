@@ -10,6 +10,9 @@
                         <div
                             class="leading-snug text-blue-600 group-hover:underline group-hover:text-blue-700 mr-2 font-extrabold">{{ $report->spring->name ?: ($report->spring->type ? __('ui.spring.types.' . \Illuminate\Support\Str::snake($report->spring->type)) : __('ui.spring.no_name')) }}</div>
                     </a>
+                    @if ($report->spring->hidden_at)
+                        <span class="shrink-0 self-start rounded-full border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-xs text-amber-800">{{ __('ui.spring.hidden_badge') }}</span>
+                    @endif
                 </div>
 
                 <div class="mt-1 flex space-x-3 px-3 pb-3">

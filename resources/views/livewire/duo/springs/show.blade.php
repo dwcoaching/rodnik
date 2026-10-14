@@ -18,7 +18,7 @@
             @if ($spring->hidden_at)
                 <div role="status" class="mb-2 grid grid-flow-col grid-cols-[auto] items-center justify-start justify-items-start gap-4 rounded-lg border border-[#facc15] bg-[#facc15] px-4 py-3 text-start text-sm text-[#111827]">
                     <div>
-                        <b>{{ __('ui.spring.hidden_title') }}</b> {{ __('ui.spring.hidden_description') }}
+                        <b>{{ __('ui.spring.hidden_title') }}</b> {{ $spring->isMissingFromOsm() ? __('ui.spring.hidden_osm_description') : __('ui.spring.hidden_description') }}
                     </div>
                 </div>
             @endif

@@ -353,6 +353,8 @@ return [
         'no_name' => 'No name',
         'hidden_title' => 'This object is hidden.',
         'hidden_description' => "Probably it's not a water source, or a duplicate, or something else.",
+        'hidden_osm_description' => 'It was deleted from OpenStreetMap or no longer matches our tags, so it is no longer on the public map.',
+        'hidden_badge' => 'hidden',
         'duplicate_title' => 'This water source is a duplicate',
         'duplicate_description' => "and normally redirects to :target. You're seeing it because :parameter is set.",
         'update_location' => 'Update Location',
@@ -538,7 +540,7 @@ return [
     ],
 
     'actions' => [
-        'merge_osm_source' => 'OpenStreetMap-tracked water sources cannot be merged. Delete it from OpenStreetMap first.',
+        'merge_osm_source' => 'A water source that is still in OpenStreetMap cannot be merged: the next import would bring it back. Delete it from OpenStreetMap first.',
         'merge_target_ineligible' => 'The target water source does not exist or is not eligible.',
         'merge_target_too_far' => 'The target water source is farther than :distance meters away.',
         'report_has_no_merge_target' => 'The report is not attached to a merged water source with an eligible target.',
