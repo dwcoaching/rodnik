@@ -118,7 +118,7 @@ function springGoneFromOsm(): Spring
     return $spring;
 }
 
-test('admins see when a source was last edited in OSM and when it disappeared', function () {
+test('admins see when a source was last edited in OSM and when it disappeared, like everyone', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
     $spring = springGoneFromOsm();
 
@@ -139,13 +139,25 @@ test('without a last sighting admins only see the date it was gone by', function
         ->assertDontSee('Disappeared between');
 });
 
-test('everyone else does not see OSM dates yet', function () {
-    $this->actingAs(User::factory()->create(['is_admin' => false, 'is_superadmin' => false]));
+test('everyone sees when a source was last edited in OSM and when it disappeared', function (bool $signedIn) {
+    if ($signedIn) {
+        $this->actingAs(User::factory()->create(['is_admin' => false, 'is_superadmin' => false]));
+    }
+
     $spring = springGoneFromOsm();
 
     Livewire::test(Show::class, ['springId' => $spring->id])
-        ->assertSee('OpenStreetMap Data')
+        ->assertSee('gone from OSM')
+        ->assertSee('22.09.2024 · version 4')
+        ->assertSee('Disappeared between 08.10.2026 and 13.10.2026.');
+})->with(['guest' => false, 'signed in' => true]);
+
+test('a source still in OSM shows its last edit but no sign of having disappeared', function () {
+    $spring = springGoneFromOsm();
+    $spring->forceFill(['osm_missing_since' => null])->saveQuietly();
+
+    Livewire::test(Show::class, ['springId' => $spring->id])
+        ->assertSee('22.09.2024 · version 4')
         ->assertDontSee('gone from OSM')
-        ->assertDontSee('Last edited in OSM:')
         ->assertDontSee('Disappeared');
 });
