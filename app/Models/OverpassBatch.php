@@ -237,13 +237,18 @@ final class OverpassBatch extends Model
 
     public function parseImports()
     {
-        $this->parse_status = 'parsing';
-
         $dueImports = $this->overpassImports()
             ->whereNotNull('fetched_at')
             ->whereNull('parsed_at')
             ->where('ground_up', false)
             ->get();
+
+        // Asked again with nothing left to parse, a finished batch stays finished, so its cleanup
+        // jobs are not queued a second time. One that stopped short of finishing is still
+        // finished by the call at the end.
+        if ($dueImports->isNotEmpty()) {
+            $this->parse_status = 'parsing';
+        }
 
         foreach ($dueImports as $dueImport) {
             echo "Parsing import id = {$dueImport->id}\n";
