@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Jobs;
 
 use App\Models\OverpassBatch;
 use App\Models\Spring;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class PruneMissingOSMSprings implements ShouldQueue
+final class PruneMissingOSMSprings implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -18,7 +20,8 @@ class PruneMissingOSMSprings implements ShouldQueue
 
     public $overpassBatch = null;
 
-    public function __construct(?OverpassBatch $overpassBatch = null) {
+    public function __construct(?OverpassBatch $overpassBatch = null)
+    {
         $this->overpassBatch = $overpassBatch;
         $this->onQueue('overpass');
     }
@@ -37,6 +40,8 @@ class PruneMissingOSMSprings implements ShouldQueue
             return;
         }
 
+        $this->markMissing();
+
         $candidates = Spring::query()
             ->whereNull('hidden_at')
             ->where(function ($q) {
@@ -44,7 +49,7 @@ class PruneMissingOSMSprings implements ShouldQueue
             })
             ->where(function ($q) {
                 $q->whereNull('last_seen_overpass_batch_id')
-                  ->orWhere('last_seen_overpass_batch_id', '<', $this->overpassBatch->id);
+                    ->orWhere('last_seen_overpass_batch_id', '<', $this->overpassBatch->id);
             })
             ->get();
 
@@ -53,5 +58,25 @@ class PruneMissingOSMSprings implements ShouldQueue
                 $spring->pruneAsMissing();
             }
         }
+    }
+
+    /**
+     * Note when OSM objects first went missing, hidden ones included, for the ones that are
+     * kept. A complete batch that did not bring an object back means it was gone by the time
+     * the batch started; an object already marked keeps its earlier, tighter date.
+     */
+    private function markMissing(): void
+    {
+        Spring::query()
+            ->where(function ($q) {
+                $q->whereNotNull('osm_node_id')->orWhereNotNull('osm_way_id');
+            })
+            ->where(function ($q) {
+                $q->whereNull('last_seen_overpass_batch_id')
+                    ->orWhere('last_seen_overpass_batch_id', '<', $this->overpassBatch->id);
+            })
+            ->whereNull('osm_missing_since')
+            ->toBase()
+            ->update(['osm_missing_since' => $this->overpassBatch->created_at]);
     }
 }

@@ -44,6 +44,9 @@ final class Spring extends Model
         'region_id' => 'integer',
         'nearest_city_id' => 'integer',
         'nearest_city_distance_km' => 'float',
+        'osm_timestamp' => 'datetime',
+        'osm_last_seen_at' => 'datetime',
+        'osm_missing_since' => 'datetime',
     ];
 
     public function geoCountry(): BelongsTo

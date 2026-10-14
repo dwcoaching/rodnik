@@ -397,6 +397,12 @@ return [
         'osm_node_id' => 'ID точки OSM:',
         'osm_way_id' => 'ID линии OSM:',
         'osm_location' => 'Координаты в OSM',
+        'osm_last_edit' => 'Последняя правка в OSM:',
+        'osm_version' => 'версия :version',
+        'osm_missing_badge' => 'нет в OSM',
+        'osm_missing' => 'Объекта больше нет в выгрузке OpenStreetMap: его удалили или он перестал подходить под наши теги.',
+        'osm_missing_between' => 'Пропал между :seen и :missing.',
+        'osm_missing_by' => 'Пропал не позже :missing.',
         'types' => [
             'spring' => 'Родник',
             'water_well' => 'Колодец',

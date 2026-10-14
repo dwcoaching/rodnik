@@ -9,6 +9,7 @@ use App\Models\Spring;
 use App\Models\SpringRevision;
 use App\Models\SpringTile;
 use App\Models\WateredSpringTile;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 final class Overpass
@@ -28,21 +29,43 @@ final class Overpass
             'unchanged' => 0,
         ];
 
+        $seenAt = self::seenAt($json);
+
         foreach (array_chunk($json->elements, self::CHUNK_SIZE) as $chunk) {
-            self::parseChunk($chunk, $batchId, $stats);
+            self::parseChunk($chunk, $batchId, $seenAt, $stats);
         }
 
         return $stats;
     }
 
     /**
+     * How current the OSM data in a response is. Overpass reports it, and it is what "last
+     * seen" should mean: the mirror may lag behind the moment we asked.
+     */
+    private static function seenAt(object $json): Carbon
+    {
+        $base = $json->osm3s->timestamp_osm_base ?? null;
+
+        return $base ? self::osmTime($base) : now()->utc();
+    }
+
+    /**
+     * An ISO 8601 OSM time, such as "2024-09-22T20:08:07Z", in UTC.
+     */
+    private static function osmTime(string $value): Carbon
+    {
+        return Carbon::parse($value)->utc();
+    }
+
+    /**
      * Skip every element OSM has not touched since we last stored it, and stamp all of them as
      * seen in one statement; only new and edited elements go through the model one by one.
      */
-    private static function parseChunk(array $elements, $batchId, object $stats): void
+    private static function parseChunk(array $elements, $batchId, Carbon $seenAt, object $stats): void
     {
         $known = self::knownSprings($elements);
         $unchangedIds = [];
+        $missingTimestamps = [];
 
         // The lookup above predates this chunk, so an element that shows up twice has to find
         // the spring its first occurrence saved rather than create it again.
@@ -56,12 +79,16 @@ final class Overpass
                 $stats->unchanged = $stats->unchanged + 1;
                 $unchangedIds[] = $row->id;
 
+                if ($row->osm_timestamp === null && isset($element->timestamp)) {
+                    $missingTimestamps[(int) $row->id] = self::osmTime($element->timestamp);
+                }
+
                 continue;
             }
 
             $spring ??= $row ? Spring::find($row->id) : null;
 
-            $saved[$element->type][$element->id] = self::parseElement($element, $spring, $batchId, $stats);
+            $saved[$element->type][$element->id] = self::parseElement($element, $spring, $batchId, $seenAt, $stats);
         }
 
         // Written past the model on purpose: nothing about these springs changed, so neither
@@ -69,8 +96,41 @@ final class Overpass
         if ($batchId !== null && $unchangedIds !== []) {
             DB::table('springs')
                 ->whereIn('id', $unchangedIds)
-                ->update(['last_seen_overpass_batch_id' => $batchId]);
+                ->update([
+                    'last_seen_overpass_batch_id' => $batchId,
+                    'osm_last_seen_at' => $seenAt,
+                    'osm_missing_since' => null,
+                ]);
         }
+
+        self::fillTimestamps($missingTimestamps);
+    }
+
+    /**
+     * Record OSM edit times for springs stored before we kept them. Their version still matches,
+     * so the time is the one they were stored at; this only runs until every spring has one.
+     *
+     * @param  array<int, Carbon>  $timestamps  keyed by spring id
+     */
+    private static function fillTimestamps(array $timestamps): void
+    {
+        if ($timestamps === []) {
+            return;
+        }
+
+        $cases = implode(' ', array_fill(0, count($timestamps), 'WHEN ? THEN ?'));
+        $ids = implode(', ', array_fill(0, count($timestamps), '?'));
+        $bindings = [];
+
+        foreach ($timestamps as $id => $timestamp) {
+            $bindings[] = $id;
+            $bindings[] = $timestamp;
+        }
+
+        DB::update(
+            "UPDATE springs SET osm_timestamp = CASE id {$cases} END WHERE id IN ({$ids})",
+            [...$bindings, ...array_keys($timestamps)],
+        );
     }
 
     /**
@@ -96,7 +156,7 @@ final class Overpass
             $rows = Spring::query()
                 ->whereIn($column, $ids[$type])
                 ->toBase()
-                ->get(['id', $column, 'osm_version', 'osm_latitude', 'osm_longitude']);
+                ->get(['id', $column, 'osm_version', 'osm_timestamp', 'osm_latitude', 'osm_longitude']);
 
             foreach ($rows as $row) {
                 $known[$type][(int) $row->{$column}] = $row;
@@ -142,7 +202,7 @@ final class Overpass
             === number_format(round((float) $incoming, 6), 6, '.', '');
     }
 
-    private static function parseElement(object $element, ?Spring $spring, $batchId, object $stats): Spring
+    private static function parseElement(object $element, ?Spring $spring, $batchId, Carbon $seenAt, object $stats): Spring
     {
         $elementVersion = isset($element->version) ? (int) $element->version : null;
 
@@ -181,8 +241,14 @@ final class Overpass
             $spring->osm_version = $elementVersion;
         }
 
+        if (isset($element->timestamp)) {
+            $spring->osm_timestamp = self::osmTime($element->timestamp);
+        }
+
         if ($batchId !== null) {
             $spring->last_seen_overpass_batch_id = $batchId;
+            $spring->osm_last_seen_at = $seenAt;
+            $spring->osm_missing_since = null;
         }
 
         $spring->save();

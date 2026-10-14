@@ -317,6 +317,9 @@
                                 class="flex items-center font-semibold mr-3 text-gray-500">
                                 <div class="mr-1 text-gray-500">{{ __('ui.spring.osm_data') }}</div>
                                 <div class="border-gray-300 bg-gray-100 border rounded-full text-xs px-1.5 py-0.5">{{ trans_choice('ui.spring.tags_count', $spring->osm_tags->count(), ['count' => $spring->osm_tags->count()]) }}</div>
+                                @if (Gate::allows('admin') && $spring->osm_missing_since)
+                                    <div class="ml-1 border-amber-300 bg-amber-50 text-amber-800 border rounded-full text-xs px-1.5 py-0.5">{{ __('ui.spring.osm_missing_badge') }}</div>
+                                @endif
                             </div>
                             <div>
                                 <svg x-show="! osmTagsShown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
@@ -328,6 +331,18 @@
                             </div>
                         </div>
                         <div x-show="osmTagsShown" class="flex flex-col gap-y-1 mt-1">
+                            @if (Gate::allows('admin') && $spring->osm_missing_since)
+                                <div class="mb-1 rounded-md border border-amber-200 bg-amber-50 p-2 text-sm text-amber-900">
+                                    <div>{{ __('ui.spring.osm_missing') }}</div>
+                                    <div class="mt-0.5 font-semibold">
+                                        @if ($spring->osm_last_seen_at)
+                                            {{ __('ui.spring.osm_missing_between', ['seen' => $spring->osm_last_seen_at->format('d.m.Y'), 'missing' => $spring->osm_missing_since->format('d.m.Y')]) }}
+                                        @else
+                                            {{ __('ui.spring.osm_missing_by', ['missing' => $spring->osm_missing_since->format('d.m.Y')]) }}
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
                             @foreach ($spring->osm_tags as $tag)
                                 <div class="text-gray-900 text-sm break-all">{{ $tag->key }}={{ $tag->value }}</div>
                             @endforeach
@@ -381,6 +396,12 @@
                                             {{ __('ui.common.copied') }}
                                         </span>
                                     </span>
+                                </span>
+                            @endif
+                            @if (Gate::allows('admin') && ($spring->osm_timestamp || $spring->osm_version))
+                                <span class="text-gray-900 text-sm flex items-center gap-x-1">
+                                    <div class="text-gray-500 font-semibold">{{ __('ui.spring.osm_last_edit') }}</div>
+                                    <span>{{ collect([$spring->osm_timestamp?->format('d.m.Y'), $spring->osm_version ? __('ui.spring.osm_version', ['version' => $spring->osm_version]) : null])->filter()->implode(' · ') }}</span>
                                 </span>
                             @endif
                         </div>

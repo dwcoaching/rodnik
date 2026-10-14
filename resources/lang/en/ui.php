@@ -397,6 +397,12 @@ return [
         'osm_node_id' => 'OSM Node ID:',
         'osm_way_id' => 'OSM Way ID:',
         'osm_location' => 'OSM Location',
+        'osm_last_edit' => 'Last edited in OSM:',
+        'osm_version' => 'version :version',
+        'osm_missing_badge' => 'gone from OSM',
+        'osm_missing' => 'This object is no longer in our OpenStreetMap import: it was deleted or no longer matches our tags.',
+        'osm_missing_between' => 'Disappeared between :seen and :missing.',
+        'osm_missing_by' => 'Disappeared by :missing.',
         'types' => [
             'spring' => 'Spring',
             'water_well' => 'Water well',
