@@ -30,7 +30,15 @@ name('docs.contact-us');
             {{ __('pages.contact.email.title') }}
         </div>
         <div class="mt-3">
-            {{ __('pages.contact.email.description') }} <a href="mailto:kolpakov@hey.com" class="text-blue-600">kolpakov@hey.com</a>.
+            {{ __('pages.contact.email.description') }}
+        </div>
+        <div class="mt-3">
+            <b>CEO — {{ __('pages.contact.email.ceo_name') }}</b><br>
+            <a href="mailto:iromashkov@gmail.com" class="text-blue-600">iromashkov@gmail.com</a>
+        </div>
+        <div class="mt-3">
+            <b>CTO — {{ __('pages.contact.email.cto_name') }}</b><br>
+            <a href="mailto:kolpakov@hey.com" class="text-blue-600">kolpakov@hey.com</a>
         </div>
     </div>
 @endsection

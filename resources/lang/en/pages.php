@@ -109,7 +109,9 @@ return [
         'languages' => 'You can use any language. We mostly speak Russian, English, and Spanish, but we are happy to use Google Translate to understand you better!',
         'email' => [
             'title' => 'Email',
-            'description' => 'If you would like to send us an email, write to',
+            'description' => 'You can contact our team by email:',
+            'ceo_name' => 'Ilya Romashkov',
+            'cto_name' => 'Andrew Kolpakov',
         ],
     ],
     'exports' => [
