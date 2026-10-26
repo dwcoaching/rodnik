@@ -15,10 +15,16 @@ name('docs.privacy');
     <article class="prose max-w-prose">
         <h1>{{ __('privacy.title') }}</h1>
         <p class="text-sm text-gray-500">{{ __('privacy.updated') }}</p>
-        <p>
-            {{ __('privacy.operator') }}
-            <a href="mailto:kolpakov@hey.com">kolpakov@hey.com</a>.
-        </p>
+        <p>{{ __('privacy.introduction') }}</p>
+
+        <section aria-labelledby="privacy-responsibility">
+            <h2 id="privacy-responsibility">{{ __('privacy.responsibility_title') }}</h2>
+            <p>
+                {{ __('privacy.operator') }}
+                <a href="mailto:kolpakov@hey.com">kolpakov@hey.com</a>.
+                {{ __('privacy.deletion_notice') }}
+            </p>
+        </section>
 
         @foreach (__('privacy.sections') as $key => $section)
             <section aria-labelledby="privacy-{{ $key }}">

@@ -6,8 +6,11 @@ return [
     'title' => 'Privacy Policy',
     'legal' => 'Legal',
     'description' => 'How Rodnik.today uses account data and public contributions, and how to delete your account.',
-    'updated' => 'Updated October 5, 2026',
-    'operator' => 'Rodnik.today is a public map of water sources, operated by Andrey Kolpakov. This policy covers the website, apps and API. Contact:',
+    'updated' => 'Updated October 26, 2026',
+    'introduction' => 'Rodnik.today is a community project whose contributors build and maintain an open map of water sources. This policy describes data processing on the website, in the apps and through the API.',
+    'responsibility_title' => 'Who is responsible for data processing',
+    'operator' => 'Andrey Kolpakov is responsible for data processing on Rodnik.today. For privacy questions or concerns about specific publications, contact',
+    'deletion_notice' => 'Account deletion is explained below.',
     'sections' => [
         'account' => [
             'title' => 'Your account',
