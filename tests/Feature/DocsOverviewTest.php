@@ -14,8 +14,11 @@ use App\Support\Docs\DocsOverview;
 use App\Support\Docs\RoutePreview;
 use App\Support\DuoUrl;
 use Dom\HTMLDocument;
+use Illuminate\Console\Scheduling\Event;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 
 uses(RefreshDatabase::class);
@@ -195,6 +198,29 @@ test('the docs overview caches slow aggregates as plain values and keeps saved m
     Cache::forget(DocsOverview::CACHE_KEY);
 
     $this->get('/docs')->assertOk()->assertSee('Fresh explorer')->assertSee('All contributors (3)');
+});
+
+test('the scheduled refresh recomputes the docs overview so visitors never wait for the aggregates', function () {
+    docsOverviewWorld();
+
+    $this->get('/docs')->assertOk();
+    Report::factory()->for(User::factory()->create(['name' => 'Fresh explorer']))->create();
+
+    $this->artisan('docs:overview-refresh')->assertSuccessful();
+
+    DB::enableQueryLog();
+    $this->get('/docs')->assertOk()->assertSee('Fresh explorer')->assertSee('All contributors (3)');
+
+    expect(collect(DB::getQueryLog())->pluck('query')->filter(fn (string $query): bool => str_contains($query, 'sources_count')))->toBeEmpty();
+
+    Cache::flush();
+    $this->artisan('docs:overview-refresh')->assertSuccessful();
+    DB::flushQueryLog();
+    $this->get('/docs')->assertOk()->assertSee('Fresh explorer');
+
+    expect(collect(DB::getQueryLog())->pluck('query')->filter(fn (string $query): bool => str_contains($query, 'sources_count')))->toBeEmpty()
+        ->and(collect(app(Schedule::class)->events())->contains(fn (Event $event): bool => str_contains($event->command, 'docs:overview-refresh')
+            && $event->expression === '*/5 * * * *'))->toBeTrue();
 });
 
 test('the docs overview shows the mobile API only to signed-in English readers', function () {

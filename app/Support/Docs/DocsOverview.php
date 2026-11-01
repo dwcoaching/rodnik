@@ -24,6 +24,9 @@ final class DocsOverview
     // After CACHE_SECONDS visitors still get the previous numbers while a deferred refresh runs.
     public const int STALE_SECONDS = 86400;
 
+    // Where Cache::flexible() keeps the time the value was computed.
+    private const string CREATED_KEY = 'illuminate:cache:flexible:created:'.self::CACHE_KEY;
+
     /** @var array<string, array{string, string}> */
     private const array PLACE_ROUTES = [
         'countries' => ['geography.countries.show', 'country'],
@@ -58,6 +61,18 @@ final class DocsOverview
             'maps' => $this->maps->top(12),
             'exports' => FileParser::getExportFiles(),
         ];
+    }
+
+    /**
+     * Recomputes the aggregates ahead of visitors, so none waits for them
+     * when the cached copy has expired or been cleared.
+     */
+    public function refresh(): void
+    {
+        Cache::putMany([
+            self::CACHE_KEY => $this->aggregates(),
+            self::CREATED_KEY => now()->getTimestamp(),
+        ], self::STALE_SECONDS);
     }
 
     /**

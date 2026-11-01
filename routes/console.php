@@ -18,3 +18,5 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('export:full')->cron('30 22 * * *');
 Schedule::command('model:prune', ['--model' => [Track::class]])->dailyAt('04:00');
+// More often than DocsOverview::CACHE_SECONDS, so /docs visitors never compute the aggregates.
+Schedule::command('docs:overview-refresh')->everyFiveMinutes()->withoutOverlapping();
