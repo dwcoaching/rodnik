@@ -23,7 +23,7 @@ docker run --rm \
     --pull=always \
     -v "$(pwd)":/opt \
     -w /opt \
-    laravelsail/php82-composer:latest \
+    laravelsail/php84-composer:latest \
     bash -c "composer install"
 ```
 
@@ -37,6 +37,37 @@ sail up -d
 ```
 
 > Обратите внимание на незаполненные переменные в `.env`
+
+### Установите самоподписной сертификат в систему
+
+Скачайте и установите сертификат из контейнера caddy на хост систему, чтобы работал https
+
+#### Скачайте сертификат из контейнера
+
+```
+sail cp caddy:/data/caddy/pki/authorities/local/root.crt /tmp/caddy_root.crt
+```
+
+#### Установите сертифика в систему
+
+##### Linux
+
+```
+sudo cp /tmp/caddy_root.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+```
+
+#### macOS
+
+```
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain /tmp/caddy_root.crt
+```
+
+#### Windows
+
+```
+certutil -addstore -f "ROOT" %TEMP%/caddy_root.crt
+```
 
 ### Выполните дефолтные `artisan`-команды
 
