@@ -14,11 +14,13 @@ use App\Services\Geocoding\GeoJsonReverseGeocoder;
 use App\Services\Geocoding\RegionBoundaryIndex;
 use App\Services\Geocoding\RussiaBorderPolicy;
 use Carbon\Carbon;
+use GuzzleHttp\Client as HttpClient;
 use Illuminate\Contracts\Config\Repository;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use NotificationChannels\Telegram\Telegram;
 
 final class AppServiceProvider extends ServiceProvider
 {
@@ -40,6 +42,13 @@ final class AppServiceProvider extends ServiceProvider
             $app->make(RussiaBorderPolicy::class),
             $app->make(RegionBoundaryIndex::class),
             $app->make(GeographyCatalog::class),
+        ));
+
+        // Replaces the package binding so the Bot API can go through services.telegram-bot-api.proxy.
+        $this->app->bind(Telegram::class, fn () => new Telegram(
+            config('services.telegram-bot-api.token'),
+            new HttpClient(array_filter(['proxy' => config('services.telegram-bot-api.proxy')])),
+            config('services.telegram-bot-api.base_uri'),
         ));
     }
 

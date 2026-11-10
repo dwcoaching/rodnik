@@ -47,6 +47,8 @@ return [
     'telegram-bot-api' => [
         'token' => env('TELEGRAM_BOT_TOKEN'),
         'channel_id' => env('TELEGRAM_CHANNEL_ID'),
+        // api.telegram.org is blocked from Russian hosting; e.g. http://user:password@host:3128
+        'proxy' => env('TELEGRAM_HTTP_PROXY'),
     ],
 
 ];
