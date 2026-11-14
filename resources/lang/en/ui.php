@@ -477,6 +477,7 @@ return [
             'satellite' => 'Satellite',
             'strava_heatmap' => 'Strava Heatmap',
             'osm_traces' => 'OpenStreetMap Traces',
+            'source_opacity' => 'Water sources opacity',
         ],
         'upload_track' => 'Upload GPX track',
         'remove_track' => 'Remove track',

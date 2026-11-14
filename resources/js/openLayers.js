@@ -28,6 +28,7 @@ import SpringsApproximatedLayer from '@/layers/springs/approximated';
 import SpringsDistantLayer from '@/layers/springs/distant';
 import WateredSpringsApproximatedLayer from '@/layers/springs/wateredApproximated';
 import WateredSpringsDistantLayer from '@/layers/springs/wateredDistant';
+import SpringsRasterLayer from '@/layers/springs/raster';
 import TrackLayer from '@/layers/tracks/track';
 import BufferLayer from '@/layers/tracks/buffer';
 import TrackSimplifiedLayer from '@/layers/tracks/trackSimplified';
@@ -50,6 +51,7 @@ import Tracks from './tracks.js';
 import createMapView from './mapView.js';
 import { captureTrackNavigationState, trackGeoJson } from './trackNavigationState.js';
 import { afterMapUiReady, normalizeSharedMapState, sharedMapFilters, sharedMapPage, sharedMapSources } from './sharedMapState.js';
+import { normalizeOverviewManifest, normalizeSourceOpacity, readSourceOpacity, saveSourceOpacity } from './sourceOverview.js';
 
 const focusZoom = 14;
 const placeFocusDuration = 400;
@@ -121,6 +123,9 @@ export default class OpenLayersMap {
             osmTraces: false
         });
         this.sourceState = Alpine.reactive({ name: 'osm' });
+        this.sourceOverview = Alpine.reactive({ opacity: readSourceOpacity(), ready: false, active: false });
+        this.overviewManifest = null;
+        this.overviewRequestGeneration = 0;
 
         this.currentOverlays = {...this.overlays};
 
@@ -149,6 +154,10 @@ export default class OpenLayersMap {
         this.springsDistantLayer = new SpringsDistantLayer();
         this.wateredSpringsApproximatedLayer = new WateredSpringsApproximatedLayer();
         this.wateredSpringsDistantLayer = new WateredSpringsDistantLayer();
+        this.springsRasterLayer = new SpringsRasterLayer({
+            opacity: this.sourceOverview.opacity,
+            onError: () => this.sourceOverviewFailed(),
+        });
 
         this.springsFinalSource = new SpringsFinalSource(() => this.featuresLoadEnd());
         this.springsUserSource = new SpringsUserSource(() => this.featuresLoadEnd());
@@ -203,6 +212,7 @@ export default class OpenLayersMap {
                 this.wateredSpringsApproximatedLayer,
                 this.springsDistantLayer,
                 this.springsApproximatedLayer,
+                this.springsRasterLayer,
                 this.springsFinalLayer,
                 this.reportSelectionLayer,
                 this.trackLayer,
@@ -297,6 +307,12 @@ export default class OpenLayersMap {
                 this.queryParameters.coordinates = null
             }
         })
+
+        this.overviewPolygonListener = () => this.updateSourceOverview();
+        window.addEventListener('map-track-polygon-state-changed', this.overviewPolygonListener);
+        this.overviewVisibilityListener = () => this.sourceOverviewVisibilityChanged();
+        document.addEventListener('visibilitychange', this.overviewVisibilityListener);
+        this.refreshSourceOverview();
 
         this.ready = afterMapUiReady().then(async () => {
             if (this.disposed || this.navigationRestoreGeneration > 0) return;
@@ -449,6 +465,83 @@ export default class OpenLayersMap {
             layer.setSource(source);
             previousSource.dispose();
         }
+        if (this.springsRasterLayer) this.refreshSourceOverview();
+    }
+
+    async refreshSourceOverview() {
+        if (this.disposed || globalThis.document?.hidden) return;
+        clearTimeout(this.overviewRetryTimer);
+        this.overviewRequest?.abort();
+        const request = new AbortController();
+        this.overviewRequest = request;
+        const generation = ++this.overviewRequestGeneration;
+        try {
+            const response = await fetch('/source-tiles.json', {
+                headers: { Accept: 'application/json' },
+                credentials: 'same-origin',
+                cache: 'no-store',
+                signal: request.signal,
+            });
+            if (!response.ok) throw new Error('Source overview is unavailable.');
+            const manifest = normalizeOverviewManifest(await response.json());
+            if (!manifest) throw new Error('Source overview manifest is invalid.');
+            if (this.disposed || generation !== this.overviewRequestGeneration) return;
+            this.overviewManifest = manifest;
+            this.updateSourceOverview();
+            this.scheduleSourceOverviewRefresh();
+        } catch (error) {
+            if (this.disposed || generation !== this.overviewRequestGeneration || error.name === 'AbortError') return;
+            this.sourceOverviewFailed();
+        }
+    }
+
+    sourceOverviewFailed() {
+        if (this.disposed) return;
+        this.overviewManifest = null;
+        this.springsRasterLayer.clearOverview();
+        this.updateSourceOverview();
+        this.scheduleSourceOverviewRefresh();
+    }
+
+    scheduleSourceOverviewRefresh() {
+        clearTimeout(this.overviewRetryTimer);
+        if (!this.disposed && !globalThis.document?.hidden) {
+            this.overviewRetryTimer = setTimeout(() => this.refreshSourceOverview(), 60_000);
+        }
+    }
+
+    sourceOverviewVisibilityChanged() {
+        if (this.disposed) return;
+        if (globalThis.document?.hidden) {
+            clearTimeout(this.overviewRetryTimer);
+            this.overviewRequestGeneration++;
+            this.overviewRequest?.abort();
+        } else this.refreshSourceOverview();
+    }
+
+    updateSourceOverview() {
+        if (!this.springsRasterLayer || this.disposed) return;
+        const user = this.queryParameters?.user > 0;
+        const polygon = this.buffer?.buffer && this.buffer?.trackPolygon?.status === 'saved'
+            ? this.buffer.trackPolygon.hash : null;
+        const raster = Boolean(!user && this.overviewManifest
+            && this.springsRasterLayer.setOverview(this.overviewManifest, this.filters, polygon));
+        this.sourceOverview.ready = Boolean(this.overviewManifest);
+        this.sourceOverview.active = raster;
+        this.springsRasterLayer.setVisible(raster);
+        this.finalZoom = raster ? this.overviewManifest.max_zoom : 9;
+        this.springsFinalLayer.setMinZoom(user ? 0 : this.finalZoom);
+        this.reportSelectionLayer?.setMaxZoom(this.finalZoom);
+        for (const layer of [this.springsApproximatedLayer, this.springsDistantLayer,
+            this.wateredSpringsApproximatedLayer, this.wateredSpringsDistantLayer]) {
+            layer.setVisible(!user && !raster);
+        }
+    }
+
+    setSourceOpacity(value) {
+        this.sourceOverview.opacity = normalizeSourceOpacity(value);
+        this.springsRasterLayer.setOpacity(this.sourceOverview.opacity);
+        saveSourceOpacity(this.sourceOverview.opacity);
     }
 
     refreshLocale() {
@@ -471,6 +564,12 @@ export default class OpenLayersMap {
         this.disposed = true;
         this.sharedRestoreGeneration++;
         this.navigationRestoreGeneration++;
+        this.overviewRequestGeneration++;
+        this.overviewRequest?.abort();
+        clearTimeout(this.overviewRetryTimer);
+        window.removeEventListener('map-track-polygon-state-changed', this.overviewPolygonListener);
+        globalThis.document?.removeEventListener('visibilitychange', this.overviewVisibilityListener);
+        this.springsRasterLayer?.dispose();
         Alpine.release(this.queryEffect);
         this.springsFinalSource.dispose();
         this.springsUserSource.cancelRequests();
@@ -845,6 +944,7 @@ export default class OpenLayersMap {
             this.wateredSpringsApproximatedLayer,
             this.wateredSpringsDistantLayer,
         ].forEach((layer) => layer.changed());
+        this.updateSourceOverview();
     }
 
     updateFilters() {
@@ -1051,6 +1151,7 @@ export default class OpenLayersMap {
 
             this.springsFinalLayer.setSource(this.springsFinalSource);
         }
+        this.updateSourceOverview();
     }
 
     setFullscreen(value) {

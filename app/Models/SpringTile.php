@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Library\SpringsGeoJSON;
+use App\Services\SourceRaster\RasterPyramid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -73,6 +74,10 @@ class SpringTile extends Model
         $springTiles->each(function ($item) {
             $item->deleteFile();
         });
+
+        if (static::DISK === self::DISK) {
+            app(RasterPyramid::class)->invalidate((float) $longitude, (float) $latitude);
+        }
 
         return $springTiles;
     }

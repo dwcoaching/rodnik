@@ -227,6 +227,7 @@
                         window.rodnikMap.source(name);
                     },
                     overlays: window.rodnikMap.overlays,
+                    sourceOverview: window.rodnikMap.sourceOverview,
                     updateOverlays: function() {
                         window.rodnikMap.updateOverlays();
                     }
@@ -306,6 +307,17 @@
                                     'text-white': sourceState.name == 'satellite'
                                 }"
                             ><span data-map-i18n="map.layers.satellite">{{ __('ui.map.layers.satellite') }}</span></button>
+                        </div>
+
+                        <div x-show="sourceOverview.ready && sourceOverview.active" class="mt-4 border-t border-gray-100 pt-3">
+                            <div class="flex items-center justify-between gap-2 text-sm text-gray-700">
+                                <label for="source-overview-opacity" data-map-i18n="map.layers.source_opacity">{{ __('ui.map.layers.source_opacity') }}</label>
+                                <output for="source-overview-opacity" class="tabular-nums text-xs text-gray-500" x-text="Math.round(sourceOverview.opacity * 100) + '%'"></output>
+                            </div>
+                            <input id="source-overview-opacity" type="range" min="0" max="1" step="0.01"
+                                :value="sourceOverview.opacity"
+                                @input="window.rodnikMap.setSourceOpacity($event.target.value)"
+                                class="mt-1 block h-8 w-full cursor-pointer accent-blue-600">
                         </div>
 
                         <div class="mt-3 mb-1 space-y-2 space-x-1">

@@ -49,6 +49,10 @@ sail art storage:link
 > Если при миграции вы получаете ошибку о том, что БД не создана, используйте команду `sail down -v`
 > и после этого снова `sail up -d` (Внимание: это удалит старые БД, если они были)
 
+### Source overview tiles
+
+Build and maintain the dense raster map layer with the [source overview instructions](docs/development/source-raster.md).
+
 ### Testing
 
 A single command:

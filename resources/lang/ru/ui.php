@@ -477,6 +477,7 @@ return [
             'satellite' => 'Спутник',
             'strava_heatmap' => 'Тепловая карта Strava',
             'osm_traces' => 'Треки OpenStreetMap',
+            'source_opacity' => 'Непрозрачность источников',
         ],
         'upload_track' => 'Загрузить GPX-трек',
         'remove_track' => 'Удалить трек',

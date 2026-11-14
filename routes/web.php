@@ -12,6 +12,7 @@ use App\Http\Controllers\PhotoUploadController;
 use App\Http\Controllers\PlaceSearchController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SourceRasterController;
 use App\Http\Controllers\SpringAggregatesJsonController;
 use App\Http\Controllers\SpringController;
 use App\Http\Controllers\SpringHistoryController;
@@ -186,6 +187,15 @@ Route::post('track-polygons', [TrackPolygonController::class, 'store'])
     ->name('track-polygons.store');
 
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
+Route::get('source-tiles.json', [SourceRasterController::class, 'index'])
+    ->withoutMiddleware('web')->name('source-raster.manifest');
+Route::get('source-tiles/{revision}/{z}/{x}/{y}.png', [SourceRasterController::class, 'show'])
+    ->where('revision', '[a-f0-9]{16,32}')
+    ->where('z', '[0-9]{1,2}')
+    ->where('x', '[0-9]{1,7}')
+    ->where('y', '[0-9]{1,7}')
+    ->withoutMiddleware('web')
+    ->name('source-raster.tile');
 Route::get('tiles/{z}/{x}/{y}.json', [SpringTileJsonController::class, 'show']);
 Route::get('watered-tiles/{z}/{x}/{y}.json', [WateredSpringTileJsonController::class, 'show']);
 Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'index']);
