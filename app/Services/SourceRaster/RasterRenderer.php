@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\SourceRaster;
 
+use InvalidArgumentException;
 use RuntimeException;
 
 /**
@@ -20,9 +21,12 @@ final class RasterRenderer
 {
     public const SIZE = 512;
 
-    // Neighbouring cells read around each tile; must cover the largest mark's
-    // reach (stamp radius plus the one-pixel multicolor offset).
-    public const GUTTER = 8;
+    // Neighbouring cells read around each tile; must cover the largest allowed
+    // mark's reach (stamp radius plus the one-pixel multicolor offset).
+    public const GUTTER = 16;
+
+    // Largest diameter a style may use, in CSS pixels, so marks stay inside the gutter.
+    public const MAX_DIAMETER = 14;
 
     public const PIXEL_RATIO = 2;
 
@@ -43,9 +47,42 @@ final class RasterRenderer
         $this->style = $style ?? config('source_raster.style');
     }
 
-    /** @param iterable<array{px: int, py: int, status: int, n: int}> $cells */
-    public function png(iterable $cells, int $zoom = 0): string
+    /**
+     * Check a complete style (order plus every color at zooms 0-10) and return it in canonical form.
+     *
+     * @return array{order: list<string>, zooms: array<int, array<string, array{0: float, 1: float}>>}
+     */
+    public static function normalizeStyle(mixed $style): array
     {
+        $order = is_array($style) ? ($style['order'] ?? null) : null;
+        if (! is_array($order) || count($order) !== 4 || array_diff(self::COLOR_NAMES, $order) !== []) {
+            throw new InvalidArgumentException('The draw order must list blue, yellow, green and red once each.');
+        }
+        $zooms = [];
+        for ($zoom = 0; $zoom <= 10; $zoom++) {
+            foreach (self::COLOR_NAMES as $name) {
+                $value = $style['zooms'][$zoom][$name] ?? null;
+                if (! is_array($value) || count($value) !== 2 || ! is_numeric($value[0]) || ! is_numeric($value[1])
+                    || $value[0] < 0 || $value[0] > self::MAX_DIAMETER || $value[1] < 0 || $value[1] > 1) {
+                    throw new InvalidArgumentException("Zoom {$zoom} {$name} needs a size of 0-".self::MAX_DIAMETER.' and an opacity of 0-1.');
+                }
+                $zooms[$zoom][$name] = [(float) $value[0], (float) $value[1]];
+            }
+        }
+
+        return ['order' => array_values($order), 'zooms' => $zooms];
+    }
+
+    /**
+     * @param  iterable<array{px: int, py: int, status: int, n: int}>  $cells
+     * @param  array|null  $style  overrides the style this renderer was constructed with
+     */
+    public function png(iterable $cells, int $zoom = 0, ?array $style = null): string
+    {
+        if ($style !== null) {
+            return (new self($style))->png($cells, $zoom);
+        }
+
         if (! function_exists('gzcompress')) {
             throw new RuntimeException('The zlib PHP extension is required for source raster tiles.');
         }
@@ -137,7 +174,10 @@ final class RasterRenderer
         unset($reports);
 
         // Finish one complete layer at a time, so order applies across cell boundaries too.
-        $red = $green = $blueChannel = $alpha = [];
+        // Pixels are composited straight into the PNG scanlines (one filter byte, then
+        // RGBA per pixel) to keep a dense tile well inside PHP's default memory limit.
+        $row = self::SIZE * 4 + 1;
+        $raw = str_repeat("\0", $row * self::SIZE);
         foreach ($this->order() as $status) {
             $opacity = $styles[$status][1];
             if ($opacity <= 0 || $planes[$status] === []) {
@@ -153,27 +193,16 @@ final class RasterRenderer
                 if ($x < 0 || $y < 0 || $x >= self::SIZE || $y >= self::SIZE) {
                     continue;
                 }
-                $i = $y * self::SIZE + $x;
+                $offset = $y * $row + 1 + $x * 4;
                 $sourceAlpha = $status === 0 ? $strength : round($strength * 255 / 127) / 255 * $opacity;
-                $previousAlpha = $alpha[$i] ?? 0;
-                $remainder = $previousAlpha / 255 * (1 - $sourceAlpha);
+                $remainder = ord($raw[$offset + 3]) / 255 * (1 - $sourceAlpha);
                 $output = $sourceAlpha + $remainder;
-                $red[$i] = (int) round(($cr * $sourceAlpha + ($red[$i] ?? 0) * $remainder) / $output);
-                $green[$i] = (int) round(($cg * $sourceAlpha + ($green[$i] ?? 0) * $remainder) / $output);
-                $blueChannel[$i] = (int) round(($cb * $sourceAlpha + ($blueChannel[$i] ?? 0) * $remainder) / $output);
-                $alpha[$i] = (int) round($output * 255);
+                $raw[$offset] = chr((int) round(($cr * $sourceAlpha + ord($raw[$offset]) * $remainder) / $output));
+                $raw[$offset + 1] = chr((int) round(($cg * $sourceAlpha + ord($raw[$offset + 1]) * $remainder) / $output));
+                $raw[$offset + 2] = chr((int) round(($cb * $sourceAlpha + ord($raw[$offset + 2]) * $remainder) / $output));
+                $raw[$offset + 3] = chr((int) round($output * 255));
             }
             $planes[$status] = [];
-        }
-
-        $row = self::SIZE * 4 + 1;
-        $raw = str_repeat("\0", $row * self::SIZE);
-        foreach ($alpha as $i => $value) {
-            $offset = intdiv($i, self::SIZE) * $row + 1 + ($i % self::SIZE) * 4;
-            $raw[$offset] = chr($red[$i]);
-            $raw[$offset + 1] = chr($green[$i]);
-            $raw[$offset + 2] = chr($blueChannel[$i]);
-            $raw[$offset + 3] = chr($value);
         }
 
         return self::encode($raw, (int) config('source_raster.compression', 3));
@@ -191,7 +220,7 @@ final class RasterRenderer
         return array_map(function (string $name) use ($row): array {
             [$size, $opacity] = $row[$name] ?? [0, 0];
 
-            return [max(0.0, min(24.0, (float) $size)) * self::PIXEL_RATIO, max(0.0, min(1.0, (float) $opacity))];
+            return [max(0.0, min((float) self::MAX_DIAMETER, (float) $size)) * self::PIXEL_RATIO, max(0.0, min(1.0, (float) $opacity))];
         }, self::COLOR_NAMES);
     }
 

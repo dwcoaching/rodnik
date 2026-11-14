@@ -65,7 +65,7 @@ final class RasterSnapshot
     /**
      * Build a fresh unpublished file. The caller publishes it with an atomic rename.
      *
-     * @param  iterable<array{id: int, x: int, y: int, type: int, status: int, longitude: float, latitude: float}>  $points
+     * @param  iterable<array{x: int, y: int, type: int, status: int}>  $points
      * @return array{source_count: int, cell_count: int, max_zoom: int, seconds: float, bytes: int}
      */
     public static function populateFromPoints(string $path, iterable $points, int $maxZoom = 10, ?callable $progress = null): array
@@ -85,11 +85,10 @@ final class RasterSnapshot
             // written in place, so a crash cannot damage the currently served set.
             $database->exec('PRAGMA journal_mode = OFF; PRAGMA synchronous = OFF; PRAGMA cache_size = -65536; PRAGMA temp_store = FILE');
             $database->exec('CREATE TABLE metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL) WITHOUT ROWID');
-            $database->exec('CREATE TABLE points (
-                id INTEGER PRIMARY KEY,
+            // Sources are only staged here to be counted; the snapshot keeps counts alone.
+            $database->exec('CREATE TEMP TABLE points (
                 x INTEGER NOT NULL, y INTEGER NOT NULL,
-                type INTEGER NOT NULL, status INTEGER NOT NULL,
-                longitude REAL NOT NULL, latitude REAL NOT NULL
+                type INTEGER NOT NULL, status INTEGER NOT NULL
             )');
             $database->exec('CREATE TABLE cells (
                 z INTEGER NOT NULL, tile_x INTEGER NOT NULL, tile_y INTEGER NOT NULL,
@@ -98,7 +97,7 @@ final class RasterSnapshot
                 PRIMARY KEY (z, tile_x, tile_y, px, py, type, status)
             ) WITHOUT ROWID');
             $database->beginTransaction();
-            $insert = $database->prepare('INSERT INTO points (id, x, y, type, status, longitude, latitude) VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $insert = $database->prepare('INSERT INTO points (x, y, type, status) VALUES (?, ?, ?, ?)');
             $sourceCount = 0;
             $worldSize = self::TILE_SIZE * (1 << $maxZoom);
 
@@ -109,7 +108,7 @@ final class RasterSnapshot
                     throw new InvalidArgumentException('Invalid raster snapshot point.');
                 }
 
-                $insert->execute([$point['id'], $point['x'], $point['y'], $point['type'], $point['status'], $point['longitude'], $point['latitude']]);
+                $insert->execute([$point['x'], $point['y'], $point['type'], $point['status']]);
                 $sourceCount++;
 
                 if ($sourceCount % 100000 === 0) {
@@ -119,7 +118,6 @@ final class RasterSnapshot
 
             $insert = null;
             $progress && $progress('sources', $sourceCount);
-            $database->exec('CREATE INDEX points_xy ON points (x, y)');
             $database->exec("INSERT INTO cells (z, tile_x, tile_y, px, py, type, status, n)
                 SELECT {$maxZoom}, x / 512, y / 512, x % 512, y % 512, type, status, COUNT(*)
                 FROM points WHERE status <> 4
@@ -150,7 +148,7 @@ final class RasterSnapshot
             }
 
             $database->commit();
-            $database->exec('PRAGMA optimize');
+            $database->exec('DROP TABLE points; PRAGMA optimize');
             $database = null;
             clearstatcache(true, $path);
 
@@ -173,15 +171,19 @@ final class RasterSnapshot
         }
     }
 
-    /** Open a published snapshot without permitting an accidental write. */
-    public static function open(string $path): PDO
+    /** Readers cannot write by accident; only refresh opens the snapshot writable. */
+    public static function open(string $path, bool $writable = false): PDO
     {
         if (! is_file($path)) {
             throw new RuntimeException("Raster snapshot does not exist [{$path}].");
         }
 
         $database = self::connection($path);
-        $database->exec('PRAGMA query_only = ON; PRAGMA cache_size = -8192');
+        // Refresh commits briefly while web requests read; wait instead of failing.
+        $database->exec('PRAGMA busy_timeout = 5000; PRAGMA cache_size = -8192');
+        if (! $writable) {
+            $database->exec('PRAGMA query_only = ON');
+        }
 
         return $database;
     }

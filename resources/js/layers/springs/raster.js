@@ -9,8 +9,8 @@ export default class SpringsRasterLayer extends TileLayer {
         this.onTileError = onError;
     }
 
-    setOverview(manifest, filters, polygonHash = null) {
-        const url = sourceOverviewUrl(manifest, filters, polygonHash);
+    setOverview(manifest, filters) {
+        const url = sourceOverviewUrl(manifest, filters);
         if (!url) return false;
 
         const key = JSON.stringify([manifest.revision, manifest.max_zoom, manifest.tile_size, manifest.tile_pixel_ratio, url]);

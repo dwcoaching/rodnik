@@ -156,7 +156,7 @@ export default class OpenLayersMap {
         this.wateredSpringsDistantLayer = new WateredSpringsDistantLayer();
         this.springsRasterLayer = new SpringsRasterLayer({
             opacity: this.sourceOverview.opacity,
-            onError: () => this.sourceOverviewFailed(),
+            onError: () => this.sourceOverviewTileFailed(),
         });
 
         this.springsFinalSource = new SpringsFinalSource(() => this.featuresLoadEnd());
@@ -308,8 +308,6 @@ export default class OpenLayersMap {
             }
         })
 
-        this.overviewPolygonListener = () => this.updateSourceOverview();
-        window.addEventListener('map-track-polygon-state-changed', this.overviewPolygonListener);
         this.overviewVisibilityListener = () => this.sourceOverviewVisibilityChanged();
         document.addEventListener('visibilitychange', this.overviewVisibilityListener);
         this.refreshSourceOverview();
@@ -503,6 +501,18 @@ export default class OpenLayersMap {
         this.scheduleSourceOverviewRefresh();
     }
 
+    /**
+     * One failed tile is not a reason to drop the layer. Its revision may have been
+     * replaced, so look for a newer one; only a failing manifest restores the vector overview.
+     */
+    sourceOverviewTileFailed() {
+        if (this.disposed || this.overviewTileErrorTimer) return;
+        this.overviewTileErrorTimer = setTimeout(() => {
+            this.overviewTileErrorTimer = null;
+            this.refreshSourceOverview();
+        }, 2000);
+    }
+
     scheduleSourceOverviewRefresh() {
         clearTimeout(this.overviewRetryTimer);
         if (!this.disposed && !globalThis.document?.hidden) {
@@ -522,10 +532,8 @@ export default class OpenLayersMap {
     updateSourceOverview() {
         if (!this.springsRasterLayer || this.disposed) return;
         const user = this.queryParameters?.user > 0;
-        const polygon = this.buffer?.buffer && this.buffer?.trackPolygon?.status === 'saved'
-            ? this.buffer.trackPolygon.hash : null;
         const raster = Boolean(!user && this.overviewManifest
-            && this.springsRasterLayer.setOverview(this.overviewManifest, this.filters, polygon));
+            && this.springsRasterLayer.setOverview(this.overviewManifest, this.filters));
         this.sourceOverview.ready = Boolean(this.overviewManifest);
         this.sourceOverview.active = raster;
         this.springsRasterLayer.setVisible(raster);
@@ -567,7 +575,7 @@ export default class OpenLayersMap {
         this.overviewRequestGeneration++;
         this.overviewRequest?.abort();
         clearTimeout(this.overviewRetryTimer);
-        window.removeEventListener('map-track-polygon-state-changed', this.overviewPolygonListener);
+        clearTimeout(this.overviewTileErrorTimer);
         globalThis.document?.removeEventListener('visibilitychange', this.overviewVisibilityListener);
         this.springsRasterLayer?.dispose();
         Alpine.release(this.queryEffect);

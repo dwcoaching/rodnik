@@ -7,6 +7,7 @@ import {
     normalizeOverviewManifest, normalizeSourceOpacity, readSourceOpacity, saveSourceOpacity,
     sourceOverviewUrl, sourceTypeMask,
 } from '../../resources/js/sourceOverview.js';
+import rasterLabPanel, { isStyle, previewUrl } from '../../resources/js/rasterLab/panel.js';
 
 const browserImports = registerHooks({
     resolve(specifier, context, nextResolve) {
@@ -51,15 +52,20 @@ function overviewMap(t) {
     return map;
 }
 
-test('source filters preserve each type, reports and route selection in raster URLs', () => {
+const draftStyle = () => ({
+    order: ['blue', 'yellow', 'green', 'red'],
+    zooms: Object.fromEntries(Array.from({ length: 11 }, (_, zoom) => [zoom, {
+        blue: [1 + zoom / 10, 0.5], yellow: [2, 0.5], green: [2, 0.5], red: [2, 0.5],
+    }])),
+});
+
+test('source filters preserve each type and reports in raster URLs; routes use vector layers', () => {
     assert.equal(sourceTypeMask({}), 63);
     assert.equal(sourceTypeMask({ spring: false, water_tap: false, other: false }), 26);
     assert.equal(sourceTypeMask(Object.fromEntries(['spring', 'water_well', 'water_tap', 'drinking_water', 'fountain', 'other'].map(key => [key, false]))), 0);
-    const url = sourceOverviewUrl(manifest, { water_well: false, with_reports: true, along: true }, 'b'.repeat(64));
-    assert.equal(url, `${manifest.url}?types=61&reports=1&polygon=${'b'.repeat(64)}`);
+    assert.equal(sourceOverviewUrl(manifest, { water_well: false, with_reports: true }), `${manifest.url}?types=61&reports=1`);
+    assert.equal(sourceOverviewUrl(manifest, {}), `${manifest.url}?types=63`);
     assert.equal(sourceOverviewUrl(manifest, { along: true }), null);
-    assert.equal(sourceOverviewUrl(manifest, { along: true }, 'invalid'), null);
-    assert.equal(sourceOverviewUrl(manifest, {}, 'b'.repeat(64)), `${manifest.url}?types=63`);
 });
 
 test('invalid or external raster manifests cannot replace a usable map', () => {
@@ -111,21 +117,62 @@ test('overview handover replaces sampled layers, covers two extra zoom levels an
     assert.ok(aggregateNames.every(name => !map[name].visible));
 });
 
-test('an Along track filter never displays global raster while its polygon is saving or missing', t => {
+test('an Along track filter always uses the vector layers', t => {
     const map = overviewMap(t);
     map.overviewManifest = manifest;
-    map.filters.along = true;
-    map.buffer = { buffer: {}, trackPolygon: { status: 'saving', hash: null } };
-    map.updateSourceOverview();
-    assert.equal(map.springsRasterLayer.getVisible(), false);
-    assert.ok(aggregateNames.every(name => map[name].visible));
-    map.buffer.trackPolygon = { status: 'saved', hash: 'c'.repeat(64) };
     map.updateSourceOverview();
     assert.equal(map.springsRasterLayer.getVisible(), true);
-    assert.ok(map.springsRasterLayer.getSource().getUrls()[0].endsWith(`polygon=${'c'.repeat(64)}`));
-    map.buffer.buffer = null;
+    map.filters.along = true;
     map.updateSourceOverview();
     assert.equal(map.springsRasterLayer.getVisible(), false);
+    assert.equal(map.springsFinalLayer.minZoom, 9);
+    assert.ok(aggregateNames.every(name => map[name].visible));
+    map.filters.along = false;
+    map.updateSourceOverview();
+    assert.equal(map.springsRasterLayer.getVisible(), true);
+});
+
+test('lab preview tiles carry the draft values of their own zoom and the draw order', () => {
+    const draft = draftStyle();
+    draft.order = ['yellow', 'blue', 'red', 'green'];
+    assert.equal(previewUrl(draft, 4, 9, 7), '/admin/source-raster/preview/4/9/7.png?s=1.4,0.5,2,0.5,2,0.5,2,0.5&o=1032');
+    assert.equal(previewUrl(draft, 10, 3, 2), '/admin/source-raster/preview/10/3/2.png?s=2,0.5,2,0.5,2,0.5,2,0.5&o=1032');
+});
+
+test('the lab panel edits one zoom, reorders layers, copies zooms and validates pasted styles', () => {
+    const panel = rasterLabPanel({});
+    const previews = [];
+    panel.changed = () => previews.push(JSON.stringify(panel.style));
+    panel.published = draftStyle();
+    panel.style = draftStyle();
+    assert.equal(panel.dirty, false);
+    panel.zoom = 3;
+    panel.set('red', 0, '99');
+    panel.set('red', 1, '-1');
+    assert.deepEqual(panel.style.zooms[3].red, [14, 0]);
+    assert.deepEqual(panel.style.zooms[4].red, [2, 0.5], 'other zooms are untouched');
+    assert.equal(panel.dirty, true);
+    panel.raise('blue');
+    assert.deepEqual(panel.style.order, ['yellow', 'blue', 'green', 'red']);
+    panel.raise('red');
+    assert.deepEqual(panel.style.order, ['yellow', 'blue', 'green', 'red']);
+    panel.copyToNextZoom();
+    assert.equal(panel.zoom, 4);
+    assert.equal(panel.follow, false);
+    assert.deepEqual(panel.style.zooms[4], panel.style.zooms[3]);
+    assert.equal(previews.length, 4);
+    panel.reset();
+    assert.equal(panel.dirty, false);
+
+    assert.equal(isStyle(draftStyle()), true);
+    assert.equal(isStyle({ ...draftStyle(), order: ['blue', 'blue', 'green', 'red'] }), false);
+    const partial = draftStyle();
+    delete partial.zooms[10];
+    assert.equal(isStyle(partial), false);
+    panel.transferText = JSON.stringify(partial);
+    panel.applyTransfer();
+    assert.equal(panel.error, 'This is not a complete style.');
+    assert.equal(panel.dirty, false);
 });
 
 test('only the latest manifest response can change a live map', async t => {
@@ -226,7 +273,7 @@ test('polling sleeps in hidden tabs, refreshes on return and stops with the map 
     assert.equal(requests, 2, 'disposing cancels the successful refresh timer');
 });
 
-test('an unavailable build or tile error restores sampled layers and schedules a retry', async t => {
+test('an unavailable build restores sampled layers and schedules a retry', async t => {
     const previousFetch = globalThis.fetch;
     globalThis.fetch = async () => ({ ok: false, status: 503 });
     t.after(() => { globalThis.fetch = previousFetch; });
@@ -244,9 +291,29 @@ test('an unavailable build or tile error restores sampled layers and schedules a
     assert.equal(map.springsRasterLayer.getVisible(), false);
     assert.equal(map.springsFinalLayer.minZoom, 9);
     assert.ok(aggregateNames.every(name => map[name].visible));
+});
+
+test('a single failed tile keeps the raster layer and only checks for a newer revision', async t => {
+    t.mock.timers.enable({ apis: ['setTimeout'] });
+    const previousFetch = globalThis.fetch;
+    let requests = 0;
+    globalThis.fetch = async () => { requests++; return { ok: true, json: async () => manifest }; };
+    t.after(() => { globalThis.fetch = previousFetch; });
+    const map = overviewMap(t);
+    map.springsRasterLayer.onTileError = () => map.sourceOverviewTileFailed();
     map.overviewManifest = manifest;
     map.updateSourceOverview();
-    assert.notEqual(map.springsRasterLayer.getSource(), failedSource, 'retrying the same revision reloads failed image tiles');
+    const source = map.springsRasterLayer.getSource();
+    source.dispatchEvent('tileloaderror');
+    source.dispatchEvent('tileloaderror');
+    assert.equal(map.springsRasterLayer.getVisible(), true);
+    assert.equal(map.springsRasterLayer.getSource(), source);
+    assert.equal(requests, 0);
+    t.mock.timers.tick(2000);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(requests, 1, 'repeated errors share one manifest check');
+    assert.equal(map.springsRasterLayer.getSource(), source, 'the same revision keeps its loaded tiles');
+    assert.equal(map.springsRasterLayer.getVisible(), true);
 });
 
 test('opacity persists from transparent to fully opaque and tolerates unavailable storage', t => {

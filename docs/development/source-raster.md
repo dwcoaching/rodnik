@@ -4,10 +4,11 @@ The global map uses a transparent, information-dense source overlay through zoom
 then switches to the existing detailed vector markers. The additional zooms 9 and 10
 are raster levels. Personal contributor maps keep their vector layer.
 
-Coverage comes from every public, non-redirected source. The style is the profile
-selected in the raster lab (`source-raster-profile.json`), stored as
-`source_raster.style` in `config/source_raster.php`: an explicit diameter (CSS px)
-and opacity for each color at each zoom 0–10, plus the layer draw order. Blue marks
+Coverage comes from every public, non-redirected source. A style is an explicit
+diameter (CSS px) and opacity for each color at each zoom 0–10, plus the layer draw
+order. The published style is stored in the raster manifest; until an admin saves
+one, the default in `config/source_raster.php` applies (the profile selected in the
+raster lab, `source-raster-profile.json`). Blue marks
 all share one diameter; sources on the same pixel combine as `1 - (1 - opacity)^n`,
 and neighboring marks overlap by ordinary source-over alpha, with no density shading
 or compaction. Green, yellow and red keep their maximum coverage per color, and each
@@ -18,194 +19,144 @@ sources remain excluded from the overview, consistent with the previous distant 
 `RasterRenderer` is a port of the lab's `render-worker.js` and produces byte-identical
 pixels for the same cells. It writes 8-bit RGBA PNGs itself (zlib only), because GD's
 7-bit alpha cannot represent the faint world-view blue (0.5% opacity). Its gutter
-(`RasterRenderer::GUTTER`, 8 physical px) must cover the largest mark's reach; a test
-enforces this. After changing the style, run `sources:raster-restyle`.
+(`RasterRenderer::GUTTER`, 16 physical px) covers the largest diameter a style may
+use (`MAX_DIAMETER`, 14 CSS px); a test enforces this.
 
 Tiles are 512 physical pixels displayed as 256 CSS pixels. Small marks consequently
 remain useful on retina screens. The Layers menu has a keyboard-accessible opacity
 slider, saved locally in the browser.
 
+## How it works
+
+1. **Counts.** `storage/app/source-raster/index.sqlite` holds one table of counts:
+   how many sources of each type and condition fall on each pixel, at every zoom
+   0–10. Zoom 10 is counted from MySQL; each lower zoom is the sum of the one above.
+   Individual sources are not stored, and MySQL gets no new tables.
+2. **Tiles.** `tiles/{revision}/{z}/{x}/{y}.png` holds the unfiltered tiles. A build
+   or restyle draws all of them under a new revision, then switches the manifest.
+3. **Edits.** Source and report changes append coordinates to `dirty.jsonl` through
+   the existing tile invalidation hooks. Every minute `sources:raster-refresh`
+   recounts those pixels from MySQL, updates the counts in place and redraws only
+   the tiles that show them: 11 per changed pixel (one per zoom), up to 44 near a
+   tile corner. The revision and every other tile stay as they are.
+4. **Map.** The browser reads `/source-tiles.json` every 60 seconds, shows the raster
+   layer through zoom 10 and the vector markers beyond. Without a build, or with the
+   "along route" filter on, it uses the vector overview instead.
+
+## Turning it on
+
+The raster overview is **off by default**. Building tiles does not change what
+visitors see: `/source-tiles.json` answers 503 until a superadmin presses "Switch to
+raster" in the Filament Control Panel, and maps keep the vector overview. The same
+button switches back; open maps follow within about a minute. The lab page works in
+both states, so a style can be tuned before the switch. The switch is the file
+`enabled` in the raster directory.
+
 ## Running it
 
-Required PHP extensions are `zlib`, `pdo_mysql`, and `pdo_sqlite` (`gd` only for tests). SQLite is an embedded
-cache here, not another database server. These extensions are already available on
-the development Mac; no GIS software, GPU, or new package installation was needed.
+Required PHP extensions are `zlib`, `pdo_mysql`, and `pdo_sqlite` (`gd` only for
+tests). No GIS software, GPU, or new package is needed.
 
 ```sh
-php artisan sources:raster-build
+php artisan sources:raster-build            # count every source and draw every tile
+php artisan sources:raster-restyle          # redraw every tile from the existing counts
+php artisan sources:raster-refresh          # apply queued edits; run by the scheduler
 ```
 
-This builds the complete numeric snapshot, renders populated/edge tiles at zooms
-0–10, and atomically publishes the new manifest. The previous snapshot remains
-available throughout. Progress and measured time, bytes and PHP peak memory are printed.
-
-To limit the raster range or skip prewarming PNGs:
-
-```sh
-php artisan sources:raster-build --max-zoom=8
-php artisan sources:raster-build --no-render
-```
-
-`--no-render` still prepares every numeric zoom and publishes a usable layer. An image
-cache miss draws only the requested tile, never a complete dataset. Type/report/route
-variants are always cached on demand. Before the first build, the frontend falls back
-to the existing vector overview and retries discovery.
-
-The normal Laravel scheduler runs the following every minute:
-
-```sh
-php artisan sources:raster-refresh
-```
-
-The deployment must run its existing `schedule:run` cron (or `schedule:work` locally).
-Report changes, moves, hides/restores, merges and OSM import changes feed the existing
-tile invalidation hooks, which now also enqueue raster coordinates. No daily full
-rebuild is needed for current score semantics. After changing the renderer or colors,
-reuse the numeric snapshot and publish fresh image URLs:
-
-```sh
-php artisan sources:raster-restyle
-php artisan sources:raster-restyle --no-render
-```
-
-The default prewarms images before publication; `--no-render` publishes immediately
-and draws tiles on demand. Existing immutable images stay unchanged. Numeric pixel
-or zoom conventions still require a full build.
-
-## Data and serving
+`--no-render` on build or restyle publishes at once and draws tiles on first request.
+The deployment must run its existing `schedule:run` cron (or `schedule:work` locally);
+the scheduler runs the refresh every minute. While a build or restyle is running, the
+refresh reports that it is busy and the edits stay queued.
 
 Generated data lives under `storage/app/source-raster`, configurable with
 `SOURCE_RASTER_PATH`. It is disposable derived data and is not committed. Keep it
-writable by both the CLI worker and the web process. Do not expose the SQLite files
-through a public symlink.
+writable by both the CLI worker and the web process, and do not expose it through a
+public symlink.
 
-- `/source-tiles.json` discovers the current revision and zoom range without caching.
-- `/source-tiles/{revision}/{z}/{x}/{y}.png` returns an immutable PNG, including a
-  transparent image for valid empty tiles. These public endpoints do not start
-  sessions or emit session cookies.
-- `types=0..63` selects any union of the six source types, and `reports=1` selects
-  sources with visible reports. `polygon=<hash>` uses an existing route-buffer polygon.
-- Route filtering tests original source coordinates before aggregation, including
-  polygon holes and boundaries. It does not clip a global PNG to approximate a route.
-- Browser caches, and a CDN if configured, can retain the revision-specific PNGs.
-  The current implementation sends files through Laravel; cache misses are also
-  handled there. It does not require new Nginx routing.
+## Tuning the style (admins)
 
-A SQLite snapshot stores original coordinates and sparse numeric cells per type and
-condition at each zoom. The builder streams sources and sums numeric child cells;
-it never downsamples colored images or constructs a world-sized canvas. Small padded
-canvases prevent marks from disappearing at tile boundaries, including the dateline.
+`/admin/raster-lab` is a separate page for admins, with a map of its own. Its side
+panel edits size and opacity for each color at one zoom (it follows the map's zoom
+unless "follow map" is off), the draw order, and can copy a zoom's values to the
+next. While there are unsaved edits, the raster layer is drawn by
+`/admin/source-raster/preview/{z}/{x}/{y}.png` with the draft values, using the same
+renderer as the published tiles, so the preview is exactly what will be generated.
+The real vector markers are shown above zoom 10 as on the main map, and can also be
+drawn over the raster from zoom 8 for comparison. Visitors keep seeing the published
+style, and the main map contains none of this.
 
-Refresh copies the current numeric snapshot, rereads only affected finest pixels,
-updates their ancestors and renders affected images. Old PNGs/SQLite files remain
-unchanged. Claimed work is persisted in `processing.jsonl` until successful publication;
-an interrupted worker can replay it safely. New arrivals remain in `dirty.jsonl`.
-Build/restyle/refresh workers share a lock, so do not run them concurrently on different hosts
-against the same cache directory.
+**Generate tiles** saves the draft as `style.pending.json`. The next scheduled refresh
+redraws every tile with it and publishes a new revision; the page shows "Queued",
+then "Drawing", then switches to the new tiles. Locally, without a scheduler, run
+`php artisan sources:raster-refresh` after pressing the button. **Copy / paste**
+moves a style between environments as JSON.
 
-Each new revision starts its own image cache. Unchanged images are cheap to regenerate
-on demand, but their URLs also change; this is a deliberate cache/storage tradeoff.
-Foreground clients discover new revisions every 60 seconds, pause while hidden, and
-refresh on return. With the minute scheduler, normal displayed-update latency can be
-up to approximately two minutes even when processing itself takes less than a second.
+The page is disposable. To remove it, delete `resources/js/rasterLab/`, its entry in
+`vite.config.js`, `resources/views/admin/raster-lab.blade.php`, the `admin/raster-lab`
+route, and the lab tests in `SourceOverviewTest.mjs` and `SourceRasterHttpTest.php`.
+`SourceRasterStyleController` and its `admin/source-raster` routes serve only this
+page and can go with it; styles can then still be changed in
+`config/source_raster.php` followed by `sources:raster-restyle`.
 
-Retention defaults to six generations, a ten-minute grace period, and a 24-hour age
-limit. The active and previous generations are always preserved. Cleanup happens on
-publication. A long-sleeping client whose old revision expired rediscovers the manifest.
+## Serving
+
+- `/source-tiles.json` returns the current revision, zoom range and style, uncached.
+- `/source-tiles/{revision}/{z}/{x}/{y}.png` serves a stored tile with
+  `max-age=60` and `Last-Modified`, so browsers revalidate and get a 304 for tiles
+  that did not change. A missing tile of the current revision is drawn and stored;
+  a missing tile of an older revision is a 404. These endpoints start no session.
+- `types=0..63` selects source types and `reports=1` sources with visible reports.
+  Filtered tiles are drawn per request (`max-age=300`) and never stored, so the
+  number of filter combinations cannot fill the disk.
+- Only the current and the previous revision's tiles are kept; older ones are
+  deleted when a revision is published.
+- A map that is already open does not reload tiles when a source changes; it shows
+  the change after a reload or when the tile is requested again. A single failed
+  tile makes the map check for a newer revision; only a failing manifest switches
+  it to the vector overview.
+
+## Failure handling
+
+Queued coordinates are moved to `processing.jsonl` before work starts and removed
+only after the tiles are redrawn. If a run dies in between, the next run redraws the
+tiles for those coordinates even when the counts were already saved. Coordinates
+arriving during a run stay in `dirty.jsonl` for the next one. Recounting a pixel is
+idempotent, so replays and duplicates are harmless. A full build can run at any
+time; edits made during it remain queued and are recounted afterwards.
 
 ## Local measurements
 
-Measured 28 October 2026 on the Apple M4 / 32 GB development Mac, using the older
-local snapshot of **1,369,020 public sources**. Database and filesystem caches were warm;
-browser checks and tests were also running. These are local timings, not production
-server guarantees.
+Measured 14 November 2026 on the Apple M4 / 32 GB development Mac with
+**1,390,334 public sources**, one PHP worker, default `memory_limit=128M`. These are
+local timings, not production guarantees.
 
-The following full-pyramid and refresh measurements used the original visual recipe,
-before the zoom-aware renderer correction on 29 October; they are not a benchmark
-of a complete pyramid with the revised style.
-
-The initial complete run through zoom 10 prepared 6,786,965 numeric cells in **13.3 s**
-and rendered **73,440 PNGs** in **457.3 s**, **470.7 s total** on one PHP worker.
-PNG payload was **390.8 MiB**, and the numeric snapshot was **219.3 MiB**. PHP peak
-allocation was **99.5 MiB** under the default 128 MiB limit. A final clean build after
-the padded-canvas fix took **13.0 s preparation + 596.3 s PNG generation = 609.3 s**,
-again producing 73,440 images / **390.8 MiB**, with the same memory peak. The longer
-run included concurrent browser checks and benchmarks on the fanless laptop.
-Filesystem allocation is higher than payload size because there are many small files.
-
-An isolated copy of that full snapshot was used to correct one cached condition to
-its actual database value. The genuine refresh path took **0.394 s**, copied the
-219 MiB snapshot and generated **11 PNGs / 729 KiB**. PHP peak allocation was
-**44.5 MiB**. Application data and the live snapshot were unchanged by this benchmark.
-
-Exact route filtering against the real snapshot took **0.37 s** for a 5,579-vertex
-corridor and **0.43 s** for a near-limit 49,999-vertex corridor, selecting 42 sources.
-These timings include geometry preparation, indexed source selection and aggregation,
-and exclude PNG encoding and HTTP overhead.
-
-Cold PNG rendering was also verified with an explicit `memory_limit=128M`: a world
-tile took **53 ms / 42.5 MiB PHP peak**, the densest z8 tile **44 ms / 40.5 MiB**, and
-a world tile filtered by a 49,999-vertex route **598 ms / 66.5 MiB**. All images were
-valid transparent 512×512 PNGs. Twenty-four concurrent cold filtered HTTP requests
-all returned 200 without session cookies, with a maximum response time of **1.16 s**.
-
-On 29 October, the revised zoom-aware renderer was measured in a fresh PHP process
-per tile with `memory_limit=128M`, against the same read-only full snapshot. SQLite
-selection, drawing and PNG encoding took **43 ms** for the world tile, **37–42 ms**
-for the densest zoom-8/9/10 tiles, **8–9 ms** for isolated-source tiles and **156 ms**
-for the densest zoom-4 tile. These exclude filesystem writes and HTTP overhead.
-Maximum observed managed PHP allocation was **62.5 MiB**, and maximum process RSS
-was **103 MiB**. PNGs ranged from **4.7 KiB** for isolated sources to **266 KiB** for
-the densest midzoom tile. A complete prewarm with this style has not been timed.
-
-`sources:raster-restyle --no-render` published the corrected style by reusing the
-existing snapshot in under **1 ms** of command-internal work, excluding Laravel
-startup. Requested images then rendered on demand. The local browser review has
-63 before/after screenshots spanning requested zooms 0–18 and a known-source sequence
-near Moscow. At the 1440×1000 review viewport, requested zooms 0–2 clamp to the map's
-actual minimum of z2.49; the gallery labels that explicitly.
-
-## Public tuning trial
-
-The disposable playground lives in `storage/app/public/raster-lab/`. This directory
-is Git-ignored, so a normal application deployment does not publish it. It can be
-deployed independently of the unfinished raster application changes: copy only its
-static frontend, manifest and referenced binary files into the same public-storage
-path on the Rodnik host. No database connection, scheduler or raster build command
-is required for the playground. Its data is a fixed public-source snapshot.
-
-The local helper `storage/app/source-raster/lab/package-release.py` validates the
-manifest and produces an allowlisted ZIP in its `releases/` directory, including
-deployment instructions. Upload only the archive contents; the surrounding private
-`storage/app/source-raster/` tree contains database snapshots and is not a public
-deployment artifact. The page is served at `/storage/raster-lab/index.html` through
-the existing public-storage symlink. Its main-map links assume the Rodnik origin.
-
-Each visitor's choices persist in that browser's localStorage. Visitors submit their
-preferred complete profile by sending the JSON from **Copy settings**; the page has
-no central collection endpoint. **Import settings** transfers profiles between
-browsers and origins, including from `rodnik.test` to the public host.
-
-The latest playground uses explicit size/opacity values for every color and zoom,
-adjustable draw order, and natural alpha overlap for blue sources. The selected
-profile (Barcelona, v3, 14 November 2026) is now implemented by the PHP renderer.
-Rendering the lab's exported cells for 10 tiles at zooms 0–10 (world, Barcelona,
-Moscow, Crimea, Lycian Way) through both the lab worker and `RasterRenderer` gave
-zero differing pixels, and the lab export matched snapshot cell counts. The disposable
-public lab and temporary review assets can now be removed.
+- **Full build:** 11.0 s to count sources into 6,897,350 cells, then 174 s to draw
+  **77,603 tiles**; 185 s in total. The snapshot is 162 MB and the PNGs 485 MiB
+  (700 MB on disk, as there are many small files).
+- **Restyle from the admin panel:** 227 s for 77,585 tiles with a deliberately heavy
+  test style (9 CSS px blue marks); the default style is closer to the build figure.
+- **Edits:** 233 queued coordinates were recounted in 0.6 s; one pixel had changed
+  and 41 tiles were redrawn.
+- **Memory:** a build peaks at about 82 MiB in use (117.5 MiB allocated). Drawing
+  the densest tile adds about 20 MiB to a request.
+- **Serving:** a stored tile answers in a few milliseconds and revalidates with a
+  304; a filtered tile at zoom 10 took 27 ms. A preview of a 20-tile view took
+  about 0.5 s on the single-threaded development server.
+- **Lab parity:** rendering the lab's exported cells for tiles at zooms 0, 2, 4, 6
+  and 10 through the lab worker and `RasterRenderer` gave zero differing pixels.
 
 ## Verification
 
 ```sh
-vendor/bin/pest tests/Unit/RasterSnapshotTest.php tests/Unit/RasterPolygonTest.php tests/Feature/RasterPyramidTest.php tests/Feature/RasterRendererZoomTest.php tests/Feature/RasterRestyleTest.php tests/Feature/SourceRasterHttpTest.php
+vendor/bin/pest tests/Unit/RasterSnapshotTest.php tests/Feature/RasterPyramidTest.php tests/Feature/RasterRendererZoomTest.php tests/Feature/RasterRestyleTest.php tests/Feature/SourceRasterHttpTest.php
 node --test --test-concurrency=1 tests/Unit/*.mjs
 npm run build
 ```
 
-Tests cover complete numeric counts, colors, transparent backgrounds, dense/sparse
-marks after retina downsampling, zoom-specific styles, tile seams, four-tile corners,
-dateline wrapping, accurate type/report/route filtering, holes and
-boundaries, incremental edits, immutable snapshots, durable queue replay, concurrent
-invalidations, retention, HTTP caching, opacity persistence, zoom handover and manifest
-polling and immutable restyling. Visual review additionally checks world, regional,
-zoom-9/10 and mobile views, plus every integer step through the detailed street view.
+Tests cover complete counts, colors, transparent backgrounds, configured sizes and
+opacities, 8-bit alpha, draw order, tile seams, four-tile corners, dateline wrapping,
+type and report filtering, in-place edits that redraw only the affected tiles, queue
+replay after a failed redraw, edits arriving during a refresh, saved styles applied by
+the refresh, style validation, removal of old tile sets, HTTP caching and
+revalidation, the admin-only lab page and style endpoints, the lab panel, opacity persistence, zoom
+handover, manifest polling and tolerance of single tile errors.

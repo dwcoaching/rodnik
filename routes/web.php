@@ -13,6 +13,7 @@ use App\Http\Controllers\PlaceSearchController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SourceRasterController;
+use App\Http\Controllers\SourceRasterStyleController;
 use App\Http\Controllers\SpringAggregatesJsonController;
 use App\Http\Controllers\SpringController;
 use App\Http\Controllers\SpringHistoryController;
@@ -196,6 +197,15 @@ Route::get('source-tiles/{revision}/{z}/{x}/{y}.png', [SourceRasterController::c
     ->where('y', '[0-9]{1,7}')
     ->withoutMiddleware('web')
     ->name('source-raster.tile');
+// Disposable tuning page; delete with resources/js/rasterLab and its view.
+Route::view('admin/raster-lab', 'admin.raster-lab')->middleware(['auth', 'can:admin'])->name('raster-lab');
+Route::middleware(['auth', 'can:admin'])->prefix('admin/source-raster')->group(function () {
+    Route::get('style', [SourceRasterStyleController::class, 'show'])->name('source-raster.style');
+    Route::post('style', [SourceRasterStyleController::class, 'store'])
+        ->middleware('throttle:10,1,source-raster-style')->name('source-raster.style.store');
+    Route::get('preview/{z}/{x}/{y}.png', [SourceRasterStyleController::class, 'preview'])
+        ->whereNumber(['z', 'x', 'y'])->name('source-raster.preview');
+});
 Route::get('tiles/{z}/{x}/{y}.json', [SpringTileJsonController::class, 'show']);
 Route::get('watered-tiles/{z}/{x}/{y}.json', [WateredSpringTileJsonController::class, 'show']);
 Route::get('users/{user}/springs.json', [UserSpringsJsonController::class, 'index']);

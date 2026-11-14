@@ -22,12 +22,11 @@ export function normalizeOverviewManifest(value) {
     };
 }
 
-export function sourceOverviewUrl(manifest, filters = {}, polygonHash = null) {
-    // A pending route must never briefly display unfiltered global coverage.
-    if (filters.along && !/^[a-f0-9]{64}$/.test(polygonHash ?? '')) return null;
+export function sourceOverviewUrl(manifest, filters = {}) {
+    // A route selects few sources; the vector layers draw exactly those.
+    if (filters.along) return null;
     const parameters = new URLSearchParams({ types: sourceTypeMask(filters) });
     if (filters.with_reports) parameters.set('reports', '1');
-    if (filters.along) parameters.set('polygon', polygonHash);
     return `${manifest.url}${manifest.url.includes('?') ? '&' : '?'}${parameters}`;
 }
 

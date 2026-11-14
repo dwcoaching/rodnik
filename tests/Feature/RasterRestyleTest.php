@@ -35,11 +35,10 @@ final class RasterRestyleTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_restyle_reuses_numeric_data_renders_each_zoom_and_preserves_old_urls(): void
+    public function test_restyle_reuses_the_counts_draws_each_zoom_and_keeps_the_previous_tiles(): void
     {
         $this->publishFixture();
-        $oldSnapshot = $this->snapshotPath($this->revision);
-        $snapshotHash = hash_file('sha256', $oldSnapshot);
+        $snapshotHash = hash_file('sha256', $this->root.'/index.sqlite');
         $oldTile = $this->pyramid->tile($this->revision, 0, 0, 0);
         $tileHash = hash_file('sha256', $oldTile);
         file_put_contents($this->root.'/dirty.jsonl', "[20,50]\n");
@@ -49,11 +48,11 @@ final class RasterRestyleTest extends TestCase
         {
             public array $zooms = [];
 
-            public function png(iterable $cells, int $zoom = 0): string
+            public function png(iterable $cells, int $zoom = 0, ?array $style = null): string
             {
                 $this->zooms[] = $zoom;
 
-                return (new RasterRenderer)->png($cells, $zoom);
+                return (new RasterRenderer)->png($cells, $zoom, $style);
             }
         };
         app()->instance(RasterRenderer::class, $renderer);
@@ -63,29 +62,24 @@ final class RasterRestyleTest extends TestCase
         self::assertNotSame($this->revision, $stats['revision']);
         self::assertSame($stats['revision'], $manifest['revision']);
         self::assertSame($this->revision, $manifest['previous_revision']);
-        self::assertSame($this->revision, $stats['reused_snapshot']);
-        self::assertSame(1, $stats['source_count']);
-        self::assertSame(2, $stats['max_zoom']);
+        self::assertEquals(config('source_raster.style'), $manifest['style']);
         self::assertGreaterThanOrEqual(3, $stats['tiles']);
         self::assertGreaterThan(0, $stats['png_bytes']);
         self::assertEqualsCanonicalizing([0, 1, 2], array_values(array_unique($renderer->zooms)));
-        self::assertSame($snapshotHash, hash_file('sha256', $this->snapshotPath($stats['revision'])));
-        self::assertSame($snapshotHash, hash_file('sha256', $oldSnapshot));
+        self::assertSame($snapshotHash, hash_file('sha256', $this->root.'/index.sqlite'));
         self::assertSame($tileHash, hash_file('sha256', $oldTile));
         self::assertSame("[20,50]\n", file_get_contents($this->root.'/dirty.jsonl'));
         self::assertStringContainsString($stats['revision'], $manifest['url']);
         self::assertNotSame($oldTile, $this->pyramid->tile($stats['revision'], 0, 0, 0));
     }
 
-    public function test_no_render_command_publishes_a_cold_cache_with_fresh_urls(): void
+    public function test_no_render_command_publishes_a_new_revision_that_draws_on_demand(): void
     {
         $this->publishFixture();
-        $oldTile = $this->pyramid->tile($this->revision, 0, 0, 0);
-        $oldHash = hash_file('sha256', $oldTile);
         DB::partialMock()->shouldNotReceive('table');
         app()->instance(RasterRenderer::class, new class
         {
-            public function png(iterable $cells, int $zoom = 0): string
+            public function png(iterable $cells, int $zoom = 0, ?array $style = null): string
             {
                 throw new RuntimeException('A no-render restyle must not draw PNGs.');
             }
@@ -97,24 +91,19 @@ final class RasterRestyleTest extends TestCase
         self::assertNotSame($this->revision, $manifest['revision']);
         self::assertSame($this->revision, $manifest['previous_revision']);
         self::assertSame(0, $manifest['statistics']['tiles']);
-        self::assertSame(0, $manifest['statistics']['png_bytes']);
-        self::assertDirectoryDoesNotExist(dirname($this->snapshotPath($manifest['revision'])).'/tiles');
-        self::assertSame(hash_file('sha256', $this->snapshotPath($this->revision)), hash_file('sha256', $this->snapshotPath($manifest['revision'])));
-        self::assertSame($oldHash, hash_file('sha256', $oldTile));
+        self::assertDirectoryDoesNotExist($this->root.'/tiles/'.$manifest['revision']);
 
         app()->instance(RasterRenderer::class, new RasterRenderer);
-        $freshTile = $this->pyramid->tile($manifest['revision'], 0, 0, 0);
-        self::assertFileExists($freshTile);
-        self::assertNotSame($oldTile, $freshTile);
+        self::assertFileExists($this->pyramid->tile($manifest['revision'], 0, 0, 0));
     }
 
-    public function test_failed_restyle_keeps_the_existing_manifest_and_snapshot(): void
+    public function test_failed_restyle_keeps_the_existing_manifest_and_leaves_no_partial_tiles(): void
     {
         $this->publishFixture();
-        $hash = hash_file('sha256', $this->snapshotPath($this->revision));
+        $hash = hash_file('sha256', $this->root.'/index.sqlite');
         app()->instance(RasterRenderer::class, new class
         {
-            public function png(iterable $cells, int $zoom = 0): string
+            public function png(iterable $cells, int $zoom = 0, ?array $style = null): string
             {
                 throw new RuntimeException('Deliberate restyle failure.');
             }
@@ -128,8 +117,8 @@ final class RasterRestyleTest extends TestCase
         }
 
         self::assertSame($this->revision, $this->pyramid->manifest()['revision']);
-        self::assertSame($hash, hash_file('sha256', $this->snapshotPath($this->revision)));
-        self::assertCount(1, File::directories($this->root.'/generations'));
+        self::assertSame($hash, hash_file('sha256', $this->root.'/index.sqlite'));
+        self::assertSame([], glob($this->root.'/tiles/*'));
     }
 
     public function test_restyle_requires_an_existing_snapshot(): void
@@ -142,22 +131,12 @@ final class RasterRestyleTest extends TestCase
 
     private function publishFixture(): void
     {
-        $directory = dirname($this->snapshotPath($this->revision));
-        File::ensureDirectoryExists($directory);
-        $stats = RasterSnapshot::populateFromPoints($directory.'/index.sqlite', [[
-            'id' => 987654321,
+        File::ensureDirectoryExists($this->root);
+        RasterSnapshot::populateFromPoints($this->root.'/index.sqlite', [[
             ...RasterSnapshot::project(20, 50, 2),
             'type' => 1,
             'status' => 2,
-            'longitude' => 20,
-            'latitude' => 50,
         ]], 2);
-        file_put_contents($directory.'/metadata.json', json_encode($stats, JSON_THROW_ON_ERROR));
         file_put_contents($this->root.'/manifest.json', json_encode(['revision' => $this->revision, 'max_zoom' => 2], JSON_THROW_ON_ERROR));
-    }
-
-    private function snapshotPath(string $revision): string
-    {
-        return $this->root.'/generations/'.$revision.'/index.sqlite';
     }
 }

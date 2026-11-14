@@ -7,7 +7,6 @@ use App\Actions\Springs\PatchSpringsLocationAction;
 use App\Models\Report;
 use App\Models\Spring;
 use App\Models\SpringTile;
-use App\Models\TrackPolygon;
 use App\Models\User;
 use App\Models\WateredSpringTile;
 use App\Services\SourceRaster\RasterPyramid;
@@ -37,13 +36,18 @@ test('the overview manifest exposes the current immutable tile generation withou
         'tile_pixel_ratio' => 2,
         'url' => '/source-tiles/'.$this->rasterRevision.'/{z}/{x}/{y}.png',
     ];
-    $this->pyramid->shouldReceive('manifest')->once()->andReturn($manifest);
+    $this->pyramid->shouldReceive('manifest')->andReturn($manifest);
+    $this->pyramid->shouldReceive('enabled')->twice()->andReturn(true, false);
     $this->pyramid->shouldNotReceive('tile');
 
     $this->getJson('/source-tiles.json')
         ->assertOk()->assertExactJson($manifest)
         ->assertHeader('Cache-Control', 'no-store, private')
         ->assertHeaderMissing('Set-Cookie');
+
+    // Switched off in the admin: maps get the same retryable answer as before a build.
+    $this->getJson('/source-tiles.json')->assertStatus(503)->assertHeader('Retry-After', '60')
+        ->assertJsonMissing(['revision' => $this->rasterRevision]);
 });
 
 test('an unbuilt overview returns a retryable response without starting a web request build', function () {
@@ -55,9 +59,9 @@ test('an unbuilt overview returns a retryable response without starting a web re
         ->assertHeader('Cache-Control', 'no-store, private');
 });
 
-test('a published tile is an immutable public PNG with the default source filters', function () {
+test('a published tile is a public PNG that browsers revalidate after a minute', function () {
     $this->pyramid->shouldReceive('tile')->once()
-        ->with($this->rasterRevision, 8, 120, 80, 63, false, null)
+        ->with($this->rasterRevision, 8, 120, 80)
         ->andReturn($this->rasterPath);
 
     $response = $this->get('/source-tiles/'.$this->rasterRevision.'/8/120/80.png');
@@ -65,49 +69,27 @@ test('a published tile is an immutable public PNG with the default source filter
     $response->assertOk()->assertHeader('Content-Type', 'image/png')
         ->assertHeader('X-Content-Type-Options', 'nosniff')
         ->assertHeaderMissing('Set-Cookie');
-    expect($response->headers->get('Cache-Control'))->toContain('public', 'immutable', 'max-age=31536000')
+    expect($response->headers->get('Cache-Control'))->toContain('public', 'max-age=60')->not->toContain('immutable')
         ->and($response->baseResponse->getFile()->getPathname())->toBe($this->rasterPath);
+
+    $this->pyramid->shouldReceive('tile')->once()->andReturn($this->rasterPath);
+    $this->get('/source-tiles/'.$this->rasterRevision.'/8/120/80.png', ['If-Modified-Since' => $response->headers->get('Last-Modified')])
+        ->assertStatus(304);
 });
 
-test('type and report filters reach the tile renderer without changing source data', function () {
-    $this->pyramid->shouldReceive('tile')->once()
-        ->with($this->rasterRevision, 10, 1023, 1023, 5, true, null)
-        ->andReturn($this->rasterPath);
+test('filtered tiles are drawn per request for the current revision and never stored', function () {
+    $this->pyramid->shouldReceive('manifest')->andReturn(['revision' => $this->rasterRevision, 'max_zoom' => 10]);
+    $this->pyramid->shouldNotReceive('tile');
+    $this->pyramid->shouldReceive('png')->once()->with(10, 1023, 1023, 5, true)->andReturn('png-bytes');
+    $this->pyramid->shouldReceive('png')->once()->with(0, 0, 0, 0, false)->andReturn('empty');
 
-    $this->get('/source-tiles/'.$this->rasterRevision.'/10/1023/1023.png?types=5&reports=1')->assertOk();
-});
-
-test('the empty type selection is a valid transparent overview request', function () {
-    $this->pyramid->shouldReceive('tile')->once()
-        ->with($this->rasterRevision, 0, 0, 0, 0, false, null)
-        ->andReturn($this->rasterPath);
-
+    $response = $this->get('/source-tiles/'.$this->rasterRevision.'/10/1023/1023.png?types=5&reports=1');
+    $response->assertOk()->assertHeader('Content-Type', 'image/png')->assertHeaderMissing('Set-Cookie');
+    expect($response->getContent())->toBe('png-bytes')
+        ->and($response->headers->get('Cache-Control'))->toContain('public', 'max-age=300');
     $this->get('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?types=0')->assertOk();
-});
 
-test('a public route polygon filters individual sources using its private stored geometry', function () {
-    $polygon = TrackPolygon::factory()->create();
-    $geometry = $polygon->polygon;
-    $this->pyramid->shouldReceive('tile')->once()
-        ->with($this->rasterRevision, 0, 0, 0, 63, false, $geometry)
-        ->andReturn($this->rasterPath);
-
-    $this->get('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?polygon='.$polygon->hash)
-        ->assertOk()->assertHeader('Content-Type', 'image/png');
-});
-
-test('unknown polygon hashes do not silently render unfiltered sources', function () {
-    $this->pyramid->shouldNotReceive('tile');
-
-    $this->get('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?polygon='.str_repeat('f', 64))->assertNotFound();
-});
-
-test('missing polygon geometry does not silently render unfiltered sources', function () {
-    $polygon = TrackPolygon::factory()->create();
-    Storage::disk(TrackPolygon::GEOMETRY_DISK)->delete($polygon->geometryPath());
-    $this->pyramid->shouldNotReceive('tile');
-
-    $this->get('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?polygon='.$polygon->hash)->assertNotFound();
+    $this->get('/source-tiles/'.str_repeat('b', 24).'/0/0/0.png?types=5')->assertNotFound();
 });
 
 test('malformed overview filters are rejected before invoking the renderer', function (string $query, string $field) {
@@ -121,8 +103,6 @@ test('malformed overview filters are rejected before invoking the renderer', fun
     ['types=1.5', 'types'],
     ['types[]=1', 'types'],
     ['reports=maybe', 'reports'],
-    ['polygon=abc', 'polygon'],
-    ['polygon='.str_repeat('A', 64), 'polygon'],
 ]);
 
 test('invalid tile coordinates never invoke the renderer', function (string $coordinates) {
@@ -194,4 +174,84 @@ test('the refresh command reports a failed refresh without claiming success', fu
     $this->pyramid->shouldReceive('refresh')->once()->andThrow(new RuntimeException('Could not publish generation.'));
 
     $this->artisan('sources:raster-refresh')->expectsOutput('Could not publish generation.')->assertFailed();
+});
+
+test('only admins can read the style, preview a draft or queue a redraw', function () {
+    $this->pyramid->shouldNotReceive('style', 'png', 'queueStyle');
+
+    $this->getJson('/admin/source-raster/style')->assertUnauthorized();
+    $this->actingAs(User::factory()->create());
+    $this->getJson('/admin/source-raster/style')->assertForbidden();
+    $this->get('/admin/source-raster/preview/0/0/0.png?s=1,1,1,1,1,1,1,1')->assertForbidden();
+    $this->postJson('/admin/source-raster/style', ['style' => config('source_raster.style')])->assertForbidden();
+});
+
+test('an admin previews a draft style for one zoom without publishing anything', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+    $this->pyramid->shouldReceive('style')->andReturn(config('source_raster.style'));
+    $this->pyramid->shouldReceive('png')->once()->withArgs(function ($z, $x, $y, $types, $reports, $style) {
+        return [$z, $x, $y, $types, $reports] === [7, 3, 2, 63, false]
+            && $style['order'] === ['red', 'green', 'yellow', 'blue']
+            && $style['zooms'][7] === ['blue' => [2.0, 0.1], 'yellow' => [3.0, 0.2], 'green' => [4.0, 0.3], 'red' => [5.0, 0.4]]
+            && $style['zooms'][6]['blue'] === config('source_raster.style.zooms.6.blue');
+    })->andReturn('preview');
+
+    $response = $this->get('/admin/source-raster/preview/7/3/2.png?s=2,0.1,3,0.2,4,0.3,5,0.4&o=3210');
+    $response->assertOk()->assertHeader('Content-Type', 'image/png');
+    expect($response->getContent())->toBe('preview');
+
+    $this->get('/admin/source-raster/preview/7/3/2.png?s=99,0.1,3,0.2,4,0.3,5,0.4')->assertUnprocessable();
+    $this->get('/admin/source-raster/preview/7/3/2.png?s=1,2,3')->assertUnprocessable();
+    $this->get('/admin/source-raster/preview/7/3/2.png?s=2,0.1,3,0.2,4,0.3,5,0.4&o=0012')->assertUnprocessable();
+});
+
+test('an admin queues a complete style for the next refresh', function () {
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+    $status = ['revision' => $this->rasterRevision, 'generated_at' => null, 'enabled' => false, 'pending' => true, 'busy' => false];
+    $this->pyramid->shouldReceive('manifest')->andReturn(['revision' => $this->rasterRevision, 'max_zoom' => 10, 'url' => '/source-tiles/x/{z}/{x}/{y}.png']);
+    $this->pyramid->shouldReceive('status')->andReturn($status);
+    $this->pyramid->shouldReceive('queueStyle')->once()->with(config('source_raster.style'));
+    $this->pyramid->shouldReceive('queueStyle')->once()->andThrow(new InvalidArgumentException('Zoom 3 red needs a size of 0-14 and an opacity of 0-1.'));
+    $this->pyramid->shouldReceive('style')->andReturn(config('source_raster.style'));
+    $this->pyramid->shouldReceive('pendingStyle')->andReturnNull();
+
+    $this->postJson('/admin/source-raster/style', ['style' => config('source_raster.style')])
+        ->assertStatus(202)->assertJson(['pending' => true]);
+    $this->postJson('/admin/source-raster/style', ['style' => ['order' => []]])
+        ->assertUnprocessable()->assertJson(['message' => 'Zoom 3 red needs a size of 0-14 and an opacity of 0-1.']);
+    $this->getJson('/admin/source-raster/style')->assertOk()
+        ->assertJsonPath('style.order', config('source_raster.style.order'))
+        ->assertJsonPath('max_diameter', 14)->assertJsonPath('pending', true)
+        ->assertJsonPath('pending_style', null)
+        ->assertJsonPath('url', '/source-tiles/x/{z}/{x}/{y}.png')->assertJsonPath('max_zoom', 10)
+        ->assertJsonPath('enabled', false);
+});
+
+test('the raster lab page is only available to admins', function () {
+    $this->withoutVite();
+
+    $this->get('/admin/raster-lab')->assertRedirect();
+    $this->actingAs(User::factory()->create());
+    $this->get('/admin/raster-lab')->assertForbidden();
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+    $this->get('/admin/raster-lab')->assertOk()->assertSee('raster-lab-map')->assertSee('Generate tiles');
+    $this->get('/')->assertDontSee('rasterLab');
+});
+
+test('a superadmin switches visitors between the vector and raster overview once tiles exist', function () {
+    $this->pyramid->shouldReceive('status')->andReturn(['revision' => null, 'generated_at' => null, 'enabled' => false, 'pending' => false, 'busy' => false]);
+    $this->pyramid->shouldReceive('manifest')->times(2)->andReturn(null, ['revision' => $this->rasterRevision, 'max_zoom' => 10]);
+    $this->pyramid->shouldReceive('setEnabled')->once()->with(true);
+    $this->pyramid->shouldReceive('setEnabled')->once()->with(false);
+
+    $this->actingAs(User::factory()->create(['is_admin' => true]));
+    expect(App\Filament\Widgets\SourceOverviewWidget::canView())->toBeFalse();
+    Livewire\Livewire::test(App\Filament\Widgets\SourceOverviewWidget::class)->call('setEnabled', true)->assertForbidden();
+
+    $this->actingAs(User::factory()->create(['is_superadmin' => true]));
+    Livewire\Livewire::test(App\Filament\Widgets\SourceOverviewWidget::class)
+        ->assertSee('have not been built')
+        ->call('setEnabled', true)   // Refused: nothing is built yet.
+        ->call('setEnabled', true)
+        ->call('setEnabled', false);
 });

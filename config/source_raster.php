@@ -7,11 +7,10 @@ return [
         ? 'framework/testing/source-raster-'.getmypid()
         : 'app/source-raster')),
     'compression' => 3,
-    'retention_hours' => 24,
-    'max_generations' => 6,
-    'retention_grace_minutes' => 10,
 
-    // Selected raster-lab profile v3 (docs/development/source-raster-profile.json).
+    // Default style, used until an admin saves another one from the map's tuning panel
+    // (the published style then lives in the raster manifest). This is the selected
+    // raster-lab profile v3 (docs/development/source-raster-profile.json).
     // Each color is [diameter in CSS pixels, opacity]. Tiles are drawn at 2x.
     'style' => [
         'order' => ['blue', 'yellow', 'green', 'red'],

@@ -9,6 +9,7 @@ use App\Models\Spring;
 use App\Services\SourceRaster\RasterSnapshot;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
+use PDO;
 use PDOException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -52,7 +53,8 @@ final class RasterSnapshotTest extends TestCase
         self::assertSame(7, $stats['source_count']);
         self::assertSame(3, $stats['max_zoom']);
         self::assertGreaterThan(0, $stats['bytes']);
-        self::assertSame(7, (int) $database->query('SELECT COUNT(*) FROM points')->fetchColumn());
+        // Individual sources are counted, not kept.
+        self::assertNotContains('points', $database->query("SELECT name FROM sqlite_master WHERE type = 'table'")->fetchAll(PDO::FETCH_COLUMN));
         self::assertSame((int) $database->query('SELECT COUNT(*) FROM cells')->fetchColumn(), $stats['cell_count']);
         self::assertSame([['sources', 7], ['zoom', 3], ['zoom', 2], ['zoom', 1], ['zoom', 0]], $progress);
 
@@ -111,7 +113,7 @@ final class RasterSnapshotTest extends TestCase
         self::assertSame('0', $database->query("SELECT value FROM metadata WHERE key = 'max_zoom'")->fetchColumn());
 
         $this->expectException(PDOException::class);
-        $database->exec('DELETE FROM points');
+        $database->exec('DELETE FROM cells');
     }
 
     public function test_build_refuses_to_replace_an_existing_snapshot(): void

@@ -12,7 +12,7 @@ final class SourceRasterBuild extends Command
 {
     protected $signature = 'sources:raster-build {--max-zoom=10 : Last overview zoom (0–10)} {--no-render : Publish numeric data and render PNGs on demand}';
 
-    protected $description = 'Build a complete, immutable source overview and report actual generation costs';
+    protected $description = 'Build the source overview from scratch and report actual generation costs';
 
     public function handle(RasterPyramid $pyramid): int
     {

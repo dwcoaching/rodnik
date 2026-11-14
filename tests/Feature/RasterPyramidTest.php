@@ -12,6 +12,7 @@ use App\Services\SourceRaster\RasterSnapshot;
 use Closure;
 use Illuminate\Support\Facades\File;
 use InvalidArgumentException;
+use PDO;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -55,16 +56,16 @@ final class RasterPyramidTest extends TestCase
         }
 
         $this->assertTransparent($full, 336, 376); // Not-found sources remain absent.
-        $reports = $this->pyramid->tile($this->revision, 3, 2, 2, 63, true);
+        $reports = $this->stored($this->pyramid->png(3, 2, 2, 63, true));
         $this->assertTransparent($reports, 176, 376);
         $this->assertPixelColor($reports, 216, 376, RasterRenderer::COLORS[1]);
         $this->assertPixelColor($reports, 256, 376, RasterRenderer::COLORS[2]);
-        $types = $this->pyramid->tile($this->revision, 3, 2, 2, 1 | 4);
+        $types = $this->stored($this->pyramid->png(3, 2, 2, 1 | 4));
         $this->assertPixelColor($types, 176, 376, RasterRenderer::COLORS[0]);
         $this->assertPixelColor($types, 256, 376, RasterRenderer::COLORS[2]);
         $this->assertTransparent($types, 216, 376);
         $this->assertTransparent($types, 296, 376);
-        $empty = $this->pyramid->tile($this->revision, 3, 2, 2, 0);
+        $empty = $this->stored($this->pyramid->png(3, 2, 2, 0));
         self::assertSame([], $this->paintedColors($empty));
         self::assertNotSame($full, $reports);
         self::assertSame($full, $this->pyramid->tile($this->revision, 3, 2, 2));
@@ -86,7 +87,7 @@ final class RasterPyramidTest extends TestCase
         $this->assertPixelColor($bottomLeft, 200, 0, RasterRenderer::COLORS[1]);
         $this->assertPixelColor($topLeft, 0, 100, RasterRenderer::COLORS[3]);
         $this->assertPixelColor($topRight, 511, 100, RasterRenderer::COLORS[3]);
-        $stats = $this->pyramid->warm($this->revision);
+        $stats = $this->pyramid->restyle();
         self::assertGreaterThanOrEqual(4, $stats['tiles']);
         self::assertGreaterThan(0, $stats['png_bytes']);
     }
@@ -109,167 +110,87 @@ final class RasterPyramidTest extends TestCase
         $this->assertTransparent($tile, 297, 300);
     }
 
-    public function test_polygon_filter_checks_original_coordinates_when_sources_share_a_painted_pixel(): void
-    {
-        $green = $this->point(1, 1000, 1000, 2, 1, 2);
-        $red = [...$green, 'id' => 2, 'status' => 3, 'longitude' => $green['longitude'] + 0.02];
-        self::assertSame(RasterSnapshot::project($green['longitude'], $green['latitude'], 2), RasterSnapshot::project($red['longitude'], $red['latitude'], 2));
-        $this->publishFixture([$green, $red], 2);
-        $full = $this->pyramid->tile($this->revision, 2, 1, 1);
-        $this->assertContainsColor($full, RasterRenderer::COLORS[2]);
-        $this->assertContainsColor($full, RasterRenderer::COLORS[3]);
-        $polygon = $this->rectangle($green['longitude'] - 0.005, $green['latitude'] - 0.005, $green['longitude'] + 0.005, $green['latitude'] + 0.005);
-        $filtered = $this->pyramid->tile($this->revision, 2, 1, 1, 63, false, $polygon);
-        $this->assertContainsColor($filtered, RasterRenderer::COLORS[2]);
-        $this->assertLacksColor($filtered, RasterRenderer::COLORS[3]);
-    }
-
-    public function test_polygon_holes_exclude_only_their_interior_even_when_sources_share_a_pixel(): void
-    {
-        $green = $this->point(1, 1000, 1000, 2, 1, 2);
-        $red = [...$green, 'id' => 2, 'status' => 3, 'longitude' => $green['longitude'] + 0.02];
-        $this->publishFixture([$green, $red], 2);
-        $polygon = $this->rectangle($green['longitude'] - 0.05, $green['latitude'] - 0.05, $green['longitude'] + 0.05, $green['latitude'] + 0.05);
-        $polygon['coordinates'][] = $this->rectangle($red['longitude'] - 0.005, $red['latitude'] - 0.005, $red['longitude'] + 0.005, $red['latitude'] + 0.005)['coordinates'][0];
-        $tile = $this->pyramid->tile($this->revision, 2, 1, 1, 63, false, $polygon);
-        $this->assertContainsColor($tile, RasterRenderer::COLORS[2]);
-        $this->assertLacksColor($tile, RasterRenderer::COLORS[3]);
-    }
-
-    public function test_polygon_outer_and_hole_boundaries_match_the_source_route_filter(): void
-    {
-        $points = [];
-
-        foreach ([[-10, 0, 2], [2, 0, 3], [0, 0, 1], [20, 0, 0]] as $index => [$longitude, $latitude, $status]) {
-            $points[] = ['id' => $index + 1, ...RasterSnapshot::project($longitude, $latitude, 0), 'longitude' => $longitude, 'latitude' => $latitude, 'type' => 1, 'status' => $status];
-        }
-
-        $this->publishFixture($points, 0);
-        $polygon = $this->rectangle(-10, -10, 10, 10);
-        $polygon['coordinates'][] = $this->rectangle(-2, -2, 2, 2)['coordinates'][0];
-        $tile = $this->pyramid->tile($this->revision, 0, 0, 0, 63, false, $polygon);
-        $this->assertContainsColor($tile, RasterRenderer::COLORS[2]);
-        $this->assertContainsColor($tile, RasterRenderer::COLORS[3]);
-        $this->assertLacksColor($tile, RasterRenderer::COLORS[1]);
-        $this->assertLacksColor($tile, RasterRenderer::COLORS[0]);
-    }
-
-    public function test_feature_multipolygons_preserve_concave_gaps_and_separate_components(): void
+    public function test_an_edit_updates_counts_in_place_and_redraws_only_the_tiles_that_show_it(): void
     {
         $this->visibleWorldBlue();
-        $points = [];
+        $this->publishFixture([$this->point(1, 300000, 200000, 10)], 10);
+        $this->pyramid->restyle();
+        $revision = $this->pyramid->manifest()['revision'];
+        $untouched = $this->pyramid->tile($revision, 10, 585, 390);
+        $untouchedTime = filemtime($untouched);
+        $drawn = count(File::allFiles($this->rasterRoot.'/tiles/'.$revision));
+        touch($untouched, $untouchedTime - 100);
+        clearstatcache();
 
-        foreach ([[-55, 10, 2], [-40, -5, 3], [-40, 10, 1], [35, 35, 0]] as $index => [$longitude, $latitude, $status]) {
-            $points[] = ['id' => $index + 1, ...RasterSnapshot::project($longitude, $latitude, 0), 'longitude' => $longitude, 'latitude' => $latitude, 'type' => 1, 'status' => $status];
-        }
-
-        $this->publishFixture($points, 0);
-        $geometry = ['type' => 'Feature', 'properties' => [], 'geometry' => [
-            'type' => 'MultiPolygon', 'coordinates' => [
-                [[[-60, -10], [-30, -10], [-30, 0], [-50, 0], [-50, 20], [-60, 20], [-60, -10]]],
-                $this->rectangle(30, 30, 40, 40)['coordinates'],
-            ],
-        ]];
-        $tile = $this->pyramid->tile($this->revision, 0, 0, 0, 63, false, $geometry);
-        $this->assertContainsColor($tile, RasterRenderer::COLORS[2]);
-        $this->assertContainsColor($tile, RasterRenderer::COLORS[3]);
-        $this->assertContainsColor($tile, RasterRenderer::COLORS[0]);
-        $this->assertLacksColor($tile, RasterRenderer::COLORS[1]);
-        $reported = $this->pyramid->tile($this->revision, 0, 0, 0, 63, true, $geometry);
-        $this->assertContainsColor($reported, RasterRenderer::COLORS[2]);
-        $this->assertLacksColor($reported, RasterRenderer::COLORS[0]);
-    }
-
-    public function test_polygon_eastern_dateline_boundary_includes_normalized_sources_and_wraps_the_mark(): void
-    {
-        $point = ['id' => 1, ...RasterSnapshot::project(-180, 20, 1), 'longitude' => -180.0, 'latitude' => 20.0, 'type' => 1, 'status' => 2];
-        $this->publishFixture([$point], 1);
-        $geometry = $this->rectangle(170, 10, 180, 30);
-        $west = $this->pyramid->tile($this->revision, 1, 0, 0, 63, false, $geometry);
-        $east = $this->pyramid->tile($this->revision, 1, 1, 0, 63, false, $geometry);
-        $this->assertPixelColor($west, 0, $point['y'], RasterRenderer::COLORS[2]);
-        $this->assertPixelColor($east, 511, $point['y'], RasterRenderer::COLORS[2]);
-    }
-
-    public function test_refresh_publishes_additions_conditions_moves_and_removals_without_mutating_old_snapshots(): void
-    {
-        $this->visibleWorldBlue();
-        $this->publishFixture([], 10);
-        $oldSnapshot = $this->snapshotPath($this->revision);
-        $oldHash = hash_file('sha256', $oldSnapshot);
-        $oldTile = $this->pyramid->tile($this->revision, 0, 0, 0);
-        $oldTileHash = hash_file('sha256', $oldTile);
         $spring = Spring::factory()->create(['longitude' => 139.123456, 'latitude' => -47.654321, 'type' => 'Spring']);
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
         $stats = $this->pyramid->refresh();
+
         self::assertSame(1, $stats['changed']);
-        self::assertSame(1, $stats['source_count']);
-        $revision = $stats['revision'];
-        self::assertNotSame($this->revision, $revision);
+        self::assertSame(11, $stats['tiles']); // One per zoom 0-10, away from tile edges.
         self::assertSame($revision, $this->pyramid->manifest()['revision']);
-        self::assertSame(0, $this->snapshotPoint($revision, $spring->id)['status']);
-        self::assertSame($oldHash, hash_file('sha256', $oldSnapshot));
-        self::assertSame($oldTileHash, hash_file('sha256', $this->pyramid->tile($this->revision, 0, 0, 0)));
-        self::assertSame([], $this->paintedColors($oldTile));
+        self::assertSame($untouchedTime - 100, filemtime($untouched));
+        self::assertCount($drawn + 10, File::allFiles($this->rasterRoot.'/tiles/'.$revision)); // z0 already existed.
+        self::assertSame(['1:0' => 1], $this->cellsAt($spring));
         $this->assertContainsColor($this->pyramid->tile($revision, 0, 0, 0), RasterRenderer::COLORS[0]);
 
         $report = Report::factory()->for($spring)->create(['quality' => 'good', 'state' => 'running', 'from_osm' => null, 'hidden_at' => null]);
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
-        $stats = $this->pyramid->refresh();
-        self::assertSame(1, $stats['changed']);
-        self::assertSame(2, $this->snapshotPoint($stats['revision'], $spring->id)['status']);
-        $this->assertContainsColor($this->pyramid->tile($stats['revision'], 0, 0, 0), RasterRenderer::COLORS[2]);
-        self::assertSame([], $this->paintedColors($this->pyramid->tile($this->revision, 0, 0, 0, 63, true)));
+        self::assertSame(1, $this->pyramid->refresh()['changed']);
+        self::assertSame(['1:2' => 1], $this->cellsAt($spring));
+        $this->assertContainsColor($this->pyramid->tile($revision, 0, 0, 0), RasterRenderer::COLORS[2]);
 
-        $beforeMove = $this->snapshotPoint($stats['revision'], $spring->id);
+        $old = clone $spring;
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
         $spring->forceFill(['longitude' => 140.765432, 'latitude' => -48.345678])->save();
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
-        $stats = $this->pyramid->refresh();
-        $afterMove = $this->snapshotPoint($stats['revision'], $spring->id);
-        self::assertSame(1, $stats['changed']);
-        self::assertNotSame($beforeMove['x'], $afterMove['x']);
-        self::assertNotSame($beforeMove['y'], $afterMove['y']);
-        self::assertEqualsWithDelta(140.765432, $afterMove['longitude'], 1e-7);
+        self::assertSame(2, $this->pyramid->refresh()['changed']);
+        self::assertSame([], $this->cellsAt($old));
+        self::assertSame(['1:2' => 1], $this->cellsAt($spring));
 
         $report->forceFill(['state' => 'notfound', 'quality' => null])->save();
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
-        $stats = $this->pyramid->refresh();
-        self::assertSame(4, $this->snapshotPoint($stats['revision'], $spring->id)['status']);
-        self::assertSame(0, (int) RasterSnapshot::open($this->snapshotPath($stats['revision']))->query('SELECT COUNT(*) FROM cells')->fetchColumn());
-        self::assertSame([], $this->paintedColors($this->pyramid->tile($stats['revision'], 0, 0, 0)));
+        $this->pyramid->refresh();
+        self::assertSame([], $this->cellsAt($spring)); // Not-found sources are not drawn.
+
+        $report->delete();
+        $this->pyramid->invalidate($spring->longitude, $spring->latitude);
+        $this->pyramid->refresh();
+        self::assertSame(['1:0' => 1], $this->cellsAt($spring));
 
         $spring->hidden_at = now();
         $spring->save();
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
-        $stats = $this->pyramid->refresh();
-        self::assertSame(1, $stats['changed']);
-        self::assertSame(0, $stats['source_count']);
-        self::assertNull($this->snapshotPoint($stats['revision'], $spring->id));
-        self::assertSame('', file_get_contents($this->rasterRoot.'/dirty.jsonl'));
-        self::assertSame($oldHash, hash_file('sha256', $oldSnapshot));
+        self::assertSame(1, $this->pyramid->refresh()['changed']);
+        self::assertSame([], $this->cellsAt($spring));
+        self::assertSame(11, (int) $this->database()->query('SELECT COUNT(*) FROM cells')->fetchColumn()); // Only the fixture source remains.
+        self::assertSame([], $this->pendingCoordinates());
+        self::assertSame($revision, $this->pyramid->manifest()['revision']);
     }
 
-    public function test_noop_refresh_keeps_the_current_revision_and_coalesces_repeated_invalidations(): void
+    public function test_noop_refresh_changes_nothing_and_coalesces_repeated_invalidations(): void
     {
         $spring = Spring::factory()->create(['longitude' => 139.123456, 'latitude' => -47.654321, 'type' => 'Spring']);
         $this->publishFixture([RasterSnapshot::pointFromSpring($spring, 10)], 10);
-        $hash = hash_file('sha256', $this->snapshotPath($this->revision));
+        $hash = hash_file('sha256', $this->rasterRoot.'/index.sqlite');
+        $manifest = file_get_contents($this->rasterRoot.'/manifest.json');
         self::assertSame(['changed' => 0], $this->pyramid->refresh());
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
         $this->pyramid->invalidate($spring->longitude, $spring->latitude);
         $this->pyramid->invalidate(NAN, 0);
         $stats = $this->pyramid->refresh();
         self::assertSame(0, $stats['changed']);
-        self::assertSame($this->revision, $this->pyramid->manifest()['revision']);
-        self::assertSame($hash, hash_file('sha256', $this->snapshotPath($this->revision)));
-        self::assertCount(1, File::directories($this->rasterRoot.'/generations'));
-        self::assertSame('', file_get_contents($this->rasterRoot.'/dirty.jsonl'));
+        self::assertSame(0, $stats['tiles']);
+        self::assertSame($hash, hash_file('sha256', $this->rasterRoot.'/index.sqlite'));
+        self::assertSame($manifest, file_get_contents($this->rasterRoot.'/manifest.json'));
+        self::assertDirectoryDoesNotExist($this->rasterRoot.'/tiles');
+        self::assertSame([], $this->pendingCoordinates());
     }
 
-    public function test_failed_refresh_keeps_the_published_generation_and_requeues_work_for_retry(): void
+    public function test_a_failed_redraw_is_repeated_even_though_the_counts_were_already_saved(): void
     {
+        $this->visibleWorldBlue();
         $this->publishFixture([], 10);
         $spring = Spring::factory()->create(['longitude' => 139.123456, 'latitude' => -47.654321, 'type' => 'Spring']);
         $other = Spring::factory()->create(['longitude' => 140.765432, 'latitude' => -48.345678, 'type' => 'Water tap']);
@@ -279,7 +200,7 @@ final class RasterPyramidTest extends TestCase
         {
             public function __construct(private Closure $arrival) {}
 
-            public function png(iterable $cells, int $zoom = 0): string
+            public function png(iterable $cells, int $zoom = 0, ?array $style = null): string
             {
                 ($this->arrival)();
                 throw new RuntimeException('Deliberate renderer failure.');
@@ -288,44 +209,24 @@ final class RasterPyramidTest extends TestCase
 
         try {
             $this->pyramid->refresh();
-            self::fail('Expected the failed renderer to abort publication.');
+            self::fail('Expected the failed renderer to abort the refresh.');
         } catch (RuntimeException $exception) {
             self::assertSame('Deliberate renderer failure.', $exception->getMessage());
         }
 
-        self::assertSame($this->revision, $this->pyramid->manifest()['revision']);
-        self::assertCount(1, File::directories($this->rasterRoot.'/generations'));
+        self::assertSame(['1:0' => 1], $this->cellsAt($spring));
+        self::assertDirectoryDoesNotExist($this->rasterRoot.'/tiles');
         self::assertCount(2, $this->pendingCoordinates());
         app()->instance(RasterRenderer::class, new RasterRenderer);
         $stats = (new RasterPyramid)->refresh();
-        self::assertSame(2, $stats['changed']);
-        self::assertSame(2, $stats['source_count']);
-        self::assertNotNull($this->snapshotPoint($stats['revision'], $spring->id));
-        self::assertNotNull($this->snapshotPoint($stats['revision'], $other->id));
+        self::assertSame(1, $stats['changed']); // Only the later arrival still differs.
+        self::assertGreaterThan(11, $stats['tiles']); // Both sources are drawn; they share far-zoom tiles.
+        self::assertSame(['4:0' => 1], $this->cellsAt($other));
+        $this->assertContainsColor($this->pyramid->tile($this->revision, 0, 0, 0), RasterRenderer::COLORS[0]);
         self::assertSame([], $this->pendingCoordinates());
     }
 
-    public function test_a_fresh_worker_replays_claimed_work_after_an_interrupted_worker(): void
-    {
-        $this->publishFixture([], 10);
-        $spring = Spring::factory()->create(['longitude' => 139.123456, 'latitude' => -47.654321, 'type' => 'Spring']);
-        $this->pyramid->invalidate($spring->longitude, $spring->latitude);
-        rename($this->rasterRoot.'/dirty.jsonl', $this->rasterRoot.'/processing.jsonl');
-        $stats = (new RasterPyramid)->refresh();
-        self::assertSame(1, $stats['changed']);
-        self::assertSame(1, $stats['source_count']);
-        self::assertNotNull($this->snapshotPoint($stats['revision'], $spring->id));
-        self::assertSame([], $this->pendingCoordinates());
-
-        // A crash after publication but before acknowledging must replay safely.
-        file_put_contents($this->rasterRoot.'/processing.jsonl', json_encode([$spring->longitude, $spring->latitude])."\n");
-        $replayed = (new RasterPyramid)->refresh();
-        self::assertSame(0, $replayed['changed']);
-        self::assertSame($stats['revision'], $this->pyramid->manifest()['revision']);
-        self::assertSame([], $this->pendingCoordinates());
-    }
-
-    public function test_coordinates_arriving_after_the_snapshot_copy_wait_for_the_next_refresh(): void
+    public function test_coordinates_arriving_during_a_refresh_wait_for_the_next_one(): void
     {
         $this->publishFixture([], 10);
         $spring = Spring::factory()->create(['longitude' => 139.123456, 'latitude' => -47.654321, 'type' => 'Spring']);
@@ -341,75 +242,136 @@ final class RasterPyramidTest extends TestCase
 
             public function __construct(private Closure $arrival) {}
 
-            public function png(iterable $cells, int $zoom = 0): string
+            public function png(iterable $cells, int $zoom = 0, ?array $style = null): string
             {
                 if (! $this->arrived) {
                     $this->arrived = true;
                     ($this->arrival)();
                 }
 
-                return (new RasterRenderer)->png($cells, $zoom);
+                return (new RasterRenderer)->png($cells, $zoom, $style);
             }
         });
 
-        $first = $this->pyramid->refresh();
-        self::assertSame(1, $first['changed']);
-        self::assertSame(1, $first['source_count']);
-        self::assertNotNull($other);
-        self::assertNull($this->snapshotPoint($first['revision'], $other->id));
+        self::assertSame(1, $this->pyramid->refresh()['changed']);
+        self::assertSame([], $this->cellsAt($other));
         self::assertCount(1, $this->pendingCoordinates());
-        $hash = hash_file('sha256', $this->snapshotPath($first['revision']));
         app()->instance(RasterRenderer::class, new RasterRenderer);
-        $next = (new RasterPyramid)->refresh();
-        self::assertSame(1, $next['changed']);
-        self::assertSame(2, $next['source_count']);
-        self::assertNotNull($this->snapshotPoint($next['revision'], $spring->id));
-        self::assertNotNull($this->snapshotPoint($next['revision'], $other->id));
+        self::assertSame(1, (new RasterPyramid)->refresh()['changed']);
+        self::assertSame(['4:0' => 1], $this->cellsAt($other));
         self::assertSame([], $this->pendingCoordinates());
-        self::assertSame($hash, hash_file('sha256', $this->snapshotPath($first['revision'])));
     }
 
-    public function test_retention_keeps_the_active_and_previous_generation_while_removing_expired_older_sets(): void
+    public function test_a_saved_style_is_applied_by_the_next_refresh_and_old_tile_sets_are_removed(): void
     {
-        config(['source_raster.retention_hours' => 1]);
-        $this->publishFixture([], 10);
-        $previous = dirname($this->snapshotPath($this->revision));
+        $this->publishFixture([$this->point(1, 256, 256, 0, 1, 2)], 0);
+        $this->pyramid->restyle();
+        $first = $this->pyramid->manifest()['revision'];
+        $style = $this->pyramid->style();
+        self::assertSame(config('source_raster.style.zooms.0.green'), $style['zooms'][0]['green']);
+        self::assertFalse($this->pyramid->status()['pending']);
 
-        foreach ([str_repeat('b', 24), str_repeat('c', 24)] as $index => $revision) {
-            $directory = dirname($this->snapshotPath($revision));
-            File::ensureDirectoryExists($directory);
-            copy($previous.'/index.sqlite', $directory.'/index.sqlite');
-            copy($previous.'/metadata.json', $directory.'/metadata.json');
-            touch($directory, time() - (3 + $index) * 3600);
-        }
+        $style['zooms'][0]['green'] = [8, 1];
+        $this->pyramid->queueStyle($style);
+        self::assertTrue($this->pyramid->status()['pending']);
+        self::assertSame($first, $this->pyramid->manifest()['revision']);
+        $this->assertTransparent($this->pyramid->tile($first, 0, 0, 0), 262, 256);
 
-        touch($previous, time() - 2 * 3600);
-        clearstatcache();
-        $spring = Spring::factory()->create(['longitude' => 139.123456, 'latitude' => -47.654321, 'type' => 'Spring']);
-        $this->pyramid->invalidate($spring->longitude, $spring->latitude);
         $stats = $this->pyramid->refresh();
-        self::assertFileExists($this->snapshotPath($stats['revision']));
-        self::assertFileExists($this->snapshotPath($this->revision));
-        self::assertFileDoesNotExist($this->snapshotPath(str_repeat('b', 24)));
-        self::assertFileDoesNotExist($this->snapshotPath(str_repeat('c', 24)));
-        self::assertCount(2, File::directories($this->rasterRoot.'/generations'));
+        $second = $this->pyramid->manifest()['revision'];
+        self::assertTrue($stats['restyled']);
+        self::assertNotSame($first, $second);
+        self::assertEquals([8, 1], $this->pyramid->style()['zooms'][0]['green']);
+        self::assertFalse($this->pyramid->status()['pending']);
+        $this->assertPixelColor($this->pyramid->tile($second, 0, 0, 0), 262, 256, RasterRenderer::COLORS[2]);
+        self::assertFileExists($this->rasterRoot.'/tiles/'.$first.'/0/0/0.png'); // Open maps keep working.
+
+        $this->pyramid->restyle();
+        self::assertDirectoryDoesNotExist($this->rasterRoot.'/tiles/'.$first);
+        self::assertDirectoryExists($this->rasterRoot.'/tiles/'.$second);
     }
 
-    public function test_unbuilt_and_invalid_requests_do_not_publish_or_render_a_generation(): void
+    public function test_invalid_styles_are_refused(): void
+    {
+        $this->publishFixture([], 0);
+        $style = config('source_raster.style');
+
+        foreach ([
+            ['order' => ['blue', 'blue', 'green', 'red']] + $style,
+            array_replace_recursive($style, ['zooms' => [3 => ['red' => [RasterRenderer::MAX_DIAMETER + 1, 0.5]]]]),
+            array_replace_recursive($style, ['zooms' => [3 => ['red' => [2, 1.5]]]]),
+            ['zooms' => array_slice($style['zooms'], 0, 10, true)] + $style,
+        ] as $invalid) {
+            try {
+                $this->pyramid->queueStyle($invalid);
+                self::fail('Expected the style to be refused.');
+            } catch (InvalidArgumentException) {
+                self::assertFalse($this->pyramid->status()['pending']);
+            }
+        }
+    }
+
+    public function test_previews_and_filtered_tiles_are_drawn_without_being_stored(): void
+    {
+        $this->publishFixture([$this->point(1, 256, 256, 0, 1, 2)], 0);
+        $style = config('source_raster.style');
+        $style['zooms'][0]['green'] = [8, 1];
+        $published = $this->pyramid->png(0, 0, 0);
+        self::assertNotSame($published, $this->pyramid->png(0, 0, 0, 63, false, $style));
+        self::assertNotSame($published, $this->pyramid->png(0, 0, 0, 2));
+        self::assertSame($published, $this->pyramid->png(0, 0, 0, 1, true));
+        self::assertDirectoryDoesNotExist($this->rasterRoot.'/tiles');
+    }
+
+    public function test_the_raster_overview_is_off_until_switched_on(): void
+    {
+        $this->publishFixture([], 0);
+        self::assertFalse($this->pyramid->enabled());
+        self::assertFalse($this->pyramid->status()['enabled']);
+        $this->pyramid->setEnabled(true);
+        self::assertTrue((new RasterPyramid)->status()['enabled']);
+        $this->pyramid->restyle();
+        self::assertTrue($this->pyramid->enabled(), 'a redraw keeps the switch');
+        $this->pyramid->setEnabled(false);
+        $this->pyramid->setEnabled(false);
+        self::assertFalse($this->pyramid->enabled());
+    }
+
+    public function test_refresh_reports_a_running_build_instead_of_failing(): void
+    {
+        $this->publishFixture([], 0);
+        $lock = fopen($this->rasterRoot.'/build.lock', 'c');
+        flock($lock, LOCK_EX);
+        self::assertTrue($this->pyramid->status()['busy']);
+        self::assertSame(0, $this->pyramid->refresh()['changed']);
+        flock($lock, LOCK_UN);
+        fclose($lock);
+        self::assertFalse($this->pyramid->status()['busy']);
+    }
+
+    public function test_unbuilt_unknown_and_outdated_requests_do_not_draw_anything(): void
     {
         self::assertNull($this->pyramid->manifest());
+        $this->pyramid->invalidate(20, 50);
+        self::assertCount(1, $this->pendingCoordinates());
         self::assertSame(0, $this->pyramid->refresh()['changed']);
+        self::assertSame([], $this->pendingCoordinates(), 'edits do not pile up before the first build');
         $this->publishFixture([], 0);
-        $this->expectException(InvalidArgumentException::class);
-        $this->pyramid->tile($this->revision, 1, 0, 0);
+
+        foreach ([[$this->revision, 1, 0, 0], [str_repeat('b', 24), 0, 0, 0], ['../../etc', 0, 0, 0]] as $arguments) {
+            try {
+                $this->pyramid->tile(...$arguments);
+                self::fail('Expected the tile to be refused.');
+            } catch (InvalidArgumentException) {
+                self::assertDirectoryDoesNotExist($this->rasterRoot.'/tiles');
+            }
+        }
     }
 
     private function publishFixture(array $points, int $maxZoom): void
     {
-        $directory = dirname($this->snapshotPath($this->revision));
-        File::ensureDirectoryExists($directory);
-        $stats = RasterSnapshot::populateFromPoints($directory.'/index.sqlite', $points, $maxZoom);
-        file_put_contents($directory.'/metadata.json', json_encode($stats, JSON_THROW_ON_ERROR));
+        File::ensureDirectoryExists($this->rasterRoot);
+        RasterSnapshot::populateFromPoints($this->rasterRoot.'/index.sqlite', $points, $maxZoom);
         file_put_contents($this->rasterRoot.'/manifest.json', json_encode(['revision' => $this->revision, 'max_zoom' => $maxZoom], JSON_THROW_ON_ERROR));
     }
 
@@ -423,9 +385,23 @@ final class RasterPyramidTest extends TestCase
         ];
     }
 
-    private function snapshotPath(string $revision): string
+    private function database(): PDO
     {
-        return $this->rasterRoot.'/generations/'.$revision.'/index.sqlite';
+        return RasterSnapshot::open($this->rasterRoot.'/index.sqlite');
+    }
+
+    /** Finest-zoom counts at a source's pixel, keyed "type:status". */
+    private function cellsAt(Spring $spring): array
+    {
+        $position = RasterSnapshot::project((float) $spring->longitude, (float) $spring->latitude, 10);
+        $query = $this->database()->prepare('SELECT type,status,n FROM cells WHERE z=10 AND tile_x=? AND tile_y=? AND px=? AND py=?');
+        $query->execute([intdiv($position['x'], 512), intdiv($position['y'], 512), $position['x'] % 512, $position['y'] % 512]);
+        $cells = [];
+        foreach ($query as $cell) {
+            $cells[$cell['type'].':'.$cell['status']] = $cell['n'];
+        }
+
+        return $cells;
     }
 
     private function pendingCoordinates(): array
@@ -443,17 +419,13 @@ final class RasterPyramidTest extends TestCase
         return array_values($coordinates);
     }
 
-    private function snapshotPoint(string $revision, int $id): ?array
+    /** Write drawn bytes to a file so the image helpers can read them. */
+    private function stored(string $png): string
     {
-        $query = RasterSnapshot::open($this->snapshotPath($revision))->prepare('SELECT * FROM points WHERE id = ?');
-        $query->execute([$id]);
+        $path = $this->rasterRoot.'/'.bin2hex(random_bytes(6)).'.png';
+        file_put_contents($path, $png);
 
-        return $query->fetch() ?: null;
-    }
-
-    private function rectangle(float $west, float $south, float $east, float $north): array
-    {
-        return ['type' => 'Polygon', 'coordinates' => [[[$west, $south], [$east, $south], [$east, $north], [$west, $north], [$west, $south]]]];
+        return $path;
     }
 
     private function pixel(string $path, int $x, int $y): array

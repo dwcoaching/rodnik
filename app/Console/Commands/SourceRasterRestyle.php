@@ -12,7 +12,7 @@ final class SourceRasterRestyle extends Command
 {
     protected $signature = 'sources:raster-restyle {--no-render : Publish fresh URLs and render PNGs on demand}';
 
-    protected $description = 'Repaint the source overview using its existing numeric snapshot';
+    protected $description = 'Redraw every source overview tile from the existing counts';
 
     public function handle(RasterPyramid $pyramid): int
     {

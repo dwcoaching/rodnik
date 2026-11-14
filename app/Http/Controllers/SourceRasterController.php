@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\TrackPolygon;
 use App\Services\SourceRaster\RasterPyramid;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 final class SourceRasterController extends Controller
 {
@@ -26,17 +24,23 @@ final class SourceRasterController extends Controller
                 ->header('Retry-After', '60');
         }
 
+        if (! $pyramid->enabled()) {
+            // Built but switched off in the admin: the map keeps its vector overview.
+            return response()->json(['message' => 'The source overview is switched off.'], 503)
+                ->header('Cache-Control', 'no-store')
+                ->header('Retry-After', '60');
+        }
+
         return response()->json($manifest)->header('Cache-Control', 'no-store');
     }
 
-    public function show(Request $request, RasterPyramid $pyramid, string $revision, int $z, int $x, int $y): BinaryFileResponse
+    public function show(Request $request, RasterPyramid $pyramid, string $revision, int $z, int $x, int $y): Response
     {
         abort_if($z > 10 || $x >= 2 ** $z || $y >= 2 ** $z, 404);
 
         $validator = Validator::make($request->query(), [
             'types' => ['sometimes', 'integer', 'between:0,63'],
             'reports' => ['sometimes', 'boolean'],
-            'polygon' => ['sometimes', 'nullable', 'string', 'regex:/\A[a-f0-9]{64}\z/'],
         ]);
         if ($validator->fails()) {
             // These public asset requests have no session, including when a browser
@@ -46,34 +50,34 @@ final class SourceRasterController extends Controller
                 'errors' => $validator->errors(),
             ], 422));
         }
-        $filters = $validator->validated();
-        $polygon = null;
-
-        if (! empty($filters['polygon'])) {
-            // Polygon hashes are public capabilities, as in TrackPolygonController::show.
-            // Return only rendered sources; the private geometry file is never served.
-            $trackPolygon = TrackPolygon::query()->where('hash', $filters['polygon'])->firstOrFail();
-            abort_unless(Storage::disk(TrackPolygon::GEOMETRY_DISK)->exists($trackPolygon->geometryPath()), 404);
-            $polygon = $trackPolygon->polygon;
-        }
+        $types = (int) ($validator->validated()['types'] ?? 63);
+        $reports = $request->boolean('reports');
 
         try {
-            $path = $pyramid->tile(
-                $revision, $z, $x, $y,
-                (int) ($filters['types'] ?? 63),
-                $request->boolean('reports'),
-                $polygon,
-            );
+            if ($types !== 63 || $reports) {
+                // Filtered tiles are drawn per request and never stored, so the
+                // number of filter combinations cannot fill the disk.
+                abort_unless($revision === ($pyramid->manifest()['revision'] ?? null), 404);
+
+                return response($pyramid->png($z, $x, $y, $types, $reports), 200, [
+                    'Content-Type' => 'image/png',
+                    'Cache-Control' => 'public, max-age=300',
+                    'X-Content-Type-Options' => 'nosniff',
+                ]);
+            }
+            $path = $pyramid->tile($revision, $z, $x, $y);
         } catch (InvalidArgumentException) {
             abort(404);
         }
 
-        abort_unless(is_file($path), 404);
-
-        return response()->file($path, [
+        // A source edit rewrites its tiles in place, so browsers revalidate after a minute.
+        $response = response()->file($path, [
             'Content-Type' => 'image/png',
-            'Cache-Control' => 'public, max-age=31536000, immutable',
+            'Cache-Control' => 'public, max-age=60',
             'X-Content-Type-Options' => 'nosniff',
         ]);
+        $response->isNotModified($request);
+
+        return $response;
     }
 }
