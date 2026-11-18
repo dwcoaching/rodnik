@@ -133,6 +133,21 @@ test('registering from a new report returns to it and saves the page language', 
     expect(User::query()->where('email', 'new-reporter@example.com')->value('locale'))->toBe('ru');
 });
 
+test('the report pages show the language switcher', function (string $prefix, string $target) {
+    $spring = Spring::factory()->create();
+
+    $document = HTMLDocument::createFromString(
+        $this->get($prefix.'/reports/create?spring_id='.$spring->id)->assertOk()->getContent(),
+        LIBXML_NOERROR,
+    );
+
+    expect($document->querySelector('form[data-rodnik-locale="'.$target.'"] input[name="redirect"]')?->getAttribute('value'))
+        ->toBe(($target === 'ru' ? '/ru' : '').'/reports/create?spring_id='.$spring->id);
+})->with([
+    'English page offers Russian' => ['', 'ru'],
+    'Russian page offers English' => ['/ru', 'en'],
+]);
+
 test('local paths are localized only when they have localized versions', function (string $path, string $locale, string $expected, ?string $pathLocale) {
     $urls = app(LocalizedUrl::class);
 
