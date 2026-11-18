@@ -53,6 +53,14 @@ function duo_route(array $parameters = []): string
     return app(App\Support\DuoUrl::class)->absolute($parameters);
 }
 
+/**
+ * Link to login or registration that returns the visitor to the current page afterwards.
+ */
+function auth_route(string $name): string
+{
+    return app(App\Support\ReturnUrl::class)->authRoute(request(), $name);
+}
+
 function localized_url(string $locale, bool $canonical = false): string
 {
     return app(App\Support\LocalizedUrl::class)->absolute(request(), $locale, $canonical);

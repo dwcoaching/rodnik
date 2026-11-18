@@ -9,6 +9,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Route as RouteFacade;
 use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 final class LocalizedUrl
 {
@@ -71,6 +72,49 @@ final class LocalizedUrl
         }
 
         return $path.'?'.http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+    }
+
+    /**
+     * The locale a local path is published in, or null when the path has no localized versions.
+     */
+    public function localeOfPath(string $path): ?string
+    {
+        $path = $this->pathOnly($path);
+
+        if (! $this->pathHasLocalizedEquivalent($path)) {
+            return null;
+        }
+
+        foreach (array_keys(config('localization.supported')) as $locale) {
+            if ($locale !== config('localization.default') && ($path === '/'.$locale || str_starts_with($path, '/'.$locale.'/'))) {
+                return $locale;
+            }
+        }
+
+        return config('localization.default');
+    }
+
+    /**
+     * Rewrite a local URL (path, query and fragment) into the given locale. Paths without a
+     * localized version, such as /login, come back unchanged.
+     */
+    public function forPath(string $url, string $locale): string
+    {
+        $this->ensureSupported($locale);
+
+        $path = $this->pathOnly($url);
+
+        if (! $this->pathHasLocalizedEquivalent($path)) {
+            return $url;
+        }
+
+        $localized = $this->withoutLocalePrefix($path);
+
+        if ($locale !== config('localization.default')) {
+            $localized = '/'.$locale.($localized === '/' ? '' : $localized);
+        }
+
+        return $localized.mb_substr($url, mb_strlen($path));
     }
 
     public function hasLocalizedEquivalent(Request $request): bool
@@ -142,6 +186,27 @@ final class LocalizedUrl
             'ru/docs/delete-account',
             'ru/docs/coll-de-sa-batalla',
         );
+    }
+
+    private function pathOnly(string $url): string
+    {
+        $path = strpbrk($url, '?#');
+
+        return $path === false ? $url : mb_substr($url, 0, mb_strlen($url) - mb_strlen($path));
+    }
+
+    private function pathHasLocalizedEquivalent(string $path): bool
+    {
+        $request = Request::create($path);
+
+        try {
+            $route = RouteFacade::getRoutes()->match($request);
+            $request->setRouteResolver(fn (): Route => $route);
+        } catch (HttpException) {
+            // Folio docs pages are recognised by path below.
+        }
+
+        return $this->hasLocalizedEquivalent($request);
     }
 
     private function withoutLocalePrefix(string $path): string

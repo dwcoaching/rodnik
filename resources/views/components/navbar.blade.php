@@ -16,8 +16,8 @@
         <x-language-switcher />
         @guest
             <div class="flex items-center gap-3 sm:gap-4">
-                <a href="{{ route('login') }}" data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ route('register') }}" data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Register') }}</a>
+                <a href="{{ auth_route('login') }}" data-rodnik-return data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Login') }}</a>
+                <a href="{{ auth_route('register') }}" data-rodnik-return data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Register') }}</a>
             </div>
         @endguest
         @auth

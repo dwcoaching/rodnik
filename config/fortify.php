@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\RememberReturnUrl;
 use App\Providers\RouteServiceProvider;
 use Laravel\Fortify\Features;
 
@@ -91,7 +92,7 @@ return [
     |
     */
 
-    'middleware' => ['web'],
+    'middleware' => ['web', RememberReturnUrl::class],
 
     /*
     |--------------------------------------------------------------------------

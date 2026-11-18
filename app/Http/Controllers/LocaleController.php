@@ -6,10 +6,17 @@ namespace App\Http\Controllers;
 
 use App\Actions\UpdateLocalePreference;
 use App\Http\Requests\UpdateLocaleRequest;
+use App\Support\LocaleCookie;
 use Illuminate\Http\RedirectResponse;
 
 final class LocaleController extends Controller
 {
+    /**
+     * Session key for a language picked during this visit; it outranks the
+     * profile's saved language when the visitor signs in afterwards.
+     */
+    public const string CHOSEN_SESSION_KEY = 'locale.chosen';
+
     public function __invoke(
         UpdateLocaleRequest $request,
         UpdateLocalePreference $updateLocalePreference,
@@ -19,14 +26,10 @@ final class LocaleController extends Controller
 
         $updateLocalePreference($request->user(), $locale);
 
-        return redirect()->to($validated['redirect'])->withCookie(cookie(
-            name: config('localization.cookie'),
-            value: $locale,
-            minutes: config('localization.cookie_minutes'),
-            path: '/',
-            secure: null,
-            httpOnly: true,
-            sameSite: 'lax',
-        ));
+        if (! $request->user()) {
+            $request->session()->put(self::CHOSEN_SESSION_KEY, $locale);
+        }
+
+        return redirect()->to($validated['redirect'])->withCookie(LocaleCookie::make($locale));
     }
 }

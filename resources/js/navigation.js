@@ -391,6 +391,15 @@ export function installNavigation(Livewire) {
             anchor.dataset.rodnikBaseHref ??= anchor.href;
             const url = new URL(anchor.dataset.rodnikBaseHref, current);
             if (url.origin !== current.origin) return;
+            if (anchor.hasAttribute('data-rodnik-return')) {
+                // Login and registration links bring the visitor back to the page as it is now.
+                // On the auth pages themselves the server already remembers where to return.
+                if (!/^\/(?:login|register|forgot-password|reset-password)(?:\/|$)/.test(current.pathname)) {
+                    url.searchParams.set('redirect', current.pathname + current.search + current.hash);
+                }
+                anchor.href = url.href;
+                return;
+            }
             if (isResource(url) || isSavedMap(url) || /^\/(?:ru\/)?(?:user\/maps(?:\/|$)|docs(?:\/|$))/.test(url.pathname)
                 || anchor.closest('[data-rodnik-pagination]')) anchor.dataset.rodnikNavigate = '';
             if (anchor.dataset.rodnikLocale && anchor.hasAttribute('data-rodnik-navigate')) {

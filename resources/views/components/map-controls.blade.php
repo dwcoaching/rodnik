@@ -99,7 +99,7 @@
                         </div>
                     </form>
                 @else
-                    <p class="mt-4 text-sm leading-6 text-zinc-500"><a href="{{ localized_route('login') }}" data-rodnik-navigate class="font-semibold text-blue-600 hover:underline">{{ __('ui.maps.sign_in_to_save') }}</a> {{ __('ui.maps.guest_track_help') }}</p>
+                    <p class="mt-4 text-sm leading-6 text-zinc-500"><a href="{{ auth_route('login') }}" data-rodnik-return data-rodnik-navigate class="font-semibold text-blue-600 hover:underline">{{ __('ui.maps.sign_in_to_save') }}</a> {{ __('ui.maps.guest_track_help') }}</p>
                 @endauth
                 <p x-show="notice && (!confirmation || copied || copiedSaved || notice === @js(__('ui.maps.copy_manually')))" x-text="notice" role="status" aria-live="polite" :class="copied || copiedSaved ? 'sr-only' : 'mt-4 rounded-lg bg-blue-50 px-3 py-2.5 text-sm leading-5 text-blue-800'"></p>
                 <p x-show="error && !Object.keys(fieldErrors).length" x-text="error" role="alert" class="mt-4 text-sm text-[#dc3545]"></p>

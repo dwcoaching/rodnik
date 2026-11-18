@@ -225,7 +225,8 @@ test('saved map links and navigation menus use application navigation', function
 test('guest entry points use application navigation', function () {
     foreach ([duo_route(), duo_route(['location' => 1])] as $url) {
         $html = $this->get($url)->assertOk()->getContent();
-        expectDuoNavigationLinks($html, [route('login'), route('register')]);
+        $path = mb_substr($url, mb_strlen(mb_rtrim(url('/'), '/')));
+        expectDuoNavigationLinks($html, [route('login', ['redirect' => $path]), route('register', ['redirect' => $path])]);
     }
 });
 

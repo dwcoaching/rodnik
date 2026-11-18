@@ -41,8 +41,8 @@
                 {{ __('ui.report.guest.personal_page') }}
             </div>
             <div class="mt-4 max-w-prose">
-                <a href="{{ route('login') }}" data-rodnik-navigate type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.log_in') }}</a>
-                <a href="{{ route('register') }}" data-rodnik-navigate type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.register') }}</a>
+                <a href="{{ auth_route('login') }}" data-rodnik-return data-rodnik-navigate type="button" class="mr-2 inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.log_in') }}</a>
+                <a href="{{ auth_route('register') }}" data-rodnik-return data-rodnik-navigate type="button" class="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">{{ __('ui.common.register') }}</a>
             </div>
         </div>
     @endguest
