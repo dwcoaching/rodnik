@@ -37,7 +37,6 @@ return [
             'body' => 'For access, correction or other privacy questions, or a problem with a specific publication, email us with the relevant link, reason and enough information to establish your connection to the data or material. We may ask for reasonable proof before acting; a stranger’s unsubstantiated request does not authorize deletion. We review requests under applicable law. This is separate from deleting your account through its settings.',
         ],
     ],
-    'registration_hint' => 'A pseudonym is fine. Email is not verified; password recovery needs an address you can access.',
     'deletion' => [
         'retry' => 'We could not delete your account. Please try again.',
         'title' => 'Delete account',

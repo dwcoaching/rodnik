@@ -9,7 +9,6 @@ test('user can not register if the nickname field is not present', function () {
         'name' => 'Test User',
         'email' => 'test@example.com',
         'password' => 'password',
-        'password_confirmation' => 'password',
     ]);
     $response->assertStatus(422);
 });
@@ -20,7 +19,6 @@ test('user can not register if the nickname field is not empty', function () {
         'nickname' => 'John',
         'email' => 'test@example.com',
         'password' => 'password',
-        'password_confirmation' => 'password',
     ]);
     $response->assertStatus(422);
 });
@@ -31,7 +29,6 @@ test('user can not register if the country field is present', function () {
         'country' => 'Russia',
         'email' => 'test@example.com',
         'password' => 'password',
-        'password_confirmation' => 'password',
     ]);
     $response->assertStatus(422);
 });
@@ -42,7 +39,6 @@ test('user can register', function () {
         'nickname' => '',
         'email' => 'test@example.com',
         'password' => 'password',
-        'password_confirmation' => 'password',
     ]);
     $response->assertRedirect();
 });

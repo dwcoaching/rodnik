@@ -25,6 +25,9 @@ final class PageMetadata
         $title ??= $request->routeIs('maps.index', 'ru.maps.index') ? __('ui.maps.my_maps').' — Rodnik.today' : null;
         $title ??= $request->routeIs('tracks.index', 'ru.tracks.index') ? __('ui.tracks.my_tracks').' — Rodnik.today' : null;
         $title ??= $request->routeIs('maps.edit', 'ru.maps.edit') ? __('ui.maps.edit_map').' — Rodnik.today' : null;
+        foreach (['login' => 'login', 'register' => 'register', 'password.request' => 'forgot', 'password.reset' => 'reset'] as $route => $page) {
+            $title ??= $request->routeIs($route) ? __('ui.auth.'.$page.'.title').' — Rodnik.today' : null;
+        }
         $indexable ??= $this->localizedUrl->isIndexable($request);
         $alternates = [];
 

@@ -1,34 +1,19 @@
 <x-app-layout navbar>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+    <x-authentication-card :title="__('ui.auth.forgot.title')" :subtitle="__('ui.auth.forgot.subtitle')">
+        <x-auth-alert type="success" class="mb-5" :messages="session('status')" />
 
-        <div class="mb-4 text-sm text-gray-600">
-            {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-        </div>
-
-        @if (session('status'))
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ session('status') }}
-            </div>
-        @endif
-
-        <x-validation-errors class="mb-4" />
-
-        <form method="POST" action="{{ route('password.email') }}">
+        <form method="POST" action="{{ route('password.email') }}" class="space-y-5">
             @csrf
 
-            <div class="block">
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            </div>
+            <x-auth-field name="email" type="email" :label="__('ui.auth.email')" :value="old('email')"
+                required autofocus autocomplete="username" autocapitalize="none" spellcheck="false" />
 
-            <div class="flex items-center justify-end mt-4">
-                <x-button>
-                    {{ __('Email Password Reset Link') }}
-                </x-button>
-            </div>
+            <button type="submit" class="ui-button ui-button-primary h-11 w-full">{{ __('ui.auth.forgot.submit') }}</button>
         </form>
+
+        <x-slot name="footer">
+            {{ __('ui.auth.forgot.remembered') }}
+            <a href="{{ auth_route('login') }}" data-rodnik-return data-rodnik-navigate class="font-semibold text-blue-600 hover:text-blue-700 hover:underline">{{ __('ui.auth.register.login') }}</a>
+        </x-slot>
     </x-authentication-card>
-</x-guest-layout>
+</x-app-layout>

@@ -256,8 +256,8 @@ test('the navbar keeps the language switcher on the same row as the guest links'
 
     $this->get('/')
         ->assertSuccessful()
-        ->assertSee('<a href="'.route('login', ['redirect' => '/']).'" data-rodnik-return data-rodnik-navigate class="block text-sm text-gray-500">', false)
-        ->assertSee('<a href="'.route('register', ['redirect' => '/']).'" data-rodnik-return data-rodnik-navigate class="block text-sm text-gray-500">', false);
+        ->assertSee('<a href="'.route('login', ['redirect' => '/']).'" data-rodnik-return data-rodnik-navigate class="block ', false)
+        ->assertSee('<a href="'.route('register', ['redirect' => '/']).'" data-rodnik-return data-rodnik-navigate class="hidden ', false);
 });
 
 test('the navbar shows the language switcher next to the avatar for signed in users', function () {

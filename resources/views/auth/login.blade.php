@@ -1,52 +1,35 @@
 <x-app-layout navbar>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+    <x-authentication-card :title="__('ui.auth.login.title')">
+        <x-auth-alert type="success" class="mb-5" :messages="session('status')" />
+        <x-auth-alert class="mb-5" :messages="$errors->all()" />
 
-        <x-validation-errors class="mb-4" />
-
-        @if (session('status'))
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ session('status') }}
-            </div>
-        @endif
-
-        <form method="POST" action="{{ route('login') }}">
+        <form method="POST" action="{{ route('login') }}" class="space-y-5">
             @csrf
 
-            <div>
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            </div>
+            <x-auth-field name="email" type="email" :label="__('ui.auth.email')" :value="old('email')" :inline-error="false"
+                required autofocus autocomplete="username" autocapitalize="none" spellcheck="false" />
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="current-password" />
-            </div>
+            <x-auth-field name="password" type="password" :label="__('ui.auth.password')" :inline-error="false"
+                required autocomplete="current-password">
+                @if (Route::has('password.request'))
+                    <x-slot name="action">
+                        <a data-rodnik-navigate href="{{ route('password.request') }}" class="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                            {{ __('ui.auth.login.forgot') }}
+                        </a>
+                    </x-slot>
+                @endif
+            </x-auth-field>
 
             <input type="hidden" id="remember_me" name="remember" value="true" />
 
-            {{--
-                <div class="block mt-4">
-                    <label for="remember_me" class="flex items-center">
-                        <x-checkbox id="remember_me" name="remember" checked />
-                        <span class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-                    </label>
-                </div>
-            --}}
-
-            <div class="flex items-center justify-end mt-4">
-                @if (Route::has('password.request'))
-                    <a data-rodnik-navigate class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('password.request') }}">
-                        {{ __('Forgot your password?') }}
-                    </a>
-                @endif
-
-                <x-button class="ml-4">
-                    {{ __('Log in') }}
-                </x-button>
-            </div>
+            <button type="submit" class="ui-button ui-button-primary h-11 w-full">{{ __('ui.auth.login.submit') }}</button>
         </form>
+
+        @if (Route::has('register'))
+            <x-slot name="footer">
+                {{ __('ui.auth.login.no_account') }}
+                <a href="{{ auth_route('register') }}" data-rodnik-return data-rodnik-navigate class="font-semibold text-blue-600 hover:text-blue-700 hover:underline">{{ __('ui.auth.login.register') }}</a>
+            </x-slot>
+        @endif
     </x-authentication-card>
-</x-guest-layout>
+</x-app-layout>

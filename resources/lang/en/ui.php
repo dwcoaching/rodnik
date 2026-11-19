@@ -450,6 +450,51 @@ return [
         'title' => 'Photos',
     ],
 
+    'auth' => [
+        'email' => 'Email',
+        'password' => 'Password',
+        'password_hint' => 'At least 8 characters.',
+        'show_password' => 'Show password',
+        'hide_password' => 'Hide password',
+        'login' => [
+            'title' => 'Log in',
+            'forgot' => 'Forgot password?',
+            'submit' => 'Log in',
+            'no_account' => 'No account yet?',
+            'register' => 'Register',
+        ],
+        'register' => [
+            'nav' => 'Register',
+            'title' => 'Create an account',
+            'subtitle' => 'With an account you can add water sources, save maps and tracks, and edit your reports.',
+            'name' => 'Name',
+            'name_hint' => 'Shown next to your reports. A pseudonym is fine.',
+            'email_hint' => 'Not verified, but needed to recover your password.',
+            'submit' => 'Create account',
+            'have_account' => 'Already have an account?',
+            'login' => 'Log in',
+        ],
+        'forgot' => [
+            'title' => 'Reset your password',
+            'subtitle' => 'Enter your account email and we will send you a link to set a new password.',
+            'submit' => 'Send reset link',
+            'remembered' => 'Remembered your password?',
+        ],
+        'reset' => [
+            'title' => 'Set a new password',
+            'password' => 'New password',
+            'submit' => 'Save password',
+        ],
+        'confirm' => [
+            'title' => 'Confirm your password',
+            'subtitle' => 'This is a protected area. Enter your password again to continue.',
+            'submit' => 'Confirm',
+        ],
+        'verify' => [
+            'title' => 'Verify your email',
+        ],
+    ],
+
     'nav' => [
         'my_water_sources' => 'My water sources',
     ],

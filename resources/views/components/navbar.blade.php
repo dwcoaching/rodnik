@@ -10,14 +10,14 @@
         </div>
     </div>
 
-    {{-- On narrow screens the guest links wrap below instead of covering the logo. --}}
-    <div class="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 sm:gap-3">
+    {{-- Phones show only the login link so the menu stays on one line; the login page links to registration. --}}
+    <div class="flex min-w-0 flex-wrap items-center justify-end gap-x-1 gap-y-1 sm:gap-3">
         <a href="{{ localized_public_path('/docs/about') }}" data-rodnik-navigate data-docs-link class="flex h-7 shrink-0 items-center rounded-md bg-stone-200 px-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-stone-300 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">{{ __('pages.docs.nav') }}</a>
         <x-language-switcher />
         @guest
-            <div class="flex items-center gap-3 sm:gap-4">
-                <a href="{{ auth_route('login') }}" data-rodnik-return data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Login') }}</a>
-                <a href="{{ auth_route('register') }}" data-rodnik-return data-rodnik-navigate class="block text-sm text-gray-500">{{ __('Register') }}</a>
+            <div class="flex shrink-0 items-center gap-4">
+                <a href="{{ auth_route('login') }}" data-rodnik-return data-rodnik-navigate class="block text-sm text-gray-600 hover:text-gray-950">{{ __('ui.common.log_in') }}</a>
+                <a href="{{ auth_route('register') }}" data-rodnik-return data-rodnik-navigate class="hidden text-sm text-gray-600 hover:text-gray-950 sm:block">{{ __('ui.auth.register.nav') }}</a>
             </div>
         @endguest
         @auth

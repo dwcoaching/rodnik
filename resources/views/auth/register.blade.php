@@ -1,18 +1,13 @@
 <x-app-layout navbar>
-    <x-authentication-card>
-        <x-slot name="logo">
-            <x-authentication-card-logo />
-        </x-slot>
+    <x-authentication-card :title="__('ui.auth.register.title')" :subtitle="__('ui.auth.register.subtitle')">
+        {{-- Errors of the visible fields show next to them. --}}
+        <x-auth-alert class="mb-5" :messages="collect($errors->getMessages())->except(['name', 'email', 'password'])->flatten()->all()" />
 
-        <x-validation-errors class="mb-4" />
-
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('register') }}" class="space-y-5">
             @csrf
 
-            <div>
-                <x-label for="name" value="{{ __('Name') }}" />
-                <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            </div>
+            <x-auth-field name="name" :label="__('ui.auth.register.name')" :hint="__('ui.auth.register.name_hint')" :value="old('name')"
+                required autofocus autocomplete="name" />
 
             {{--  Honeypot trap against bots: should be empty --}}
             <div class="hidden">
@@ -26,51 +21,31 @@
                 <x-input id="country" class="block mt-1 w-full" type="text" name="country" value="" />
             </div>
 
-            <div class="mt-4">
-                <x-label for="email" value="{{ __('Email') }}" />
-                <x-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
-            </div>
+            <x-auth-field name="email" type="email" :label="__('ui.auth.email')" :hint="__('ui.auth.register.email_hint')" :value="old('email')"
+                required autocomplete="email" autocapitalize="none" spellcheck="false" />
 
-            <div class="mt-4">
-                <x-label for="password" value="{{ __('Password') }}" />
-                <x-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            </div>
-
-            <div class="mt-4">
-                <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                <x-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-            </div>
-
-            <p class="mt-4 text-sm text-gray-600">{{ __('privacy.registration_hint') }}</p>
+            <x-auth-field name="password" type="password" :label="__('ui.auth.password')" :hint="__('ui.auth.password_hint')"
+                required autocomplete="new-password" />
 
             @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
-                <div class="mt-4">
-                    <x-label for="terms">
-                        <div class="flex items-center">
-                            <x-checkbox name="terms" id="terms"/>
+                <label for="terms" class="flex items-start gap-2 text-sm text-gray-700">
+                    <x-checkbox name="terms" id="terms" class="mt-0.5" />
 
-                            <div class="ml-2">
-                                {!! __('I agree to the :terms_of_service and :privacy_policy', [
-                                        'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="underline text-sm text-gray-600 hover:text-gray-900">'.__('Terms of Service').'</a>',
-                                        'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="underline text-sm text-gray-600 hover:text-gray-900">'.__('Privacy Policy').'</a>',
-                                ]) !!}
-                            </div>
-                        </div>
-                    </x-label>
-                </div>
+                    <span>
+                        {!! __('I agree to the :terms_of_service and :privacy_policy', [
+                                'terms_of_service' => '<a target="_blank" href="'.route('terms.show').'" class="font-medium text-blue-600 hover:text-blue-700 hover:underline">'.__('Terms of Service').'</a>',
+                                'privacy_policy' => '<a target="_blank" href="'.route('policy.show').'" class="font-medium text-blue-600 hover:text-blue-700 hover:underline">'.__('Privacy Policy').'</a>',
+                        ]) !!}
+                    </span>
+                </label>
             @endif
 
-            <div class="flex items-center justify-end mt-4">
-                {{--
-                    <a data-rodnik-navigate class="underline text-sm text-gray-600 hover:text-gray-900" href="{{ route('login') }}">
-                        {{ __('Already registered?') }}
-                    </a>
-                --}}
-
-                <x-button class="ml-4">
-                    {{ __('Register') }}
-                </x-button>
-            </div>
+            <button type="submit" class="ui-button ui-button-primary h-11 w-full">{{ __('ui.auth.register.submit') }}</button>
         </form>
+
+        <x-slot name="footer">
+            {{ __('ui.auth.register.have_account') }}
+            <a href="{{ auth_route('login') }}" data-rodnik-return data-rodnik-navigate class="font-semibold text-blue-600 hover:text-blue-700 hover:underline">{{ __('ui.auth.register.login') }}</a>
+        </x-slot>
     </x-authentication-card>
 </x-app-layout>

@@ -125,7 +125,6 @@ test('registering from a new report returns to it and saves the page language', 
         'name' => 'Test User',
         'email' => 'new-reporter@example.com',
         'password' => 'password',
-        'password_confirmation' => 'password',
         'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
         'nickname' => null,
     ])->assertRedirect($path);
