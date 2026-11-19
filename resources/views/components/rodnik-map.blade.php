@@ -349,10 +349,49 @@
                 </div>
             </div>
         </div>
-        <div @click="window.rodnikMap.locateMe()" class="mt-2 h-9 w-9 bg-white shadow-xs rounded-md cursor-pointer flex items-center justify-center text-black hover:text-blue-700">
-            <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" class="h-5 w-5">
-                <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/><
-            </svg>
+        <div x-data="{ location: window.rodnikMap.location }" class="relative mt-2">
+            <button type="button" @click="window.rodnikMap.locateMe()"
+                title="{{ __('ui.map.locate_me') }}" data-map-i18n-title="map.locate_me"
+                :aria-busy="location.status === 'locating'"
+                class="h-9 w-9 bg-white shadow-xs rounded-md cursor-pointer flex items-center justify-center hover:text-blue-700"
+                :class="{
+                    'text-blue-600': ['locating', 'tracking'].includes(location.status),
+                    'text-red-600': ['denied', 'unavailable', 'timeout', 'unsupported'].includes(location.status),
+                    'text-black': ! ['locating', 'tracking', 'denied', 'unavailable', 'timeout', 'unsupported'].includes(location.status),
+                }">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" class="h-5 w-5"
+                    :class="{ 'animate-[spin_2s_linear_infinite] motion-reduce:animate-pulse': location.status === 'locating' }">
+                    <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+                </svg>
+            </button>
+            <div x-cloak x-show="location.status !== 'idle' && location.status !== 'tracking'" x-transition.opacity
+                @click.outside="location.status !== 'locating' && window.rodnikMap.dismissLocationNotice()"
+                class="absolute right-full top-0 mr-2 w-64 max-w-[calc(100vw-4rem)] rounded-lg border border-zinc-200 bg-white/95 px-3 py-2 text-sm shadow-sm"
+                role="status" aria-live="polite">
+                <div x-show="location.status === 'locating'" class="text-zinc-600">
+                    <p data-map-i18n="map.location.searching">{{ __('ui.map.location.searching') }}</p>
+                    <p x-show="location.prompting" class="mt-1 font-medium text-blue-700" data-map-i18n="map.location.prompt">{{ __('ui.map.location.prompt') }}</p>
+                </div>
+                <div x-show="location.status !== 'locating'" class="flex items-start gap-2">
+                    <div class="min-w-0 flex-1 text-zinc-700">
+                        <div x-show="location.status === 'denied'">
+                            <p class="font-semibold text-red-700" data-map-i18n="map.location.denied_title">{{ __('ui.map.location.denied_title') }}</p>
+                            <p class="mt-1" data-map-i18n="map.location.denied">{{ __('ui.map.location.denied') }}</p>
+                            <p class="mt-1 text-zinc-500" data-map-i18n="map.location.denied_device">{{ __('ui.map.location.denied_device') }}</p>
+                        </div>
+                        <p x-show="location.status === 'unavailable'" data-map-i18n="map.location.unavailable">{{ __('ui.map.location.unavailable') }}</p>
+                        <p x-show="location.status === 'timeout'" data-map-i18n="map.location.timeout">{{ __('ui.map.location.timeout') }}</p>
+                        <p x-show="location.status === 'unsupported'" data-map-i18n="map.location.unsupported">{{ __('ui.map.location.unsupported') }}</p>
+                    </div>
+                    <button type="button" @click="window.rodnikMap.dismissLocationNotice()"
+                        title="{{ __('ui.map.location.close') }}" data-map-i18n-title="map.location.close"
+                        class="-mr-1 -mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded text-zinc-400 hover:text-zinc-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+                            <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
         <div x-data="{
             gpxTrackUploaded: window.rodnikMap.trackLayer.isUploaded,

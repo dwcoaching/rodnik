@@ -99,9 +99,7 @@ test('a location response after leaving the map cannot restart tracking on its d
         if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
         else delete globalThis.navigator;
     });
-    const map = Object.assign(Object.create(OpenLayersMap.prototype), {
-        disposed: false,
-        geolocation: { getPosition: () => null },
+    const map = locatingMap({
         view: { animate() { animations++; } },
         watchMe() { trackingStarts++; },
     });
@@ -111,6 +109,96 @@ test('a location response after leaving the map cannot restart tracking on its d
 
     assert.equal(animations, 0);
     assert.equal(trackingStarts, 0);
+});
+
+function locatingMap(overrides = {}) {
+    return Object.assign(Object.create(OpenLayersMap.prototype), {
+        disposed: false,
+        location: { status: 'idle', prompting: false },
+        locationAttempt: 0,
+        geolocation: { getTracking: () => false, getPosition: () => null },
+        view: { animate() {} },
+        watchMe() {},
+    }, overrides);
+}
+
+function fakeGeolocation(t, { permission } = {}) {
+    const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+    const requests = [];
+    Object.defineProperty(globalThis, 'navigator', {
+        configurable: true,
+        value: {
+            geolocation: { getCurrentPosition(success, failure, options) { requests.push({ success, failure, options }); } },
+            ...(permission ? { permissions: { query: async () => ({ state: permission }) } } : {}),
+        },
+    });
+    t.after(() => {
+        if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
+        else delete globalThis.navigator;
+    });
+    return requests;
+}
+
+test('locating shows progress, hints at the browser prompt, and sets a timeout', async t => {
+    const requests = fakeGeolocation(t, { permission: 'prompt' });
+    const map = locatingMap();
+
+    map.locateMe();
+    map.locateMe();
+    await new Promise(resolve => setTimeout(resolve));
+
+    assert.equal(requests.length, 1, 'a second click while searching does not start another request');
+    assert.equal(map.location.status, 'locating');
+    assert.equal(map.location.prompting, true);
+    assert.ok(requests[0].options.timeout > 0, 'the request cannot spin forever');
+});
+
+for (const [code, status] of [[1, 'denied'], [2, 'unavailable'], [3, 'timeout']]) {
+    test(`a geolocation error with code ${code} explains itself as "${status}" and allows a retry`, t => {
+        const requests = fakeGeolocation(t);
+        const map = locatingMap();
+
+        map.locateMe();
+        requests[0].failure({ code });
+        assert.equal(map.location.status, status);
+
+        map.locateMe();
+        assert.equal(map.location.status, 'locating');
+        assert.equal(requests.length, 2);
+    });
+}
+
+test('a found location centres the map, starts tracking and recentres on later clicks', t => {
+    const requests = fakeGeolocation(t);
+    const centers = [];
+    let tracking = false;
+    const map = locatingMap({
+        geolocation: { getTracking: () => tracking, getPosition: () => null },
+        view: { animate({ center }) { centers.push(center); } },
+        watchMe() { tracking = true; },
+    });
+
+    map.locateMe();
+    requests[0].success({ coords: { longitude: 37, latitude: 55 } });
+    map.locateMe();
+
+    assert.equal(map.location.status, 'tracking');
+    assert.equal(requests.length, 1, 'the second click reuses the tracked position');
+    assert.deepEqual(centers, [fromLonLat([37, 55]), fromLonLat([37, 55])]);
+});
+
+test('a browser without geolocation says so instead of failing silently', t => {
+    const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+    Object.defineProperty(globalThis, 'navigator', { configurable: true, value: {} });
+    t.after(() => {
+        if (navigatorDescriptor) Object.defineProperty(globalThis, 'navigator', navigatorDescriptor);
+        else delete globalThis.navigator;
+    });
+    const map = locatingMap();
+
+    map.locateMe();
+
+    assert.equal(map.location.status, 'unsupported');
 });
 
 test('a GPX file read finishing after navigation cannot replace the next map track', t => {

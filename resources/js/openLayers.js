@@ -46,6 +46,7 @@ import GeolocationLayer from '@/layers/geolocation';
 import SpringsFinalSource from '@/sources/final.js';
 import SpringsUserSource from '@/sources/user.js';
 import trans from '@/i18n';
+import locationErrorStatus from './locationErrorStatus.js';
 import localizedControls from '@/localizedControls';
 import Tracks from './tracks.js';
 import createMapView from './mapView.js';
@@ -124,6 +125,8 @@ export default class OpenLayersMap {
         });
         this.sourceState = Alpine.reactive({ name: 'osm' });
         this.sourceOverview = Alpine.reactive({ opacity: readSourceOpacity(), ready: false, active: false });
+        this.location = Alpine.reactive({ status: 'idle', prompting: false });
+        this.locationAttempt = 0;
         this.overviewManifest = null;
         this.overviewRequestGeneration = 0;
 
@@ -747,43 +750,74 @@ export default class OpenLayersMap {
     }
 
     locateMe() {
-        if (this.geolocation.getPosition()) {
-            this.view.animate(
-                {
-                    center: this.geolocation.getPosition(),
-                    zoom: 18,
-                    duration: 250
-                }
-            );
-        } else {
-            navigator.geolocation.getCurrentPosition((position) => {
-                if (this.disposed) return;
-                this.view.animate(
-                    {
-                        center: fromLonLat([position.coords.longitude, position.coords.latitude]),
-                        zoom: 18,
-                        duration: 250
-                    }
-                );
-
-                this.watchMe();
-            }, (error) => {
-                console.log(error);
-            });
+        const known = this.geolocation.getTracking()
+            ? this.geolocation.getPosition() ?? this.lastLocation
+            : null;
+        if (known) {
+            this.location.status = 'tracking';
+            this.flyToLocation(known);
+            return;
         }
+        if (this.location.status === 'locating') return;
+
+        const geolocation = globalThis.navigator?.geolocation;
+        if (!geolocation || globalThis.isSecureContext === false) {
+            this.location.status = 'unsupported';
+            return;
+        }
+
+        const attempt = ++this.locationAttempt;
+        const current = () => !this.disposed && attempt === this.locationAttempt;
+        this.location.status = 'locating';
+        this.location.prompting = false;
+
+        Promise.resolve()
+            .then(() => globalThis.navigator.permissions?.query({ name: 'geolocation' }))
+            .then(permission => {
+                if (current() && this.location.status === 'locating') {
+                    this.location.prompting = permission?.state === 'prompt';
+                }
+            })
+            .catch(() => {});
+
+        geolocation.getCurrentPosition((position) => {
+            if (!current()) return;
+            this.lastLocation = fromLonLat([position.coords.longitude, position.coords.latitude]);
+            this.location.status = 'tracking';
+            this.location.prompting = false;
+            this.flyToLocation(this.lastLocation);
+            this.watchMe();
+        }, (error) => {
+            if (!current()) return;
+            this.location.status = locationErrorStatus(error);
+            this.location.prompting = false;
+        }, { timeout: 20000, maximumAge: 60000 });
+    }
+
+    flyToLocation(center) {
+        this.view.animate({ center, zoom: 18, duration: 250 });
+    }
+
+    dismissLocationNotice() {
+        if (this.location.status !== 'tracking') this.location.status = 'idle';
+        this.location.prompting = false;
     }
 
     watchMe() {
         if (this.disposed) return;
         this.geolocation.setTracking(true);
+        if (this.geolocationLayer) return;
 
         const accuracyFeature = new Feature();
         this.geolocation.on('change:accuracyGeometry', () => {
             accuracyFeature.setGeometry(this.geolocation.getAccuracyGeometry());
         });
 
-        this.geolocation.on('error', function (error) {
-            console.log(error)
+        this.geolocation.on('error', (error) => {
+            if (this.disposed || error.code !== 1) return;
+            this.geolocation.setTracking(false);
+            this.lastLocation = null;
+            this.location.status = 'denied';
         });
 
         const positionFeature = new Feature();
@@ -815,7 +849,8 @@ export default class OpenLayersMap {
         );
 
         this.geolocation.on('change:position', () => {
-        const coordinates = this.geolocation.getPosition();
+            const coordinates = this.geolocation.getPosition();
+            if (coordinates) this.lastLocation = coordinates;
             positionFeature.setGeometry(coordinates ? new Point(coordinates) : null);
         });
 

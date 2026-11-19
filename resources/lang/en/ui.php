@@ -460,6 +460,18 @@ return [
         'track_upload_failed' => 'Track upload failed',
         'track_deleted' => 'This track was deleted. The map still works without it.',
         'retry_track' => 'Try again',
+        'locate_me' => 'Show my location',
+        'location' => [
+            'searching' => 'Finding your location…',
+            'prompt' => 'Allow access in the browser prompt.',
+            'denied_title' => 'Location access is blocked',
+            'denied' => 'Allow it in the site settings (icon by the address bar) and tap the button again.',
+            'denied_device' => 'On a phone, also check the system location settings.',
+            'unavailable' => 'Could not find your location. Is location turned on?',
+            'timeout' => 'Finding your location took too long. Try again.',
+            'unsupported' => 'This browser does not support location.',
+            'close' => 'Close',
+        ],
         'guest_upload_notice' => 'Guest uploads cannot be deleted later.',
         'filters' => [
             'all' => 'All water sources',
