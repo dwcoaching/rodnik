@@ -45,7 +45,6 @@
         <!-- /Yandex.Metrika counter -->
     </head>
     <body class="w-full min-h-screen bg-stone-100 flex flex-col">
-        <x-language-suggestion />
         <div class="fixed right-3 top-3 z-10">
             <x-language-switcher class="rounded-lg border border-stone-200 bg-white p-1 shadow-sm" />
         </div>

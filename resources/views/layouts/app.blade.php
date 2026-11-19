@@ -51,7 +51,6 @@
         @drop="dragover = false; if (dragoverTimeout) {clearTimeout(dragoverTimeout)}"
         x-bind:class="{ 'dragover': dragover }"
         >
-        <x-language-suggestion />
         @if ($navbar)
             <div class="grow-0">
                 <nav class="">

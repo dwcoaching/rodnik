@@ -21,7 +21,6 @@
         <!-- Scripts -->
     </head>
     <body class="folio">
-        <x-language-suggestion />
         <div>
             <div
                 x-data="{ navigationOpen: false, desktop: window.matchMedia('(min-width: 64rem)').matches }"

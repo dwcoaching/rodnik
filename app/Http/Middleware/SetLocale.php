@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Support\LocalizedUrl;
 use Carbon\Carbon;
 use Closure;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\App;
@@ -13,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 final class SetLocale
 {
+    public function __construct(private readonly LocalizedUrl $localizedUrl) {}
+
     /**
      * Handle an incoming request.
      *
@@ -23,6 +27,10 @@ final class SetLocale
         $locale = $forcedLocale ?? $this->resolveLocale($request);
 
         abort_unless(array_key_exists($locale, config('localization.supported')), 404);
+
+        if ($redirect = $this->redirectToChosenLocale($request, $locale)) {
+            return $redirect;
+        }
 
         $previousAppLocale = App::getLocale();
         $previousCarbonLocale = Carbon::getLocale();
@@ -44,25 +52,11 @@ final class SetLocale
         $supportedLocales = array_keys(config('localization.supported'));
         $route = $request->route();
         if ($this->isLocalizedPublicRoute($request, $route)) {
-            $urlLocale = $this->publicUrlLocale($request, $route);
-
-            if ($urlLocale === config('localization.default')) {
-                $this->suggestPreferredLocale($request, $supportedLocales);
-            }
-
-            return $urlLocale;
+            return $this->publicUrlLocale($request, $route);
         }
 
-        $userLocale = $request->user()?->locale;
-
-        if (is_string($userLocale) && in_array($userLocale, $supportedLocales, true)) {
-            return $userLocale;
-        }
-
-        $cookieLocale = $request->cookie(config('localization.cookie'));
-
-        if (is_string($cookieLocale) && in_array($cookieLocale, $supportedLocales, true)) {
-            return $cookieLocale;
+        if ($chosenLocale = $this->chosenLocale($request)) {
+            return $chosenLocale;
         }
 
         $headerLocale = $request->header('X-Rodnik-Locale');
@@ -73,6 +67,46 @@ final class SetLocale
 
         return $request->getPreferredLanguage($supportedLocales)
             ?? config('localization.default');
+    }
+
+    /**
+     * The language the visitor picked with the switcher: the account's, else the cookie's.
+     * Null when they never picked one — the browser's language is a guess, not a choice.
+     */
+    private function chosenLocale(Request $request): ?string
+    {
+        $supportedLocales = array_keys(config('localization.supported'));
+
+        foreach ([$request->user()?->locale, $request->cookie(config('localization.cookie'))] as $locale) {
+            if (is_string($locale) && in_array($locale, $supportedLocales, true)) {
+                return $locale;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * A page address names its language, but a visitor who picked a language keeps it: a link
+     * to the other language's version of a page leads them to the version in theirs. Requests
+     * made by page scripts are left alone, as are pages published in one language only.
+     */
+    private function redirectToChosenLocale(Request $request, string $locale): ?RedirectResponse
+    {
+        if (! $request->isMethod('GET') || $request->expectsJson() || $request->hasHeader('X-Rodnik-Locale')) {
+            return null;
+        }
+
+        $chosenLocale = $this->chosenLocale($request);
+
+        if ($chosenLocale === null || $chosenLocale === $locale) {
+            return null;
+        }
+
+        $url = $request->getRequestUri();
+        $chosenUrl = $this->localizedUrl->forPath($url, $chosenLocale);
+
+        return $chosenUrl === $url ? null : redirect($chosenUrl);
     }
 
     private function isLocalizedPublicRoute(Request $request, mixed $route): bool
@@ -115,21 +149,5 @@ final class SetLocale
         }
 
         return config('localization.default');
-    }
-
-    /**
-     * @param  array<int, string>  $supportedLocales
-     */
-    private function suggestPreferredLocale(Request $request, array $supportedLocales): void
-    {
-        if ($request->user()?->locale || $request->hasCookie(config('localization.cookie'))) {
-            return;
-        }
-
-        $preferredLocale = $request->getPreferredLanguage($supportedLocales);
-
-        if ($preferredLocale && $preferredLocale !== config('localization.default')) {
-            $request->attributes->set('suggested_locale', $preferredLocale);
-        }
     }
 }

@@ -66,8 +66,7 @@ test('the English and Russian public roots render deterministic locales', functi
         ->assertSuccessful()
         ->assertSee('<html lang="ru">', false)
         ->assertSee('Карта источников воды с реальными отчётами в городах и диких местах')
-        ->assertDontSee('Map of public water sources with user reports in cities and wild places')
-        ->assertDontSee('Russian version is available.');
+        ->assertDontSee('Map of public water sources with user reports in cities and wild places');
 });
 
 test('existing English route names and paths remain compatible while Russian routes are prefixed', function () {
@@ -113,14 +112,80 @@ test('redirect bypass state is noindex and omitted from canonical URLs', functio
         ->assertDontSee('<link rel="alternate"', false);
 });
 
-test('Accept-Language suggests Russian on English pages without redirecting', function () {
-    $this->withHeader('Accept-Language', 'ru-RU,ru;q=0.9,en;q=0.5')
+test('a signed in visitor is taken to their account language from a link in another one', function () {
+    $spring = Spring::factory()->create();
+
+    $this->actingAs(User::factory()->create(['locale' => 'ru']))
+        ->get('/'.$spring->id.'/?redirect=false&zoom=12')
+        ->assertRedirect('/ru/'.$spring->id.'/?redirect=false&zoom=12')
+        ->assertStatus(302);
+
+    $this->actingAs(User::factory()->create(['locale' => 'en']))
+        ->get('/ru/docs/about?utm_source=newsletter')
+        ->assertRedirect('/docs/about?utm_source=newsletter');
+});
+
+test('a guest is taken to the language they picked from a link in another one', function () {
+    $this->withCookie(config('localization.cookie'), 'ru')
+        ->get('/')
+        ->assertRedirect('/ru');
+
+    $this->withCookie(config('localization.cookie'), 'en')
+        ->get('/ru/')
+        ->assertRedirect('/');
+
+    $this->withCookie(config('localization.cookie'), 'ru')
+        ->get('/docs/legend')
+        ->assertRedirect('/ru/docs/legend');
+});
+
+test('the account language outranks the cookie when choosing where a link leads', function () {
+    $this->actingAs(User::factory()->create(['locale' => 'en']))
+        ->withCookie(config('localization.cookie'), 'ru')
         ->get('/')
         ->assertSuccessful()
-        ->assertSee('<html lang="en">', false)
-        ->assertSee('Russian version is available.')
-        ->assertSee('Open in Russian')
-        ->assertSee('value="/ru"', false);
+        ->assertSee('<html lang="en">', false);
+});
+
+test('a link already in the picked language, or to a page without language versions, opens as is', function () {
+    $this->withCookie(config('localization.cookie'), 'ru')
+        ->get('/ru')
+        ->assertSuccessful()
+        ->assertSee('<html lang="ru">', false);
+
+    $this->withCookie(config('localization.cookie'), 'ru')
+        ->get('/login')
+        ->assertSuccessful()
+        ->assertSee('<html lang="ru">', false);
+});
+
+test('a visitor who never picked a language gets the language of the link', function () {
+    $this->withHeader('Accept-Language', 'ru-RU,ru;q=0.9,en;q=0.5')
+        ->get('/docs/about')
+        ->assertSuccessful()
+        ->assertSee('<html lang="en">', false);
+
+    $this->actingAs(User::factory()->create(['locale' => null]))
+        ->get('/ru')
+        ->assertSuccessful()
+        ->assertSee('<html lang="ru">', false);
+});
+
+test('requests made by page scripts are not redirected to the picked language', function () {
+    $this->withCookie(config('localization.cookie'), 'en')
+        ->getJson('/ru/search/places?q=mos')
+        ->assertSuccessful();
+
+    $this->withCookie(config('localization.cookie'), 'en')
+        ->withHeader('X-Rodnik-Locale', 'ru')
+        ->get('/ru')
+        ->assertSuccessful()
+        ->assertSee('<html lang="ru">', false);
+
+    $this->withCookie(config('localization.cookie'), 'ru')
+        ->post('/tools/enrich')
+        ->assertStatus(302)
+        ->assertSessionHasErrors();
 });
 
 test('the language switcher is a dropdown naming the current language and offering both', function () {
@@ -161,11 +226,9 @@ test('locale forms rebuild the query string from the browser on submit', functio
 
     // Every locale switch has to go through the component, or it goes stale
     // the moment Livewire rewrites the URL client-side.
-    foreach (['language-switcher', 'language-suggestion'] as $component) {
-        expect(file_get_contents(__DIR__.'/../../resources/views/components/'.$component.'.blade.php'))
-            ->toContain('<x-locale-form')
-            ->not->toContain('name="redirect"');
-    }
+    expect(file_get_contents(__DIR__.'/../../resources/views/components/language-switcher.blade.php'))
+        ->toContain('<x-locale-form')
+        ->not->toContain('name="redirect"');
 });
 
 test('the language switcher marks only the active locale as selected', function () {
