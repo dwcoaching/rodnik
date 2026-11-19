@@ -12,7 +12,7 @@
 
     {{-- On narrow screens the guest links wrap below instead of covering the logo. --}}
     <div class="flex min-w-0 flex-wrap items-center justify-end gap-x-2 gap-y-1 sm:gap-3">
-        <a href="{{ localized_public_path('/docs') }}" data-rodnik-navigate data-docs-link class="flex h-7 shrink-0 items-center rounded-md bg-stone-200 px-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-stone-300 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">{{ __('pages.docs.nav') }}</a>
+        <a href="{{ localized_public_path('/docs/about') }}" data-rodnik-navigate data-docs-link class="flex h-7 shrink-0 items-center rounded-md bg-stone-200 px-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-stone-300 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">{{ __('pages.docs.nav') }}</a>
         <x-language-switcher />
         @guest
             <div class="flex items-center gap-3 sm:gap-4">

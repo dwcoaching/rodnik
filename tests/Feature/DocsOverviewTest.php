@@ -275,10 +275,11 @@ test('the header links to the docs instead of browsing by location', function (s
         ->assertDontSee('Browse by location')
         ->assertDontSee('Источники по местоположению')
         ->assertDontSee('href="'.url($prefix.'/docs/countries').'"', false)
-        ->assertSee('href="'.url($prefix.'/docs/about').'"', false);
+        // The docs link is the only way to the about page: no separate link next to the tagline.
+        ->assertDontSee('href="'.url($prefix.'/docs/about').'"', false);
     $docs = docsDocument($response)->querySelector('[data-docs-link]');
 
-    expect($docs?->getAttribute('href'))->toBe($prefix.'/docs')
+    expect($docs?->getAttribute('href'))->toBe($prefix.'/docs/about')
         ->and(mb_trim($docs?->textContent ?? ''))->toBe($label)
         ->and($docs?->hasAttribute('data-rodnik-navigate'))->toBeTrue()
         ->and(mb_strpos($response->getContent(), 'data-docs-link'))
@@ -288,7 +289,7 @@ test('the header links to the docs instead of browsing by location', function (s
     $this->actingAs(User::factory()->create(['locale' => $prefix === '' ? 'en' : 'ru']))
         ->get($prefix.'/user/maps')
         ->assertOk()
-        ->assertSee('href="'.$prefix.'/docs" data-rodnik-navigate data-docs-link', false)
+        ->assertSee('href="'.$prefix.'/docs/about" data-rodnik-navigate data-docs-link', false)
         ->assertSee('>'.$label.'</a>', false);
 })->with([
     'English' => ['', 'Docs'],
