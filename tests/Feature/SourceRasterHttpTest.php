@@ -77,46 +77,48 @@ test('a published tile is a public PNG that browsers revalidate after a minute',
         ->assertStatus(304);
 });
 
-test('filtered tiles are drawn per request for the current revision and never stored', function () {
-    $this->pyramid->shouldReceive('manifest')->andReturn(['revision' => $this->rasterRevision, 'max_zoom' => 10]);
-    $this->pyramid->shouldNotReceive('tile');
-    $this->pyramid->shouldReceive('png')->once()->with(10, 1023, 1023, 5, true)->andReturn('png-bytes');
-    $this->pyramid->shouldReceive('png')->once()->with(0, 0, 0, 0, false)->andReturn('empty');
+test('the stable tile URL redirects to the latest enabled revision without caching', function () {
+    $nextRevision = str_repeat('b', 24);
+    $this->pyramid->shouldReceive('manifest')->twice()->andReturn(
+        ['revision' => $this->rasterRevision],
+        ['revision' => $nextRevision],
+    );
+    $this->pyramid->shouldReceive('enabled')->twice()->andReturn(true);
+    $this->pyramid->shouldNotReceive('tile', 'png');
 
-    $response = $this->get('/source-tiles/'.$this->rasterRevision.'/10/1023/1023.png?types=5&reports=1');
-    $response->assertOk()->assertHeader('Content-Type', 'image/png')->assertHeaderMissing('Set-Cookie');
-    expect($response->getContent())->toBe('png-bytes')
-        ->and($response->headers->get('Cache-Control'))->toContain('public', 'max-age=300');
-    $this->get('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?types=0')->assertOk();
+    $url = '/source-tiles/10/609/369.png?types=1&reports=1';
+    $first = $this->get($url);
+    $first->assertStatus(302)
+        ->assertRedirect('/source-tiles/'.$this->rasterRevision.'/10/609/369.png')
+        ->assertHeaderMissing('Set-Cookie');
+    expect($first->headers->get('Cache-Control'))->toContain('no-store');
 
-    $this->get('/source-tiles/'.str_repeat('b', 24).'/0/0/0.png?types=5')->assertNotFound();
+    $this->get($url)->assertRedirect('/source-tiles/'.$nextRevision.'/10/609/369.png');
 });
 
-test('malformed overview filters are rejected before invoking the renderer', function (string $query, string $field) {
+test('the stable tile URL is unavailable until there is an enabled raster', function () {
+    $this->pyramid->shouldReceive('manifest')->twice()->andReturn(null, ['revision' => $this->rasterRevision]);
+    $this->pyramid->shouldReceive('enabled')->once()->andReturn(false);
     $this->pyramid->shouldNotReceive('tile');
 
-    $this->getJson('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?'.$query)
-        ->assertUnprocessable()->assertJsonValidationErrors($field);
-})->with([
-    ['types=64', 'types'],
-    ['types=-1', 'types'],
-    ['types=1.5', 'types'],
-    ['types[]=1', 'types'],
-    ['reports=maybe', 'reports'],
-]);
+    $this->get('/source-tiles/0/0/0.png')->assertStatus(503)->assertHeader('Retry-After', '60');
+    $this->get('/source-tiles/0/0/0.png')->assertStatus(503)->assertHeader('Retry-After', '60');
+});
 
 test('invalid tile coordinates never invoke the renderer', function (string $coordinates) {
     $this->pyramid->shouldNotReceive('tile');
 
     $this->get('/source-tiles/'.$this->rasterRevision.'/'.$coordinates.'.png')->assertNotFound();
+    $this->get('/source-tiles/'.$coordinates.'.png')->assertNotFound();
 })->with(['11/0/0', '8/256/0', '8/0/256', '0/1/0', '0/0/1', '1/-1/0', '1/0/-1']);
 
-test('invalid filters return an error without requiring a browser session', function () {
-    $this->pyramid->shouldNotReceive('tile');
+test('legacy filter parameters still return the combined raster tile', function () {
+    $this->pyramid->shouldReceive('tile')->once()->with($this->rasterRevision, 0, 0, 0)
+        ->andReturn($this->rasterPath);
+    $this->pyramid->shouldNotReceive('png');
 
-    $this->get('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?types=64')
-        ->assertUnprocessable()->assertJsonValidationErrors('types')
-        ->assertHeaderMissing('Set-Cookie');
+    $this->get('/source-tiles/'.$this->rasterRevision.'/0/0/0.png?types=1&reports=1')
+        ->assertOk()->assertHeader('Content-Type', 'image/png')->assertHeaderMissing('Set-Cookie');
 });
 
 test('malformed revisions are rejected by the route', function () {
@@ -189,8 +191,8 @@ test('only admins can read the style, preview a draft or queue a redraw', functi
 test('an admin previews a draft style for one zoom without publishing anything', function () {
     $this->actingAs(User::factory()->create(['is_admin' => true]));
     $this->pyramid->shouldReceive('style')->andReturn(config('source_raster.style'));
-    $this->pyramid->shouldReceive('png')->once()->withArgs(function ($z, $x, $y, $types, $reports, $style) {
-        return [$z, $x, $y, $types, $reports] === [7, 3, 2, 63, false]
+    $this->pyramid->shouldReceive('png')->once()->withArgs(function ($z, $x, $y, $style) {
+        return [$z, $x, $y] === [7, 3, 2]
             && $style['order'] === ['red', 'green', 'yellow', 'blue']
             && $style['zooms'][7] === ['blue' => [2.0, 0.1], 'yellow' => [3.0, 0.2], 'green' => [4.0, 0.3], 'red' => [5.0, 0.4]]
             && $style['zooms'][6]['blue'] === config('source_raster.style.zooms.6.blue');

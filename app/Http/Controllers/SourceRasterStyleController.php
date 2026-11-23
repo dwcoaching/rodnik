@@ -43,7 +43,7 @@ final class SourceRasterStyleController extends Controller
             foreach (RasterRenderer::COLOR_NAMES as $index => $name) {
                 $style['zooms'][$z][$name] = [$values[$index * 2], $values[$index * 2 + 1]];
             }
-            $png = $pyramid->png($z, $x, $y, 63, false, RasterRenderer::normalizeStyle($style));
+            $png = $pyramid->png($z, $x, $y, RasterRenderer::normalizeStyle($style));
         } catch (InvalidArgumentException $exception) {
             abort(422, $exception->getMessage());
         }

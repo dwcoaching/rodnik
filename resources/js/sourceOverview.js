@@ -1,10 +1,6 @@
 const opacityStorageKey = 'rodnik.sourceOverviewOpacity';
 const typeFilters = ['spring', 'water_well', 'water_tap', 'drinking_water', 'fountain', 'other'];
 
-export function sourceTypeMask(filters = {}) {
-    return typeFilters.reduce((mask, key, index) => filters[key] === false ? mask : mask | (1 << index), 0);
-}
-
 export function normalizeOverviewManifest(value) {
     if (!value || typeof value.revision !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(value.revision)
         || !Number.isInteger(value.max_zoom) || value.max_zoom < 0 || value.max_zoom > 16
@@ -23,11 +19,8 @@ export function normalizeOverviewManifest(value) {
 }
 
 export function sourceOverviewUrl(manifest, filters = {}) {
-    // A route selects few sources; the vector layers draw exactly those.
-    if (filters.along) return null;
-    const parameters = new URLSearchParams({ types: sourceTypeMask(filters) });
-    if (filters.with_reports) parameters.set('reports', '1');
-    return `${manifest.url}${manifest.url.includes('?') ? '&' : '?'}${parameters}`;
+    if (filters.along || filters.with_reports || typeFilters.some(key => filters[key] === false)) return null;
+    return manifest.url;
 }
 
 export function normalizeSourceOpacity(value, fallback = 0.85) {

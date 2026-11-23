@@ -151,15 +151,15 @@ class RasterPyramid
         return $path;
     }
 
-    /** Draw one tile from the counts. Filtered and preview tiles are never stored. */
-    public function png(int $z, int $x, int $y, int $types = 63, bool $reportsOnly = false, ?array $style = null): string
+    /** Draw one tile from the counts, optionally with a draft style. */
+    public function png(int $z, int $x, int $y, ?array $style = null): string
     {
         $manifest = $this->manifest();
         if ($manifest === null || $z < 0 || $z > $manifest['max_zoom'] || $x < 0 || $y < 0
-            || $x >= (1 << $z) || $y >= (1 << $z) || $types < 0 || $types > 63) {
+            || $x >= (1 << $z) || $y >= (1 << $z)) {
             throw new InvalidArgumentException('Unknown source overview tile.');
         }
-        $cells = $types === 0 ? [] : $this->cells($this->database(), $z, $x, $y, $types, $reportsOnly);
+        $cells = $this->cells($this->database(), $z, $x, $y);
 
         return app(RasterRenderer::class)->png($cells, $z, $style ?? $this->style());
     }
@@ -336,7 +336,7 @@ class RasterPyramid
         $bytes = 0;
         $count = 0;
         foreach ($tiles as [$zoom, $x, $y]) {
-            $png = $renderer->png($this->cells($database, $zoom, $x, $y, 63, false), $zoom, $style);
+            $png = $renderer->png($this->cells($database, $zoom, $x, $y), $zoom, $style);
             $this->atomic($this->tilesDirectory($revision).'/'.$zoom.'/'.$x.'/'.$y.'.png', $png);
             $bytes += strlen($png);
             $count++;
@@ -349,16 +349,16 @@ class RasterPyramid
         return ['tiles' => $count, 'png_bytes' => $bytes, 'render_seconds' => microtime(true) - $started];
     }
 
-    private function cells(PDO $database, int $zoom, int $x, int $y, int $types, bool $reports): iterable
+    private function cells(PDO $database, int $zoom, int $x, int $y): iterable
     {
         $count = 1 << $zoom;
-        $statement = $database->prepare('SELECT px,py,status,SUM(n) AS n FROM cells WHERE z=? AND tile_x=? AND tile_y=? AND (type & ?)<>0 AND status>=? AND px>=? AND px<=? AND py>=? AND py<=? GROUP BY px,py,status');
+        $statement = $database->prepare('SELECT px,py,status,SUM(n) AS n FROM cells WHERE z=? AND tile_x=? AND tile_y=? AND px>=? AND px<=? AND py>=? AND py<=? GROUP BY px,py,status');
         for ($dx = -1; $dx <= 1; $dx++) {
             for ($dy = -1; $dy <= 1; $dy++) {
                 if ($y + $dy < 0 || $y + $dy >= $count) {
                     continue;
                 }
-                $statement->execute([$zoom, ($x + $dx + $count) % $count, $y + $dy, $types, $reports ? 1 : 0,
+                $statement->execute([$zoom, ($x + $dx + $count) % $count, $y + $dy,
                     $dx < 0 ? 512 - RasterRenderer::GUTTER : 0, $dx > 0 ? RasterRenderer::GUTTER : 511,
                     $dy < 0 ? 512 - RasterRenderer::GUTTER : 0, $dy > 0 ? RasterRenderer::GUTTER : 511]);
                 foreach ($statement as $cell) {

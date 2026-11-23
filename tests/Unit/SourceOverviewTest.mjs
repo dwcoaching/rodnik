@@ -5,7 +5,7 @@ import { inView } from 'ol/layer/Layer.js';
 import SpringsRasterLayer from '../../resources/js/layers/springs/raster.js';
 import {
     normalizeOverviewManifest, normalizeSourceOpacity, readSourceOpacity, saveSourceOpacity,
-    sourceOverviewUrl, sourceTypeMask,
+    sourceOverviewUrl,
 } from '../../resources/js/sourceOverview.js';
 import rasterLabPanel, { isStyle, previewUrl } from '../../resources/js/rasterLab/panel.js';
 
@@ -59,13 +59,11 @@ const draftStyle = () => ({
     }])),
 });
 
-test('source filters preserve each type and reports in raster URLs; routes use vector layers', () => {
-    assert.equal(sourceTypeMask({}), 63);
-    assert.equal(sourceTypeMask({ spring: false, water_tap: false, other: false }), 26);
-    assert.equal(sourceTypeMask(Object.fromEntries(['spring', 'water_well', 'water_tap', 'drinking_water', 'fountain', 'other'].map(key => [key, false]))), 0);
-    assert.equal(sourceOverviewUrl(manifest, { water_well: false, with_reports: true }), `${manifest.url}?types=61&reports=1`);
-    assert.equal(sourceOverviewUrl(manifest, {}), `${manifest.url}?types=63`);
-    assert.equal(sourceOverviewUrl(manifest, { along: true }), null);
+test('only the unfiltered source overview uses the raster URL', () => {
+    assert.equal(sourceOverviewUrl(manifest, {}), manifest.url);
+    for (const filters of [{ water_well: false }, { with_reports: true }, { along: true }]) {
+        assert.equal(sourceOverviewUrl(manifest, filters), null);
+    }
 });
 
 test('invalid or external raster manifests cannot replace a usable map', () => {
@@ -88,12 +86,11 @@ test('retina tiles retain a 256 CSS pixel grid and render at world zoom through 
     assert.equal(inView(raster.getLayerState(), { zoom: 0, resolution: 156543 }), true);
     assert.equal(inView(raster.getLayerState(), { zoom: 10, resolution: 153 }), true);
     assert.equal(inView(raster.getLayerState(), { zoom: 10.01, resolution: 152 }), false);
-    assert.equal(source.getUrls()[0], `${manifest.url}?types=63`);
+    assert.equal(source.getUrls()[0], manifest.url);
     raster.setOverview(manifest, {});
     assert.equal(raster.getSource(), source, 'unchanged filters retain decoded tiles');
-    raster.setOverview(manifest, { with_reports: true });
-    assert.notEqual(raster.getSource(), source);
-    assert.equal(source.disposed, true);
+    assert.equal(raster.setOverview(manifest, { with_reports: true }), false);
+    assert.equal(raster.getSource(), source, 'filtered views leave the unfiltered tiles available for reuse');
 });
 
 test('overview handover replaces sampled layers, covers two extra zoom levels and retains personal maps', t => {
@@ -117,19 +114,20 @@ test('overview handover replaces sampled layers, covers two extra zoom levels an
     assert.ok(aggregateNames.every(name => !map[name].visible));
 });
 
-test('an Along track filter always uses the vector layers', t => {
+test('type, report and route filters fall back to vectors until cleared', t => {
     const map = overviewMap(t);
     map.overviewManifest = manifest;
-    map.updateSourceOverview();
-    assert.equal(map.springsRasterLayer.getVisible(), true);
-    map.filters.along = true;
-    map.updateSourceOverview();
-    assert.equal(map.springsRasterLayer.getVisible(), false);
-    assert.equal(map.springsFinalLayer.minZoom, 9);
-    assert.ok(aggregateNames.every(name => map[name].visible));
-    map.filters.along = false;
-    map.updateSourceOverview();
-    assert.equal(map.springsRasterLayer.getVisible(), true);
+    for (const [key, value] of Object.entries({ spring: false, with_reports: true, along: true })) {
+        map.filters = { [key]: value };
+        map.updateSourceOverview();
+        assert.equal(map.springsRasterLayer.getVisible(), false);
+        assert.equal(map.springsFinalLayer.minZoom, 9);
+        assert.ok(aggregateNames.every(name => map[name].visible));
+
+        map.filters = {};
+        map.updateSourceOverview();
+        assert.equal(map.springsRasterLayer.getVisible(), true);
+    }
 });
 
 test('lab preview tiles carry the draft values of their own zoom and the draw order', () => {

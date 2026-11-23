@@ -39,7 +39,7 @@ final class RasterPyramidTest extends TestCase
         parent::tearDown();
     }
 
-    public function test_real_pngs_preserve_condition_colors_and_obey_type_and_report_filters(): void
+    public function test_real_pngs_include_all_source_types_and_preserve_condition_colors(): void
     {
         $points = [];
 
@@ -56,18 +56,6 @@ final class RasterPyramidTest extends TestCase
         }
 
         $this->assertTransparent($full, 336, 376); // Not-found sources remain absent.
-        $reports = $this->stored($this->pyramid->png(3, 2, 2, 63, true));
-        $this->assertTransparent($reports, 176, 376);
-        $this->assertPixelColor($reports, 216, 376, RasterRenderer::COLORS[1]);
-        $this->assertPixelColor($reports, 256, 376, RasterRenderer::COLORS[2]);
-        $types = $this->stored($this->pyramid->png(3, 2, 2, 1 | 4));
-        $this->assertPixelColor($types, 176, 376, RasterRenderer::COLORS[0]);
-        $this->assertPixelColor($types, 256, 376, RasterRenderer::COLORS[2]);
-        $this->assertTransparent($types, 216, 376);
-        $this->assertTransparent($types, 296, 376);
-        $empty = $this->stored($this->pyramid->png(3, 2, 2, 0));
-        self::assertSame([], $this->paintedColors($empty));
-        self::assertNotSame($full, $reports);
         self::assertSame($full, $this->pyramid->tile($this->revision, 3, 2, 2));
     }
 
@@ -311,15 +299,13 @@ final class RasterPyramidTest extends TestCase
         }
     }
 
-    public function test_previews_and_filtered_tiles_are_drawn_without_being_stored(): void
+    public function test_previews_are_drawn_without_being_stored(): void
     {
         $this->publishFixture([$this->point(1, 256, 256, 0, 1, 2)], 0);
         $style = config('source_raster.style');
         $style['zooms'][0]['green'] = [8, 1];
         $published = $this->pyramid->png(0, 0, 0);
-        self::assertNotSame($published, $this->pyramid->png(0, 0, 0, 63, false, $style));
-        self::assertNotSame($published, $this->pyramid->png(0, 0, 0, 2));
-        self::assertSame($published, $this->pyramid->png(0, 0, 0, 1, true));
+        self::assertNotSame($published, $this->pyramid->png(0, 0, 0, $style));
         self::assertDirectoryDoesNotExist($this->rasterRoot.'/tiles');
     }
 
@@ -420,14 +406,6 @@ final class RasterPyramidTest extends TestCase
     }
 
     /** Write drawn bytes to a file so the image helpers can read them. */
-    private function stored(string $png): string
-    {
-        $path = $this->rasterRoot.'/'.bin2hex(random_bytes(6)).'.png';
-        file_put_contents($path, $png);
-
-        return $path;
-    }
-
     private function pixel(string $path, int $x, int $y): array
     {
         $image = imagecreatefrompng($path);

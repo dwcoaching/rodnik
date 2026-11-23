@@ -190,6 +190,10 @@ Route::post('track-polygons', [TrackPolygonController::class, 'store'])
 Route::get('spring-aggregates.json', [SpringAggregatesJsonController::class, 'index']);
 Route::get('source-tiles.json', [SourceRasterController::class, 'index'])
     ->withoutMiddleware('web')->name('source-raster.manifest');
+Route::get('source-tiles/{z}/{x}/{y}.png', [SourceRasterController::class, 'current'])
+    ->where(['z' => '[0-9]{1,2}', 'x' => '[0-9]{1,7}', 'y' => '[0-9]{1,7}'])
+    ->withoutMiddleware('web')
+    ->name('source-raster.current-tile');
 Route::get('source-tiles/{revision}/{z}/{x}/{y}.png', [SourceRasterController::class, 'show'])
     ->where('revision', '[a-f0-9]{16,32}')
     ->where('z', '[0-9]{1,2}')

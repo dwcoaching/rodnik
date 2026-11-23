@@ -40,8 +40,8 @@ slider, saved locally in the browser.
    the tiles that show them: 11 per changed pixel (one per zoom), up to 44 near a
    tile corner. The revision and every other tile stay as they are.
 4. **Map.** The browser reads `/source-tiles.json` every 60 seconds, shows the raster
-   layer through zoom 10 and the vector markers beyond. Without a build, or with the
-   "along route" filter on, it uses the vector overview instead.
+   layer through zoom 10 and the vector markers beyond. Without a build, or when a
+   type, reports-only or along-route filter is active, it uses the vector overview.
 
 ## Turning it on
 
@@ -105,9 +105,9 @@ page and can go with it; styles can then still be changed in
   `max-age=60` and `Last-Modified`, so browsers revalidate and get a 304 for tiles
   that did not change. A missing tile of the current revision is drawn and stored;
   a missing tile of an older revision is a 404. These endpoints start no session.
-- `types=0..63` selects source types and `reports=1` sources with visible reports.
-  Filtered tiles are drawn per request (`max-age=300`) and never stored, so the
-  number of filter combinations cannot fill the disk.
+- `/source-tiles/{z}/{x}/{y}.png` is the stable XYZ template for external maps.
+  Its uncached redirect follows the currently published revision while raster is
+  enabled. All public raster tiles include all source types.
 - Only the current and the previous revision's tiles are kept; older ones are
   deleted when a revision is published.
 - A map that is already open does not reload tiles when a source changes; it shows
