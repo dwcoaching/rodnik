@@ -51,9 +51,10 @@ beforeEach(function () {
 });
 
 test('a user-created source receives country and city before the response', function () {
-    $this->actingAs(User::factory()->create());
+    $user = User::factory()->create();
+    $this->actingAs($user);
 
-    $spring = app(PostSpringsAction::class)(['latitude' => 40.18, 'longitude' => 44.51]);
+    $spring = app(PostSpringsAction::class)($user, ['latitude' => 40.18, 'longitude' => 44.51]);
 
     expect($spring->fresh()->geoCountry->code)->toBe('AM')
         ->and($spring->fresh()->nearestCity->name)->toBe('Yerevan')

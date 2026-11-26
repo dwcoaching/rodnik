@@ -37,7 +37,6 @@ render(fn (View $view, DocsOverview $overview): View => $view->with($overview->d
             ])
             ->sortBy('label')
             ->values();
-        $showApi = auth()->check() && app()->isLocale('en');
         $cardClass = 'group relative rounded-xl border border-zinc-200 bg-white transition-colors hover:border-blue-300 hover:bg-blue-50/40';
         $cardLinkClass = 'text-zinc-900 transition-colors group-hover:text-blue-700 after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-blue-600';
     @endphp
@@ -118,7 +117,7 @@ render(fn (View $view, DocsOverview $overview): View => $view->with($overview->d
                 'title' => __('pages.docs.open_data.title'),
                 'description' => __('pages.docs.open_data.description'),
             ])
-            <div @class(['grid gap-3', '@2xl:grid-cols-3' => $showApi, '@2xl:grid-cols-2' => ! $showApi])>
+            <div class="grid gap-3 @2xl:grid-cols-3">
                 <article class="{{ $cardClass }} grid content-start gap-2 p-4">
                     <h3 class="font-semibold"><a href="{{ $docsPath('exports') }}" data-rodnik-navigate class="{{ $cardLinkClass }}">{{ __('pages.exports.title') }}</a></h3>
                     <p class="text-sm leading-6 text-zinc-600">{{ __('pages.docs.open_data.exports') }}</p>
@@ -143,12 +142,10 @@ render(fn (View $view, DocsOverview $overview): View => $view->with($overview->d
                         <span class="size-4 rounded-full border border-[#FF0000] bg-[#FF0000]/50"></span>
                     </div>
                 </article>
-                @if ($showApi)
-                    <article class="{{ $cardClass }} grid content-start gap-2 p-4">
-                        <h3 class="font-semibold"><a href="{{ route('docs.api') }}" data-rodnik-navigate class="{{ $cardLinkClass }}">{{ __('pages.docs.open_data.api') }}</a></h3>
-                        <p class="text-sm leading-6 text-zinc-600">{{ __('pages.docs.open_data.api_description') }}</p>
-                    </article>
-                @endif
+                <article class="{{ $cardClass }} grid content-start gap-2 p-4">
+                    <h3 class="font-semibold"><a href="{{ $docsPath('api') }}" data-rodnik-navigate class="{{ $cardLinkClass }}">{{ __('pages.docs.open_data.api') }}</a></h3>
+                    <p class="text-sm leading-6 text-zinc-600">{{ __('pages.docs.open_data.api_description') }}</p>
+                </article>
             </div>
         </section>
 

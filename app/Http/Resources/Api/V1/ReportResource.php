@@ -24,6 +24,7 @@ final class ReportResource extends JsonResource
         return [
             'id' => (int) $report->id,
             'spring_id' => (int) $report->spring_id,
+            'spring' => SpringSummaryResource::make($this->whenLoaded('spring')),
             'visited_at' => $report->visited_at?->format('Y-m-d'),
             'state' => $report->state?->value,
             'quality' => $report->quality?->value,

@@ -79,6 +79,24 @@ final class RouteServiceProvider extends ServiceProvider
             ];
         });
 
+        // Three accounts per hour per IP; failed attempts (typos, taken emails) only count
+        // towards the looser per-minute limit so people aren't locked out for an hour.
+        RateLimiter::for('api-register', function (Request $request) {
+            return [
+                Limit::perHour(3)->by('api-register:'.$request->ip())
+                    ->after(fn ($response): bool => $response->getStatusCode() === 201),
+                Limit::perMinute(10)->by('api-register-attempts:'.$request->ip()),
+            ];
+        });
+
+        RateLimiter::for('api-springs', function (Request $request) {
+            return Limit::perHour(30)->by('api-springs:'.(optional($request->user())->id ?: $request->ip()));
+        });
+
+        RateLimiter::for('api-reports', function (Request $request) {
+            return Limit::perHour(30)->by('api-reports:'.(optional($request->user())->id ?: $request->ip()));
+        });
+
         RateLimiter::for('api-token', function (Request $request) {
             return Limit::perMinute(5)->by(
                 Str::lower((string) $request->string('email')->transliterate()).'|'.$request->ip(),

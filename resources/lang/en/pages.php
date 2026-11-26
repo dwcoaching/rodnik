@@ -32,8 +32,8 @@ return [
             'title' => 'Open data',
             'description' => 'Everything users contribute is in the public domain. Use it in your own maps, apps and research.',
             'exports' => 'Daily exports of all public water sources in open formats.',
-            'api' => 'Mobile API',
-            'api_description' => 'Contract, authentication and examples for the Rodnik.today mobile app.',
+            'api' => 'API',
+            'api_description' => 'Open JSON API for apps and scripts: sources, reports, photos and accounts.',
         ],
         'locations' => [
             'nav' => 'Water sources by location',

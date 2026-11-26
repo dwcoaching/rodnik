@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Api\V1\Concerns\IssuesApiTokens;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreAuthTokenRequest;
-use App\Http\Resources\Api\V1\CurrentUserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -16,6 +16,8 @@ use Illuminate\Validation\ValidationException;
 
 final class AuthTokenController extends Controller
 {
+    use IssuesApiTokens;
+
     public function store(StoreAuthTokenRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -27,15 +29,7 @@ final class AuthTokenController extends Controller
             ]);
         }
 
-        $token = $user->createToken($validated['device_name'], ['*']);
-
-        return response()->json([
-            'data' => [
-                'token' => $token->plainTextToken,
-                'token_type' => 'Bearer',
-                'user' => (new CurrentUserResource($user))->resolve($request),
-            ],
-        ]);
+        return $this->tokenResponse($request, $user, $validated['device_name']);
     }
 
     public function destroy(Request $request): Response

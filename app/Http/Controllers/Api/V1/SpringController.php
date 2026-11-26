@@ -4,13 +4,31 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Springs\PostSpringsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\SpringResource;
 use App\Models\Spring;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 final class SpringController extends Controller
 {
+    public function store(Request $request, PostSpringsAction $postSprings): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user instanceof User) {
+            abort(401);
+        }
+
+        $spring = $postSprings($user, $request->only(['latitude', 'longitude', 'name', 'type']));
+        $spring->refresh()->load(['geoCountry', 'geoRegion', 'nearestCity']);
+
+        return (new SpringResource($spring))->response()->setStatusCode(201);
+    }
+
     public function show(Spring $spring): SpringResource|RedirectResponse
     {
         abort_if($spring->hidden_at !== null, 404);

@@ -48,6 +48,7 @@ final class SitemapController extends Controller
             '/docs/legend',
             '/docs/contact-us',
             '/docs/exports',
+            '/docs/api',
             '/docs/maps',
             '/docs/coll-de-sa-batalla',
         ];

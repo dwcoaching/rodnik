@@ -1,31 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Springs;
 
+use App\Jobs\SendSpringRevisionNotification;
+use App\Library\StatisticsService;
 use App\Models\Spring;
+use App\Models\SpringRevision;
 use App\Models\SpringTile;
+use App\Models\User;
+use App\Models\WateredSpringTile;
 use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
-use App\Rules\SpringTypeRule;
-use App\Models\SpringRevision;
-use App\Models\WateredSpringTile;
-use App\Library\StatisticsService;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Validator;
-use App\Jobs\SendSpringRevisionNotification;
+use Illuminate\Validation\Rule;
 
-class PostSpringsAction
+final class PostSpringsAction
 {
-    public function __invoke($attributes)
+    /**
+     * @param  array<string, mixed>  $attributes  latitude and longitude, optionally name and type
+     */
+    public function __invoke(User $user, array $attributes): Spring
     {
-        $this->authorize();
-        $this->validate($attributes);
+        $this->authorize($user);
 
-        return $this->execute($attributes);
+        return $this->execute($user, $this->validate($attributes));
     }
 
-    public function execute($attributes): Spring
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function execute(User $user, array $attributes): Spring
     {
         $spring = new Spring();
         $revision = new SpringRevision();
@@ -38,8 +45,18 @@ class PostSpringsAction
         $revision->new_longitude = $attributes['longitude'];
         $spring->longitude = $attributes['longitude'];
 
+        if (($attributes['name'] ?? null) !== null) {
+            $revision->new_name = $attributes['name'];
+            $spring->name = $attributes['name'];
+        }
+
+        if (($attributes['type'] ?? null) !== null) {
+            $revision->new_type = $attributes['type'];
+            $spring->type = $attributes['type'];
+        }
+
         $spring->save();
-        $revision->user_id = Auth::user()->id;
+        $revision->user_id = $user->id;
         $revision->spring_id = $spring->id;
         $revision->revision_type = 'user';
         $revision->save();
@@ -50,23 +67,35 @@ class PostSpringsAction
         StatisticsService::invalidateReportsCount();
         StatisticsService::invalidateSpringsCount();
 
-        Auth::user()->updateRating();
+        $user->updateRating();
 
         SendSpringRevisionNotification::dispatch($revision);
 
         return $spring;
     }
 
-    public function authorize(): void
+    public function authorize(User $user): void
     {
-        Gate::authorize('create', Spring::class);
+        Gate::forUser($user)->authorize('create', Spring::class);
     }
 
-    public function validate($attributes): void
+    /**
+     * @param  array<string, mixed>  $attributes
+     * @return array<string, mixed>
+     */
+    public function validate(array $attributes): array
     {
-        Validator::make($attributes, [
-            'latitude' => [new LatitudeRule],
-            'longitude' => [new LongitudeRule],
+        return Validator::make($attributes, [
+            'latitude' => ['required', 'numeric', new LatitudeRule],
+            'longitude' => ['required', 'numeric', new LongitudeRule],
+            'name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'type' => ['sometimes', 'nullable', 'string', Rule::in(Spring::TYPES)],
+        ], [
+            'latitude.required' => __('ui.validation.invalid_coordinates'),
+            'latitude.numeric' => __('ui.validation.invalid_coordinates'),
+            'longitude.required' => __('ui.validation.invalid_coordinates'),
+            'longitude.numeric' => __('ui.validation.invalid_coordinates'),
+            'type.in' => __('ui.validation.select_water_source_type'),
         ])->validate();
     }
 }

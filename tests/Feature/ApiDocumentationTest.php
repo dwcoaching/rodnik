@@ -2,16 +2,18 @@
 
 declare(strict_types=1);
 
-use App\Models\User;
 use Dom\HTMLDocument;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('guests do not see the api documentation menu item', function () {
+test('guests see the api documentation menu item in both languages', function () {
     $this->get('/docs/about')
         ->assertOk()
-        ->assertDontSee(route('docs.api'));
+        ->assertSee('href="/docs/api"', false);
+    $this->get('/ru/docs/about')
+        ->assertOk()
+        ->assertSee('href="/ru/docs/api"', false);
 });
 
 test('documentation navigation exposes localized accessible menu controls and the current page', function (string $prefix, string $navigationLabel, string $closeLabel) {
@@ -46,27 +48,19 @@ test('documentation navigation exposes localized accessible menu controls and th
     'Russian' => ['/ru', 'Навигация', 'Закрыть'],
 ]);
 
-test('guests are redirected away from the api documentation', function () {
-    $this->get('/docs/api')->assertRedirect('/login');
-});
-
-test('any authenticated user can see the api documentation and its menu item', function () {
-    $user = User::factory()->create(['is_admin' => false]);
-
-    $this->actingAs($user)
-        ->get('/docs/about')
+test('the api documentation is public, indexable and lists every endpoint', function () {
+    $this->get('/docs/api')
         ->assertOk()
-        ->assertSee(route('docs.api'));
-
-    $this->actingAs($user)
-        ->get('/docs/api')
-        ->assertOk()
-        ->assertSee('Rodnik.today Mobile API v1')
-        ->assertSee('POST')
+        ->assertSee('Rodnik.today API v1')
+        ->assertSee('/auth/register')
         ->assertSee('/auth/token')
         ->assertSee('/springs/{spring}')
+        ->assertSee('/users/{user}/reports')
         ->assertSee('/reports/{report}/photos')
         ->assertSee('/photos/{photo}')
+        ->assertSee('POST /springs')
+        ->assertSee('Delete the account')
+        ->assertSee('Rate limits')
         ->assertSee('Recommended save workflow')
         ->assertSee('Create the report before uploading photos')
         ->assertSee('Persist the returned report ID')
@@ -76,6 +70,29 @@ test('any authenticated user can see the api documentation and its menu item', f
         ->assertSee('do not retry it blindly')
         ->assertSee('Retry-After')
         ->assertSee('API client best practices')
+        ->assertSee('<code>Water tap</code>', false)
+        ->assertDontSee('/areas/')
         ->assertDontSee('water_confirmed')
-        ->assertSee('noindex, nofollow', false);
+        ->assertDontSee('api.')
+        ->assertDontSee('noindex, nofollow', false);
+});
+
+test('the api documentation has a russian version with the same structure', function () {
+    $english = $this->get('/docs/api')->assertOk();
+    $russian = $this->get('/ru/docs/api')
+        ->assertOk()
+        ->assertSee('API Rodnik.today v1')
+        ->assertSee('Регистрация')
+        ->assertSee('Добавить источник')
+        ->assertSee('Отчёты пользователя')
+        ->assertSee('Удалить аккаунт')
+        ->assertSee('/users/{user}/reports')
+        ->assertDontSee('api.');
+
+    $headings = fn ($response): array => collect(HTMLDocument::createFromString($response->getContent(), LIBXML_NOERROR)
+        ->querySelectorAll('article h2[id], article h3[id]'))
+        ->map(fn ($heading): string => $heading->getAttribute('id'))
+        ->all();
+
+    expect($headings($russian))->toBe($headings($english))->not->toBeEmpty();
 });

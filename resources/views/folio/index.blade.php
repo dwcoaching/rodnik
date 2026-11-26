@@ -116,15 +116,11 @@
                       aria-current="page"
                     @endif
                   >🦜&nbsp; {{ __('pages.exports.title') }}</a></li>
-                  @auth
-                      @if (app()->isLocale('en'))
-                          <li><a data-rodnik-navigate href="{{ route('docs.api') }}"
-                            @if (Request::is('docs/api'))
-                              aria-current="page"
-                            @endif
-                          >🔌&nbsp; API</a></li>
-                      @endif
-                  @endauth
+                  <li><a data-rodnik-navigate href="{{ localized_public_path('/docs/api') }}"
+                    @if (Request::is('docs/api', 'ru/docs/api'))
+                      aria-current="page"
+                    @endif
+                  >🔌&nbsp; API</a></li>
                   {{--@auth
                     @can('admin')--}}
                   @if (app()->isLocale('en'))

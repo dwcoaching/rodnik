@@ -1,126 +1,130 @@
 <?php
 
-use function Laravel\Folio\{middleware, name};
+use function Laravel\Folio\name;
 
-middleware(['auth']);
 name('docs.api');
 
 ?>
 
+{{-- Shared by /docs/api and /ru/docs/api; text lives in resources/lang/{en,ru}/api.php. --}}
+
 @extends('folio.index')
 
-@section('title', 'Mobile API — Rodnik.today')
-@section('description', 'Rodnik.today mobile API v1 contract, authentication, resources, examples, and errors.')
+@section('title', __('api.title').' — Rodnik.today')
+@section('description', __('api.seo_description'))
 
 @section('content')
-    @php($apiBaseUrl = rtrim(config('app.url'), '/').'/api/v1')
+    @php
+        $apiBaseUrl = rtrim(config('app.url'), '/').'/api/v1';
+        $siteUrl = rtrim(config('app.url'), '/');
+        $endpoints = [
+            ['POST', '/auth/register', 'no', '201'],
+            ['POST', '/auth/token', 'no', '200'],
+            ['DELETE', '/auth/token', 'required', '204'],
+            ['GET', '/me', 'required', '200'],
+            ['DELETE', '/me', 'required', '204'],
+            ['GET', '/springs/{spring}', 'no', '200'],
+            ['POST', '/springs', 'required', '201'],
+            ['GET', '/users/{user}/reports', 'optional', '200'],
+            ['POST', '/reports', 'required', '201'],
+            ['PATCH', '/reports/{report}', 'owner', '200'],
+            ['DELETE', '/reports/{report}', 'owner', '204'],
+            ['POST', '/reports/{report}/photos', 'owner', '201'],
+            ['DELETE', '/photos/{photo}', 'owner', '204'],
+        ];
+    @endphp
 
     <article class="prose max-w-4xl break-words prose-pre:max-w-full prose-pre:overflow-x-auto">
-        <h1>Rodnik.today Mobile API v1</h1>
-        <p>
-            This page is the authoritative contract for the first-party Rodnik.today mobile application.
-            The API uses JSON, Laravel API Resources, and Sanctum bearer tokens.
-        </p>
+        <h1>{{ __('api.heading') }}</h1>
+        <p>{{ __('api.lead') }}</p>
 
-        <h2 id="contract">Contract summary</h2>
+        <h2 id="contract">{{ __('api.contract.title') }}</h2>
         <ul>
-            <li><strong>Base URL:</strong> <code>{{ $apiBaseUrl }}</code></li>
-            <li><strong>Success envelope:</strong> a top-level <code>data</code> property, except for <code>204 No Content</code>.</li>
-            <li><strong>Dates:</strong> <code>YYYY-MM-DD</code>. Timestamps use ISO 8601 in UTC.</li>
-            <li><strong>Authentication:</strong> <code>Authorization: Bearer TOKEN</code>.</li>
-            <li><strong>Token lifetime:</strong> tokens do not expire automatically; logout revokes the current token.</li>
-            <li><strong>Content type:</strong> send <code>Accept: application/json</code>; send <code>Content-Type: application/json</code> for JSON bodies.</li>
+            <li>{!! __('api.contract.base_url') !!} <code>{{ $apiBaseUrl }}</code></li>
+            <li>{!! __('api.contract.envelope') !!}</li>
+            <li>{!! __('api.contract.dates') !!}</li>
+            <li>{!! __('api.contract.auth') !!}</li>
+            <li>{!! __('api.contract.lifetime') !!}</li>
+            <li>{!! __('api.contract.content_type') !!}</li>
+            <li>{!! __('api.contract.cors') !!}</li>
+            <li>{!! __('api.contract.license', ['about' => e(localized_public_path('/docs/about'))]) !!}</li>
         </ul>
 
-        <h2 id="endpoints">Endpoints</h2>
+        <h2 id="endpoints">{{ __('api.endpoints.title') }}</h2>
         <div class="overflow-x-auto">
             <table>
                 <thead>
-                    <tr><th>Method</th><th>Path</th><th>Authentication</th><th>Success</th></tr>
+                    <tr><th>{{ __('api.endpoints.method') }}</th><th>{{ __('api.endpoints.path') }}</th><th>{{ __('api.endpoints.auth') }}</th><th>{{ __('api.endpoints.success') }}</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td><code>POST</code></td><td><code>/auth/token</code></td><td>No</td><td><code>200</code></td></tr>
-                    <tr><td><code>DELETE</code></td><td><code>/auth/token</code></td><td>Required</td><td><code>204</code></td></tr>
-                    <tr><td><code>GET</code></td><td><code>/me</code></td><td>Required</td><td><code>200</code></td></tr>
-                    <tr><td><code>GET</code></td><td><code>/springs/{spring}</code></td><td>No</td><td><code>200</code></td></tr>
-                    <tr><td><code>POST</code></td><td><code>/reports</code></td><td>Required</td><td><code>201</code></td></tr>
-                    <tr><td><code>PATCH</code></td><td><code>/reports/{report}</code></td><td>Owner</td><td><code>200</code></td></tr>
-                    <tr><td><code>DELETE</code></td><td><code>/reports/{report}</code></td><td>Owner</td><td><code>204</code></td></tr>
-                    <tr><td><code>POST</code></td><td><code>/reports/{report}/photos</code></td><td>Owner</td><td><code>201</code></td></tr>
-                    <tr><td><code>DELETE</code></td><td><code>/photos/{photo}</code></td><td>Owner</td><td><code>204</code></td></tr>
+                    @foreach ($endpoints as [$method, $path, $auth, $status])
+                        <tr><td><code>{{ $method }}</code></td><td><code>{{ $path }}</code></td><td>{{ __('api.endpoints.'.$auth) }}</td><td><code>{{ $status }}</code></td></tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
 
-        <h2 id="recommended-save-workflow">Recommended save workflow</h2>
-        <p>
-            Create the report before uploading photos. A report is the owning server resource; photos cannot exist in the mobile API without its ID.
-            Keep the form and selected images as a local draft until the report request succeeds.
-        </p>
-        <ol>
-            <li>
-                <strong>Prepare a local draft.</strong>
-                Store the report fields and local image references on the device. Do not upload temporary photos and do not include images in <code>POST /reports</code>.
-            </li>
-            <li>
-                <strong>Create the report.</strong>
-                Send <code>POST /reports</code> as JSON. Disable duplicate submit actions while this request is in progress.
-            </li>
-            <li>
-                <strong>Persist the returned report ID.</strong>
-                After <code>201 Created</code>, immediately save <code>data.id</code> in the local draft before starting any upload.
-                From this point onward, resume the existing server report; do not create another report when a photo fails.
-            </li>
-            <li>
-                <strong>Upload photos sequentially in the desired display order.</strong>
-                Send one multipart request to <code>POST /reports/{report}/photos</code> at a time.
-                The server assigns photo order by successful arrival, so parallel uploads may produce a different order.
-            </li>
-            <li>
-                <strong>Persist each returned photo ID.</strong>
-                Mark a local image as uploaded only after its <code>201 Created</code> response and store <code>data.id</code> for deletion or reconciliation.
-            </li>
-            <li>
-                <strong>Complete and refresh.</strong>
-                When no local photos remain pending, request <code>GET /springs/{spring}</code> and replace local server-derived data with the response.
-            </li>
-        </ol>
-
-        <h3 id="client-state-model">Client state model</h3>
+        <h2 id="rate-limits">{{ __('api.rate_limits.title') }}</h2>
+        <p>{!! __('api.rate_limits.intro') !!}</p>
         <div class="overflow-x-auto">
             <table>
-                <thead><tr><th>State</th><th>Stored locally</th><th>Next action</th></tr></thead>
+                <thead><tr><th>{{ __('api.rate_limits.endpoint') }}</th><th>{{ __('api.rate_limits.limit') }}</th></tr></thead>
                 <tbody>
-                    <tr><td><code>local_draft</code></td><td>Fields and local image references</td><td><code>POST /reports</code></td></tr>
-                    <tr><td><code>report_created</code></td><td>Report ID and pending images</td><td>Upload the first pending photo</td></tr>
-                    <tr><td><code>uploading_photos</code></td><td>Report ID, uploaded photo IDs, pending images</td><td>Continue sequential uploads</td></tr>
-                    <tr><td><code>needs_attention</code></td><td>All identifiers and the last error</td><td>Correct, reconcile, or retry</td></tr>
-                    <tr><td><code>complete</code></td><td>Report ID and photo IDs</td><td>Refresh the spring and clear temporary files</td></tr>
+                    <tr><td>{{ __('api.rate_limits.general') }}</td><td>{{ __('api.rate_limits.general_limit') }}</td></tr>
+                    <tr><td><code>POST /auth/token</code></td><td>{{ __('api.rate_limits.token_limit') }}</td></tr>
+                    <tr><td><code>POST /auth/register</code></td><td>{{ __('api.rate_limits.register_limit') }}</td></tr>
+                    <tr><td><code>POST /springs</code></td><td>{{ __('api.rate_limits.springs_limit') }}</td></tr>
+                    <tr><td><code>POST /reports</code></td><td>{{ __('api.rate_limits.reports_limit') }}</td></tr>
                 </tbody>
             </table>
         </div>
-        <p>
-            Persist this state across app restarts. If the app closes after the report is created, resume photo uploads using the saved report ID.
-            If the user cancels after creation, call <code>DELETE /reports/{report}</code> to hide the incomplete report.
-        </p>
 
-        <h3 id="partial-success">Partial success and recovery</h3>
+        <h2 id="recommended-save-workflow">{{ __('api.workflow.title') }}</h2>
+        <p>{{ __('api.workflow.intro') }}</p>
+        <ol>
+            @foreach (__('api.workflow.steps') as $step)
+                <li>{!! $step !!}</li>
+            @endforeach
+        </ol>
+
+        <h3 id="client-state-model">{{ __('api.workflow.state_title') }}</h3>
+        <div class="overflow-x-auto">
+            <table>
+                <thead><tr><th>{{ __('api.workflow.state') }}</th><th>{{ __('api.workflow.stored') }}</th><th>{{ __('api.workflow.next') }}</th></tr></thead>
+                <tbody>
+                    @foreach (__('api.workflow.states') as $state => [$stored, $next])
+                        <tr><td><code>{{ $state }}</code></td><td>{{ $stored }}</td><td>{!! $next !!}</td></tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <p>{!! __('api.workflow.state_note') !!}</p>
+
+        <h3 id="partial-success">{{ __('api.workflow.recovery_title') }}</h3>
         <ul>
-            <li>A failed report request leaves the local draft unchanged.</li>
-            <li>A failed photo request does not roll back the report or photos that were already uploaded.</li>
-            <li>For <code>422</code>, correct the indicated fields or image; repeating the same request will fail again.</li>
-            <li>For <code>401</code>, stop the queue, remove the rejected local token, and ask the user to log in again.</li>
-            <li>For <code>403</code> or <code>404</code>, stop automatic retries and refresh the spring because ownership or visibility may have changed.</li>
-            <li>For <code>429</code>, honor the <code>Retry-After</code> header before continuing the queue.</li>
-            <li>For an offline error, retain the draft and pending queue and resume when connectivity returns.</li>
+            @foreach (__('api.workflow.recovery') as $item)
+                <li>{!! $item !!}</li>
+            @endforeach
         </ul>
-        <p>
-            Version 1 has no idempotency key. If a connection drops after a <code>POST</code> may have reached the server, do not retry it blindly.
-            First refresh <code>GET /springs/{spring}</code> and reconcile the report or photo with server state; otherwise a retry may create a duplicate.
-        </p>
+        <p>{!! __('api.workflow.idempotency') !!}</p>
 
-        <h2 id="authentication">Authentication</h2>
-        <h3 id="create-token">Create a token</h3>
+        <h2 id="authentication">{{ __('api.auth.title') }}</h2>
+
+        <h3 id="register">{{ __('api.auth.register_title') }}</h3>
+        <pre><code>curl -X POST '{{ $apiBaseUrl }}/auth/register' \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Example User",
+    "email": "user@example.com",
+    "password": "example-password",
+    "device_name": "Example phone",
+    "locale": "en"
+  }'</code></pre>
+        <p>{!! __('api.auth.register_intro') !!}</p>
+        <p>{!! __('api.auth.register_response') !!}</p>
+
+        <h3 id="create-token">{{ __('api.auth.token_title') }}</h3>
         <pre><code>curl -X POST '{{ $apiBaseUrl }}/auth/token' \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
@@ -143,26 +147,33 @@ name('docs.api');
     }
   }
 }</code></pre>
-        <p>Store the token in the operating system Keychain or Keystore. Never log it or place it in a URL.</p>
+        <p>{{ __('api.auth.token_storage') }}</p>
 
-        <h3 id="current-user">Current user</h3>
+        <h3 id="current-user">{{ __('api.auth.me_title') }}</h3>
         <pre><code>curl '{{ $apiBaseUrl }}/me' \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer TOKEN'</code></pre>
-        <p>The response is the same user object under <code>data</code>.</p>
+        <p>{!! __('api.auth.me_note') !!}</p>
 
-        <h3 id="revoke-token">Revoke the current token</h3>
+        <h3 id="revoke-token">{{ __('api.auth.revoke_title') }}</h3>
         <pre><code>curl -X DELETE '{{ $apiBaseUrl }}/auth/token' \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer TOKEN'</code></pre>
-        <p>This revokes only the token used by the request. Other devices remain signed in.</p>
+        <p>{{ __('api.auth.revoke_note') }}</p>
 
-        <h2 id="spring">Get a spring</h2>
+        <h3 id="delete-account">{{ __('api.auth.delete_title') }}</h3>
+        <pre><code>curl -X DELETE '{{ $apiBaseUrl }}/me' \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer TOKEN' \
+  -d '{"password": "example-password"}'</code></pre>
+        <p>{!! __('api.auth.delete_note') !!}</p>
+
+        <h2 id="spring">{{ __('api.spring.title') }}</h2>
+
+        <h3 id="get-spring">{{ __('api.spring.show_title') }}</h3>
         <pre><code>GET /springs/{spring}</code></pre>
-        <p>
-            This public endpoint returns the spring, all visible user reports, and each report's photos in one request.
-            Hidden and OpenStreetMap-imported reports are omitted. Reports are newest first by visit date; photos use their saved order.
-        </p>
+        <p>{{ __('api.spring.show_intro') }}</p>
         <pre><code>{
   "data": {
     "id": 123,
@@ -204,22 +215,68 @@ name('docs.api');
     ]
   }
 }</code></pre>
-        <p>
-            <code>state</code> is <code>running</code>, <code>dripping</code>, <code>dry</code>, <code>notfound</code>, or <code>null</code>.
-            <code>quality</code> is <code>good</code>, <code>uncertain</code>, <code>bad</code>, or <code>null</code>.
-            Historical anonymous reports have <code>author: null</code>.
-        </p>
-        <p>A hidden spring returns <code>404</code>. A merged spring returns <code>308</code> with a <code>Location</code> header for the canonical spring.</p>
+        <p>{!! __('api.spring.enums') !!}</p>
+        <p>{!! __('api.spring.hidden') !!}</p>
 
-        <h3 id="map-discovery">Map discovery</h3>
-        <p>
-            The mobile map may reuse the public vector-style JSON tile feed at
-            <code>{{ rtrim(config('app.url'), '/') }}/tiles/{z}/{x}/{y}.json</code>, then request this spring endpoint when a user selects a point.
-            There is no separate paginated spring-list endpoint in v1.
-        </p>
+        <h3 id="create-spring">{{ __('api.spring.create_title') }}</h3>
+        <pre><code>curl -X POST '{{ $apiBaseUrl }}/springs' \
+  -H 'Accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer TOKEN' \
+  -d '{
+    "latitude": 55.7558,
+    "longitude": 37.6173,
+    "name": "Forest spring",
+    "type": "Spring"
+  }'</code></pre>
+        <p>{!! __('api.spring.create_intro') !!} {!! collect(\App\Models\Spring::TYPES)->map(fn (string $type): string => '<code>'.e($type).'</code>')->implode(', ') !!}.</p>
+        <p>{!! __('api.spring.create_response') !!}</p>
+        <p>{{ __('api.spring.create_duplicates') }}</p>
 
-        <h2 id="reports">Reports</h2>
-        <h3 id="create-report">Create</h3>
+        <h3 id="map-discovery">{{ __('api.spring.map_title') }}</h3>
+        <p>{!! __('api.spring.map', ['tiles' => e($siteUrl.'/tiles/{z}/{x}/{y}.json')]) !!}</p>
+
+        <h2 id="reports">{{ __('api.reports.title') }}</h2>
+
+        <h3 id="user-reports">{{ __('api.reports.list_title') }}</h3>
+        <pre><code>curl '{{ $apiBaseUrl }}/users/42/reports?page=1' \
+  -H 'Accept: application/json'</code></pre>
+        <pre><code>{
+  "data": [
+    {
+      "id": 456,
+      "spring_id": 123,
+      "spring": {
+        "id": 123,
+        "name": "Forest spring",
+        "type": "Spring",
+        "latitude": 55.7558,
+        "longitude": 37.6173
+      },
+      "visited_at": "2026-08-15",
+      "state": "running",
+      "quality": "good",
+      "...": "the same report fields as above",
+      "photos": []
+    }
+  ],
+  "links": {
+    "first": "{{ $apiBaseUrl }}/users/42/reports?page=1",
+    "last": "{{ $apiBaseUrl }}/users/42/reports?page=3",
+    "prev": null,
+    "next": "{{ $apiBaseUrl }}/users/42/reports?page=2"
+  },
+  "meta": {
+    "current_page": 1,
+    "last_page": 3,
+    "per_page": 50,
+    "total": 128
+  }
+}</code></pre>
+        <p>{!! __('api.reports.list_intro') !!}</p>
+        <p>{!! __('api.reports.list_hidden') !!}</p>
+
+        <h3 id="create-report">{{ __('api.reports.create_title') }}</h3>
         <pre><code>curl -X POST '{{ $apiBaseUrl }}/reports' \
   -H 'Accept: application/json' \
   -H 'Content-Type: application/json' \
@@ -235,58 +292,43 @@ name('docs.api');
     "broken": false,
     "comment": "Clear and flowing."
   }'</code></pre>
-        <p>The <code>201</code> response contains the created report under <code>data</code>, initially with <code>photos: []</code>.</p>
+        <p>{!! __('api.reports.create_response') !!}</p>
 
-        <h3 id="update-report">Update</h3>
+        <h3 id="update-report">{{ __('api.reports.update_title') }}</h3>
         <pre><code>PATCH /reports/{report}</code></pre>
-        <p>
-            Send any subset of <code>visited_at</code>, <code>timezone</code>, <code>state</code>, <code>quality</code>,
-            <code>access_limited</code>, <code>littered</code>, <code>broken</code>, and <code>comment</code>.
-            Ownership, spring, visibility, and OpenStreetMap fields cannot be changed.
-        </p>
+        <p>{!! __('api.reports.update') !!}</p>
 
-        <h3 id="delete-report">Hide</h3>
+        <h3 id="delete-report">{{ __('api.reports.delete_title') }}</h3>
         <pre><code>DELETE /reports/{report}</code></pre>
-        <p>
-            Deleting a report is a soft hide. The report and photos are retained but disappear from public spring responses.
-            Repeating the request is safe and returns <code>204</code>.
-        </p>
+        <p>{!! __('api.reports.delete') !!}</p>
 
-        <h3 id="normalization">Normalization</h3>
+        <h3 id="normalization">{{ __('api.reports.normalization_title') }}</h3>
         <ul>
-            <li><code>dry</code> and <code>notfound</code> always clear <code>quality</code>.</li>
-            <li><code>notfound</code> also clears <code>access_limited</code>, <code>littered</code>, and <code>broken</code>.</li>
-            <li><code>visited_at</code> cannot be later than the current date in the supplied IANA <code>timezone</code>.</li>
+            @foreach (__('api.reports.normalization') as $item)
+                <li>{!! $item !!}</li>
+            @endforeach
         </ul>
 
-        <h2 id="photos">Photos</h2>
-        <p>
-            Follow the <a href="#recommended-save-workflow">recommended save workflow</a>: create the report first, persist its ID,
-            then upload each photo separately and sequentially. This provides independent progress and recovery without temporary server uploads.
-        </p>
+        <h2 id="photos">{{ __('api.photos.title') }}</h2>
+        <p>{!! __('api.photos.intro') !!}</p>
         <pre><code>curl -X POST '{{ $apiBaseUrl }}/reports/456/photos' \
   -H 'Accept: application/json' \
   -H 'Authorization: Bearer TOKEN' \
   -F 'photo=@spring.jpg' \
   -F 'latitude=55.7558' \
   -F 'longitude=37.6173'</code></pre>
-        <p>
-            One JPEG, PNG, or WebP image is accepted per request, up to 10 MB. It is oriented, resized to fit within 1280 × 1280,
-            converted to JPEG, attached immediately, and returned under <code>data</code> with <code>id</code>, <code>url</code>, <code>width</code>, and <code>height</code>.
-        </p>
+        <p>{!! __('api.photos.upload') !!}</p>
         <pre><code>DELETE /photos/{photo}</code></pre>
-        <p>Photo deletion removes both the database record and stored file. Only the report owner may upload or delete its photos.</p>
+        <p>{{ __('api.photos.delete') }}</p>
 
-        <h2 id="errors">Errors</h2>
+        <h2 id="errors">{{ __('api.errors.title') }}</h2>
         <div class="overflow-x-auto">
             <table>
-                <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+                <thead><tr><th>{{ __('api.errors.status') }}</th><th>{{ __('api.errors.meaning') }}</th></tr></thead>
                 <tbody>
-                    <tr><td><code>401</code></td><td>Bearer token is missing, invalid, or revoked.</td></tr>
-                    <tr><td><code>403</code></td><td>The authenticated user does not own the report or photo.</td></tr>
-                    <tr><td><code>404</code></td><td>The resource does not exist or is not publicly available.</td></tr>
-                    <tr><td><code>422</code></td><td>Validation or credentials failed.</td></tr>
-                    <tr><td><code>429</code></td><td>The request rate limit was exceeded.</td></tr>
+                    @foreach (__('api.errors.codes') as $code => $meaning)
+                        <tr><td><code>{{ $code }}</code></td><td>{{ $meaning }}</td></tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -296,19 +338,13 @@ name('docs.api');
     "visited_at": ["The visit date cannot be in the future."]
   }
 }</code></pre>
-        <p>Clients should use the HTTP status and field keys, not parse human-readable message text.</p>
+        <p>{{ __('api.errors.note') }}</p>
 
-        <h2 id="client-best-practices">API client best practices</h2>
+        <h2 id="client-best-practices">{{ __('api.practices.title') }}</h2>
         <ul>
-            <li><strong>Secure tokens:</strong> keep tokens only in Keychain or Keystore, never application logs, analytics, URLs, or ordinary preferences.</li>
-            <li><strong>One token per installation:</strong> use a recognizable <code>device_name</code>; revoke the current token during logout before deleting it locally.</li>
-            <li><strong>Explicit JSON:</strong> always send <code>Accept: application/json</code> and use the HTTP status plus stable field keys for decisions.</li>
-            <li><strong>Server authority:</strong> after a successful mutation, use the returned resource and later spring response instead of assuming the server stored the submitted values unchanged.</li>
-            <li><strong>Normalization:</strong> expect the server to clear incompatible quality and problem fields for <code>dry</code> and <code>notfound</code>.</li>
-            <li><strong>Dates:</strong> send the user's current IANA timezone with <code>visited_at</code> so date validation follows the user's local day.</li>
-            <li><strong>Images:</strong> resize or compress large images before upload to reduce mobile bandwidth, but still handle server-side conversion and returned dimensions.</li>
-            <li><strong>Local cleanup:</strong> delete temporary local image copies only after their photo IDs have been persisted or the user deliberately discards the draft.</li>
-            <li><strong>Redirects:</strong> when a spring response is <code>308</code>, persist and use the canonical spring ID from the <code>Location</code> URL.</li>
+            @foreach (__('api.practices.items') as $item)
+                <li>{!! str_replace(':exports', e(localized_public_path('/docs/exports')), $item) !!}</li>
+            @endforeach
         </ul>
     </article>
 @endsection

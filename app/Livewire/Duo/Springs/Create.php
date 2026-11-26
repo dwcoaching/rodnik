@@ -7,8 +7,10 @@ namespace App\Livewire\Duo\Springs;
 use App\Actions\Springs\PatchSpringsLocationAction;
 use App\Actions\Springs\PostSpringsAction;
 use App\Models\Spring;
+use App\Models\User;
 use App\Rules\LatitudeRule;
 use App\Rules\LongitudeRule;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Reactive;
 use Livewire\Component;
 
@@ -51,7 +53,10 @@ final class Create extends Component
 
     public function create(PostSpringsAction $postSprings)
     {
-        $spring = $postSprings([
+        $user = Auth::user();
+        abort_unless($user instanceof User, 403);
+
+        $spring = $postSprings($user, [
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
         ]);

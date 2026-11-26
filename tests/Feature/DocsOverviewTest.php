@@ -223,16 +223,13 @@ test('the scheduled refresh recomputes the docs overview so visitors never wait 
             && $event->expression === '*/5 * * * *'))->toBeTrue();
 });
 
-test('the docs overview shows the mobile API only to signed-in English readers', function () {
-    $user = User::factory()->create();
-
-    $this->get('/docs')->assertOk()->assertDontSee('Mobile API');
-    $this->actingAs($user)->get('/docs')->assertOk()
-        ->assertSee('Mobile API')
-        ->assertSee('href="'.url('/docs/api').'"', false);
-    $this->actingAs($user)->get('/ru/docs')->assertOk()
-        ->assertDontSee('Мобильный API')
-        ->assertDontSee('href="'.url('/docs/api').'"', false);
+test('the docs overview links to the API for everyone in both languages', function () {
+    $this->get('/docs')->assertOk()
+        ->assertSee('Open JSON API')
+        ->assertSee('href="/docs/api"', false);
+    $this->get('/ru/docs')->assertOk()
+        ->assertSee('Открытый JSON API')
+        ->assertSee('href="/ru/docs/api"', false);
 });
 
 test('the docs overview has empty states before anything is published', function (string $prefix, array $messages) {
